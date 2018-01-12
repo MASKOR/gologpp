@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <set>
-#include <initializer_list>
 #include <memory>
 
 #include "gologpp.h"
@@ -12,26 +11,30 @@
 #include "EffectAxiom.h"
 #include "error.h"
 #include "Formula.h"
-#include "Execution.h"
+#include "Translation.h"
+#include "atoms.h"
 
 namespace gologpp {
 
 using namespace std;
 
 
-class Action : public enable_shared_from_this<Action>, public LanguageElement, public NameWithArity<Action> {
+class Action : public enable_shared_from_this<Action>, public NameWithArity, public Scope, public Expression {
 public:
-	Action(const string &name, arity_t arity, unique_ptr<PrecondAxiom> &&precondition, unique_ptr<EffectAxiom> &&effect);
+	Action(const string &name, const vector<string> &args,
+	       unique_ptr<Expression> &&precondition, unique_ptr<EffectAxiom> &&effect);
+	Action(Action &&other);
 
 	virtual ~Action() = default;
 
-	const PrecondAxiom &precondition() const;
+	const Expression &precondition() const;
 	const EffectAxiom &effect() const;
 
-private:
-	unique_ptr<PrecondAxiom> precondition_;
+protected:
+	unique_ptr<Expression> precondition_;
 	unique_ptr<EffectAxiom> effect_;
 };
+
 
 
 class Transition {

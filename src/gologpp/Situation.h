@@ -10,7 +10,7 @@ namespace gologpp {
 
 using namespace std;
 
-class Situation : public LanguageElement {
+class Situation {
 public:
 	Situation();
 

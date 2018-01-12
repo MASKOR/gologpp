@@ -2,8 +2,9 @@
 
 namespace gologpp {
 
-Fluent::Fluent(const string &name, arity_t arity)
-: NameWithArity<gologpp::Fluent>(name, arity)
+Fluent::Fluent(const string &name, const vector<string> &args)
+: Atom(Scope::global_scope())
+, NameWithArity(name, static_cast<arity_t>(args.size()))
 {}
 
 

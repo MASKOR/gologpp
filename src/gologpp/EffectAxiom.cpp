@@ -1,15 +1,4 @@
-/*
- * SuccessorStateAxiom.cpp
- *
- *  Created on: 08.04.2016
- *      Author: vmatare
- */
-
 #include "EffectAxiom.h"
-
-#include "error.h"
-
-#include <iostream>
 
 namespace gologpp {
 

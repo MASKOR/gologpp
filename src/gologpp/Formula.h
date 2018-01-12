@@ -1,10 +1,10 @@
 #ifndef FORMULA_H
 #define FORMULA_H
 
+#include "atoms.h"
+
 #include <vector>
 #include <memory>
-
-#include "Execution.h"
 
 
 namespace gologpp {
@@ -12,34 +12,9 @@ namespace gologpp {
 using namespace std;
 
 
-class Value;
-
-
-class Expression : public LanguageElement, public enable_shared_from_this<Expression> {
-public:
-	virtual ~Expression();
-
-//	virtual unique_ptr<Value> value() const = 0;
-};
-
-
-class Atom : public Expression {
-};
-
-
-class Variable : public Atom {
-};
-
-
-class Value : public Atom {
-public:
-	virtual size_t hash() const;
-};
-
-
 class Negation : public Expression {
 public:
-	Negation(const shared_ptr<Expression> &expression);
+	Negation(const shared_ptr<Expression> &expression, InScope &parent_expr);
 
 protected:
 	const shared_ptr<Expression> expression_;
@@ -53,7 +28,7 @@ enum ComparisonOperator {
 
 class Comparison : public Expression {
 public:
-	Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const shared_ptr<Atom> &rhs);
+	Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const shared_ptr<Atom> &rhs, InScope &parent_expr);
 
 protected:
 	const shared_ptr<Atom> lhs_;
@@ -69,7 +44,7 @@ protected:
 
 class ConnectiveFormula : public Expression {
 public:
-	ConnectiveFormula(const shared_ptr<Expression> &lhs, const shared_ptr<Expression> &rhs);
+	ConnectiveFormula(const shared_ptr<Expression> &lhs, const shared_ptr<Expression> &rhs, InScope &parent_expr);
 
 protected:
 	const shared_ptr<Expression> lhs_, rhs_;
@@ -99,11 +74,12 @@ public:
 \*--------------------------------------------*/
 
 
-class Quantification {
+class Quantification : public Expression {
 public:
 	Quantification(
 	        const shared_ptr<Variable> &variable,
-	        const shared_ptr<Expression> &expression);
+	        const shared_ptr<Expression> &expression,
+	        InScope &parent_expr);
 
 protected:
 	const shared_ptr<Variable> variable_;

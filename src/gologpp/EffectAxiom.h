@@ -1,29 +1,24 @@
-/*
- * SuccessorStateAxiom.h
- *
- *  Created on: 08.04.2016
- *      Author: vmatare
- */
-
 #ifndef GOLOGPP_EFFECTAXIOM_H_
 #define GOLOGPP_EFFECTAXIOM_H_
 
 #include "Formula.h"
 #include "Fluent.h"
 #include "Execution.h"
+#include "Translation.h"
 
 namespace gologpp {
 
-class EffectAxiom : public LanguageElement {
+class EffectAxiom {
 public:
 	EffectAxiom(const shared_ptr<Fluent> fluent, const shared_ptr<Expression> value);
 	EffectAxiom(EffectAxiom &&);
-	~EffectAxiom();
+	virtual ~EffectAxiom();
 
-private:
+protected:
 	shared_ptr<Fluent> fluent_;
 	shared_ptr<Expression> value_;
 };
+
 
 } /* namespace gologpp */
 

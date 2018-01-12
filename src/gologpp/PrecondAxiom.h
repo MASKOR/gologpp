@@ -10,21 +10,23 @@
 
 #include "Formula.h"
 #include "Execution.h"
+#include "Translation.h"
 
 #include <vector>
 
 namespace gologpp {
 
-class PrecondAxiom : public LanguageElement {
+class PrecondAxiom {
 public:
 	PrecondAxiom(unique_ptr<Expression> &&condition);
 	PrecondAxiom(PrecondAxiom &&p);
 	PrecondAxiom();
 	~PrecondAxiom();
 
-private:
+protected:
 	unique_ptr<Expression> condition_;
 };
+
 
 } /* namespace gologpp */
 

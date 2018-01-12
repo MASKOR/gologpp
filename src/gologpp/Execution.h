@@ -1,7 +1,7 @@
 #ifndef GOLOGPP_EXECUTION_H_
 #define GOLOGPP_EXECUTION_H_
 
-#include "gologpp.h"
+#include "utilities.h"
 
 #include <memory>
 #include <vector>
@@ -43,7 +43,7 @@ protected:
     unordered_map<NameWithArity, shared_ptr<Procedure>> procedures_;
 
 private:
-	template<class T>
+	template<class T> inline
 	shared_ptr<T> get_global(unordered_map<NameWithArity, shared_ptr<T>> map, const string &name, arity_t arity)
 	{
 		auto it = map.find(NameWithArity(name, arity));
@@ -55,14 +55,6 @@ private:
 };
 
 
-class LanguageElement {
-public:
-	virtual ~LanguageElement();
-
-	virtual void define(ExecutionContext &context) = 0;
-};
-
-
-}
+} // namespace gologpp
 
 #endif

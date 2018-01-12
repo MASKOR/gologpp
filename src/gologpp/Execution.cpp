@@ -4,10 +4,6 @@ namespace gologpp {
 
 using namespace std;
 
-LanguageElement::~LanguageElement()
-{}
-
-
 shared_ptr<Fluent> ExecutionContext::fluent(const string &name, arity_t arity)
 { return get_global(fluents_, name, arity); }
 

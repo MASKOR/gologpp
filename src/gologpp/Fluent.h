@@ -1,12 +1,11 @@
-#ifndef FLUENT_H
-#define FLUENT_H
-
+#ifndef GOLOGPP_FLUENT_H_
+#define GOLOGPP_FLUENT_H_
 
 #include <string>
 #include <memory>
 
 #include "gologpp.h"
-#include "Formula.h"
+#include "atoms.h"
 
 namespace gologpp {
 
@@ -14,15 +13,17 @@ using namespace std;
 
 class Fluent : public Atom, public NameWithArity {
 public:
-	Fluent(const string &name, arity_t arity);
-	Fluent(const Fluent &) = default;
-	Fluent(Fluent &&) = default;
+	Fluent(const string &name, const vector<string> &args);
 	virtual ~Fluent() = default;
+
+private:
+	vector<shared_ptr<Variable>> args;
 };
+
 
 
 } // namespace gologpp
 
 
 
-#endif // FLUENT_H
+#endif // GOLOGPP_FLUENT_H_
