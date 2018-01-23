@@ -8,7 +8,7 @@ namespace readylog {
 
 using namespace std;
 
-class ExecutionContext : private gologpp::ExecutionContext {
+class ExecutionContext : public generic::ExecutionContext {
 public:
     virtual ~ExecutionContext();
     static ExecutionContext &instance();

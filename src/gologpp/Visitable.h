@@ -4,6 +4,7 @@
 #include "Execution.h"
 
 namespace gologpp {
+namespace generic {
 
 
 class Action;
@@ -76,6 +77,7 @@ public:
 };
 
 
+}
 }
 
 

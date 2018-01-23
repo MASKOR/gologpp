@@ -6,7 +6,7 @@ namespace gologpp {
 namespace readylog {
 
 ExecutionContext::ExecutionContext()
-: gologpp::ExecutionContext()
+: generic::ExecutionContext()
 {
 	if (!ec_init())
 		throw std::runtime_error("Error initializing ECLiPSe subsystem");

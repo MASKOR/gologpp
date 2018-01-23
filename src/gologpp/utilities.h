@@ -2,6 +2,7 @@
 #define GOLOGPP_UTILITIES_H_
 
 #include "gologpp.h"
+
 #include <string>
 #include <memory>
 #include <unordered_map>
@@ -10,21 +11,17 @@
 
 
 namespace gologpp {
+namespace generic {
 
 using namespace std;
 
-
-template<class ReprT>
-class LanguageElement {
-public:
-    virtual ReprT define() = 0;
-};
 
 
 class Name {
 public:
     Name(const string &name);
     Name(Name &&other);
+    Name(const Name &other) = default;
     virtual ~Name();
     
     const string &name() const;
@@ -40,6 +37,7 @@ class NameWithArity : public Name {
 public:
     NameWithArity(const string &name, arity_t arity);
     NameWithArity(NameWithArity &&other);
+    NameWithArity(const NameWithArity &other) = default;
     
     virtual ~NameWithArity() override;
     
@@ -53,24 +51,10 @@ private:
 
 
 class Variable;
-class Scope;
+class Expression;
 
 
-class InScope {
-public:
-	InScope(const shared_ptr<Scope> &parent_scope);
-	InScope(InScope &parent_expr);
-	InScope(InScope &&other);
-
-	virtual ~InScope();
-	shared_ptr<Scope> parent_scope();
-
-private:
-	shared_ptr<Scope> parent_scope_;
-};
-
-
-class Scope : public enable_shared_from_this<Scope>, public InScope {
+class Scope : public virtual enable_shared_from_this<Scope> {
 public:
 	Scope(const vector<shared_ptr<Variable>> &variables, const shared_ptr<Scope> &parent_scope);
 	Scope(const vector<string> &variables, const shared_ptr<Scope> &parent_scope);
@@ -79,15 +63,19 @@ public:
 	virtual ~Scope();
 
 	shared_ptr<Variable> variable(const string &name);
+	vector<shared_ptr<Variable>> variables(const vector<string> &names);
+	shared_ptr<Scope> parent_scope();
 
 	static shared_ptr<Scope> global_scope()
 	{ return shared_ptr<Scope>(nullptr); }
 
 private:
+	shared_ptr<Scope> parent_scope_;
 	unordered_map<string, shared_ptr<Variable>> variables_;
 };
 
 
+} // namespace generic
 } // namespace gologpp
 
 
@@ -95,8 +83,8 @@ private:
 namespace std {
 
 template<>
-struct hash<gologpp::NameWithArity> {
-    size_t operator () (const gologpp::NameWithArity &o) const
+struct hash<gologpp::generic::NameWithArity> {
+    size_t operator () (const gologpp::generic::NameWithArity &o) const
     { return o.hash(); }
 };
 

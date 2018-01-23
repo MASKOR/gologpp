@@ -2,6 +2,7 @@
 #include "atoms.h"
 
 namespace gologpp {
+namespace generic {
 
 using namespace std;
 
@@ -45,33 +46,8 @@ size_t NameWithArity::hash() const
 { return Name::hash() ^ (std::hash<gologpp::arity_t>{}(arity()) << 1); }
 
 
-InScope::InScope(const shared_ptr<Scope> &parent_scope)
-: parent_scope_(parent_scope)
-{}
-
-
-InScope::InScope(InScope &parent_expr)
-{
-	try {
-		Scope &parent_scope = dynamic_cast<Scope &>(parent_expr);
-		parent_scope_ = parent_scope.shared_from_this();
-	} catch(bad_cast &) {
-		parent_scope_ = parent_expr.parent_scope();
-	}
-}
-
-
-InScope::InScope(InScope &&other)
-: parent_scope_(std::forward<shared_ptr<Scope>>(other.parent_scope_))
-{}
-
-
-shared_ptr<Scope> InScope::parent_scope()
-{ return parent_scope_; }
-
-
 Scope::Scope(const vector<shared_ptr<Variable>> &variables, const shared_ptr<Scope> &parent_scope)
-: InScope(parent_scope)
+: parent_scope_(parent_scope)
 {
 	for (const shared_ptr<Variable> &v : variables)
 		variables_.emplace(v->name(), v);
@@ -79,7 +55,7 @@ Scope::Scope(const vector<shared_ptr<Variable>> &variables, const shared_ptr<Sco
 
 
 Scope::Scope(const vector<string> &variables, const shared_ptr<Scope> &parent_scope)
-: InScope(parent_scope)
+: parent_scope_(parent_scope)
 {
 	for (const string &name : variables)
 		variables_.emplace(name, shared_ptr<Variable>(new Variable(name, shared_ptr<Scope>(this))));
@@ -87,7 +63,7 @@ Scope::Scope(const vector<string> &variables, const shared_ptr<Scope> &parent_sc
 
 
 Scope::Scope(Scope &&other)
-: InScope(std::move(other))
+: parent_scope_(std::move(other.parent_scope_))
 , variables_(std::move(other.variables_))
 {}
 
@@ -106,4 +82,14 @@ shared_ptr<Variable> Scope::variable(const string &name)
 }
 
 
+vector<shared_ptr<Variable>> Scope::variables(const vector<string> &names)
+{
+	vector<shared_ptr<Variable>> rv;
+	for (const string &name : names)
+		rv.push_back(variable(name));
+	return rv;
+}
+
+
+} // namespace generic
 } // namespace gologpp

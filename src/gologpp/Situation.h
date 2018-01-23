@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 namespace gologpp {
+namespace generic {
 
 using namespace std;
 
@@ -15,10 +16,11 @@ public:
 	Situation();
 
 protected:
-	unordered_map<shared_ptr<Fluent>, unique_ptr<Value>> fluent_values_;
+	unordered_map<shared_ptr<Fluent>, unique_ptr<AnyValue>> fluent_values_;
 };
 
 
-}
+} // namespace generic
+} // namespace gologpp
 
 #endif // GOLOGPP_SITUATION_H

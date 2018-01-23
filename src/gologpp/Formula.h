@@ -8,16 +8,23 @@
 
 
 namespace gologpp {
+namespace generic {
 
 using namespace std;
 
 
-class Negation : public Expression {
+class BooleanExpression : public Expression {
 public:
-	Negation(const shared_ptr<Expression> &expression, InScope &parent_expr);
+	using Expression::Expression;
+};
+
+
+class Negation : public BooleanExpression, public LanguageElement<Negation> {
+public:
+	Negation(const shared_ptr<BooleanExpression> &expression, const shared_ptr<Scope> &parent_scope);
 
 protected:
-	const shared_ptr<Expression> expression_;
+	const shared_ptr<BooleanExpression> expression_;
 };
 
 
@@ -26,9 +33,9 @@ enum ComparisonOperator {
 };
 
 
-class Comparison : public Expression {
+class Comparison : public BooleanExpression, public LanguageElement<Comparison> {
 public:
-	Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const shared_ptr<Atom> &rhs, InScope &parent_expr);
+	Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const shared_ptr<Atom> &rhs, const shared_ptr<Scope> &parent_scope);
 
 protected:
 	const shared_ptr<Atom> lhs_;
@@ -42,28 +49,28 @@ protected:
   Connective formulas, i.e. AND, OR, IMPLIES
 \*--------------------------------------------*/
 
-class ConnectiveFormula : public Expression {
+class ConnectiveFormula : public BooleanExpression {
 public:
-	ConnectiveFormula(const shared_ptr<Expression> &lhs, const shared_ptr<Expression> &rhs, InScope &parent_expr);
+	ConnectiveFormula(const shared_ptr<BooleanExpression> &lhs, const shared_ptr<BooleanExpression> &rhs, const shared_ptr<Scope> &parent_scope);
 
 protected:
-	const shared_ptr<Expression> lhs_, rhs_;
+	const shared_ptr<BooleanExpression> lhs_, rhs_;
 };
 
 
-class Conjunction : public ConnectiveFormula {
+class Conjunction : public ConnectiveFormula, public LanguageElement<Conjunction> {
 public:
 	using ConnectiveFormula::ConnectiveFormula;
 };
 
 
-class Disjunction : public ConnectiveFormula {
+class Disjunction : public ConnectiveFormula, public LanguageElement<Disjunction> {
 public:
 	using ConnectiveFormula::ConnectiveFormula;
 };
 
 
-class Implication : public ConnectiveFormula {
+class Implication : public ConnectiveFormula, public LanguageElement<Implication> {
 public:
 	using ConnectiveFormula::ConnectiveFormula;
 };
@@ -74,31 +81,32 @@ public:
 \*--------------------------------------------*/
 
 
-class Quantification : public Expression {
+class Quantification : public BooleanExpression {
 public:
 	Quantification(
 	        const shared_ptr<Variable> &variable,
-	        const shared_ptr<Expression> &expression,
-	        InScope &parent_expr);
+	        const shared_ptr<BooleanExpression> &expression,
+	        const shared_ptr<Scope> &parent_scope);
 
 protected:
 	const shared_ptr<Variable> variable_;
-	const shared_ptr<Expression> expression_;
+	const shared_ptr<BooleanExpression> expression_;
 };
 
 
-class ExistentialQuantification : public Quantification {
+class ExistentialQuantification : public Quantification, public LanguageElement<ExistentialQuantification> {
 public:
 	using Quantification::Quantification;
 };
 
 
-class UniversalQuantification : public Quantification {
+class UniversalQuantification : public Quantification, public LanguageElement<UniversalQuantification> {
 public:
 	using Quantification::Quantification;
 };
 
 
+} // namespace generic
 } // namespace gologpp
 
 

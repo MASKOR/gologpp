@@ -9,23 +9,29 @@ namespace gologpp {
 namespace readylog {
 
 
-class Variable : public Translatable<gologpp::Variable, EC_ref> {
+class Variable : public Translatable<generic::Variable, EC_word> {
 public:
-	Variable(gologpp::Variable &&var);
-	virtual EC_ref translate() override;
+	Variable(generic::Variable &&var);
 
 private:
-	EC_ref ec_var;
+	virtual void init(EC_word &cache) override;
+	EC_ref value;
 };
 
 
-class Value : public Translatable<gologpp::Value, EC_atom> {
+class AnyValue : public Translatable<generic::AnyValue, EC_word> {
+};
+
+
+template<typename DataT>
+class Value : public Translatable<generic::Value<DataT>, EC_word> {
 public:
-	using Translatable<gologpp::Value, EC_atom>::Translatable;
-	virtual EC_atom translate() override;
+	using Translatable<generic::Value<DataT>, EC_word>::Translatable;
 
 private:
-	EC_atom ec_atom;
+	virtual void init(EC_word &cache) override {
+		cache = EC_word(generic::Value<DataT>::data());
+	}
 };
 
 

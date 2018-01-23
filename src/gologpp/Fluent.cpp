@@ -1,6 +1,7 @@
 #include "Fluent.h"
 
 namespace gologpp {
+namespace generic {
 
 Fluent::Fluent(const string &name, const vector<string> &args)
 : Atom(Scope::global_scope())
@@ -8,4 +9,18 @@ Fluent::Fluent(const string &name, const vector<string> &args)
 {}
 
 
-}
+Initially::Initially(FluentReference &&fluent, unique_ptr<AnyValue> &&value)
+: fluent_(std::move(fluent))
+, value_(std::move(value))
+{}
+
+
+const Fluent &Initially::fluent() const
+{ return *fluent_; }
+
+const AnyValue &Initially::initial_value() const
+{ return *value_; }
+
+
+} // namespace generic
+} // namespace gologpp

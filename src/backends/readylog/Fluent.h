@@ -5,15 +5,28 @@
 #include <gologpp/Translation.h>
 #include <eclipseclass.h>
 
+#include <tuple>
+
 namespace gologpp {
 namespace readylog {
 
+using namespace std;
 
-class Fluent : public Translatable<gologpp::Fluent, EC_word> {
+class Fluent : public Translatable<generic::Fluent, EC_word> {
 public:
-	using Translatable<gologpp::Fluent, EC_word>::Translatable;
+	using Translatable<generic::Fluent, EC_word>::Translatable;
 
-	virtual EC_word translate() override;
+private:
+	void init(EC_word &cache);
+};
+
+
+class Initially : public Translatable<generic::Initially, EC_word> {
+public:
+	using Translatable<generic::Initially, EC_word>::Translatable;
+
+private:
+	void init(EC_word &cache);
 };
 
 

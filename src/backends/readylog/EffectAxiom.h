@@ -7,11 +7,11 @@
 namespace gologpp {
 namespace readylog {
 
-class EffectAxiom : public gologpp::Translatable<gologpp::EffectAxiom, EC_word> {
+class EffectAxiom : public Translatable<generic::EffectAxiom, EC_word> {
 public:
-	using gologpp::Translatable<gologpp::EffectAxiom, EC_word>::Translatable;
+	EffectAxiom(generic::EffectAxiom &&other);
 
-	EC_word translate() override;
+	void init(EC_word &cache);
 };
 
 } /* namespace readylog */

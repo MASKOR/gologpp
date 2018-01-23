@@ -12,14 +12,12 @@ namespace gologpp {
 namespace readylog {
 
 
-class Action : public gologpp::Translatable<gologpp::Action, tuple<EC_word, EC_word, EC_word>> {
+class Action : public Translatable<generic::Action, tuple<EC_word, EC_word, EC_word>> {
 public:
-	Action(gologpp::Action &&action);
+	Action(generic::Action &&action);
     
-    virtual tuple<EC_word, EC_word, EC_word> translate() override;
-
 private:
-	tuple<EC_word, EC_word, EC_word> cache_;
+	void init(tuple<EC_word, EC_word, EC_word> &cache);
 };
 
 

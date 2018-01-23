@@ -4,9 +4,10 @@ namespace gologpp {
 namespace readylog {
 
 
-EC_word Negation::define()
+void Negation::init(EC_word &cache)
 {
-	return ::term(EC_functor("neg", 1), )
+	cache = ::term(EC_functor("neg", 1),
+	               dynamic_cast<Translatable<BooleanExpression, EC_word> &>(*expression_).translate());
 }
 
 
