@@ -14,17 +14,17 @@ using namespace std;
 
 
 class BooleanExpression : public Expression {
-public:
+protected:
 	using Expression::Expression;
 };
 
 
 class Negation : public BooleanExpression, public LanguageElement<Negation> {
 public:
-	Negation(const shared_ptr<BooleanExpression> &expression, const shared_ptr<Scope> &parent_scope);
+	Negation(unique_ptr<BooleanExpression> &&expression, Scope &parent_scope);
 
 protected:
-	const shared_ptr<BooleanExpression> expression_;
+	unique_ptr<BooleanExpression> expression_;
 };
 
 
@@ -35,12 +35,12 @@ enum ComparisonOperator {
 
 class Comparison : public BooleanExpression, public LanguageElement<Comparison> {
 public:
-	Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const shared_ptr<Atom> &rhs, const shared_ptr<Scope> &parent_scope);
+	Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const shared_ptr<Atom> &rhs, Scope &parent_scope);
 
 protected:
-	const shared_ptr<Atom> lhs_;
-	const ComparisonOperator op_;
-	const shared_ptr<Atom> rhs_;
+	shared_ptr<Atom> lhs_;
+	ComparisonOperator op_;
+	shared_ptr<Atom> rhs_;
 };
 
 
@@ -49,30 +49,21 @@ protected:
   Connective formulas, i.e. AND, OR, IMPLIES
 \*--------------------------------------------*/
 
-class ConnectiveFormula : public BooleanExpression {
+enum BooleanOperator {
+	conjunction = 1,
+	disjunction,
+	implication
+};
+
+
+class ConnectiveFormula : public BooleanExpression, public LanguageElement<ConnectiveFormula> {
 public:
-	ConnectiveFormula(const shared_ptr<BooleanExpression> &lhs, const shared_ptr<BooleanExpression> &rhs, const shared_ptr<Scope> &parent_scope);
+	ConnectiveFormula(const shared_ptr<BooleanExpression> &lhs, BooleanOperator op, const shared_ptr<BooleanExpression> &rhs, Scope &parent_scope);
 
 protected:
-	const shared_ptr<BooleanExpression> lhs_, rhs_;
-};
-
-
-class Conjunction : public ConnectiveFormula, public LanguageElement<Conjunction> {
-public:
-	using ConnectiveFormula::ConnectiveFormula;
-};
-
-
-class Disjunction : public ConnectiveFormula, public LanguageElement<Disjunction> {
-public:
-	using ConnectiveFormula::ConnectiveFormula;
-};
-
-
-class Implication : public ConnectiveFormula, public LanguageElement<Implication> {
-public:
-	using ConnectiveFormula::ConnectiveFormula;
+	shared_ptr<BooleanExpression> lhs_;
+	BooleanOperator op_;
+	shared_ptr<BooleanExpression> rhs_;
 };
 
 
@@ -86,11 +77,11 @@ public:
 	Quantification(
 	        const shared_ptr<Variable> &variable,
 	        const shared_ptr<BooleanExpression> &expression,
-	        const shared_ptr<Scope> &parent_scope);
+	        Scope &parent_scope);
 
 protected:
-	const shared_ptr<Variable> variable_;
-	const shared_ptr<BooleanExpression> expression_;
+	shared_ptr<Variable> variable_;
+	shared_ptr<BooleanExpression> expression_;
 };
 
 

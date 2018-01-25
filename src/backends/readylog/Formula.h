@@ -1,23 +1,39 @@
 #ifndef READYLOG_FORMULA_H_
 #define READYLOG_FORMULA_H_
 
-#include <gologpp/Formula.h>
-#include <gologpp/Translation.h>
+#include "Implementation.h"
+
 #include <eclipseclass.h>
 
 namespace gologpp {
-namespace readylog {
+
+namespace generic {
+class BooleanExpression;
+class Negation;
+class Comparison;
+class ConnectiveFormula;
+class ExistentialQuantification;
+class UniversalQuantification;
+} // namespace generic
 
 
-class Negation : public Translatable<generic::Negation, EC_word> {
-public:
-	using Translatable<generic::Negation, EC_word>::Translatable;
-
-private:
-	void init(EC_word &cache);
+template<>
+class Implementation<generic::BooleanExpression> : public ReadylogExpression {
 };
 
-} // namespace readylog
+
+template<>
+class Implementation<generic::Negation> : public Implementation<generic::BooleanExpression> {
+public:
+	Implementation(const generic::Negation &);
+	virtual ~Implementation() override = default;
+
+	virtual EC_word term() override;
+
+private:
+	const generic::Negation &negation_;
+};
+
 } // namespace gologpp
 
 

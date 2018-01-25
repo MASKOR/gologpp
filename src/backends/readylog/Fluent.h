@@ -1,36 +1,27 @@
 #ifndef READYLOG_FLUENT_H_
 #define READYLOG_FLUENT_H_
 
-#include <gologpp/Fluent.h>
-#include <gologpp/Translation.h>
 #include <eclipseclass.h>
+#include "Implementation.h"
 
-#include <tuple>
 
 namespace gologpp {
-namespace readylog {
 
-using namespace std;
+namespace generic {
+class Fluent;
+} // namespace generic
 
-class Fluent : public Translatable<generic::Fluent, EC_word> {
+
+template<>
+class Implementation<generic::Fluent> : public ReadylogExpression {
 public:
-	using Translatable<generic::Fluent, EC_word>::Translatable;
+	Implementation(const generic::Fluent &);
+	virtual ~Implementation() override = default;
 
-private:
-	void init(EC_word &cache);
+	virtual EC_word term() override;
 };
 
 
-class Initially : public Translatable<generic::Initially, EC_word> {
-public:
-	using Translatable<generic::Initially, EC_word>::Translatable;
-
-private:
-	void init(EC_word &cache);
-};
-
-
-} // namespace readylog
 } // namespace gologpp
 
 

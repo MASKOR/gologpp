@@ -7,18 +7,11 @@ namespace gologpp {
 
 typedef unsigned char arity_t;
 
+template<class T>
+using shp = std::shared_ptr<T>;
 
-class AbstractImplementation {
-
-};
-
-
-template<class ImplT>
-class Implementation : public std::enable_shared_from_this<Implementation<ImplT>>, public AbstractImplementation {
-public:
-	Implementation();
-};
-
+template<class T>
+using uqp = std::unique_ptr<T>;
 
 
 

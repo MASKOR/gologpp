@@ -1,33 +1,33 @@
-#ifndef READYLOG_UTILITIES_H_
-#define READYLOG_UTILITIES_H_
+#ifndef READYLOG_REFERENCE_H_
+#define READYLOG_REFERENCE_H_
 
-#include <gologpp/utilities.h>
-#include <gologpp/Translation.h>
-#include <gologpp/Reference.h>
+#include "Implementation.h"
 #include <eclipseclass.h>
 
 
 namespace gologpp {
-namespace readylog {
 
-using namespace std;
+namespace generic {
+template<class GologT> class Reference;
+class FluentReference;
+class Fluent;
+} // namespace generic
 
 
 template<class GologT>
-class Reference : public Translatable<generic::Reference<GologT>, EC_word> {
-public:
-	using Translatable<generic::Reference<GologT>, EC_word>::Translatable;
+class Implementation<generic::Reference<GologT>> : public AbstractImplementation {
 
-private:
-	void init(EC_word &cache) {
-
-	}
 };
 
 
-} // namespace readylog
+template<>
+class Implementation<generic::FluentReference> : public ReadylogExpression {
+
+};
+
+
 } // namespace gologpp
 
 
 
-#endif // READYLOG_UTILITIES_H_
+#endif // READYLOG_REFERENCE_H_

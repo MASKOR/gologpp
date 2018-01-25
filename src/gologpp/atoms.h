@@ -14,17 +14,18 @@ class AnyValue;
 
 
 class Expression : public enable_shared_from_this<Expression>, public virtual AbstractLanguageElement {
-public:
-	Expression(const shared_ptr<Scope> &parent_scope);
+protected:
+	Expression(Scope &parent_scope);
 	Expression(Expression &&);
 
 	virtual ~Expression();
 
-	shared_ptr<Scope> parent_scope();
-	operator shared_ptr<Scope> ();
+public:
+	Scope &parent_scope();
+	operator Scope &();
 
 private:
-	shared_ptr<Scope> parent_scope_;
+	Scope &parent_scope_;
 };
 
 
@@ -36,12 +37,12 @@ public:
 
 class Variable : public Atom, public Name, public LanguageElement<Variable> {
 protected:
-	Variable(const string &name, const shared_ptr<Scope> &parent_scope);
+	Variable(const string &name, Scope &parent_scope);
 	friend Scope;
 };
 
 
-class AnyValue : public Atom, public LanguageElement<Variable> {
+class AnyValue : public Atom, public LanguageElement<AnyValue> {
 public:
 	AnyValue();
 };

@@ -30,7 +30,7 @@ public:
 
 class Block : public Statement, public LanguageElement<Block> {
 public:
-	Block(const vector<shared_ptr<Statement>> &elements, const shared_ptr<Scope> &parent_scope);
+	Block(const vector<shared_ptr<Statement>> &elements, Scope &parent_scope);
 	
 private:
 	vector<shared_ptr<Statement>> elements_;
@@ -39,7 +39,7 @@ private:
 
 class Choose : public Statement, public LanguageElement<Choose> {
 public:
-	Choose(const vector<shared_ptr<Block>> &alternatives, const shared_ptr<Scope> &parent_scope);
+	Choose(const vector<shared_ptr<Block>> &alternatives, Scope &parent_scope);
 
 private:
 	vector<shared_ptr<Block>> alternatives_;
@@ -51,7 +51,7 @@ public:
 	Conditional(const shared_ptr<BooleanExpression> &condition,
 	            const shared_ptr<Block> &block_true,
 	            const shared_ptr<Block> &block_false,
-	            const shared_ptr<Scope> &parent_expr);
+	            Scope &parent_expr);
 	
 protected:
 	shared_ptr<BooleanExpression> condition_;
@@ -62,7 +62,7 @@ protected:
 
 class Assignment : public Statement, public LanguageElement<Assignment> {
 public:
-	Assignment(Reference<Fluent> &&fluent, const shared_ptr<Expression> &expression, const shared_ptr<Scope> &parent_scope);
+	Assignment(Reference<Fluent> &&fluent, const shared_ptr<Expression> &expression, Scope &parent_scope);
 
 private:
     Reference<Fluent> fluent_;
@@ -72,7 +72,7 @@ private:
 
 class Pick : public Statement, public LanguageElement<Pick> {
 public:
-	Pick(const shared_ptr<Variable> &variable, const shared_ptr<Block> &block, const shared_ptr<Scope> &parent_scope);
+	Pick(const shared_ptr<Variable> &variable, const shared_ptr<Block> &block, Scope &parent_scope);
     
 private:
 	shared_ptr<Variable> variable_;
@@ -82,7 +82,7 @@ private:
 
 class Call : public Statement, public LanguageElement<Call> {
 public:
-	Call(const shared_ptr<Action> &action, const vector<shared_ptr<Expression>> &args, const shared_ptr<Scope> &parent_scope);
+	Call(const shared_ptr<Action> &action, const vector<shared_ptr<Expression>> &args, Scope &parent_scope);
 
 private:
 	shared_ptr<Action> action_;
@@ -92,7 +92,7 @@ private:
 
 class Search : public Statement, public LanguageElement<Search> {
 public:
-	Search(unique_ptr<Block> &&block, const shared_ptr<Scope> &parent_scope);
+	Search(unique_ptr<Block> &&block, Scope &parent_scope);
 
 private:
 	unique_ptr<Block> block_;
@@ -101,7 +101,7 @@ private:
 
 class Test : public Statement, public LanguageElement<Test> {
 public:
-    Test(const shared_ptr<BooleanExpression> &expression, const shared_ptr<Scope> &parent_scope);
+    Test(const shared_ptr<BooleanExpression> &expression, Scope &parent_scope);
 
 protected:
 	shared_ptr<BooleanExpression> expression_;
@@ -110,7 +110,7 @@ protected:
 
 class While : public Statement, public LanguageElement<While> {
 public:
-	While(const shared_ptr<BooleanExpression> &expression, unique_ptr<Block> &&block, const shared_ptr<Scope> &parent_scope);
+	While(const shared_ptr<BooleanExpression> &expression, unique_ptr<Block> &&block, Scope &parent_scope);
 
 protected:
 	shared_ptr<BooleanExpression> expression_;

@@ -27,14 +27,14 @@ private:
 
 class Initially : public LanguageElement<Initially> {
 public:
-	Initially(FluentReference &&fluent, unique_ptr<AnyValue> &&value);
+	Initially(Reference<Fluent> &&fluent, unique_ptr<AnyValue> &&value);
 	virtual ~Initially() = default;
 
 	const Fluent &fluent() const;
 	const AnyValue &initial_value() const;
 
 private:
-	FluentReference fluent_;
+	Reference<Fluent> fluent_;
 	unique_ptr<AnyValue> value_;
 };
 

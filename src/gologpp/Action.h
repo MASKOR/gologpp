@@ -13,6 +13,7 @@
 #include "Translation.h"
 #include "atoms.h"
 #include "Language.h"
+#include "Implementation.h"
 
 namespace gologpp {
 namespace generic {
@@ -26,19 +27,22 @@ public:
 	       unique_ptr<BooleanExpression> &&precondition = nullptr, unique_ptr<EffectAxiom> &&effect = nullptr);
 	Action(Action &&other);
 
-	virtual ~Action() = default;
+	virtual ~Action() override = default;
 
 	const BooleanExpression &precondition() const;
 
 	template<class T>
 	void set_precondition(T &&precondition)
-	{ precondition_ = std::move(make_unique<BooleanExpression>(std::move(precondition))); }
+	{ precondition_ = std::move(make_unique<T>(std::move(precondition))); }
 
 	const EffectAxiom &effect() const;
 	void set_effect(unique_ptr<EffectAxiom> &&effect);
-	vector<shared_ptr<Variable>> args();
+
+	vector<shared_ptr<Expression>> args();
 
 	Scope &scope();
+
+	//virtual void init_impl(unique_ptr<Implementation<Action>> &impl) override;
 
 protected:
 	Scope scope_;

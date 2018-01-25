@@ -14,9 +14,6 @@ Name::Name(Name &&other)
 : name_(std::move(other.name_))
 {}
 
-Name::~Name()
-{}
-
 const string &Name::name() const
 { return name_; }
 
@@ -36,6 +33,8 @@ NameWithArity::NameWithArity(NameWithArity &&other)
 , arity_(std::move(other.arity()))
 {}
 
+
+
 arity_t NameWithArity::arity() const
 { return arity_; }
 
@@ -46,7 +45,10 @@ size_t NameWithArity::hash() const
 { return Name::hash() ^ (std::hash<gologpp::arity_t>{}(arity()) << 1); }
 
 
-Scope::Scope(const vector<shared_ptr<Variable>> &variables, const shared_ptr<Scope> &parent_scope)
+Scope Scope::global_scope_;
+
+
+Scope::Scope(const vector<shared_ptr<Variable>> &variables, Scope &parent_scope)
 : parent_scope_(parent_scope)
 {
 	for (const shared_ptr<Variable> &v : variables)
@@ -54,16 +56,16 @@ Scope::Scope(const vector<shared_ptr<Variable>> &variables, const shared_ptr<Sco
 }
 
 
-Scope::Scope(const vector<string> &variables, const shared_ptr<Scope> &parent_scope)
+Scope::Scope(const vector<string> &variables, Scope &parent_scope)
 : parent_scope_(parent_scope)
 {
 	for (const string &name : variables)
-		variables_.emplace(name, shared_ptr<Variable>(new Variable(name, shared_ptr<Scope>(this))));
+		variables_.emplace(name, shared_ptr<Variable>(new Variable(name, *this)));
 }
 
 
 Scope::Scope(Scope &&other)
-: parent_scope_(std::move(other.parent_scope_))
+: parent_scope_(other.parent_scope_)
 , variables_(std::move(other.variables_))
 {}
 
@@ -75,16 +77,16 @@ shared_ptr<Variable> Scope::variable(const string &name)
 	if (it != variables_.end())
 		rv = it->second;
 	else {
-		rv.reset(new Variable(name, shared_from_this()));
+		rv.reset(new Variable(name, *this));
 		variables_.emplace(name, rv);
 	}
 	return rv;
 }
 
 
-vector<shared_ptr<Variable>> Scope::variables(const vector<string> &names)
+vector<shared_ptr<Expression>> Scope::variables(const vector<string> &names)
 {
-	vector<shared_ptr<Variable>> rv;
+	vector<shared_ptr<Expression>> rv;
 	for (const string &name : names)
 		rv.push_back(variable(name));
 	return rv;

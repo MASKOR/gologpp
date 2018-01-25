@@ -10,6 +10,7 @@ using namespace std;
 Action::Action(const string &name, const vector<string> &args,
 	       unique_ptr<BooleanExpression> &&precondition, unique_ptr<EffectAxiom> &&effect)
 : NameWithArity(name, static_cast<arity_t>(args.size()))
+, LanguageElement(*this)
 , scope_(args, Scope::global_scope())
 , precondition_(std::move(precondition))
 , effect_(std::move(effect))
@@ -19,6 +20,7 @@ Action::Action(const string &name, const vector<string> &args,
 
 Action::Action(Action &&other)
 : NameWithArity(std::move(other))
+, LanguageElement(*this)
 , scope_(std::move(other.scope_))
 , precondition_(std::move(other.precondition_))
 , effect_(std::move(other.effect_))
@@ -37,7 +39,7 @@ void Action::set_effect(unique_ptr<EffectAxiom> &&effect)
 { effect_ = std::move(effect); }
 
 
-vector<shared_ptr<Variable>> Action::args()
+vector<shared_ptr<Expression>> Action::args()
 { return scope_.variables(args_); }
 
 

@@ -7,28 +7,31 @@ namespace gologpp {
 namespace generic {
 
 
-Negation::Negation(const shared_ptr<BooleanExpression> &expression, const shared_ptr<Scope> &parent_scope)
+Negation::Negation(unique_ptr<BooleanExpression> &&expression, Scope &parent_scope)
 : BooleanExpression(parent_scope)
-, expression_(expression)
+, LanguageElement(*this)
+, expression_(std::move(expression))
 {}
 
 
-Comparison::Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const shared_ptr<Atom> &rhs, const shared_ptr<Scope> &parent_scope)
+Comparison::Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const shared_ptr<Atom> &rhs, Scope &parent_scope)
     : BooleanExpression(parent_scope)
+    , LanguageElement(*this)
     , lhs_(lhs), op_(op), rhs_(rhs)
 {}
 
 
-ConnectiveFormula::ConnectiveFormula(const shared_ptr<BooleanExpression> &lhs, const shared_ptr<BooleanExpression> &rhs, const shared_ptr<Scope> &parent_scope)
+ConnectiveFormula::ConnectiveFormula(const shared_ptr<BooleanExpression> &lhs, BooleanOperator op, const shared_ptr<BooleanExpression> &rhs, Scope &parent_scope)
 : BooleanExpression(parent_scope)
-, lhs_(lhs), rhs_(rhs)
+, LanguageElement(*this)
+, lhs_(lhs), op_(op), rhs_(rhs)
 {}
 
 
 Quantification::Quantification(
         const shared_ptr<Variable> &variable,
         const shared_ptr<BooleanExpression> &expression,
-        const shared_ptr<Scope> &parent_scope)
+        Scope &parent_scope)
     : BooleanExpression(parent_scope)
     , variable_(variable), expression_(expression)
 {}

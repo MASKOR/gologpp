@@ -3,6 +3,7 @@
 
 #include "gologpp.h"
 #include <memory>
+#include "Implementation.h"
 
 namespace gologpp {
 namespace generic {
@@ -13,22 +14,28 @@ using namespace std;
 class AbstractLanguageElement {
 public:
 	virtual ~AbstractLanguageElement();
-	virtual shared_ptr<AbstractImplementation> implementation() = 0;
+	virtual AbstractImplementation &implementation() const = 0;
 };
 
 
-template<class ImplT>
+template<class GologT>
 class LanguageElement : public virtual AbstractLanguageElement {
 public:
-	LanguageElement()
-	: implementation_(new Implementation<ImplT>())
+	typedef GologT golog_t;
+
+	LanguageElement(const GologT &obj)
+	: impl_(new Implementation<GologT>(obj))
 	{}
 
-	virtual shared_ptr<AbstractImplementation> implementation() override
-	{ return implementation_; }
+	virtual Implementation<GologT> &implementation() const override
+	{
+		/*if (!impl_)
+			impl_ = make_unique<Implementation<GologT>>(dynamic_cast<GologT &>(*this));*/
+		return *impl_;
+	}
 
 private:
-	shared_ptr<Implementation<ImplT>> implementation_;
+	unique_ptr<Implementation<GologT>> impl_;
 };
 
 

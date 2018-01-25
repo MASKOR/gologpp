@@ -1,15 +1,15 @@
 #include "Formula.h"
+#include <gologpp/Formula.h>
 
 namespace gologpp {
-namespace readylog {
+
+Implementation<generic::Negation>::Implementation(const generic::Negation &neg)
+: negation_(neg)
+{}
 
 
-void Negation::init(EC_word &cache)
-{
-	cache = ::term(EC_functor("neg", 1),
-	               dynamic_cast<Translatable<BooleanExpression, EC_word> &>(*expression_).translate());
-}
+EC_word Implementation<generic::Negation>::term()
+{ return dynamic_cast<ReadylogExpression &>(negation_.implementation()).term(); }
 
 
-}
 }
