@@ -4,17 +4,16 @@
 #include <vector>
 #include <memory>
 
-#include "Formula.h"
-#include "Fluent.h"
-#include "Action.h"
-#include "Situation.h"
-#include "Execution.h"
 #include "Reference.h"
 #include "Language.h"
 
 
 namespace gologpp {
 namespace generic {
+
+class Fluent;
+class Statement;
+class Action;
 
 
 class Statement : public Expression {

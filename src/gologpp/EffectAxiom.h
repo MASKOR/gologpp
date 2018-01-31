@@ -1,16 +1,16 @@
 #ifndef GOLOGPP_EFFECTAXIOM_H_
 #define GOLOGPP_EFFECTAXIOM_H_
 
-#include "Formula.h"
-#include "Fluent.h"
-#include "Execution.h"
-#include "Translation.h"
 #include "utilities.h"
 #include "Reference.h"
 #include "Language.h"
 
 namespace gologpp {
 namespace generic {
+
+class Action;
+class Expression;
+class Fluent;
 
 class EffectAxiom : public LanguageElement<EffectAxiom> {
 public:

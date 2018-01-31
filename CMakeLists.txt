@@ -14,7 +14,6 @@ set(INTERFACE_SRC
 		src/gologpp/Action.cpp
 		src/gologpp/atoms.cpp
 		src/gologpp/EffectAxiom.cpp
-		src/gologpp/Execution.cpp
 		src/gologpp/Fluent.cpp
 		src/gologpp/Formula.cpp
 		src/gologpp/Procedure.cpp

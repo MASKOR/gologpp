@@ -2,6 +2,9 @@
 #define GOLOGPP_EXECUTION_H_
 
 #include "utilities.h"
+#include "Fluent.h"
+#include "Action.h"
+#include "Procedure.h"
 
 #include <memory>
 #include <vector>
@@ -22,15 +25,24 @@ class Procedure;
 
 
 class History : public enable_shared_from_this<History> {
-
 protected:
     vector<unique_ptr<Transition>> transitions_;
     shared_ptr<Situation> s0_;
 };
 
 
+template<class action_impl_t, class fluent_impl_t, class proc_impl_t>
+struct ImplConfig {
+};
+
+
+template<class impl_config_t>
 class ExecutionContext {
 public:
+	typedef typename impl_config_t::action_impl_t action_impl_t;
+	typedef typename impl_config_t::fluent_impl_t fluent_impl_t;
+	typedef typename impl_config_t::proc_impl_t proc_impl_t;
+
 	ExecutionContext() = default;
 	virtual ~ExecutionContext() = default;
 
@@ -38,21 +50,39 @@ public:
 	shared_ptr<T> add_fluent(T &&f)
 	{ return add_global(fluents_, std::move(f)); }
 
-	shared_ptr<Fluent> fluent(const string &name, arity_t arity);
+	shared_ptr<Fluent> fluent(const string &name, arity_t arity)
+	{ return get_global(fluents_, name, arity); }
 
 	template<class T>
 	shared_ptr<T> add_action(T &&f)
 	{ return add_global(actions_, std::move(f)); }
 
-	shared_ptr<Action> action(const string &name, arity_t arity);
+	shared_ptr<Action> action(const string &name, arity_t arity)
+	{ return get_global(actions_, name, arity); }
 
 	template<class T>
 	shared_ptr<T> add_procedure(T &&f)
 	{ return add_global(procedures_, std::move(f)); }
 
-	shared_ptr<Procedure> procedure(const string &name, arity_t arity);
+	shared_ptr<Procedure> procedure(const string &name, arity_t arity)
+	{ return get_global(procedures_, name, arity); }
 
-    void init();
+
+	void init()
+	{
+		for (auto entry : fluents_) {
+			entry.second->init();
+			entry.second->implementation().apply_to(*this);
+		}
+		for (auto entry : actions_) {
+			entry.second->init();
+			entry.second->implementation().apply_to(*this);
+		}
+		for (auto entry : procedures_) {
+			entry.second->init();
+			entry.second->implementation().apply_to(*this);
+		}
+	}
 
 protected:
 

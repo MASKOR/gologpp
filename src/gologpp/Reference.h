@@ -22,7 +22,7 @@ public:
 
 	Reference(Reference<GologT> &&other)
 	: LanguageElement<Reference<GologT>>(*this)
-	, BooleanExpression(std::move(other.parent_scope_))
+	, BooleanExpression(other.parent_scope())
 	, target_(std::move(other.target_))
 	, args_(std::move(other.args_))
 	{}

@@ -3,15 +3,10 @@
 
 namespace gologpp {
 
-namespace generic {
-class ExecutionContext;
-}
-
 
 class AbstractImplementation {
 public:
 	virtual ~AbstractImplementation() = default;
-	virtual void apply_to(generic::ExecutionContext &) = 0;
 };
 
 
