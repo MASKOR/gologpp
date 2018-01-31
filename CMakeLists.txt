@@ -53,6 +53,7 @@ add_definitions(-DREADYLOG_PATH="\\\"${READYLOG_PL}\\\"" -DBACKEND=readylog)
 
 add_library(readylogpp SHARED ${INTERFACE_SRC} ${READYLOG_SRC})
 target_link_libraries(readylogpp ${ECLIPSE_LIBRARIES})
+message(${ECLIPSE_CFLAGS})
 
 add_executable(readylog-test ${TEST_SRC})
 target_link_libraries(readylog-test readylogpp)

@@ -4,14 +4,25 @@
 #include <gologpp/Execution.h>
 #include <eclipseclass.h>
 
+#include <backends/readylog/Action.h>
+#include <backends/readylog/Fluent.h>
+
 namespace gologpp {
 namespace readylog {
 
 using namespace std;
 
-class ExecutionContext : public generic::ExecutionContext {
+class ExecutionContext
+		: public generic::ExecutionContext<
+			generic::ImplConfig<
+				Implementation<generic::Action>,
+				Implementation<generic::Fluent>,
+				Implementation<generic::Procedure>
+			>
+		>
+{
 public:
-    virtual ~ExecutionContext() override;
+    virtual ~ExecutionContext() = default;
     static ExecutionContext &instance();
 
     void compile(const EC_word &term);
