@@ -18,8 +18,6 @@
 namespace gologpp {
 namespace generic {
 
-using namespace std;
-
 
 class Action : public enable_shared_from_this<Action>, public NameWithArity, public LanguageElement<Action> {
 public:

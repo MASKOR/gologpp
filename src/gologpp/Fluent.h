@@ -12,9 +12,8 @@
 namespace gologpp {
 namespace generic {
 
-using namespace std;
 
-class Fluent : public Atom, public NameWithArity, public enable_shared_from_this<Fluent>, public LanguageElement<Fluent> {
+class Fluent : public Atom, public NameWithArity, public std::enable_shared_from_this<Fluent>, public LanguageElement<Fluent> {
 public:
 	Fluent(const string &name, const vector<string> &args);
 	Fluent(Fluent &&) = default;

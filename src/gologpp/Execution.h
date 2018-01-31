@@ -32,6 +32,7 @@ protected:
 class ExecutionContext {
 public:
 	ExecutionContext() = default;
+	virtual ~ExecutionContext() = default;
 
 	template<class T>
 	shared_ptr<T> add_fluent(T &&f)
@@ -50,6 +51,10 @@ public:
 	{ return add_global(procedures_, std::move(f)); }
 
 	shared_ptr<Procedure> procedure(const string &name, arity_t arity);
+
+    void init();
+
+protected:
 
     shared_ptr<History> history_;
     unordered_map<NameWithArity, shared_ptr<Fluent>> fluents_;

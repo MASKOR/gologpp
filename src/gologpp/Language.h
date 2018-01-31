@@ -8,8 +8,6 @@
 namespace gologpp {
 namespace generic {
 
-using namespace std;
-
 
 class AbstractLanguageElement {
 public:

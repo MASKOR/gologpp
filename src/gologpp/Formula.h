@@ -10,8 +10,6 @@
 namespace gologpp {
 namespace generic {
 
-using namespace std;
-
 
 class BooleanExpression : public Expression {
 protected:
@@ -58,12 +56,12 @@ enum BooleanOperator {
 
 class ConnectiveFormula : public BooleanExpression, public LanguageElement<ConnectiveFormula> {
 public:
-	ConnectiveFormula(const shared_ptr<BooleanExpression> &lhs, BooleanOperator op, const shared_ptr<BooleanExpression> &rhs, Scope &parent_scope);
+	ConnectiveFormula(unique_ptr<BooleanExpression> &&lhs, BooleanOperator op, unique_ptr<BooleanExpression> &&rhs, Scope &parent_scope);
 
 protected:
-	shared_ptr<BooleanExpression> lhs_;
+	unique_ptr<BooleanExpression> lhs_;
 	BooleanOperator op_;
-	shared_ptr<BooleanExpression> rhs_;
+	unique_ptr<BooleanExpression> rhs_;
 };
 
 
@@ -76,12 +74,12 @@ class Quantification : public BooleanExpression {
 public:
 	Quantification(
 	        const shared_ptr<Variable> &variable,
-	        const shared_ptr<BooleanExpression> &expression,
+	        unique_ptr<BooleanExpression> &&expression,
 	        Scope &parent_scope);
 
 protected:
 	shared_ptr<Variable> variable_;
-	shared_ptr<BooleanExpression> expression_;
+	unique_ptr<BooleanExpression> expression_;
 };
 
 

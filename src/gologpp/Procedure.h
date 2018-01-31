@@ -16,8 +16,6 @@
 namespace gologpp {
 namespace generic {
 
-using namespace std;
-
 
 class Statement : public Expression {
 public:

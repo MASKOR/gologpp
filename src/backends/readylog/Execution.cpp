@@ -1,6 +1,8 @@
 #include "Execution.h"
 
 #include <eclipseclass.h>
+#include "Action.h"
+#include <gologpp/Action.h>
 
 namespace gologpp {
 namespace readylog {
@@ -29,6 +31,13 @@ ExecutionContext &ExecutionContext::instance()
 }
 
 
+void ExecutionContext::compile(const EC_word &term)
+{
+	post_goal(::term(EC_functor("compile_term", 1), term));
+	int rv = ec_resume();
+	if (rv != EC_status::EC_succeed)
+		throw EclipseError();
+}
 
 
 

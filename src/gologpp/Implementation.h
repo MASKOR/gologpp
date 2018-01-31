@@ -3,9 +3,15 @@
 
 namespace gologpp {
 
+namespace generic {
+class ExecutionContext;
+}
+
 
 class AbstractImplementation {
-
+public:
+	virtual ~AbstractImplementation() = default;
+	virtual void apply_to(generic::ExecutionContext &) = 0;
 };
 
 
@@ -16,8 +22,7 @@ public:
 	: golog_obj_(obj)
 	{}
 
-	virtual ~Implementation()
-	{}
+	virtual ~Implementation();
 
 private:
 	const GologT &golog_obj_;

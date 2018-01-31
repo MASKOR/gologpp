@@ -8,12 +8,9 @@
 namespace gologpp {
 namespace generic {
 
-using namespace std;
-
 class AnyValue;
 
-
-class Expression : public enable_shared_from_this<Expression>, public virtual AbstractLanguageElement {
+class Expression : public std::enable_shared_from_this<Expression>, public virtual AbstractLanguageElement {
 protected:
 	Expression(Scope &parent_scope);
 	Expression(Expression &&);

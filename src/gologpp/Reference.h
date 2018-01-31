@@ -10,23 +10,21 @@
 namespace gologpp {
 namespace generic {
 
-using namespace std;
-
 template<class GologT>
-class Reference : public virtual LanguageElement<Reference<GologT>> {
+class Reference : public virtual LanguageElement<Reference<GologT>>, public BooleanExpression {
 public:
 	Reference(const shared_ptr<GologT> &target, const vector<shared_ptr<Expression>> &args, Scope &parent_scope)
 	: LanguageElement<Reference<GologT>>(*this)
+	, BooleanExpression(parent_scope)
 	, target_(target)
 	, args_(args)
-	, scope_(parent_scope)
 	{}
 
 	Reference(Reference<GologT> &&other)
 	: LanguageElement<Reference<GologT>>(*this)
+	, BooleanExpression(std::move(other.parent_scope_))
 	, target_(std::move(other.target_))
 	, args_(std::move(other.args_))
-	, scope_(other.scope_)
 	{}
 
 	virtual ~Reference() = default;
@@ -42,11 +40,10 @@ public:
 private:
 	shared_ptr<GologT> target_;
 	vector<shared_ptr<Expression>> args_;
-	Scope &scope_;
 };
 
 
-class Fluent;
+/*class Fluent;
 
 
 template<>
@@ -82,7 +79,7 @@ private:
 	shared_ptr<Fluent> target_;
 	vector<shared_ptr<Expression>> args_;
 	Scope &scope_;
-};
+};*/
 
 
 } // namespace generic

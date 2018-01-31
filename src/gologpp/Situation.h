@@ -9,8 +9,6 @@
 namespace gologpp {
 namespace generic {
 
-using namespace std;
-
 class Situation {
 public:
 	Situation();

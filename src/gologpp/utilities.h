@@ -13,8 +13,11 @@
 namespace gologpp {
 namespace generic {
 
-using namespace std;
+template<class T>
+using vector = std::vector<T>;
 
+template<class K, class V>
+using unordered_map = std::unordered_map<K, V>;
 
 
 class Name {
@@ -59,8 +62,6 @@ public:
 	Scope(const vector<shared_ptr<Variable>> &variables, Scope &parent_scope);
 	Scope(const vector<string> &variables, Scope &parent_scope);
 	Scope(Scope &&);
-
-	virtual ~Scope() = default;
 
 	shared_ptr<Variable> variable(const string &name);
 	vector<shared_ptr<Expression>> variables(const vector<string> &names);

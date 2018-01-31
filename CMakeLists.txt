@@ -34,6 +34,7 @@ set(READYLOG_SRC
 	src/backends/readylog/Formula.cpp
 	src/backends/readylog/Procedure.cpp
 	src/backends/readylog/Reference.cpp
+	src/backends/readylog/Implementation.cpp
 )
 
 set(TEST_SRC

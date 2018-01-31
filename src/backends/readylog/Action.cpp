@@ -1,4 +1,5 @@
 #include "Action.h"
+#include "Execution.h"
 #include <gologpp/Action.h>
 
 #include <eclipseclass.h>
@@ -57,6 +58,14 @@ EC_word Implementation<generic::Action>::poss()
 EC_word Implementation<generic::Action>::term()
 {
 
+}
+
+
+void Implementation<generic::Action>::apply_to(readylog::ExecutionContext &ctx)
+{
+	ctx.compile(prim_action());
+	ctx.compile(poss());
+	ctx.compile(causes_val());
 }
 
 

@@ -9,21 +9,15 @@ namespace gologpp {
 
 namespace generic {
 template<class GologT> class Reference;
-class FluentReference;
-class Fluent;
 } // namespace generic
 
 
 template<class GologT>
-class Implementation<generic::Reference<GologT>> : public AbstractImplementation {
+class Implementation<generic::Reference<GologT>> : public ReadylogExpression {
 
 };
 
 
-template<>
-class Implementation<generic::FluentReference> : public ReadylogExpression {
-
-};
 
 
 } // namespace gologpp

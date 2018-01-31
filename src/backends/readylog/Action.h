@@ -26,6 +26,7 @@ public:
 
 namespace generic {
 class Action;
+class ExecutionContext;
 }
 
 template<>
@@ -36,7 +37,11 @@ public:
 
 	virtual EC_word prim_action();
 	virtual EC_word poss();
+	virtual EC_word causes_val();
+
 	virtual EC_word term() override;
+
+	virtual void apply_to(readylog::ExecutionContext &ctx) override;
 
 private:
 	const generic::Action &action_;
