@@ -3,25 +3,31 @@
 
 namespace gologpp {
 
+namespace generic {
+class AbstractExecutionContext;
+}
 
 class AbstractImplementation {
 public:
 	virtual ~AbstractImplementation() = default;
+
+	template<class exec_ctx_t>
+	void init(exec_ctx_t &);
 };
 
 
 template<class GologT>
-class Implementation : public AbstractImplementation {
+class Implementation; /*: public AbstractImplementation {
 public:
 	Implementation(const GologT &obj)
 	: golog_obj_(obj)
 	{}
 
-	virtual ~Implementation();
+	virtual ~Implementation() = 0;
 
 private:
 	const GologT &golog_obj_;
-};
+};*/
 
 
 }

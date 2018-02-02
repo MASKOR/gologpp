@@ -13,13 +13,12 @@ class AnyValue;
 class Expression : public std::enable_shared_from_this<Expression>, public virtual AbstractLanguageElement {
 protected:
 	Expression(Scope &parent_scope);
-	Expression(Expression &&);
+	Expression(Expression &&) = default;
 
-	virtual ~Expression();
+	virtual ~Expression() = default;
 
 public:
 	Scope &parent_scope();
-	operator Scope &();
 
 private:
 	Scope &parent_scope_;
@@ -35,6 +34,9 @@ public:
 class Variable : public Atom, public Name, public LanguageElement<Variable> {
 protected:
 	Variable(const string &name, Scope &parent_scope);
+
+	virtual tuple<> members() override;
+
 	friend Scope;
 };
 
@@ -42,6 +44,8 @@ protected:
 class AnyValue : public Atom, public LanguageElement<AnyValue> {
 public:
 	AnyValue();
+
+	virtual members_t members() override;
 };
 
 

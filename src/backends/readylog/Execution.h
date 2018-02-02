@@ -2,27 +2,18 @@
 #define READYLOG_EXECUTION_H_
 
 #include <gologpp/Execution.h>
+#include "config.h"
 #include <eclipseclass.h>
-
-#include <backends/readylog/Action.h>
-#include <backends/readylog/Fluent.h>
 
 namespace gologpp {
 namespace readylog {
 
 using namespace std;
 
-class ExecutionContext
-		: public generic::ExecutionContext<
-			generic::ImplConfig<
-				Implementation<generic::Action>,
-				Implementation<generic::Fluent>,
-				Implementation<generic::Procedure>
-			>
-		>
+class ExecutionContext : public generic::ExecutionContext<readylog_impl_config_t>
 {
 public:
-    virtual ~ExecutionContext() = default;
+    virtual ~ExecutionContext();
     static ExecutionContext &instance();
 
     void compile(const EC_word &term);

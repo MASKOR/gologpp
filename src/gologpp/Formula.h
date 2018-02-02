@@ -14,12 +14,17 @@ namespace generic {
 class BooleanExpression : public Expression {
 protected:
 	using Expression::Expression;
+	BooleanExpression(BooleanExpression &&) = default;
 };
 
 
-class Negation : public BooleanExpression, public LanguageElement<Negation> {
+class Negation : public BooleanExpression, public LanguageElement<Negation, BooleanExpression> {
 public:
 	Negation(unique_ptr<BooleanExpression> &&expression, Scope &parent_scope);
+	Negation(Negation &&) = default;
+	virtual ~Negation() override = default;
+
+	virtual tuple<BooleanExpression &> members() override;
 
 protected:
 	unique_ptr<BooleanExpression> expression_;
@@ -31,9 +36,11 @@ enum ComparisonOperator {
 };
 
 
-class Comparison : public BooleanExpression, public LanguageElement<Comparison> {
+class Comparison : public BooleanExpression, public LanguageElement<Comparison, Atom, Atom> {
 public:
 	Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const shared_ptr<Atom> &rhs, Scope &parent_scope);
+
+	virtual members_t members() override;
 
 protected:
 	shared_ptr<Atom> lhs_;
@@ -54,9 +61,10 @@ enum BooleanOperator {
 };
 
 
-class ConnectiveFormula : public BooleanExpression, public LanguageElement<ConnectiveFormula> {
+class ConnectiveFormula : public BooleanExpression, public LanguageElement<ConnectiveFormula, BooleanExpression, BooleanExpression> {
 public:
 	ConnectiveFormula(unique_ptr<BooleanExpression> &&lhs, BooleanOperator op, unique_ptr<BooleanExpression> &&rhs, Scope &parent_scope);
+	virtual members_t members() override;
 
 protected:
 	unique_ptr<BooleanExpression> lhs_;

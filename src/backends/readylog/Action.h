@@ -26,8 +26,13 @@ public:
 
 namespace generic {
 class Action;
+}
+
+
+namespace readylog {
 class ExecutionContext;
 }
+
 
 template<>
 class Implementation<generic::Action> : public ReadylogExpression {
@@ -41,7 +46,7 @@ public:
 
 	virtual EC_word term() override;
 
-	virtual void apply_to(readylog::ExecutionContext &ctx) override;
+	void init(readylog::ExecutionContext &ctx);
 
 private:
 	const generic::Action &action_;

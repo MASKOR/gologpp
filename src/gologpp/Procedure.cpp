@@ -16,14 +16,12 @@ Statement::~Statement()
 
 Block::Block(const vector<shared_ptr<Statement>> &elements, Scope &parent_scope)
 : Statement(parent_scope)
-, LanguageElement(*this)
 , elements_(elements)
 {}
 
 
 Choose::Choose(const vector<shared_ptr<Block>> &alternatives,Scope &parent_scope)
 : Statement(parent_scope)
-, LanguageElement(*this)
 , alternatives_(alternatives)
 {}
 
@@ -33,7 +31,6 @@ Conditional::Conditional(const shared_ptr<BooleanExpression> &condition,
                          const shared_ptr<Block> &block_false,
                          Scope &parent_scope)
     : Statement(parent_scope)
-, LanguageElement(*this)
     , condition_(condition)
     , block_true_(block_true)
     , block_false_(block_false)
@@ -42,7 +39,6 @@ Conditional::Conditional(const shared_ptr<BooleanExpression> &condition,
 
 Assignment::Assignment(Reference<Fluent> &&fluent, const shared_ptr<Expression> &expression, Scope &parent_scope)
 : Statement(parent_scope)
-, LanguageElement(*this)
 , fluent_(std::move(fluent))
 , expression_(expression)
 {}
@@ -50,14 +46,12 @@ Assignment::Assignment(Reference<Fluent> &&fluent, const shared_ptr<Expression> 
 
 Pick::Pick(const shared_ptr<Variable> &variable, const shared_ptr<Block> &block, Scope &parent_scope)
 : Statement(parent_scope)
-, LanguageElement(*this)
 , variable_(variable), block_(block)
 {}
 
 
 Call::Call(const shared_ptr<Action> &action, const vector<shared_ptr<Expression>> &args, Scope &parent_scope)
 : Statement(parent_scope)
-, LanguageElement(*this)
 , action_(action)
 , args_(args)
 {}
@@ -65,29 +59,25 @@ Call::Call(const shared_ptr<Action> &action, const vector<shared_ptr<Expression>
 
 Search::Search(unique_ptr<Block> &&block, Scope &parent_scope)
 : Statement(parent_scope)
-, LanguageElement(*this)
 , block_(std::move(block))
 {}
 
 
 Test::Test(const shared_ptr<BooleanExpression> &expression, Scope &parent_scope)
 : Statement(parent_scope)
-, LanguageElement(*this)
 , expression_(expression)
 {}
 
 
 While::While(const shared_ptr<BooleanExpression> &expression, unique_ptr<Block> &&block, Scope &parent_scope)
 : Statement(parent_scope)
-, LanguageElement(*this)
 , expression_(expression), block_(std::move(block))
 {}
 
 
 Procedure::Procedure(const string &name, const vector<string> &arg_names, unique_ptr<Block> &&block)
 : Statement(Scope::global_scope())
-, NameWithArity(name, static_cast<arity_t>(arg_names.size()))
-, LanguageElement(*this)
+, Identifier(name, static_cast<arity_t>(arg_names.size()))
 , scope_(arg_names, Scope::global_scope())
 , block_(std::move(block))
 {}

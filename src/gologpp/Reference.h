@@ -11,23 +11,24 @@ namespace gologpp {
 namespace generic {
 
 template<class GologT>
-class Reference : public virtual LanguageElement<Reference<GologT>>, public BooleanExpression {
+class Reference : public LanguageElement<Reference<GologT>>, public BooleanExpression {
 public:
 	Reference(const shared_ptr<GologT> &target, const vector<shared_ptr<Expression>> &args, Scope &parent_scope)
-	: LanguageElement<Reference<GologT>>(*this)
-	, BooleanExpression(parent_scope)
+	: BooleanExpression(parent_scope)
 	, target_(target)
 	, args_(args)
 	{}
 
 	Reference(Reference<GologT> &&other)
-	: LanguageElement<Reference<GologT>>(*this)
-	, BooleanExpression(other.parent_scope())
+	: BooleanExpression(other.parent_scope())
 	, target_(std::move(other.target_))
 	, args_(std::move(other.args_))
 	{}
 
 	virtual ~Reference() = default;
+
+	virtual tuple<> members() override
+	{ return std::tie(); }
 
 	GologT &operator * ()
 	{ return *target_; }

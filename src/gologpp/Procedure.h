@@ -115,7 +115,7 @@ protected:
 };
 
 
-class Procedure : public Statement, public NameWithArity, public LanguageElement<Procedure> {
+class Procedure : public Statement, public Identifier, public LanguageElement<Procedure> {
 public:
     Procedure(const string &name, const vector<string> &arg_names, unique_ptr<Block> &&block);
     Procedure(Procedure &&) = default;

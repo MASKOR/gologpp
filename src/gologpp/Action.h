@@ -13,13 +13,12 @@
 #include "Translation.h"
 #include "atoms.h"
 #include "Language.h"
-#include "Implementation.h"
 
 namespace gologpp {
 namespace generic {
 
 
-class Action : public enable_shared_from_this<Action>, public NameWithArity, public LanguageElement<Action> {
+class Action : public enable_shared_from_this<Action>, public Identifier, public LanguageElement<Action, BooleanExpression, EffectAxiom> {
 public:
 	Action(const string &name, const vector<string> &args,
 	       unique_ptr<BooleanExpression> &&precondition = nullptr, unique_ptr<EffectAxiom> &&effect = nullptr);
@@ -39,6 +38,8 @@ public:
 	vector<shared_ptr<Expression>> args();
 
 	Scope &scope();
+
+	virtual tuple<BooleanExpression &, EffectAxiom &> members() override;
 
 	//virtual void init_impl(unique_ptr<Implementation<Action>> &impl) override;
 

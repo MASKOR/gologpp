@@ -36,16 +36,16 @@ private:
 };
 
 
-class NameWithArity : public Name {
+class Identifier : public Name {
 public:
-    NameWithArity(const string &name, arity_t arity);
-    NameWithArity(NameWithArity &&other);
-    NameWithArity(const NameWithArity &other) = default;
+    Identifier(const string &name, arity_t arity);
+    Identifier(Identifier &&other);
+    Identifier(const Identifier &other) = default;
     
-    virtual ~NameWithArity() override = default;
+    virtual ~Identifier() override = default;
     
     arity_t arity() const;
-    virtual bool operator == (const NameWithArity &other) const;
+    virtual bool operator == (const Identifier &other) const;
     virtual size_t hash() const override;
 
 private:
@@ -89,8 +89,8 @@ private:
 namespace std {
 
 template<>
-struct hash<gologpp::generic::NameWithArity> {
-    size_t operator () (const gologpp::generic::NameWithArity &o) const
+struct hash<gologpp::generic::Identifier> {
+    size_t operator () (const gologpp::generic::Identifier &o) const
     { return o.hash(); }
 };
 

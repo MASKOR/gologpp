@@ -3,9 +3,6 @@
 namespace gologpp {
 namespace generic {
 
-AbstractLanguageElement::~AbstractLanguageElement()
-{}
 
-
-}
+} // namespace generic
 } // namespace gologpp

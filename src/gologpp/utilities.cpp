@@ -24,24 +24,24 @@ size_t Name::hash() const
 { return std::hash<string>{}(name()); }
 
 
-NameWithArity::NameWithArity(const string &name, arity_t arity)
+Identifier::Identifier(const string &name, arity_t arity)
 : Name(name), arity_(arity)
 {}
 
-NameWithArity::NameWithArity(NameWithArity &&other)
+Identifier::Identifier(Identifier &&other)
 : Name(std::move(other))
 , arity_(std::move(other.arity()))
 {}
 
 
 
-arity_t NameWithArity::arity() const
+arity_t Identifier::arity() const
 { return arity_; }
 
-bool NameWithArity::operator == (const NameWithArity &other) const
+bool Identifier::operator == (const Identifier &other) const
 { return name() == other.name() && arity() == other.arity(); }
 
-size_t NameWithArity::hash() const
+size_t Identifier::hash() const
 { return Name::hash() ^ (std::hash<gologpp::arity_t>{}(arity()) << 1); }
 
 

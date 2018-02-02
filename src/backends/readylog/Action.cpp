@@ -61,7 +61,7 @@ EC_word Implementation<generic::Action>::term()
 }
 
 
-void Implementation<generic::Action>::apply_to(readylog::ExecutionContext &ctx)
+void Implementation<generic::Action>::init(readylog::ExecutionContext &ctx)
 {
 	ctx.compile(prim_action());
 	ctx.compile(poss());
