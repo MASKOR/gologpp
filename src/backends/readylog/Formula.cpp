@@ -9,7 +9,13 @@ Implementation<generic::Negation>::Implementation(const generic::Negation &neg)
 
 
 EC_word Implementation<generic::Negation>::term()
-{ return dynamic_cast<ReadylogExpression &>(negation_.implementation()).term(); }
+{
+	return ::term(EC_functor("neg", 1),
+	              dynamic_cast<ReadylogExpression &>(
+	                  negation_.expression().implementation()
+	              ).term()
+	);
+}
 
 
 }

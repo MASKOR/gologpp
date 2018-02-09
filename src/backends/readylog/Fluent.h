@@ -19,6 +19,9 @@ public:
 	virtual ~Implementation() override = default;
 
 	virtual EC_word term() override;
+
+private:
+	const generic::Fluent &fluent_;
 };
 
 

@@ -23,10 +23,14 @@ class EffectAxiom;
 
 template<>
 class Implementation<generic::EffectAxiom> : public ReadylogExpression {
+public:
 	Implementation(const generic::EffectAxiom &);
 	virtual ~Implementation() override = default;
 
 	virtual EC_word term() override;
+
+private:
+	const generic::EffectAxiom &effect_;
 };
 
 } /* namespace gologpp */

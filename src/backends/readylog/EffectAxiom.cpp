@@ -1,24 +1,30 @@
 #include "EffectAxiom.h"
+#include "Reference.h"
+#include <gologpp/EffectAxiom.h>
+#include "Action.h"
+#include <gologpp/Action.h>
+#include "Fluent.h"
+#include <gologpp/Fluent.h>
+#include "Formula.h"
 
 
 namespace gologpp {
-namespace readylog {
 
 
-/*EffectAxiom::EffectAxiom(generic::EffectAxiom &&other)
-: gologpp::Translatable<generic::EffectAxiom, EC_word>(std::forward<generic::EffectAxiom>(other))
+Implementation<generic::EffectAxiom>::Implementation(const generic::EffectAxiom &eff)
+: effect_(eff)
 {}
 
 
-void EffectAxiom::init(EC_word &cache)
+EC_word Implementation<generic::EffectAxiom>::term()
 {
-	EC_word fluent_ref = dynamic_cast<const readylog::Reference<readylog::Fluent> &>(fluent()).translate();
-	EC_word action_ref = dynamic_cast<const readylog::Reference<readylog::Action> &>(action()).translate();
-	EC_word value_expr = dynamic_cast<const Translatable<generic::Expression, EC_word> &>(value()).translate();
+	return ::term(
+		EC_functor("causes_val", 3),
+		effect_.action().impl_cast<generic::Reference<generic::Action>>().term(),
+		effect_.fluent().impl_cast<generic::Reference<generic::Fluent>>().term(),
+		effect_.value().impl_cast<generic::Reference<generic::Expression>>().term()
+	);
+}
 
-	cache = ::term(EC_functor("causes_val", 3), action_ref, fluent_ref, value_expr);
-}*/
 
-
-} // namespace readylog
 } // namespace gologpp

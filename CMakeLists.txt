@@ -35,7 +35,7 @@ set(READYLOG_SRC
 )
 
 set(TEST_SRC
-	src/tests/readylogpp.cpp)
+	src/tests/readylog-test.cpp)
 
 #add_compile_options(${SWIPL_CFLAGS} -Wall)
 #foreach(flag IN LISTS SWIPL_LDFLAGS)
@@ -47,7 +47,8 @@ link_directories(${ECLIPSE_LIBRARY_DIRS})
 find_file(READYLOG_PL readylog.pl
         PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../
         PATH_SUFFIXES /readylog/interpreter /kbsgolog/interpreters/readylog)
-add_definitions(-DREADYLOG_PATH="\\\"${READYLOG_PL}\\\"" -DBACKEND=readylog)
+add_definitions(-DREADYLOG_PATH=\"${READYLOG_PL}\" -DBACKEND=readylog)
+add_definitions(-DECLIPSE_DIR=\"${ECLIPSE_DIR}\")
 
 add_library(readylogpp SHARED ${INTERFACE_SRC} ${READYLOG_SRC})
 target_link_libraries(readylogpp ${ECLIPSE_LIBRARIES})

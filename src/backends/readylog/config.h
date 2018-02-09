@@ -3,21 +3,17 @@
 
 #include <gologpp/gologpp.h>
 
+#include <backends/readylog/Action.h>
+#include <backends/readylog/Fluent.h>
+#include <backends/readylog/Procedure.h>
+
 namespace gologpp {
 
 
 namespace generic {
 template<class impl_config_t>
 class ExecutionContext;
-
-class Action;
-class Fluent;
-class Procedure;
-
 }
-
-
-namespace readylog {
 
 
 template<class GologT>
@@ -31,8 +27,6 @@ typedef generic::ImplConfig<
 > readylog_impl_config_t;
 
 
-
-} // namespace readylog
 } // namespace gologpp
 
 

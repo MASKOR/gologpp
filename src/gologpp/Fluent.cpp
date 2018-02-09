@@ -6,21 +6,19 @@ namespace generic {
 Fluent::Fluent(const string &name, const vector<string> &args)
 : Atom(Scope::global_scope())
 , Identifier(name, static_cast<arity_t>(args.size()))
+, args_(args)
+, scope_(args, Scope::global_scope())
 {}
 
 
-tuple<> Fluent::members()
-{ return std::tie(); }
+vector<shared_ptr<Expression>> Fluent::args() const
+{ return scope_.variables(args_); }
 
 
 Initially::Initially(Reference<Fluent> &&fluent, unique_ptr<AnyValue> &&value)
 : fluent_(std::move(fluent))
 , value_(std::move(value))
 {}
-
-
-tuple<Reference<Fluent> &, AnyValue &> Initially::members()
-{ return std::tie(fluent_, *value_); }
 
 
 const Fluent &Initially::fluent() const

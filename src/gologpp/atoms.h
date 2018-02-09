@@ -4,6 +4,7 @@
 #include "utilities.h"
 #include "Language.h"
 #include <memory>
+#include <boost/variant.hpp>
 
 namespace gologpp {
 namespace generic {
@@ -35,33 +36,26 @@ class Variable : public Atom, public Name, public LanguageElement<Variable> {
 protected:
 	Variable(const string &name, Scope &parent_scope);
 
-	virtual tuple<> members() override;
-
 	friend Scope;
 };
 
 
 class AnyValue : public Atom, public LanguageElement<AnyValue> {
 public:
-	AnyValue();
+	typedef boost::variant<string, int, long, double, bool> variant_t;
 
-	virtual members_t members() override;
-};
-
-
-template<typename DataT>
-class Value : public AnyValue {
-public:
-	Value(const DataT &data)
-	: data_(data)
+	template<class T>
+	AnyValue(T value)
+	: Atom(Scope::global_scope())
+	, value_(value)
 	{}
 
-	DataT data()
-	{ return data_; }
+	const variant_t &value() const;
 
 protected:
-	DataT data_;
+	variant_t value_;
 };
+
 
 
 } // namespace generic

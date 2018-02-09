@@ -19,17 +19,9 @@ Variable::Variable(const string &name, Scope &parent_scope)
 {}
 
 
-tuple<> Variable::members()
-{ return std::tie(); }
+const AnyValue::variant_t &AnyValue::value() const
+{ return value_; }
 
-
-AnyValue::AnyValue()
-: Atom(Scope::global_scope())
-{}
-
-
-AnyValue::members_t AnyValue::members()
-{ return std::tie(); }
 
 }
 }

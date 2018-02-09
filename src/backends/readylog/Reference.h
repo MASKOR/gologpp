@@ -2,6 +2,7 @@
 #define READYLOG_REFERENCE_H_
 
 #include "Implementation.h"
+#include <gologpp/Reference.h>
 #include <eclipseclass.h>
 
 
@@ -14,9 +15,19 @@ template<class GologT> class Reference;
 
 template<class GologT>
 class Implementation<generic::Reference<GologT>> : public ReadylogExpression {
+public:
+	Implementation(const generic::Reference<GologT> &ref)
+	: reference_(ref)
+	{}
 
+
+	EC_word term() override
+	{ return dynamic_cast<ReadylogExpression &>(reference_->implementation()).term(); }
+
+
+private:
+	const generic::Reference<GologT> &reference_;
 };
-
 
 
 

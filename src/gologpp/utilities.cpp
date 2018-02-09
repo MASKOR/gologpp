@@ -84,11 +84,30 @@ shared_ptr<Variable> Scope::variable(const string &name)
 }
 
 
-vector<shared_ptr<Expression>> Scope::variables(const vector<string> &names)
+shared_ptr<Variable> Scope::variable(const string &name) const
+{
+	auto it = variables_.find(name);
+	shared_ptr<Variable> rv;
+	if (it != variables_.end())
+		rv = it->second;
+	return rv;
+}
+
+
+vector<shared_ptr<Expression>> Scope::variables(const vector<string> &names) const
 {
 	vector<shared_ptr<Expression>> rv;
 	for (const string &name : names)
 		rv.push_back(variable(name));
+	return rv;
+}
+
+
+Scope Scope::clone()
+{
+	Scope rv(vector<string>{}, parent_scope_);
+	for (decltype(variables_)::value_type entry : variables_)
+		rv.variables_.emplace(entry.first, shared_ptr<Variable>(new Variable(entry.first, *this)));
 	return rv;
 }
 

@@ -4,13 +4,27 @@
 #include <gologpp/Implementation.h>
 #include <eclipseclass.h>
 
+#include "Implementation.h"
+
 namespace gologpp {
-namespace readylog {
+
+namespace generic {
+class Procedure;
+}
+
+template<>
+class Implementation<generic::Procedure> : public ReadylogExpression {
+public:
+	Implementation(const generic::Procedure &proc);
+
+	virtual EC_word term() override;
+
+private:
+	const generic::Procedure &procedure_;
+};
 
 
 
-
-} // namespace readylog
 } // namespace gologpp
 
 

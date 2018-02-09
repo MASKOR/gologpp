@@ -76,22 +76,6 @@ public:
 	{ return get_global(procedures_, name, arity); }
 
 
-	void init()
-	{
-		for (id_map_t<Fluent>::value_type &entry : fluents_) {
-			entry.second->init<>();
-			dynamic_cast<fluent_impl_t &>(entry.second->implementation()).init(*this);
-		}
-		for (id_map_t<Action>::value_type &entry : actions_) {
-			entry.second->init<>();
-			dynamic_cast<action_impl_t &>(entry.second->implementation()).init(*this);
-		}
-		for (id_map_t<Procedure>::value_type entry : procedures_) {
-			entry.second->init<>();
-			dynamic_cast<proc_impl_t &>(entry.second->implementation()).init(*this);
-		}
-	}
-
 protected:
     shared_ptr<History> history_;
 

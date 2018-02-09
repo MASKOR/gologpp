@@ -13,8 +13,8 @@ Negation::Negation(unique_ptr<BooleanExpression> &&expression, Scope &parent_sco
 {}
 
 
-Negation::members_t Negation::members()
-{ return std::tie(*expression_); }
+const BooleanExpression &Negation::expression() const
+{ return *expression_; }
 
 
 Comparison::Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const shared_ptr<Atom> &rhs, Scope &parent_scope)
@@ -23,18 +23,10 @@ Comparison::Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const
 {}
 
 
-Comparison::members_t Comparison::members()
-{ return std::tie(*lhs_, *rhs_); }
-
-
 ConnectiveFormula::ConnectiveFormula(unique_ptr<BooleanExpression> &&lhs, BooleanOperator op, unique_ptr<BooleanExpression> &&rhs, Scope &parent_scope)
 : BooleanExpression(parent_scope)
 , lhs_(std::move(lhs)), op_(op), rhs_(std::move(rhs))
 {}
-
-
-ConnectiveFormula::members_t ConnectiveFormula::members()
-{ return std::tie(*lhs_, *rhs_); }
 
 
 Quantification::Quantification(
@@ -44,8 +36,6 @@ Quantification::Quantification(
     : BooleanExpression(parent_scope)
     , variable_(variable), expression_(std::move(expression))
 {}
-
-
 
 
 

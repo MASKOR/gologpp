@@ -18,7 +18,7 @@ namespace gologpp {
 namespace generic {
 
 
-class Action : public enable_shared_from_this<Action>, public Identifier, public LanguageElement<Action, BooleanExpression, EffectAxiom> {
+class Action : public enable_shared_from_this<Action>, public Identifier, public LanguageElement<Action> {
 public:
 	Action(const string &name, const vector<string> &args,
 	       unique_ptr<BooleanExpression> &&precondition = nullptr, unique_ptr<EffectAxiom> &&effect = nullptr);
@@ -35,11 +35,9 @@ public:
 	const EffectAxiom &effect() const;
 	void set_effect(unique_ptr<EffectAxiom> &&effect);
 
-	vector<shared_ptr<Expression>> args();
+	vector<shared_ptr<Expression>> args() const;
 
 	Scope &scope();
-
-	virtual tuple<BooleanExpression &, EffectAxiom &> members() override;
 
 	//virtual void init_impl(unique_ptr<Implementation<Action>> &impl) override;
 

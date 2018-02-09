@@ -37,16 +37,12 @@ void Action::set_effect(unique_ptr<EffectAxiom> &&effect)
 { effect_ = std::move(effect); }
 
 
-vector<shared_ptr<Expression>> Action::args()
+vector<shared_ptr<Expression>> Action::args() const
 { return scope_.variables(args_); }
 
 
 Scope &Action::scope()
 { return scope_; }
-
-
-tuple<BooleanExpression &, EffectAxiom &> Action::members()
-{ return std::tie(*precondition_, *effect_); }
 
 
 Transition::Transition(const shared_ptr<Action> &action, vector<unique_ptr<AnyValue>> &&binding)

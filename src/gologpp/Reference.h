@@ -3,6 +3,7 @@
 
 #include "atoms.h"
 #include "Formula.h"
+#include "utilities.h"
 
 #include <memory>
 #include <vector>
@@ -19,6 +20,12 @@ public:
 	, args_(args)
 	{}
 
+	Reference(const shared_ptr<GologT> &target, const vector<string> &args, Scope &parent_scope)
+	: BooleanExpression(parent_scope)
+	, target_(target)
+	, args_(parent_scope.variables(args))
+	{}
+
 	Reference(Reference<GologT> &&other)
 	: BooleanExpression(other.parent_scope())
 	, target_(std::move(other.target_))
@@ -27,14 +34,11 @@ public:
 
 	virtual ~Reference() = default;
 
-	virtual tuple<> members() override
-	{ return std::tie(); }
-
-	GologT &operator * ()
+	GologT &operator * () const
 	{ return *target_; }
 
-	const GologT &operator * () const
-	{ return *target_; }
+	GologT *operator -> () const
+	{ return target_.get(); }
 
 	//virtual void init_impl(unique_ptr<Implementation<Reference<GologT>>> &impl) override;
 

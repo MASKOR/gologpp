@@ -1,9 +1,40 @@
 #include "atoms.h"
+#include <gologpp/atoms.h>
 
 namespace gologpp {
-namespace readylog {
 
 
+Implementation<generic::Variable>::Implementation(const generic::Variable &var)
+: variable_(var)
+, ec_var_(::newvar())
+{}
 
-}
+
+void Implementation<generic::Variable>::reset()
+{ ec_var_ = ::newvar(); }
+
+
+EC_word Implementation<generic::Variable>::term()
+{ return ec_var_; }
+
+
+struct wrap_word {
+template<class T>
+	EC_word operator () (const T &v) const
+	{ return ::EC_word(v); }
+};
+
+template<>
+EC_word wrap_word::operator () (const string &v) const
+{ return ::EC_word(v.c_str()); }
+
+template<>
+EC_word wrap_word::operator () (const bool &v) const
+{ return v ? EC_atom("true") : EC_atom("fail"); }
+
+
+EC_word Implementation<generic::AnyValue>::term()
+{ return boost::apply_visitor(wrap_word(), value_.value()); }
+
+
 }

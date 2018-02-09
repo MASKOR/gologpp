@@ -63,9 +63,12 @@ public:
 	Scope(const vector<string> &variables, Scope &parent_scope);
 	Scope(Scope &&);
 
+	shared_ptr<Variable> variable(const string &name) const;
 	shared_ptr<Variable> variable(const string &name);
-	vector<shared_ptr<Expression>> variables(const vector<string> &names);
+	vector<shared_ptr<Expression>> variables(const vector<string> &names) const;
 	shared_ptr<Scope> parent_scope();
+
+	Scope clone();
 
 	static Scope &global_scope()
 	{ return global_scope_; }

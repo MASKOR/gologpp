@@ -4,16 +4,20 @@
 #include "Action.h"
 #include <gologpp/Action.h>
 
+#include <iostream>
+
 namespace gologpp {
 namespace readylog {
 
 ExecutionContext::ExecutionContext()
 : generic::ExecutionContext<readylog_impl_config_t>()
 {
-	if (!ec_init())
+	ec_set_option_ptr(EC_OPTION_ECLIPSEDIR, (void *)ECLIPSE_DIR);
+	std::cout << ECLIPSE_DIR;
+	if (ec_init())
 		throw std::runtime_error("Error initializing ECLiPSe subsystem");
 
-	post_goal((string("consult(") + READYLOG_PATH + ")").c_str());
+	post_goal((string("consult(\"") + READYLOG_PATH + "\")").c_str());
 	EC_resume();
 }
 

@@ -20,8 +20,14 @@ EffectAxiom::~EffectAxiom() {
 }
 
 
-tuple<Reference<Action> &, Reference<Fluent> &, Expression &> EffectAxiom::members()
-{ return std::tie(action_, fluent_, *value_); }
+const Reference<Action> &EffectAxiom::action() const
+{ return action_; }
+
+const Reference<Fluent> &EffectAxiom::fluent() const
+{ return fluent_; }
+
+const Expression &EffectAxiom::value() const
+{ return *value_; }
 
 
 } // namespace generic

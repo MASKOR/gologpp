@@ -19,22 +19,21 @@ public:
 	Fluent(Fluent &&) = default;
 	virtual ~Fluent() override = default;
 
-	virtual tuple<> members() override;
+	vector<shared_ptr<Expression>> args() const;
 
 private:
-	shared_ptr<Scope> parent_scope_;
+	vector<string> args_;
+	Scope scope_;
 };
 
 
-class Initially : public LanguageElement<Initially, Reference<Fluent>, AnyValue> {
+class Initially : public LanguageElement<Initially> {
 public:
 	Initially(Reference<Fluent> &&fluent, unique_ptr<AnyValue> &&value);
 	virtual ~Initially() override = default;
 
 	const Fluent &fluent() const;
 	const AnyValue &initial_value() const;
-
-	virtual tuple<Reference<Fluent> &, AnyValue &> members() override;
 
 private:
 	Reference<Fluent> fluent_;

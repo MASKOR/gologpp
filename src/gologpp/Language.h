@@ -21,19 +21,19 @@ public:
 	AbstractLanguageElement(AbstractLanguageElement &&) = default;
 
 	virtual ~AbstractLanguageElement() = default;
-	virtual AbstractImplementation &implementation() const = 0;
 
-	template<class rv_t = void>
-	rv_t init() {
-		init_this<rv_t>();
-		init_members();
-	}
+	template<class GologT>
+	Implementation<GologT> &impl_cast() const
+	{ return dynamic_cast<Implementation<GologT> &>(implementation()); }
+
+	void init(unique_ptr<AbstractImplementation> &&impl)
+	{ impl_ = std::move(impl); }
+
+	virtual AbstractImplementation &implementation() const
+	{ return *impl_; }
 
 protected:
-	template<class rv_t = void>
-	rv_t init_this() {}
-
-	virtual void init_members() = 0;
+	unique_ptr<AbstractImplementation> impl_;
 };
 
 
@@ -44,14 +44,14 @@ public:
 	
 	virtual members_t members() = 0;
 
-protected:
-	virtual void init_members() override
-	{ boost::fusion::for_each(members(), [] (AbstractLanguageElement &e) { e.init<void>(); }); }
+	template<class DummyT = void>
+	void init_members()
+	{ boost::fusion::for_each(members(), [] (auto &e) { e.template init<decltype(e)>(); }); }
 };
 
 
-template<class GologT, class... member_ts>
-class LanguageElement : public CompositeLanguageElement<member_ts...> {
+template<class GologT>
+class LanguageElement : public virtual AbstractLanguageElement {
 public:
 	typedef GologT golog_t;
 
@@ -61,19 +61,13 @@ public:
 	LanguageElement(LanguageElement &&) = default;
 	LanguageElement &operator = (LanguageElement &&) = default;
 
-	virtual AbstractImplementation &implementation() const override
+	template<class... ArgTs>
+	static GologT construct(ArgTs... args)
 	{
-		/*if (!impl_)
-			impl_ = make_unique<Implementation<GologT>>(dynamic_cast<GologT &>(*this));*/
-		return *impl_;
+		GologT rv(std::forward<ArgTs>(args)...);
+		rv.init(std::make_unique<Implementation<GologT>>(rv));
+		return rv;
 	}
-
-	template<class rv_t = void>
-	rv_t init_this()
-	{ impl_.reset(new Implementation<GologT>(dynamic_cast<GologT &>(*this))); }
-
-private:
-	unique_ptr<AbstractImplementation> impl_;
 };
 
 

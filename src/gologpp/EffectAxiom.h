@@ -12,17 +12,15 @@ class Action;
 class Expression;
 class Fluent;
 
-class EffectAxiom : public LanguageElement<EffectAxiom, Reference<Action>, Reference<Fluent>, Expression> {
+class EffectAxiom : public LanguageElement<EffectAxiom> {
 public:
 	EffectAxiom(Reference<Action> &&action, Reference<Fluent> &&fluent, const shared_ptr<Expression> &value);
 	EffectAxiom(EffectAxiom &&);
 	virtual ~EffectAxiom() override;
 
-	const Reference<Action> &action();
-	const Reference<Fluent> &fluent();
-	const Expression &value();
-
-	virtual tuple<Reference<Action> &, Reference<Fluent> &, Expression &> members() override;
+	const Reference<Action> &action() const;
+	const Reference<Fluent> &fluent() const;
+	const Expression &value() const;
 
 protected:
 	Reference<Action> action_;

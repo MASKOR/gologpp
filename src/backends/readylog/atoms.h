@@ -19,10 +19,12 @@ public:
 	Implementation(const generic::Variable &);
 	virtual ~Implementation() override = default;
 
+	void reset();
 	virtual EC_word term() override;
 
 private:
-
+	const generic::Variable &variable_;
+	EC_word ec_var_;
 };
 
 
@@ -32,6 +34,9 @@ class Implementation<generic::AnyValue> : public ReadylogExpression {
 	virtual ~Implementation() override = default;
 
 	virtual EC_word term() override;
+
+private:
+	const generic::AnyValue &value_;
 };
 
 

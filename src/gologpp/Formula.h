@@ -18,13 +18,13 @@ protected:
 };
 
 
-class Negation : public BooleanExpression, public LanguageElement<Negation, BooleanExpression> {
+class Negation : public BooleanExpression, public LanguageElement<Negation> {
 public:
 	Negation(unique_ptr<BooleanExpression> &&expression, Scope &parent_scope);
 	Negation(Negation &&) = default;
 	virtual ~Negation() override = default;
 
-	virtual tuple<BooleanExpression &> members() override;
+	const BooleanExpression &expression() const;
 
 protected:
 	unique_ptr<BooleanExpression> expression_;
@@ -36,11 +36,9 @@ enum ComparisonOperator {
 };
 
 
-class Comparison : public BooleanExpression, public LanguageElement<Comparison, Atom, Atom> {
+class Comparison : public BooleanExpression, public LanguageElement<Comparison> {
 public:
 	Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const shared_ptr<Atom> &rhs, Scope &parent_scope);
-
-	virtual members_t members() override;
 
 protected:
 	shared_ptr<Atom> lhs_;
@@ -61,10 +59,9 @@ enum BooleanOperator {
 };
 
 
-class ConnectiveFormula : public BooleanExpression, public LanguageElement<ConnectiveFormula, BooleanExpression, BooleanExpression> {
+class ConnectiveFormula : public BooleanExpression, public LanguageElement<ConnectiveFormula> {
 public:
 	ConnectiveFormula(unique_ptr<BooleanExpression> &&lhs, BooleanOperator op, unique_ptr<BooleanExpression> &&rhs, Scope &parent_scope);
-	virtual members_t members() override;
 
 protected:
 	unique_ptr<BooleanExpression> lhs_;
@@ -78,7 +75,7 @@ protected:
 \*--------------------------------------------*/
 
 
-class Quantification : public BooleanExpression {
+class Quantification : public BooleanExpression, public LanguageElement<Quantification> {
 public:
 	Quantification(
 	        const shared_ptr<Variable> &variable,
@@ -91,13 +88,13 @@ protected:
 };
 
 
-class ExistentialQuantification : public Quantification, public LanguageElement<ExistentialQuantification> {
+class ExistentialQuantification : public Quantification {
 public:
 	using Quantification::Quantification;
 };
 
 
-class UniversalQuantification : public Quantification, public LanguageElement<UniversalQuantification> {
+class UniversalQuantification : public Quantification {
 public:
 	using Quantification::Quantification;
 };
