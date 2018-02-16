@@ -11,8 +11,26 @@ Fluent::Fluent(const string &name, const vector<string> &args)
 {}
 
 
-vector<shared_ptr<Expression>> Fluent::args() const
-{ return scope_.variables(args_); }
+Fluent::Fluent(Fluent &&other)
+: Atom(std::move(other))
+, Identifier(std::move(other))
+, std::enable_shared_from_this<Fluent>(std::move(other))
+, LanguageElement<Fluent>(std::move(other))
+, args_(std::move(other.args_))
+, scope_(std::move(other.scope_))
+{}
+
+
+const vector<string> &Fluent::args() const
+{ return args_; }
+
+
+Scope &Fluent::scope()
+{ return scope_; }
+
+
+const Scope &Fluent::scope() const
+{ return scope_; }
 
 
 Initially::Initially(Reference<Fluent> &&fluent, unique_ptr<AnyValue> &&value)

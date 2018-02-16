@@ -20,10 +20,24 @@ Block::Block(const vector<shared_ptr<Statement>> &elements, Scope &parent_scope)
 {}
 
 
+void Block::implement(Implementor &implementor)
+{
+	for (auto &stmt : elements_)
+		stmt->implement(implementor);
+}
+
+
 Choose::Choose(const vector<shared_ptr<Block>> &alternatives,Scope &parent_scope)
 : Statement(parent_scope)
 , alternatives_(alternatives)
 {}
+
+
+void Choose::implement(Implementor &implementor)
+{
+	for (auto &stmt : alternatives_)
+		stmt->implement(implementor);
+}
 
 
 Conditional::Conditional(const shared_ptr<BooleanExpression> &condition,
@@ -47,13 +61,6 @@ Assignment::Assignment(Reference<Fluent> &&fluent, const shared_ptr<Expression> 
 Pick::Pick(const shared_ptr<Variable> &variable, const shared_ptr<Block> &block, Scope &parent_scope)
 : Statement(parent_scope)
 , variable_(variable), block_(block)
-{}
-
-
-Call::Call(const shared_ptr<Action> &action, const vector<shared_ptr<Expression>> &args, Scope &parent_scope)
-: Statement(parent_scope)
-, action_(action)
-, args_(args)
 {}
 
 

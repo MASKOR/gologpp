@@ -10,9 +10,9 @@
 #include "EffectAxiom.h"
 #include "error.h"
 #include "Formula.h"
-#include "Translation.h"
 #include "atoms.h"
 #include "Language.h"
+#include "Scope.h"
 
 namespace gologpp {
 namespace generic {
@@ -22,7 +22,9 @@ class Action : public enable_shared_from_this<Action>, public Identifier, public
 public:
 	Action(const string &name, const vector<string> &args,
 	       unique_ptr<BooleanExpression> &&precondition = nullptr, unique_ptr<EffectAxiom> &&effect = nullptr);
-	Action(Action &&other);
+
+	Action(const Action &) = delete;
+	Action(Action &&other) = default;
 
 	virtual ~Action() override = default;
 
@@ -30,16 +32,17 @@ public:
 
 	template<class T>
 	void set_precondition(T &&precondition)
-	{ precondition_ = std::move(make_unique<T>(std::move(precondition))); }
+	{ precondition_ = unique_ptr<BooleanExpression>(new T(std::move(precondition))); }
 
 	const EffectAxiom &effect() const;
-	void set_effect(unique_ptr<EffectAxiom> &&effect);
+	void set_effect(EffectAxiom &&effect);
 
-	vector<shared_ptr<Expression>> args() const;
+	const vector<string> &args() const;
 
 	Scope &scope();
+	const Scope &scope() const;
 
-	//virtual void init_impl(unique_ptr<Implementation<Action>> &impl) override;
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*precondition_, *effect_, scope_)
 
 protected:
 	Scope scope_;

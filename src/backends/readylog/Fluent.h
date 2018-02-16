@@ -21,7 +21,7 @@ public:
 	virtual EC_word term() override;
 
 private:
-	const generic::Fluent &fluent_;
+	const generic::Fluent *fluent_;
 };
 
 

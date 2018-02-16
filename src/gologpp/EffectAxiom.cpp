@@ -16,10 +16,6 @@ EffectAxiom::EffectAxiom(EffectAxiom &&e)
 , value_(std::move(e.value_))
 {}
 
-EffectAxiom::~EffectAxiom() {
-}
-
-
 const Reference<Action> &EffectAxiom::action() const
 { return action_; }
 

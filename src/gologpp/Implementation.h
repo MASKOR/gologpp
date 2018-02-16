@@ -1,33 +1,56 @@
 #ifndef GOLOGPP_IMPLEMENTATION_H_
 #define GOLOGPP_IMPLEMENTATION_H_
 
-namespace gologpp {
+#include "gologpp.h"
+#include <memory>
 
-namespace generic {
-class AbstractExecutionContext;
-}
+namespace gologpp {
 
 class AbstractImplementation {
 public:
 	virtual ~AbstractImplementation() = default;
-
-	template<class exec_ctx_t>
-	void init(exec_ctx_t &);
 };
 
 
 template<class GologT>
-class Implementation; /*: public AbstractImplementation {
+class Implementation;
+
+
+class Implementor {
 public:
-	Implementation(const GologT &obj)
-	: golog_obj_(obj)
-	{}
+	virtual ~Implementor() = default;
 
-	virtual ~Implementation() = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Action &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Reference<generic::Action> &) = 0;
 
-private:
-	const GologT &golog_obj_;
-};*/
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::EffectAxiom &) = 0;
+
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Fluent &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Reference<generic::Fluent> &) = 0;
+
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Scope &) = 0;
+
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::AnyValue &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Variable &) = 0;
+
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Negation &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Conjunction &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Disjunction &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::ExistentialQuantification &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::UniversalQuantification &) = 0;
+
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Block &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Choose &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Conditional &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Assignment &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Pick &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Search &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Test &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::While &) = 0;
+
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Procedure &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(generic::Reference<generic::Procedure> &) = 0;
+};
 
 
 }

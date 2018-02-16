@@ -18,7 +18,7 @@ set(INTERFACE_SRC
 		src/gologpp/Formula.cpp
 		src/gologpp/Procedure.cpp
 		src/gologpp/Translation.cpp
-		#src/gologpp/Language.cpp
+		src/gologpp/Scope.cpp
 		src/gologpp/utilities.cpp
 )
 
@@ -32,6 +32,8 @@ set(READYLOG_SRC
 	src/backends/readylog/Formula.cpp
 	src/backends/readylog/Procedure.cpp
 	src/backends/readylog/Reference.cpp
+	src/backends/readylog/Scope.cpp
+	src/backends/readylog/Implementation.cpp
 )
 
 set(TEST_SRC
@@ -43,6 +45,9 @@ set(TEST_SRC
 #endforeach()
 include_directories(${ECLIPSE_INCLUDE_DIRS} ${Boost_INCLUDE_DIR} src)
 link_directories(${ECLIPSE_LIBRARY_DIRS})
+
+add_compile_options(-Wall)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g")
 
 find_file(READYLOG_PL readylog.pl
         PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../

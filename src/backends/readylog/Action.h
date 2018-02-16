@@ -5,24 +5,6 @@
 #include "Implementation.h"
 
 namespace gologpp {
-/*namespace readylog {
-
-class Action : public Translatable<generic::Action, tuple<EC_word, EC_word, EC_word>> {
-public:
-	Action(generic::Action &&action);
-    
-private:
-	void init(tuple<EC_word, EC_word, EC_word> &cache);
-};
-
-
-class ActionImplementation : public gologpp::Implementation<generic::Action> {
-public:
-	virtual tuple<EC_word, EC_word, EC_word> translate();
-};
-
-
-} // namespace readylog*/
 
 namespace generic {
 class Action;
@@ -45,9 +27,6 @@ public:
 	virtual EC_word causes_val();
 
 	virtual EC_word term() override;
-
-	void init(readylog::ExecutionContext &ctx);
-
 private:
 	const generic::Action &action_;
 };

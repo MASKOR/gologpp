@@ -3,6 +3,12 @@
 
 #include "Implementation.h"
 #include <gologpp/Reference.h>
+
+// Include headers for everything we might have a reference to (see term() method)
+#include <gologpp/Action.h>
+#include <gologpp/Fluent.h>
+#include <gologpp/Procedure.h>
+
 #include <eclipseclass.h>
 
 

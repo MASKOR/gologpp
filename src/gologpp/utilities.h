@@ -2,23 +2,11 @@
 #define GOLOGPP_UTILITIES_H_
 
 #include "gologpp.h"
-
 #include <string>
-#include <memory>
-#include <unordered_map>
-#include <vector>
-#include <type_traits>
 
 
 namespace gologpp {
 namespace generic {
-
-template<class T>
-using vector = std::vector<T>;
-
-template<class K, class V>
-using unordered_map = std::unordered_map<K, V>;
-
 
 class Name {
 public:
@@ -53,53 +41,8 @@ private:
 };
 
 
-class Variable;
-class Expression;
-
-
-class Scope {
-public:
-	Scope(const vector<shared_ptr<Variable>> &variables, Scope &parent_scope);
-	Scope(const vector<string> &variables, Scope &parent_scope);
-	Scope(Scope &&);
-
-	shared_ptr<Variable> variable(const string &name) const;
-	shared_ptr<Variable> variable(const string &name);
-	vector<shared_ptr<Expression>> variables(const vector<string> &names) const;
-	shared_ptr<Scope> parent_scope();
-
-	Scope clone();
-
-	static Scope &global_scope()
-	{ return global_scope_; }
-
-private:
-	Scope()
-	: parent_scope_(*this)
-	{}
-
-	static Scope global_scope_;
-	Scope &parent_scope_;
-	unordered_map<string, shared_ptr<Variable>> variables_;
-};
-
-
 } // namespace generic
 } // namespace gologpp
-
-
-
-namespace std {
-
-template<>
-struct hash<gologpp::generic::Identifier> {
-    size_t operator () (const gologpp::generic::Identifier &o) const
-    { return o.hash(); }
-};
-
-
-} // namespace std
-
 
 
 #endif // GOLOGPP_UTILITIES_H_

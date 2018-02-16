@@ -3,6 +3,7 @@
 
 #include "utilities.h"
 #include "Language.h"
+#include "Scope.h"
 #include <memory>
 #include <boost/variant.hpp>
 
@@ -14,12 +15,16 @@ class AnyValue;
 class Expression : public std::enable_shared_from_this<Expression>, public virtual AbstractLanguageElement {
 protected:
 	Expression(Scope &parent_scope);
-	Expression(Expression &&) = default;
+	Expression(Expression &&);
+	Expression(const Expression &) = delete;
 
-	virtual ~Expression() = default;
+	Expression &operator = (const Expression &) = delete;
+
+	virtual ~Expression();
 
 public:
 	Scope &parent_scope();
+	const Scope &parent_scope() const;
 
 private:
 	Scope &parent_scope_;
@@ -29,14 +34,24 @@ private:
 class Atom : public Expression {
 public:
 	using Expression::Expression;
+	Atom(Atom &&);
+	Atom(const Atom &) = delete;
 };
 
 
 class Variable : public Atom, public Name, public LanguageElement<Variable> {
 protected:
 	Variable(const string &name, Scope &parent_scope);
+public:
+	Variable(Variable &&) = default;
+	Variable(const Variable &) = delete;
+	Variable &operator = (Variable &&) = default;
+	Variable &operator = (const Variable &) = delete;
 
 	friend Scope;
+
+	virtual ~Variable() override = default;
+	DEFINE_IMPLEMENT
 };
 
 
@@ -51,6 +66,7 @@ public:
 	{}
 
 	const variant_t &value() const;
+	DEFINE_IMPLEMENT
 
 protected:
 	variant_t value_;

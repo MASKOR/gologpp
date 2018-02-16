@@ -17,8 +17,12 @@ namespace generic {
 class AbstractLanguageElement {
 public:
 	AbstractLanguageElement() = default;
+
+	// Only movable, not copyable
 	AbstractLanguageElement(const AbstractLanguageElement &) = delete;
 	AbstractLanguageElement(AbstractLanguageElement &&) = default;
+	AbstractLanguageElement &operator = (const AbstractLanguageElement &) = delete;
+	//AbstractLanguageElement &operator = (AbstractLanguageElement &&) = default;
 
 	virtual ~AbstractLanguageElement() = default;
 
@@ -26,28 +30,31 @@ public:
 	Implementation<GologT> &impl_cast() const
 	{ return dynamic_cast<Implementation<GologT> &>(implementation()); }
 
-	void init(unique_ptr<AbstractImplementation> &&impl)
-	{ impl_ = std::move(impl); }
-
 	virtual AbstractImplementation &implementation() const
 	{ return *impl_; }
+
+	void set_implementation(unique_ptr<AbstractImplementation> &&impl)
+	{ impl_ = std::move(impl); }
+
+	virtual void implement(Implementor &implementor) = 0;
 
 protected:
 	unique_ptr<AbstractImplementation> impl_;
 };
 
 
-template<class... member_ts>
-class CompositeLanguageElement : public virtual AbstractLanguageElement {
-public:
-	typedef std::tuple<member_ts &...> members_t;
-	
-	virtual members_t members() = 0;
+#define DEFINE_IMPLEMENT_WITH_MEMBERS(...) \
+	virtual void implement(Implementor &implementor) override { \
+		impl_ = implementor.get_impl(*this); \
+		boost::fusion::for_each(std::tie(__VA_ARGS__), [&] (auto &e) { \
+			e.implement(implementor); \
+		} ); \
+	}
 
-	template<class DummyT = void>
-	void init_members()
-	{ boost::fusion::for_each(members(), [] (auto &e) { e.template init<decltype(e)>(); }); }
-};
+#define DEFINE_IMPLEMENT \
+	virtual void implement(Implementor &implementor) override { \
+		impl_ = implementor.get_impl(*this); \
+	}
 
 
 template<class GologT>
@@ -55,19 +62,13 @@ class LanguageElement : public virtual AbstractLanguageElement {
 public:
 	typedef GologT golog_t;
 
-	LanguageElement()
-	{}
+	LanguageElement() = default;
+	virtual ~LanguageElement() = default;
 
-	LanguageElement(LanguageElement &&) = default;
-	LanguageElement &operator = (LanguageElement &&) = default;
-
-	template<class... ArgTs>
-	static GologT construct(ArgTs... args)
-	{
-		GologT rv(std::forward<ArgTs>(args)...);
-		rv.init(std::make_unique<Implementation<GologT>>(rv));
-		return rv;
-	}
+	LanguageElement(LanguageElement &&other) = default;
+	LanguageElement(const LanguageElement &) = delete;
+	//LanguageElement &operator = (LanguageElement &&) = default;
+	LanguageElement &operator = (const LanguageElement &) = delete;
 };
 
 

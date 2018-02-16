@@ -12,9 +12,9 @@ namespace generic {
 
 
 class BooleanExpression : public Expression {
-protected:
+public:
+	BooleanExpression(BooleanExpression &&);
 	using Expression::Expression;
-	BooleanExpression(BooleanExpression &&) = default;
 };
 
 
@@ -25,6 +25,7 @@ public:
 	virtual ~Negation() override = default;
 
 	const BooleanExpression &expression() const;
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_)
 
 protected:
 	unique_ptr<BooleanExpression> expression_;
@@ -39,6 +40,7 @@ enum ComparisonOperator {
 class Comparison : public BooleanExpression, public LanguageElement<Comparison> {
 public:
 	Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const shared_ptr<Atom> &rhs, Scope &parent_scope);
+	//DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 
 protected:
 	shared_ptr<Atom> lhs_;
@@ -52,21 +54,28 @@ protected:
   Connective formulas, i.e. AND, OR, IMPLIES
 \*--------------------------------------------*/
 
-enum BooleanOperator {
-	conjunction = 1,
-	disjunction,
-	implication
-};
 
-
-class ConnectiveFormula : public BooleanExpression, public LanguageElement<ConnectiveFormula> {
+class ConnectiveFormula : public BooleanExpression {
 public:
-	ConnectiveFormula(unique_ptr<BooleanExpression> &&lhs, BooleanOperator op, unique_ptr<BooleanExpression> &&rhs, Scope &parent_scope);
+	ConnectiveFormula(unique_ptr<BooleanExpression> &&lhs, unique_ptr<BooleanExpression> &&rhs, Scope &parent_scope);
 
 protected:
 	unique_ptr<BooleanExpression> lhs_;
-	BooleanOperator op_;
 	unique_ptr<BooleanExpression> rhs_;
+};
+
+
+class Conjunction : public ConnectiveFormula {
+public:
+	using ConnectiveFormula::ConnectiveFormula;
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
+};
+
+
+class Disjunction : public ConnectiveFormula {
+public:
+	using ConnectiveFormula::ConnectiveFormula;
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 };
 
 
@@ -75,7 +84,7 @@ protected:
 \*--------------------------------------------*/
 
 
-class Quantification : public BooleanExpression, public LanguageElement<Quantification> {
+class Quantification : public BooleanExpression {
 public:
 	Quantification(
 	        const shared_ptr<Variable> &variable,
@@ -88,15 +97,17 @@ protected:
 };
 
 
-class ExistentialQuantification : public Quantification {
+class ExistentialQuantification : public Quantification, public LanguageElement<ExistentialQuantification> {
 public:
 	using Quantification::Quantification;
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *expression_)
 };
 
 
-class UniversalQuantification : public Quantification {
+class UniversalQuantification : public Quantification, public LanguageElement<UniversalQuantification> {
 public:
 	using Quantification::Quantification;
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *expression_)
 };
 
 

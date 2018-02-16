@@ -16,11 +16,12 @@ class EffectAxiom : public LanguageElement<EffectAxiom> {
 public:
 	EffectAxiom(Reference<Action> &&action, Reference<Fluent> &&fluent, const shared_ptr<Expression> &value);
 	EffectAxiom(EffectAxiom &&);
-	virtual ~EffectAxiom() override;
+	//virtual ~EffectAxiom() override;
 
 	const Reference<Action> &action() const;
 	const Reference<Fluent> &fluent() const;
 	const Expression &value() const;
+	DEFINE_IMPLEMENT_WITH_MEMBERS(action_, fluent_, *value_)
 
 protected:
 	Reference<Action> action_;

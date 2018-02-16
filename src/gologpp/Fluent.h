@@ -8,6 +8,7 @@
 #include "atoms.h"
 #include "utilities.h"
 #include "Reference.h"
+#include "Scope.h"
 
 namespace gologpp {
 namespace generic {
@@ -16,10 +17,14 @@ namespace generic {
 class Fluent : public Atom, public Identifier, public std::enable_shared_from_this<Fluent>, public LanguageElement<Fluent> {
 public:
 	Fluent(const string &name, const vector<string> &args);
-	Fluent(Fluent &&) = default;
-	virtual ~Fluent() override = default;
+	Fluent(Fluent &&);
+	//virtual ~Fluent() override = default;
 
-	vector<shared_ptr<Expression>> args() const;
+	const vector<string> &args() const;
+	DEFINE_IMPLEMENT_WITH_MEMBERS(scope_)
+
+	Scope &scope();
+	const Scope &scope() const;
 
 private:
 	vector<string> args_;
@@ -30,7 +35,7 @@ private:
 class Initially : public LanguageElement<Initially> {
 public:
 	Initially(Reference<Fluent> &&fluent, unique_ptr<AnyValue> &&value);
-	virtual ~Initially() override = default;
+	//virtual ~Initially() override = default;
 
 	const Fluent &fluent() const;
 	const AnyValue &initial_value() const;

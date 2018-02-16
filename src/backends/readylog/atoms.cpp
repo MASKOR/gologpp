@@ -6,16 +6,19 @@ namespace gologpp {
 
 Implementation<generic::Variable>::Implementation(const generic::Variable &var)
 : variable_(var)
-, ec_var_(::newvar())
 {}
 
-
-void Implementation<generic::Variable>::reset()
+void Implementation<generic::Variable>::init()
 { ec_var_ = ::newvar(); }
-
 
 EC_word Implementation<generic::Variable>::term()
 { return ec_var_; }
+
+
+
+Implementation<generic::AnyValue>::Implementation(const generic::AnyValue &val)
+: value_(val)
+{}
 
 
 struct wrap_word {

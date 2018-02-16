@@ -6,6 +6,7 @@
 #include "Fluent.h"
 #include <gologpp/Fluent.h>
 #include "Formula.h"
+#include "Scope.h"
 
 
 namespace gologpp {
@@ -18,6 +19,7 @@ Implementation<generic::EffectAxiom>::Implementation(const generic::EffectAxiom 
 
 EC_word Implementation<generic::EffectAxiom>::term()
 {
+	effect_.action().parent_scope().impl_cast<generic::Scope>().init_vars();
 	return ::term(
 		EC_functor("causes_val", 3),
 		effect_.action().impl_cast<generic::Reference<generic::Action>>().term(),

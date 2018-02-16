@@ -17,15 +17,6 @@ Action::Action(const string &name, const vector<string> &args,
 {}
 
 
-Action::Action(Action &&other)
-: Identifier(std::move(other))
-, scope_(std::move(other.scope_))
-, precondition_(std::move(other.precondition_))
-, effect_(std::move(other.effect_))
-, args_(std::move(other.args_))
-{}
-
-
 const BooleanExpression &Action::precondition() const
 { return *precondition_; }
 
@@ -33,15 +24,18 @@ const BooleanExpression &Action::precondition() const
 const EffectAxiom &Action::effect() const
 { return *effect_; }
 
-void Action::set_effect(unique_ptr<EffectAxiom> &&effect)
-{ effect_ = std::move(effect); }
+void Action::set_effect(EffectAxiom &&effect)
+{ effect_.reset(new EffectAxiom(std::move(effect))); }
 
 
-vector<shared_ptr<Expression>> Action::args() const
-{ return scope_.variables(args_); }
+const vector<string> &Action::args() const
+{ return args_; }
 
 
 Scope &Action::scope()
+{ return scope_; }
+
+const Scope &Action::scope() const
 { return scope_; }
 
 

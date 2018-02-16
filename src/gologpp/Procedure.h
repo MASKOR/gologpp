@@ -6,6 +6,7 @@
 
 #include "Reference.h"
 #include "Language.h"
+#include "Scope.h"
 
 
 namespace gologpp {
@@ -28,7 +29,8 @@ public:
 class Block : public Statement, public LanguageElement<Block> {
 public:
 	Block(const vector<shared_ptr<Statement>> &elements, Scope &parent_scope);
-	
+	void implement(Implementor &);
+
 private:
 	vector<shared_ptr<Statement>> elements_;
 };
@@ -37,6 +39,7 @@ private:
 class Choose : public Statement, public LanguageElement<Choose> {
 public:
 	Choose(const vector<shared_ptr<Block>> &alternatives, Scope &parent_scope);
+	void implement(Implementor &);
 
 private:
 	vector<shared_ptr<Block>> alternatives_;
@@ -49,7 +52,8 @@ public:
 	            const shared_ptr<Block> &block_true,
 	            const shared_ptr<Block> &block_false,
 	            Scope &parent_expr);
-	
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, *block_true_, *block_false_)
+
 protected:
 	shared_ptr<BooleanExpression> condition_;
 	shared_ptr<Block> block_true_;
@@ -60,6 +64,7 @@ protected:
 class Assignment : public Statement, public LanguageElement<Assignment> {
 public:
 	Assignment(Reference<Fluent> &&fluent, const shared_ptr<Expression> &expression, Scope &parent_scope);
+	DEFINE_IMPLEMENT_WITH_MEMBERS(fluent_, *expression_)
 
 private:
     Reference<Fluent> fluent_;
@@ -70,26 +75,18 @@ private:
 class Pick : public Statement, public LanguageElement<Pick> {
 public:
 	Pick(const shared_ptr<Variable> &variable, const shared_ptr<Block> &block, Scope &parent_scope);
-    
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *block_)
+
 private:
 	shared_ptr<Variable> variable_;
 	shared_ptr<Block> block_;
 };
 
 
-class Call : public Statement, public LanguageElement<Call> {
-public:
-	Call(const shared_ptr<Action> &action, const vector<shared_ptr<Expression>> &args, Scope &parent_scope);
-
-private:
-	shared_ptr<Action> action_;
-	vector<shared_ptr<Expression>> args_;
-};
-
-
 class Search : public Statement, public LanguageElement<Search> {
 public:
 	Search(unique_ptr<Block> &&block, Scope &parent_scope);
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*block_)
 
 private:
 	unique_ptr<Block> block_;
@@ -99,6 +96,7 @@ private:
 class Test : public Statement, public LanguageElement<Test> {
 public:
     Test(const shared_ptr<BooleanExpression> &expression, Scope &parent_scope);
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_)
 
 protected:
 	shared_ptr<BooleanExpression> expression_;
@@ -108,6 +106,7 @@ protected:
 class While : public Statement, public LanguageElement<While> {
 public:
 	While(const shared_ptr<BooleanExpression> &expression, unique_ptr<Block> &&block, Scope &parent_scope);
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_, *block_)
 
 protected:
 	shared_ptr<BooleanExpression> expression_;
@@ -119,6 +118,7 @@ class Procedure : public Statement, public Identifier, public LanguageElement<Pr
 public:
     Procedure(const string &name, const vector<string> &arg_names, unique_ptr<Block> &&block);
     Procedure(Procedure &&) = default;
+	DEFINE_IMPLEMENT_WITH_MEMBERS(scope_, *block_)
 
 protected:
     Scope scope_;
