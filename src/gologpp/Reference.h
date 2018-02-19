@@ -40,6 +40,12 @@ public:
 	GologT *operator -> () const
 	{ return target_.get(); }
 
+	GologT &target() const
+	{ return *target_; }
+
+	const vector<shared_ptr<Expression>> &args() const
+	{ return args_; }
+
 	DEFINE_IMPLEMENT
 
 private:

@@ -24,7 +24,7 @@ EC_word Implementation<generic::EffectAxiom>::term()
 		EC_functor("causes_val", 3),
 		effect_.action().impl_cast<generic::Reference<generic::Action>>().term(),
 		effect_.fluent().impl_cast<generic::Reference<generic::Fluent>>().term(),
-		effect_.value().impl_cast<generic::Reference<generic::Expression>>().term()
+		dynamic_cast<ReadylogExpression &>(effect_.value().implementation()).term()
 	);
 }
 

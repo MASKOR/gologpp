@@ -28,7 +28,13 @@ public:
 
 
 	EC_word term() override
-	{ return dynamic_cast<ReadylogExpression &>(reference_->implementation()).term(); }
+	{
+		EC_word *args = new EC_word[reference_.args().size()];
+		arity_t i = 0;
+		for (const shared_ptr<generic::Expression> &exp : reference_.args())
+			args[i++] = dynamic_cast<ReadylogExpression &>(exp->implementation()).term();
+		return ::term(EC_functor(reference_.target().name().c_str(), reference_.target().arity()), args);
+	}
 
 
 private:
