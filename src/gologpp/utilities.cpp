@@ -2,7 +2,6 @@
 #include "atoms.h"
 
 namespace gologpp {
-namespace generic {
 
 Name::Name(const string &name)
 : name_(name)
@@ -44,5 +43,4 @@ size_t Identifier::hash() const
 
 
 
-} // namespace generic
 } // namespace gologpp

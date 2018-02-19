@@ -2,93 +2,85 @@
 #define READYLOG_FORMULA_H_
 
 #include "Implementation.h"
+#include <gologpp/gologpp.h>
 
 #include <eclipseclass.h>
 
 namespace gologpp {
 
-namespace generic {
-class BooleanExpression;
-class Negation;
-class Comparison;
-class ConnectiveFormula;
-class ExistentialQuantification;
-class UniversalQuantification;
-} // namespace generic
-
 
 template<>
-class Implementation<generic::BooleanExpression> : public ReadylogExpression {
+class Implementation<BooleanExpression> : public ReadylogExpression {
 };
 
 
 template<>
-class Implementation<generic::Negation> : public Implementation<generic::BooleanExpression> {
+class Implementation<Negation> : public Implementation<BooleanExpression> {
 public:
-	Implementation(const generic::Negation &);
+	Implementation(const Negation &);
 	virtual ~Implementation() override = default;
 
 	virtual EC_word term() override;
 
 private:
-	const generic::Negation &negation_;
+	const Negation &negation_;
 };
 
 
 template<>
-class Implementation<generic::Comparison> : public Implementation<generic::BooleanExpression> {
+class Implementation<Comparison> : public Implementation<BooleanExpression> {
 public:
-	Implementation(const generic::Comparison &);
+	Implementation(const Comparison &);
 	virtual ~Implementation() override = default;
 
 	virtual EC_word term() override;
 
 private:
-	const generic::Comparison &comparison_;
+	const Comparison &comparison_;
 };
 
 
 template<>
-class Implementation<generic::Conjunction> : public Implementation<generic::BooleanExpression> {
+class Implementation<Conjunction> : public Implementation<BooleanExpression> {
 public:
-	Implementation(const generic::Conjunction &);
+	Implementation(const Conjunction &);
 	virtual EC_word term() override;
 
 private:
-	const generic::Conjunction &conjunction_;
+	const Conjunction &conjunction_;
 };
 
 
 template<>
-class Implementation<generic::Disjunction> : public Implementation<generic::BooleanExpression> {
+class Implementation<Disjunction> : public Implementation<BooleanExpression> {
 public:
-	Implementation(const generic::Disjunction &);
+	Implementation(const Disjunction &);
 	virtual EC_word term() override;
 
 private:
-	const generic::Disjunction &disjunction_;
+	const Disjunction &disjunction_;
 };
 
 
 template<>
-class Implementation<generic::ExistentialQuantification> : public Implementation<generic::BooleanExpression> {
+class Implementation<ExistentialQuantification> : public Implementation<BooleanExpression> {
 public:
-	Implementation(const generic::ExistentialQuantification &);
+	Implementation(const ExistentialQuantification &);
 	virtual EC_word term() override;
 
 private:
-	const generic::ExistentialQuantification &quantification_;
+	const ExistentialQuantification &quantification_;
 };
 
 
 template<>
-class Implementation<generic::UniversalQuantification> : public Implementation<generic::BooleanExpression> {
+class Implementation<UniversalQuantification> : public Implementation<BooleanExpression> {
 public:
-	Implementation(const generic::UniversalQuantification &);
+	Implementation(const UniversalQuantification &);
 	virtual EC_word term() override;
 
 private:
-	const generic::UniversalQuantification &quantification_;
+	const UniversalQuantification &quantification_;
 };
 
 

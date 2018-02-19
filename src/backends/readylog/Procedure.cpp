@@ -3,96 +3,96 @@
 
 namespace gologpp {
 
-Implementation<generic::Procedure>::Implementation(const generic::Procedure &proc)
+Implementation<Procedure>::Implementation(const Procedure &proc)
 : procedure_(proc)
 {}
 
 
-EC_word Implementation<generic::Procedure>::term()
+EC_word Implementation<Procedure>::term()
 {
 	return EC_atom("false");
 }
 
 
-Implementation<generic::Block>::Implementation(const generic::Block &b)
+Implementation<Block>::Implementation(const Block &b)
 : block_(b)
 {}
 
 
-EC_word Implementation<generic::Block>::term()
+EC_word Implementation<Block>::term()
 {
 	return EC_atom("false");
 }
 
 
-Implementation<generic::Choose>::Implementation(const generic::Choose &c)
+Implementation<Choose>::Implementation(const Choose &c)
 : choose_(c)
 {}
 
 
-EC_word Implementation<generic::Choose>::term()
+EC_word Implementation<Choose>::term()
 {
 	return EC_atom("false");
 }
 
 
-Implementation<generic::Conditional>::Implementation(const generic::Conditional &c)
+Implementation<Conditional>::Implementation(const Conditional &c)
 : conditional_(c)
 {}
 
 
-EC_word Implementation<generic::Conditional>::term()
+EC_word Implementation<Conditional>::term()
 {
 	return EC_atom("false");
 }
 
 
-Implementation<generic::Assignment>::Implementation(const generic::Assignment &proc)
+Implementation<Assignment>::Implementation(const Assignment &proc)
 : assignment_(proc)
 {}
 
 
-EC_word Implementation<generic::Assignment>::term()
+EC_word Implementation<Assignment>::term()
 {
 	return EC_atom("false");
 }
 
 
-Implementation<generic::Pick>::Implementation(const generic::Pick &)
+Implementation<Pick>::Implementation(const Pick &)
 {}
 
 
-EC_word Implementation<generic::Pick>::term()
+EC_word Implementation<Pick>::term()
 {
 	return EC_atom("false");
 }
 
 
-Implementation<generic::Search>::Implementation(const generic::Search &)
+Implementation<Search>::Implementation(const Search &)
 {}
 
 
-EC_word Implementation<generic::Search>::term()
+EC_word Implementation<Search>::term()
 {
 	return EC_atom("false");
 }
 
 
-Implementation<generic::Test>::Implementation(const generic::Test &)
+Implementation<Test>::Implementation(const Test &)
 {}
 
 
-EC_word Implementation<generic::Test>::term()
+EC_word Implementation<Test>::term()
 {
 	return EC_atom("false");
 }
 
 
-Implementation<generic::While>::Implementation(const generic::While &)
+Implementation<While>::Implementation(const While &)
 {}
 
 
-EC_word Implementation<generic::While>::term()
+EC_word Implementation<While>::term()
 {
 	return EC_atom("false");
 }

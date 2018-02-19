@@ -15,7 +15,6 @@
 #include "Scope.h"
 
 namespace gologpp {
-namespace generic {
 
 
 class Action : public enable_shared_from_this<Action>, public Identifier, public LanguageElement<Action> {
@@ -66,7 +65,6 @@ private:
 };
 
 
-} // namespace generic
 } // namespace gologpp
 
 

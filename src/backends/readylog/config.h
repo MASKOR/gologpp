@@ -20,10 +20,10 @@ template<class GologT>
 class Implementation;
 
 
-typedef generic::ImplConfig<
-	Implementation<generic::Action>,
-	Implementation<generic::Fluent>,
-	Implementation<generic::Procedure>
+typedef ImplConfig<
+	Implementation<Action>,
+	Implementation<Fluent>,
+	Implementation<Procedure>
 > readylog_impl_config_t;
 
 

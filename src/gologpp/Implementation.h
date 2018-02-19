@@ -20,36 +20,36 @@ class Implementor {
 public:
 	virtual ~Implementor() = default;
 
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Action &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Reference<generic::Action> &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Action &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Reference<Action> &) = 0;
 
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::EffectAxiom &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(EffectAxiom &) = 0;
 
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Fluent &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Reference<generic::Fluent> &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Fluent &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Reference<Fluent> &) = 0;
 
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Scope &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Scope &) = 0;
 
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::AnyValue &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Variable &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(AnyValue &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Variable &) = 0;
 
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Negation &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Conjunction &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Disjunction &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::ExistentialQuantification &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::UniversalQuantification &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Negation &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Conjunction &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Disjunction &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(ExistentialQuantification &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(UniversalQuantification &) = 0;
 
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Block &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Choose &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Conditional &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Assignment &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Pick &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Search &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Test &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::While &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Block &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Choose &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Conditional &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Assignment &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Pick &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Search &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Test &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(While &) = 0;
 
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Procedure &) = 0;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Reference<generic::Procedure> &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Procedure &) = 0;
+	virtual unique_ptr<AbstractImplementation> get_impl(Reference<Procedure> &) = 0;
 };
 
 

@@ -11,14 +11,14 @@
 namespace gologpp {
 
 #define DEFINE_GET_IMPL(GologT) \
-unique_ptr<AbstractImplementation> ReadylogImplementor::get_impl(generic::GologT &obj) \
-{ return unique_ptr<AbstractImplementation>(new Implementation<generic::GologT>(obj)); }
+unique_ptr<AbstractImplementation> ReadylogImplementor::get_impl(GologT &obj) \
+{ return unique_ptr<AbstractImplementation>(new Implementation<GologT>(obj)); }
 
 DEFINE_GET_IMPL(Action)
-DEFINE_GET_IMPL(Reference<generic::Action>)
+DEFINE_GET_IMPL(Reference<Action>)
 DEFINE_GET_IMPL(EffectAxiom)
 DEFINE_GET_IMPL(Fluent)
-DEFINE_GET_IMPL(Reference<generic::Fluent>)
+DEFINE_GET_IMPL(Reference<Fluent>)
 DEFINE_GET_IMPL(Scope)
 
 DEFINE_GET_IMPL(AnyValue)
@@ -39,6 +39,6 @@ DEFINE_GET_IMPL(Search)
 DEFINE_GET_IMPL(Test)
 DEFINE_GET_IMPL(While)
 DEFINE_GET_IMPL(Procedure)
-DEFINE_GET_IMPL(Reference<generic::Procedure>)
+DEFINE_GET_IMPL(Reference<Procedure>)
 
 }

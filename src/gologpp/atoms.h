@@ -8,7 +8,6 @@
 #include <boost/variant.hpp>
 
 namespace gologpp {
-namespace generic {
 
 class AnyValue;
 
@@ -74,7 +73,6 @@ protected:
 
 
 
-} // namespace generic
 } // namespace gologpp
 
 
@@ -82,8 +80,8 @@ protected:
 namespace std {
 
 template<>
-struct hash<shared_ptr<gologpp::generic::Variable>> {
-    size_t operator () (const shared_ptr<gologpp::generic::Variable> &o) const
+struct hash<shared_ptr<gologpp::Variable>> {
+    size_t operator () (const shared_ptr<gologpp::Variable> &o) const
     { return o->hash(); }
 };
 

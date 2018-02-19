@@ -21,6 +21,7 @@ private:
 };
 
 
+
 } // namespace gologpp
 
 

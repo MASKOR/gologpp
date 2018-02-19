@@ -8,7 +8,6 @@
 
 
 namespace gologpp {
-namespace generic {
 
 
 class BooleanExpression : public Expression {
@@ -111,7 +110,6 @@ public:
 };
 
 
-} // namespace generic
 } // namespace gologpp
 
 

@@ -2,7 +2,6 @@
 #include "Action.h"
 
 namespace gologpp {
-namespace generic {
 
 EffectAxiom::EffectAxiom(Reference<Action> &&action, Reference<Fluent> &&fluent, const shared_ptr<Expression> &value)
 : action_(std::move(action))
@@ -26,5 +25,4 @@ const Expression &EffectAxiom::value() const
 { return *value_; }
 
 
-} // namespace generic
 } // namespace gologpp

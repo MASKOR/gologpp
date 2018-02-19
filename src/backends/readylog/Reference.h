@@ -14,15 +14,13 @@
 
 namespace gologpp {
 
-namespace generic {
 template<class GologT> class Reference;
-} // namespace generic
 
 
 template<class GologT>
-class Implementation<generic::Reference<GologT>> : public ReadylogExpression {
+class Implementation<Reference<GologT>> : public ReadylogExpression {
 public:
-	Implementation(const generic::Reference<GologT> &ref)
+	Implementation(const Reference<GologT> &ref)
 	: reference_(ref)
 	{}
 
@@ -31,14 +29,14 @@ public:
 	{
 		EC_word *args = new EC_word[reference_.args().size()];
 		arity_t i = 0;
-		for (const shared_ptr<generic::Expression> &exp : reference_.args())
+		for (const shared_ptr<Expression> &exp : reference_.args())
 			args[i++] = dynamic_cast<ReadylogExpression &>(exp->implementation()).term();
 		return ::term(EC_functor(reference_.target().name().c_str(), reference_.target().arity()), args);
 	}
 
 
 private:
-	const generic::Reference<GologT> &reference_;
+	const Reference<GologT> &reference_;
 };
 
 

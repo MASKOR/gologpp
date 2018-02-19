@@ -1,22 +1,21 @@
 #include "atoms.h"
-#include <gologpp/atoms.h>
 
 namespace gologpp {
 
 
-Implementation<generic::Variable>::Implementation(const generic::Variable &var)
+Implementation<Variable>::Implementation(const Variable &var)
 : variable_(var)
 {}
 
-void Implementation<generic::Variable>::init()
+void Implementation<Variable>::init()
 { ec_var_ = ::newvar(); }
 
-EC_word Implementation<generic::Variable>::term()
+EC_word Implementation<Variable>::term()
 { return ec_var_; }
 
 
 
-Implementation<generic::AnyValue>::Implementation(const generic::AnyValue &val)
+Implementation<AnyValue>::Implementation(const AnyValue &val)
 : value_(val)
 {}
 
@@ -36,7 +35,7 @@ EC_word wrap_word::operator () (const bool &v) const
 { return v ? EC_atom("true") : EC_atom("fail"); }
 
 
-EC_word Implementation<generic::AnyValue>::term()
+EC_word Implementation<AnyValue>::term()
 { return boost::apply_visitor(wrap_word(), value_.value()); }
 
 

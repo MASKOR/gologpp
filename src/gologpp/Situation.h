@@ -7,7 +7,6 @@
 #include <unordered_map>
 
 namespace gologpp {
-namespace generic {
 
 class Situation {
 public:
@@ -18,7 +17,6 @@ protected:
 };
 
 
-} // namespace generic
 } // namespace gologpp
 
 #endif // GOLOGPP_SITUATION_H

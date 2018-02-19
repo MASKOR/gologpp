@@ -1,7 +1,6 @@
 #include "atoms.h"
 
 namespace gologpp {
-namespace generic {
 
 
 Expression::Expression(Expression &&x)
@@ -41,5 +40,4 @@ const AnyValue::variant_t &AnyValue::value() const
 { return value_; }
 
 
-}
 }

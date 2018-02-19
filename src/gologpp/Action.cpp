@@ -2,7 +2,6 @@
 #include <string>
 
 namespace gologpp {
-namespace generic {
 
 using namespace std;
 
@@ -49,5 +48,4 @@ const Action &Transition::action() const
 { return *action_; }
 
 
-} // namespace generic
 } // namespace gologpp

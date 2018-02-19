@@ -21,9 +21,8 @@
 
 int main(int, const char **) {
 	using namespace gologpp;
-	using namespace gologpp::generic;
 
-	readylog::ExecutionContext &ctx = readylog::ExecutionContext::instance();
+	EclipseContext &ctx = EclipseContext::instance();
 
 	shp<Fluent> on = ctx.add_fluent(Fluent("on", std::vector<string>{"X", "Y"}));
 	shp<Action> put = ctx.add_action(Action("put", std::vector<string>{"X", "Y"}));

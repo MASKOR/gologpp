@@ -13,17 +13,8 @@
 #include <tuple>
 
 namespace gologpp {
-namespace generic {
 
-using namespace std;
-
-
-class Transition;
 class Situation;
-class Fluent;
-class Action;
-class Procedure;
-
 
 class History : public enable_shared_from_this<History> {
 protected:
@@ -32,9 +23,7 @@ protected:
 };
 
 
-
 class AbstractExecutionContext {
-
 };
 
 
@@ -108,7 +97,6 @@ public:
 };
 
 
-} // namespace generic
 } // namespace gologpp
 
 #endif

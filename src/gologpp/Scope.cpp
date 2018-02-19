@@ -2,7 +2,6 @@
 #include "atoms.h"
 
 namespace gologpp {
-namespace generic {
 
 Scope Scope::global_scope_;
 
@@ -74,5 +73,4 @@ const unordered_map<string, shared_ptr<Variable>> &Scope::map() const
 { return variables_; }
 
 
-} // namespace generic
 } // namespace gologpp

@@ -9,7 +9,6 @@
 #include <vector>
 
 namespace gologpp {
-namespace generic {
 
 template<class GologT>
 class Reference : public LanguageElement<Reference<GologT>>, public BooleanExpression {
@@ -55,7 +54,6 @@ private:
 
 
 
-} // namespace generic
 } // namespace gologpp
 
 

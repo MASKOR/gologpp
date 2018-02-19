@@ -21,33 +21,33 @@ public:
 	ReadylogImplementor() = default;
 	virtual ~ReadylogImplementor() override = default;
 
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Action &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Reference<generic::Action> &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::EffectAxiom &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Fluent &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Reference<generic::Fluent> &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Scope &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Action &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Reference<Action> &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(EffectAxiom &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Fluent &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Reference<Fluent> &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Scope &) override;
 
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::AnyValue &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Variable &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(AnyValue &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Variable &) override;
 
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Negation &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Conjunction &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Disjunction &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::ExistentialQuantification &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::UniversalQuantification &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Negation &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Conjunction &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Disjunction &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(ExistentialQuantification &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(UniversalQuantification &) override;
 
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Block &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Choose &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Conditional &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Assignment &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Pick &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Search &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Test &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::While &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Block &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Choose &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Conditional &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Assignment &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Pick &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Search &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Test &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(While &) override;
 
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Procedure &) override;
-	virtual unique_ptr<AbstractImplementation> get_impl(generic::Reference<generic::Procedure> &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Procedure &) override;
+	virtual unique_ptr<AbstractImplementation> get_impl(Reference<Procedure> &) override;
 };
 
 

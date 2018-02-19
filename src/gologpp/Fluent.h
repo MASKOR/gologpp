@@ -11,7 +11,6 @@
 #include "Scope.h"
 
 namespace gologpp {
-namespace generic {
 
 
 class Fluent : public Atom, public Identifier, public std::enable_shared_from_this<Fluent>, public LanguageElement<Fluent> {
@@ -46,7 +45,6 @@ private:
 };
 
 
-} // namespace generic
 } // namespace gologpp
 
 

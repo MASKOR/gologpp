@@ -8,94 +8,90 @@
 
 namespace gologpp {
 
-namespace generic {
-class Procedure;
-}
-
 template<>
-class Implementation<generic::Procedure> : public ReadylogExpression {
+class Implementation<Procedure> : public ReadylogExpression {
 public:
-	Implementation(const generic::Procedure &proc);
+	Implementation(const Procedure &proc);
 
 	virtual EC_word term() override;
 
 private:
-	const generic::Procedure &procedure_;
+	const Procedure &procedure_;
 };
 
 
 template<>
-class Implementation<generic::Block> : public ReadylogExpression {
+class Implementation<Block> : public ReadylogExpression {
 public:
-	Implementation(const generic::Block &);
+	Implementation(const Block &);
 	virtual EC_word term() override;
 
 private:
-	const generic::Block &block_;
+	const Block &block_;
 };
 
 
 template<>
-class Implementation<generic::Choose> : public ReadylogExpression {
+class Implementation<Choose> : public ReadylogExpression {
 public:
-	Implementation(const generic::Choose &);
+	Implementation(const Choose &);
 	virtual EC_word term() override;
 
 private:
-	const generic::Choose &choose_;
+	const Choose &choose_;
 };
 
 
 template<>
-class Implementation<generic::Conditional> : public ReadylogExpression {
+class Implementation<Conditional> : public ReadylogExpression {
 public:
-	Implementation(const generic::Conditional &);
+	Implementation(const Conditional &);
 	virtual EC_word term() override;
 
 private:
-	const generic::Conditional &conditional_;
+	const Conditional &conditional_;
 };
 
 
 template<>
-class Implementation<generic::Assignment> : public ReadylogExpression {
+class Implementation<Assignment> : public ReadylogExpression {
 public:
-	Implementation(const generic::Assignment &);
+	Implementation(const Assignment &);
 	virtual EC_word term() override;
 
 private:
-	const generic::Assignment &assignment_;
+	const Assignment &assignment_;
 };
 
 
 template<>
-class Implementation<generic::Pick> : public ReadylogExpression {
+class Implementation<Pick> : public ReadylogExpression {
 public:
-	Implementation(const generic::Pick &);
+	Implementation(const Pick &);
 	virtual EC_word term() override;
 };
 
 
 template<>
-class Implementation<generic::Search> : public ReadylogExpression {
+class Implementation<Search> : public ReadylogExpression {
 public:
-	Implementation(const generic::Search &);
+	Implementation(const Search &);
 	virtual EC_word term() override;
 };
 
 
 template<>
-class Implementation<generic::Test> : public ReadylogExpression {
+class Implementation<Test> : public ReadylogExpression {
 public:
-	Implementation(const generic::Test &);
+	Implementation(const Test &);
 	virtual EC_word term() override;
 };
 
 
 template<>
-class Implementation<generic::While> : public ReadylogExpression {
+class Implementation<While> : public ReadylogExpression {
 public:
-	Implementation(const generic::While &);
+	Implementation(const While &);
 	virtual EC_word term() override;
 };
 

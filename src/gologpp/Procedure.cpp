@@ -7,7 +7,6 @@
 #include "user_error.h"
 
 namespace gologpp {
-namespace generic {
 
 
 Statement::~Statement()
@@ -27,7 +26,7 @@ void Block::implement(Implementor &implementor)
 }
 
 
-Choose::Choose(const vector<shared_ptr<Block>> &alternatives,Scope &parent_scope)
+Choose::Choose(const vector<shared_ptr<Block>> &alternatives, Scope &parent_scope)
 : Statement(parent_scope)
 , alternatives_(alternatives)
 {}
@@ -91,5 +90,4 @@ Procedure::Procedure(const string &name, const vector<string> &arg_names, unique
 
 
 
-} // namespace generic
 } // namespace gologpp

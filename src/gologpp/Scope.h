@@ -8,7 +8,6 @@
 #include "Language.h"
 
 namespace gologpp {
-namespace generic {
 
 template<class T>
 using vector = std::vector<T>;
@@ -54,7 +53,6 @@ private:
 
 
 
-} // namespace generic
 } // namespace gologpp
 
 
@@ -62,8 +60,8 @@ private:
 namespace std {
 
 template<>
-struct hash<gologpp::generic::Identifier> {
-    size_t operator () (const gologpp::generic::Identifier &o) const
+struct hash<gologpp::Identifier> {
+    size_t operator () (const gologpp::Identifier &o) const
     { return o.hash(); }
 };
 

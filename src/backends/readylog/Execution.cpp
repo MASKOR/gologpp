@@ -7,10 +7,9 @@
 #include <iostream>
 
 namespace gologpp {
-namespace readylog {
 
-ExecutionContext::ExecutionContext()
-: generic::ExecutionContext<readylog_impl_config_t>()
+EclipseContext::EclipseContext()
+: ExecutionContext<readylog_impl_config_t>()
 {
 	ec_set_option_ptr(EC_OPTION_ECLIPSEDIR, (void *)ECLIPSE_DIR);
 	std::cout << "Using eclipse-clp in " << ECLIPSE_DIR << std::endl;
@@ -24,20 +23,20 @@ ExecutionContext::ExecutionContext()
 }
 
 
-ExecutionContext::~ExecutionContext()
+EclipseContext::~EclipseContext()
 {
 	ec_cleanup();
 }
 
 
-ExecutionContext &ExecutionContext::instance()
+EclipseContext &EclipseContext::instance()
 {
-	static ExecutionContext ctx;
+	static EclipseContext ctx;
 	return ctx;
 }
 
 
-void ExecutionContext::compile(const EC_word &term)
+void EclipseContext::compile(const EC_word &term)
 {
 	post_goal(::term(EC_functor("assert", 1), term));
 	post_goal(EC_atom("listing"));
@@ -48,5 +47,4 @@ void ExecutionContext::compile(const EC_word &term)
 
 
 
-}
-}
+} // namespace gologpp

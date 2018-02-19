@@ -1,36 +1,25 @@
 #ifndef READYLOG_EFFECTAXIOM_H_
 #define READYLOG_EFFECTAXIOM_H_
 
-#include <eclipseclass.h>
 #include "Implementation.h"
 
+#include <gologpp/EffectAxiom.h>
+
+#include <eclipseclass.h>
+
 namespace gologpp {
-namespace readylog {
 
-/*class EffectAxiom : public Translatable<generic::EffectAxiom, EC_word> {
-public:
-	EffectAxiom(generic::EffectAxiom &&other);
-
-	void init(EC_word &cache);
-}; //*/
-
-} // namespace readylog
-
-
-namespace generic {
-class EffectAxiom;
-}
 
 template<>
-class Implementation<generic::EffectAxiom> : public ReadylogExpression {
+class Implementation<EffectAxiom> : public ReadylogExpression {
 public:
-	Implementation(const generic::EffectAxiom &);
+	Implementation(const EffectAxiom &);
 	virtual ~Implementation() override = default;
 
 	virtual EC_word term() override;
 
 private:
-	const generic::EffectAxiom &effect_;
+	const EffectAxiom &effect_;
 };
 
 } /* namespace gologpp */

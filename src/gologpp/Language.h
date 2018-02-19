@@ -11,7 +11,6 @@
 #include <boost/fusion/include/std_tuple.hpp>
 
 namespace gologpp {
-namespace generic {
 
 
 class AbstractLanguageElement {
@@ -73,7 +72,6 @@ public:
 
 
 
-} // namespace generic
 } // namespace gologpp
 
 #endif // GOLOGPP_LANGUAGE_H_

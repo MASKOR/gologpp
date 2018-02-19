@@ -7,21 +7,17 @@
 
 namespace gologpp {
 
-namespace generic {
-class Fluent;
-} // namespace generic
-
 
 template<>
-class Implementation<generic::Fluent> : public ReadylogExpression {
+class Implementation<Fluent> : public ReadylogExpression {
 public:
-	Implementation(const generic::Fluent &);
+	Implementation(const Fluent &);
 	virtual ~Implementation() override = default;
 
 	virtual EC_word term() override;
 
 private:
-	const generic::Fluent *fluent_;
+	const Fluent *fluent_;
 };
 
 

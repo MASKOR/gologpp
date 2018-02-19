@@ -1,7 +1,6 @@
 #include "Fluent.h"
 
 namespace gologpp {
-namespace generic {
 
 Fluent::Fluent(const string &name, const vector<string> &args)
 : Atom(Scope::global_scope())
@@ -46,5 +45,4 @@ const AnyValue &Initially::initial_value() const
 { return *value_; }
 
 
-} // namespace generic
 } // namespace gologpp

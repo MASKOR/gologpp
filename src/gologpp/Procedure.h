@@ -10,7 +10,6 @@
 
 
 namespace gologpp {
-namespace generic {
 
 class Fluent;
 class Statement;
@@ -126,7 +125,6 @@ protected:
 };
 
 
-} // namespace generic
 } // namespace gologpp
 
 

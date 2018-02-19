@@ -1,25 +1,21 @@
 #ifndef READYLOG_ACTION_H_
 #define READYLOG_ACTION_H_
 
-#include <eclipseclass.h>
 #include "Implementation.h"
+
+#include <gologpp/Action.h>
+
+#include <eclipseclass.h>
 
 namespace gologpp {
 
-namespace generic {
 class Action;
-}
-
-
-namespace readylog {
-class ExecutionContext;
-}
 
 
 template<>
-class Implementation<generic::Action> : public ReadylogExpression {
+class Implementation<Action> : public ReadylogExpression {
 public:
-	Implementation(const generic::Action &a);
+	Implementation(const Action &a);
 	virtual ~Implementation() override = default;
 
 	virtual EC_word prim_action();
@@ -28,7 +24,7 @@ public:
 
 	virtual EC_word term() override;
 private:
-	const generic::Action &action_;
+	const Action &action_;
 };
 
 

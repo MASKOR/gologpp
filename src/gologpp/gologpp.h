@@ -18,14 +18,15 @@ template<class T>      using vector      = std::vector<T>;
 using string = std::string;
 
 
-namespace generic {
-
 class AbstractExecutionContext;
 
 class Action;
 class EffectAxiom;
 class Fluent;
 class Scope;
+
+class Expression;
+class BooleanExpression;
 
 class AnyValue;
 class Variable;
@@ -59,8 +60,6 @@ struct ImplConfig {
 	typedef fluent_impl fluent_impl_t;
 	typedef proc_impl proc_impl_t;
 };
-
-} // namespace generic
 
 
 } // namespace gologpp

@@ -6,18 +6,18 @@
 
 namespace gologpp {
 
-Implementation<generic::Fluent>::Implementation(const generic::Fluent &f)
+Implementation<Fluent>::Implementation(const Fluent &f)
 : fluent_(&f)
 {
-	std::cout << sizeof(Implementation<generic::Fluent>) << std::endl;
+	std::cout << sizeof(Implementation<Fluent>) << std::endl;
 }
 
 
-EC_word Implementation<generic::Fluent>::term()
+EC_word Implementation<Fluent>::term()
 {
 	return ::term(
 		EC_functor(fluent_->name().c_str(), fluent_->arity()),
-		fluent_->scope().impl_cast<generic::Scope>().variables(fluent_->args())
+		fluent_->scope().impl_cast<Scope>().variables(fluent_->args())
 	);
 }
 

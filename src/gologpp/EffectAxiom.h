@@ -6,7 +6,6 @@
 #include "Language.h"
 
 namespace gologpp {
-namespace generic {
 
 class Action;
 class Expression;
@@ -30,7 +29,6 @@ protected:
 };
 
 
-} // namespace generic
 } // namespace gologpp
 
 #endif /* GOLOGPP_EFFECTAXIOM_H_ */

@@ -1,43 +1,41 @@
 #ifndef READYLOG_ATOMS_H_
 #define READYLOG_ATOMS_H_
 
-#include <eclipseclass.h>
-#include <gologpp/Implementation.h>
 #include "Implementation.h"
+
+#include <gologpp/Implementation.h>
+#include <gologpp/atoms.h>
+
+#include <eclipseclass.h>
 
 namespace gologpp {
 
-namespace generic {
-class Variable;
-class AnyValue;
-} // namespace readylog
-
 
 template<>
-class Implementation<generic::Variable> : public ReadylogExpression {
+class Implementation<Variable> : public ReadylogExpression {
 public:
-	Implementation(const generic::Variable &);
+	Implementation(const Variable &);
 	virtual ~Implementation() override = default;
 
 	void init();
 	virtual EC_word term() override;
 
 private:
-	const generic::Variable &variable_;
+	const Variable &variable_;
 	EC_word ec_var_;
 };
 
 
 template<>
-class Implementation<generic::AnyValue> : public ReadylogExpression {
+class Implementation<AnyValue> : public ReadylogExpression {
 public:
-	Implementation(const generic::AnyValue &);
+	Implementation(const AnyValue &);
 	virtual ~Implementation() override = default;
 
 	virtual EC_word term() override;
 
 private:
-	const generic::AnyValue &value_;
+	const AnyValue &value_;
 };
 
 

@@ -3,12 +3,12 @@
 
 namespace gologpp {
 
-Implementation<generic::Negation>::Implementation(const generic::Negation &neg)
+Implementation<Negation>::Implementation(const Negation &neg)
 : negation_(neg)
 {}
 
 
-EC_word Implementation<generic::Negation>::term()
+EC_word Implementation<Negation>::term()
 {
 	return ::term(EC_functor("neg", 1),
 	              dynamic_cast<ReadylogExpression &>(
@@ -17,52 +17,52 @@ EC_word Implementation<generic::Negation>::term()
 	);
 }
 
-Implementation<generic::Comparison>::Implementation(const generic::Comparison &c)
+Implementation<Comparison>::Implementation(const Comparison &c)
 : comparison_(c)
 {}
 
 
-EC_word Implementation<generic::Comparison>::term()
+EC_word Implementation<Comparison>::term()
 {
 }
 
 
-Implementation<generic::Conjunction>::Implementation(const generic::Conjunction &c)
+Implementation<Conjunction>::Implementation(const Conjunction &c)
 : conjunction_(c)
 {}
 
 
-EC_word Implementation<generic::Conjunction>::term()
+EC_word Implementation<Conjunction>::term()
 {
 }
 
 
-Implementation<generic::Disjunction>::Implementation(const generic::Disjunction &d)
+Implementation<Disjunction>::Implementation(const Disjunction &d)
 : disjunction_(d)
 {}
 
 
-EC_word Implementation<generic::Disjunction>::term()
+EC_word Implementation<Disjunction>::term()
 {
 }
 
 
-Implementation<generic::ExistentialQuantification>::Implementation(const generic::ExistentialQuantification &q)
+Implementation<ExistentialQuantification>::Implementation(const ExistentialQuantification &q)
 : quantification_(q)
 {}
 
 
-EC_word Implementation<generic::ExistentialQuantification>::term()
+EC_word Implementation<ExistentialQuantification>::term()
 {
 }
 
 
-Implementation<generic::UniversalQuantification>::Implementation(const generic::UniversalQuantification &q)
+Implementation<UniversalQuantification>::Implementation(const UniversalQuantification &q)
 : quantification_(q)
 {}
 
 
-EC_word Implementation<generic::UniversalQuantification>::term()
+EC_word Implementation<UniversalQuantification>::term()
 {
 }
 

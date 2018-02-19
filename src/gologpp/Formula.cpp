@@ -4,7 +4,6 @@
 
 
 namespace gologpp {
-namespace generic {
 
 
 BooleanExpression::BooleanExpression(BooleanExpression &&x)
@@ -43,5 +42,4 @@ Quantification::Quantification(
 
 
 
-} // namespace generic
 } // namespace gologpp

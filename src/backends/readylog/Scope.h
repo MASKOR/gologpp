@@ -2,25 +2,22 @@
 #define BACKENDS_READYLOG_SCOPE_H_
 
 #include <gologpp/Implementation.h>
+#include <gologpp/Scope.h>
+
 #include <eclipseclass.h>
-#include <gologpp/gologpp.h>
 
 namespace gologpp {
 
-namespace generic {
-class Scope;
-}
-
 template<>
-class Implementation<generic::Scope> : public AbstractImplementation {
+class Implementation<Scope> : public AbstractImplementation {
 public:
-	Implementation(const generic::Scope &);
+	Implementation(const Scope &);
 
 	EC_word *variables(const vector<string> &names);
 	void init_vars();
 
 private:
-	const generic::Scope &scope_;
+	const Scope &scope_;
 };
 
 } // namespace gologpp

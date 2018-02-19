@@ -9,7 +9,6 @@ find_package(Eclipse)
 
 #pkg_check_modules(SWIPL REQUIRED "swipl")
 
-#file(GLOB INTERFACE_SRC src/gologpp/*.cpp)
 set(INTERFACE_SRC
 		src/gologpp/Action.cpp
 		src/gologpp/atoms.cpp
@@ -17,12 +16,10 @@ set(INTERFACE_SRC
 		src/gologpp/Fluent.cpp
 		src/gologpp/Formula.cpp
 		src/gologpp/Procedure.cpp
-		src/gologpp/Translation.cpp
 		src/gologpp/Scope.cpp
 		src/gologpp/utilities.cpp
 )
 
-#file(GLOB READYLOG_SRC src/backends/readylog/*.cpp)
 set(READYLOG_SRC
 	src/backends/readylog/Action.cpp
 	src/backends/readylog/atoms.cpp
@@ -39,10 +36,6 @@ set(READYLOG_SRC
 set(TEST_SRC
 	src/tests/readylog-test.cpp)
 
-#add_compile_options(${SWIPL_CFLAGS} -Wall)
-#foreach(flag IN LISTS SWIPL_LDFLAGS)
-#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${flag}")
-#endforeach()
 include_directories(${ECLIPSE_INCLUDE_DIRS} ${Boost_INCLUDE_DIR} src)
 link_directories(${ECLIPSE_LIBRARY_DIRS})
 

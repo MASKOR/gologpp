@@ -6,7 +6,6 @@
 
 
 namespace gologpp {
-namespace generic {
 
 class Name {
 public:
@@ -41,7 +40,6 @@ private:
 };
 
 
-} // namespace generic
 } // namespace gologpp
 
 
