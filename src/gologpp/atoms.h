@@ -19,11 +19,10 @@ protected:
 
 	Expression &operator = (const Expression &) = delete;
 
-	virtual ~Expression();
-
 public:
 	Scope &parent_scope();
 	const Scope &parent_scope() const;
+	virtual ~Expression();
 
 private:
 	Scope &parent_scope_;

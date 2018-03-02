@@ -35,6 +35,7 @@ int main(int, const char **) {
 	                    make_shared<AnyValue>(AnyValue(true))));
 
 	ReadylogImplementor implementor;
+
 	on->implement(implementor);
 	put->implement(implementor);
 

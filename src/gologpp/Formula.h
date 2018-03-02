@@ -57,6 +57,8 @@ protected:
 class ConnectiveFormula : public BooleanExpression {
 public:
 	ConnectiveFormula(unique_ptr<BooleanExpression> &&lhs, unique_ptr<BooleanExpression> &&rhs, Scope &parent_scope);
+	const BooleanExpression &lhs() const;
+	const BooleanExpression &rhs() const;
 
 protected:
 	unique_ptr<BooleanExpression> lhs_;
@@ -89,6 +91,9 @@ public:
 	        const shared_ptr<Variable> &variable,
 	        unique_ptr<BooleanExpression> &&expression,
 	        Scope &parent_scope);
+
+	const Variable &variable() const;
+	const BooleanExpression &expression() const;
 
 protected:
 	shared_ptr<Variable> variable_;

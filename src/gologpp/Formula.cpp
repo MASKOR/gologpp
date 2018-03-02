@@ -32,6 +32,14 @@ ConnectiveFormula::ConnectiveFormula(unique_ptr<BooleanExpression> &&lhs, unique
 {}
 
 
+const BooleanExpression &ConnectiveFormula::lhs() const
+{ return *lhs_; }
+
+
+const BooleanExpression &ConnectiveFormula::rhs() const
+{ return *rhs_; }
+
+
 Quantification::Quantification(
         const shared_ptr<Variable> &variable,
         unique_ptr<BooleanExpression> &&expression,
@@ -39,6 +47,14 @@ Quantification::Quantification(
     : BooleanExpression(parent_scope)
     , variable_(variable), expression_(std::move(expression))
 {}
+
+
+const Variable &Quantification::variable() const
+{ return *variable_; }
+
+
+const BooleanExpression &Quantification::expression() const
+{ return *expression_; }
 
 
 

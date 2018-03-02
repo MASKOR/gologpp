@@ -13,9 +13,9 @@ Statement::~Statement()
 {}
 
 
-Block::Block(const vector<shared_ptr<Statement>> &elements, Scope &parent_scope)
+Block::Block(vector<unique_ptr<Statement>> &&elements, Scope &parent_scope)
 : Statement(parent_scope)
-, elements_(elements)
+, elements_(std::move(elements))
 {}
 
 
@@ -26,9 +26,9 @@ void Block::implement(Implementor &implementor)
 }
 
 
-Choose::Choose(const vector<shared_ptr<Block>> &alternatives, Scope &parent_scope)
+Choose::Choose(vector<unique_ptr<Block>> &&alternatives, Scope &parent_scope)
 : Statement(parent_scope)
-, alternatives_(alternatives)
+, alternatives_(std::move(alternatives))
 {}
 
 
@@ -39,27 +39,27 @@ void Choose::implement(Implementor &implementor)
 }
 
 
-Conditional::Conditional(const shared_ptr<BooleanExpression> &condition,
-                         const shared_ptr<Block> &block_true,
-                         const shared_ptr<Block> &block_false,
+Conditional::Conditional(unique_ptr<BooleanExpression> &&condition,
+                         unique_ptr<Block> &&block_true,
+                         unique_ptr<Block> &&block_false,
                          Scope &parent_scope)
     : Statement(parent_scope)
-    , condition_(condition)
-    , block_true_(block_true)
-    , block_false_(block_false)
+    , condition_(std::move(condition))
+    , block_true_(std::move(block_true))
+    , block_false_(std::move(block_false))
 {}
 
 
-Assignment::Assignment(Reference<Fluent> &&fluent, const shared_ptr<Expression> &expression, Scope &parent_scope)
+Assignment::Assignment(Reference<Fluent> &&fluent, unique_ptr<Expression> &&expression, Scope &parent_scope)
 : Statement(parent_scope)
 , fluent_(std::move(fluent))
-, expression_(expression)
+, expression_(std::move(expression))
 {}
 
 
-Pick::Pick(const shared_ptr<Variable> &variable, const shared_ptr<Block> &block, Scope &parent_scope)
+Pick::Pick(const shared_ptr<Variable> &variable, unique_ptr<Block> &&block, Scope &parent_scope)
 : Statement(parent_scope)
-, variable_(variable), block_(block)
+, variable_(std::move(variable)), block_(std::move(block))
 {}
 
 
@@ -69,15 +69,15 @@ Search::Search(unique_ptr<Block> &&block, Scope &parent_scope)
 {}
 
 
-Test::Test(const shared_ptr<BooleanExpression> &expression, Scope &parent_scope)
+Test::Test(unique_ptr<BooleanExpression> &&expression, Scope &parent_scope)
 : Statement(parent_scope)
-, expression_(expression)
+, expression_(std::move(expression))
 {}
 
 
-While::While(const shared_ptr<BooleanExpression> &expression, unique_ptr<Block> &&block, Scope &parent_scope)
+While::While(unique_ptr<BooleanExpression> &&expression, unique_ptr<Block> &&block, Scope &parent_scope)
 : Statement(parent_scope)
-, expression_(expression), block_(std::move(block))
+, expression_(std::move(expression)), block_(std::move(block))
 {}
 
 
@@ -86,8 +86,17 @@ Procedure::Procedure(const string &name, const vector<string> &arg_names, unique
 , Identifier(name, static_cast<arity_t>(arg_names.size()))
 , scope_(arg_names, Scope::global_scope())
 , block_(std::move(block))
+, args_(arg_names)
 {}
 
+const Block &Procedure::block() const
+{ return *block_; }
+
+const Scope &Procedure::scope() const
+{ return scope_; }
+
+const vector<string> &Procedure::args() const
+{ return args_; }
 
 
 } // namespace gologpp
