@@ -24,7 +24,7 @@ EC_word Implementation<Action>::poss()
 	action_.scope().impl_cast<Scope>().init_vars();
 	return ::term(
 		EC_functor("poss", 2), term(),
-		dynamic_cast<ReadylogExpression &>(action_.precondition().implementation()).term()
+		dynamic_cast<ReadylogImplementation &>(action_.precondition().implementation()).term()
 	);
 }
 

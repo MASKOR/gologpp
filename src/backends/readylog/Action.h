@@ -13,7 +13,7 @@ class Action;
 
 
 template<>
-class Implementation<Action> : public ReadylogExpression {
+class Implementation<Action> : public ReadylogImplementation {
 public:
 	Implementation(const Action &a);
 	virtual ~Implementation() override = default;

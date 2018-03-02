@@ -20,7 +20,7 @@ EC_word Implementation<EffectAxiom>::term()
 		EC_functor("causes_val", 3),
 		effect_.action().impl_cast<Reference<Action>>().term(),
 		effect_.fluent().impl_cast<Reference<Fluent>>().term(),
-		dynamic_cast<ReadylogExpression &>(effect_.value().implementation()).term()
+		dynamic_cast<ReadylogImplementation &>(effect_.value().implementation()).term()
 	);
 }
 

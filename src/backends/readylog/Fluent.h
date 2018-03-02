@@ -9,7 +9,7 @@ namespace gologpp {
 
 
 template<>
-class Implementation<Fluent> : public ReadylogExpression {
+class Implementation<Fluent> : public ReadylogImplementation {
 public:
 	Implementation(const Fluent &);
 	virtual ~Implementation() override = default;

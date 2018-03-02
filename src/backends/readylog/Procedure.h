@@ -9,11 +9,12 @@
 namespace gologpp {
 
 template<>
-class Implementation<Procedure> : public ReadylogExpression {
+class Implementation<Procedure> : public ReadylogImplementation {
 public:
 	Implementation(const Procedure &proc);
 
 	virtual EC_word term() override;
+	EC_word definition();
 
 private:
 	const Procedure &procedure_;
@@ -21,7 +22,7 @@ private:
 
 
 template<>
-class Implementation<Block> : public ReadylogExpression {
+class Implementation<Block> : public ReadylogImplementation {
 public:
 	Implementation(const Block &);
 	virtual EC_word term() override;
@@ -32,7 +33,7 @@ private:
 
 
 template<>
-class Implementation<Choose> : public ReadylogExpression {
+class Implementation<Choose> : public ReadylogImplementation {
 public:
 	Implementation(const Choose &);
 	virtual EC_word term() override;
@@ -43,7 +44,7 @@ private:
 
 
 template<>
-class Implementation<Conditional> : public ReadylogExpression {
+class Implementation<Conditional> : public ReadylogImplementation {
 public:
 	Implementation(const Conditional &);
 	virtual EC_word term() override;
@@ -54,7 +55,7 @@ private:
 
 
 template<>
-class Implementation<Assignment> : public ReadylogExpression {
+class Implementation<Assignment> : public ReadylogImplementation {
 public:
 	Implementation(const Assignment &);
 	virtual EC_word term() override;
@@ -65,7 +66,7 @@ private:
 
 
 template<>
-class Implementation<Pick> : public ReadylogExpression {
+class Implementation<Pick> : public ReadylogImplementation {
 public:
 	Implementation(const Pick &);
 	virtual EC_word term() override;
@@ -73,7 +74,7 @@ public:
 
 
 template<>
-class Implementation<Search> : public ReadylogExpression {
+class Implementation<Search> : public ReadylogImplementation {
 public:
 	Implementation(const Search &);
 	virtual EC_word term() override;
@@ -81,7 +82,7 @@ public:
 
 
 template<>
-class Implementation<Test> : public ReadylogExpression {
+class Implementation<Test> : public ReadylogImplementation {
 public:
 	Implementation(const Test &);
 	virtual EC_word term() override;
@@ -89,7 +90,7 @@ public:
 
 
 template<>
-class Implementation<While> : public ReadylogExpression {
+class Implementation<While> : public ReadylogImplementation {
 public:
 	Implementation(const While &);
 	virtual EC_word term() override;

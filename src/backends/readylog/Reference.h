@@ -18,7 +18,7 @@ template<class GologT> class Reference;
 
 
 template<class GologT>
-class Implementation<Reference<GologT>> : public ReadylogExpression {
+class Implementation<Reference<GologT>> : public ReadylogImplementation {
 public:
 	Implementation(const Reference<GologT> &ref)
 	: reference_(ref)
@@ -30,7 +30,7 @@ public:
 		EC_word *args = new EC_word[reference_.args().size()];
 		arity_t i = 0;
 		for (const shared_ptr<Expression> &exp : reference_.args())
-			args[i++] = dynamic_cast<ReadylogExpression &>(exp->implementation()).term();
+			args[i++] = dynamic_cast<ReadylogImplementation &>(exp->implementation()).term();
 		return ::term(EC_functor(reference_.target().name().c_str(), reference_.target().arity()), args);
 	}
 

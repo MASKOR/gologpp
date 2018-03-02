@@ -12,7 +12,7 @@ namespace gologpp {
 
 
 template<>
-class Implementation<Variable> : public ReadylogExpression {
+class Implementation<Variable> : public ReadylogImplementation {
 public:
 	Implementation(const Variable &);
 	virtual ~Implementation() override = default;
@@ -27,7 +27,7 @@ private:
 
 
 template<>
-class Implementation<AnyValue> : public ReadylogExpression {
+class Implementation<AnyValue> : public ReadylogImplementation {
 public:
 	Implementation(const AnyValue &);
 	virtual ~Implementation() override = default;

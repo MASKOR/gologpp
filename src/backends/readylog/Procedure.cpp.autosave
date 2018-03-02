@@ -30,7 +30,10 @@ EC_word Implementation<Procedure>::term()
 
 Implementation<Block>::Implementation(const Block &b)
 : block_(b)
-{}
+{
+	EC_word tail = ::nil();
+	for (block_.)
+}
 
 
 EC_word Implementation<Block>::term()

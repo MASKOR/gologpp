@@ -11,7 +11,7 @@ namespace gologpp {
 
 
 template<>
-class Implementation<EffectAxiom> : public ReadylogExpression {
+class Implementation<EffectAxiom> : public ReadylogImplementation {
 public:
 	Implementation(const EffectAxiom &);
 	virtual ~Implementation() override = default;

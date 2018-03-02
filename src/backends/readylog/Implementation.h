@@ -9,9 +9,9 @@ namespace gologpp {
 
 
 
-class ReadylogExpression : public AbstractImplementation {
+class ReadylogImplementation : public AbstractImplementation {
 public:
-	virtual ~ReadylogExpression() override = default;
+	virtual ~ReadylogImplementation() override = default;
 	virtual EC_word term() = 0;
 };
 

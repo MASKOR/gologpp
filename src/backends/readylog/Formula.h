@@ -10,7 +10,7 @@ namespace gologpp {
 
 
 template<>
-class Implementation<BooleanExpression> : public ReadylogExpression {
+class Implementation<BooleanExpression> : public ReadylogImplementation {
 };
 
 
@@ -24,19 +24,6 @@ public:
 
 private:
 	const Negation &negation_;
-};
-
-
-template<>
-class Implementation<Comparison> : public Implementation<BooleanExpression> {
-public:
-	Implementation(const Comparison &);
-	virtual ~Implementation() override = default;
-
-	virtual EC_word term() override;
-
-private:
-	const Comparison &comparison_;
 };
 
 
