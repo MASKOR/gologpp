@@ -70,6 +70,9 @@ class Implementation<Pick> : public ReadylogImplementation {
 public:
 	Implementation(const Pick &);
 	virtual EC_word term() override;
+
+private:
+	const Pick &pick_;
 };
 
 
@@ -78,6 +81,9 @@ class Implementation<Search> : public ReadylogImplementation {
 public:
 	Implementation(const Search &);
 	virtual EC_word term() override;
+
+private:
+	const Search &search_;
 };
 
 
@@ -86,6 +92,9 @@ class Implementation<Test> : public ReadylogImplementation {
 public:
 	Implementation(const Test &);
 	virtual EC_word term() override;
+
+private:
+	const Test &test_;
 };
 
 
@@ -94,6 +103,9 @@ class Implementation<While> : public ReadylogImplementation {
 public:
 	Implementation(const While &);
 	virtual EC_word term() override;
+
+private:
+	const While &while_;
 };
 
 

@@ -21,15 +21,25 @@ using string = std::string;
 class AbstractExecutionContext;
 
 class Action;
+
+template<class>
 class EffectAxiom;
-class Fluent;
+
 class Scope;
+
+template<class>
+class Fluent;
 
 class Expression;
 class BooleanExpression;
+class ValueExpression;
 
-class AnyValue;
+class Number;
+
+template<class>
 class Variable;
+
+class ArithmeticOperation;
 
 class Negation;
 class Comparison;
@@ -39,9 +49,12 @@ class Implication;
 class ExistentialQuantification;
 class UniversalQuantification;
 
+class Statement;
+
 class Block;
 class Choose;
 class Conditional;
+template<class>
 class Assignment;
 class Pick;
 class Call;

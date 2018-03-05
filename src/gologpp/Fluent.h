@@ -9,40 +9,61 @@
 #include "utilities.h"
 #include "Reference.h"
 #include "Scope.h"
+#include "arithmetic.h"
 
 namespace gologpp {
 
 
-class Fluent : public Atom, public Identifier, public std::enable_shared_from_this<Fluent>, public LanguageElement<Fluent> {
+class AbstractFluent
+: public Identifier
+, public std::enable_shared_from_this<AbstractFluent>
+, public AbstractLanguageElement
+{
 public:
-	Fluent(const string &name, const vector<string> &args);
-	Fluent(Fluent &&);
-	//virtual ~Fluent() override = default;
+	AbstractFluent(const string &name, const vector<string> &args)
+	: Identifier(name, static_cast<arity_t>(args.size()))
+	, scope_(args, Scope::global_scope())
+	, args_(args)
+	{}
 
-	const vector<string> &args() const;
-	DEFINE_IMPLEMENT_WITH_MEMBERS(scope_)
+	virtual ~AbstractFluent();
 
-	Scope &scope();
-	const Scope &scope() const;
+	const vector<string> &args() const
+	{ return args_; }
 
-private:
-	vector<string> args_;
+	Scope &scope()
+	{ return scope_; }
+	const Scope &scope() const
+	{ return scope_; }
+
+protected:
 	Scope scope_;
+	vector<string> args_;
 };
 
 
-class Initially : public LanguageElement<Initially> {
+template<class ExpressionT>
+class Fluent
+: public ExpressionT
+, public Identifier
+, public std::enable_shared_from_this<Fluent<ExpressionT>>
+, public LanguageElement<Fluent<ExpressionT>>
+{
 public:
-	Initially(Reference<Fluent> &&fluent, unique_ptr<AnyValue> &&value);
-	//virtual ~Initially() override = default;
+	Fluent(const string &name, const vector<string> &args, unique_ptr<ExpressionT> &&init)
+	: ExpressionT(Scope::global_scope())
+	, Identifier(name, static_cast<arity_t>(args.size()))
+	, initial_value_(std::move(init))
+	{}
 
-	const Fluent &fluent() const;
-	const AnyValue &initial_value() const;
+	virtual ~Fluent() override = default;
 
 private:
-	Reference<Fluent> fluent_;
-	unique_ptr<AnyValue> value_;
+	unique_ptr<ExpressionT> initial_value_;
 };
+
+
+
 
 
 } // namespace gologpp

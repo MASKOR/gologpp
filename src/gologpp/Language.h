@@ -5,6 +5,9 @@
 #include <memory>
 #include "Implementation.h"
 
+#include <boost/fusion/include/std_tuple.hpp>
+#include <boost/fusion/include/for_each.hpp>
+
 namespace gologpp {
 
 
@@ -16,7 +19,7 @@ public:
 	AbstractLanguageElement(const AbstractLanguageElement &) = delete;
 	AbstractLanguageElement(AbstractLanguageElement &&) = default;
 	AbstractLanguageElement &operator = (const AbstractLanguageElement &) = delete;
-	AbstractLanguageElement &operator = (AbstractLanguageElement &&) = default;
+	//AbstractLanguageElement &operator = (AbstractLanguageElement &&) = default;
 
 	virtual ~AbstractLanguageElement() = default;
 
@@ -51,6 +54,9 @@ protected:
 	}
 
 
+class Expression;
+
+
 template<class GologT>
 class LanguageElement : public virtual AbstractLanguageElement {
 public:
@@ -61,7 +67,7 @@ public:
 
 	LanguageElement(LanguageElement &&other) = default;
 	LanguageElement(const LanguageElement &) = delete;
-	LanguageElement &operator = (LanguageElement &&) = default;
+	//LanguageElement &operator = (LanguageElement &&) = default;
 	LanguageElement &operator = (const LanguageElement &) = delete;
 
 	template<class = void>

@@ -2,6 +2,8 @@
 #include <gologpp/Procedure.h>
 
 #include "Scope.h"
+#include "Reference.h"
+#include "atoms.h"
 
 namespace gologpp {
 
@@ -37,7 +39,7 @@ EC_word Implementation<Block>::term()
 {
 	EC_word tail = ::nil();
 	for (const unique_ptr<Statement> &stmt : block_.elements())
-		tail = ::list(stmt->impl().term(), tail);
+		tail = ::list(dynamic_cast<ReadylogImplementation &>(stmt->implementation()).term(), tail);
 	return tail;
 }
 
@@ -78,31 +80,40 @@ Implementation<Assignment>::Implementation(const Assignment &proc)
 
 EC_word Implementation<Assignment>::term()
 {
-	return EC_atom("false");
+	return ::term(EC_functor("=", 2),
+		assignment_.fluent().impl().term(),
+		dynamic_cast<ReadylogImplementation &>(assignment_.expression().implementation()).term()
+	);
 }
 
 
-Implementation<Pick>::Implementation(const Pick &)
+Implementation<Pick>::Implementation(const Pick &pick)
+: pick_(pick)
 {}
 
 
 EC_word Implementation<Pick>::term()
 {
-	return EC_atom("false");
+	return ::term(EC_functor("pick", 2),
+		pick_.variable().impl().term(),
+		pick_.block().impl().term()
+	);
 }
 
 
-Implementation<Search>::Implementation(const Search &)
+Implementation<Search>::Implementation(const Search &search)
+: search_(search)
 {}
 
 
 EC_word Implementation<Search>::term()
 {
-	return EC_atom("false");
+	return ::term(EC_functor("solve", 2))
 }
 
 
-Implementation<Test>::Implementation(const Test &)
+Implementation<Test>::Implementation(const Test &test)
+: test_(test)
 {}
 
 
@@ -112,7 +123,8 @@ EC_word Implementation<Test>::term()
 }
 
 
-Implementation<While>::Implementation(const While &)
+Implementation<While>::Implementation(const While &w)
+: while_(w)
 {}
 
 

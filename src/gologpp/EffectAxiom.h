@@ -5,27 +5,49 @@
 #include "Reference.h"
 #include "Language.h"
 
+#include "Action.h"
+
 namespace gologpp {
 
-class Action;
 class Expression;
-class Fluent;
+class AbstractFluent;
 
-class EffectAxiom : public LanguageElement<EffectAxiom> {
+
+class AbstractEffectAxiom : public AbstractLanguageElement {
 public:
-	EffectAxiom(Reference<Action> &&action, Reference<Fluent> &&fluent, const shared_ptr<Expression> &value);
-	EffectAxiom(EffectAxiom &&);
-	//virtual ~EffectAxiom() override;
+	AbstractEffectAxiom(Reference<Action> &&action);
+	virtual ~AbstractEffectAxiom();
 
 	const Reference<Action> &action() const;
-	const Reference<Fluent> &fluent() const;
-	const Expression &value() const;
-	DEFINE_IMPLEMENT_WITH_MEMBERS(action_, fluent_, *value_)
 
 protected:
 	Reference<Action> action_;
-	Reference<Fluent> fluent_;
-	shared_ptr<Expression> value_;
+};
+
+
+template<class ExpressionT>
+class EffectAxiom : public AbstractEffectAxiom, public LanguageElement<EffectAxiom<ExpressionT>> {
+public:
+	EffectAxiom(Reference<Action> &&action, Reference<Fluent<ExpressionT>> &&fluent, unique_ptr<ExpressionT> &&value);
+	EffectAxiom(EffectAxiom<ExpressionT> &&o)
+	: AbstractEffectAxiom(std::move(o))
+	, fluent_(std::move(o.fluent_))
+	, value_(std::move(o.value_))
+	{}
+
+	virtual ~EffectAxiom() override
+	{}
+
+	const Reference<Fluent<ExpressionT>> &fluent() const
+	{ return fluent_; }
+	const ExpressionT &value() const
+	{ return *value_; }
+
+	DEFINE_IMPLEMENT_WITH_MEMBERS(action_, fluent_, *value_)
+
+protected:
+	Reference<Fluent<ExpressionT>> fluent_;
+	unique_ptr<ExpressionT> value_;
 };
 
 

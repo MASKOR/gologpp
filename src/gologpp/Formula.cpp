@@ -1,14 +1,12 @@
 #include <cctype>
 
 #include "Formula.h"
+#include "expressions.h"
+#include "atoms.h"
 
 
 namespace gologpp {
 
-
-BooleanExpression::BooleanExpression(BooleanExpression &&x)
-: Expression(std::move(x))
-{}
 
 Negation::Negation(unique_ptr<BooleanExpression> &&expression, Scope &parent_scope)
 : BooleanExpression(parent_scope)
@@ -20,9 +18,11 @@ const BooleanExpression &Negation::expression() const
 { return *expression_; }
 
 
-Comparison::Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const shared_ptr<Atom> &rhs, Scope &parent_scope)
+Comparison::Comparison(unique_ptr<ValueExpression> &&lhs, ComparisonOperator op, unique_ptr<ValueExpression> &&rhs, Scope &parent_scope)
     : BooleanExpression(parent_scope)
-    , lhs_(lhs), op_(op), rhs_(rhs)
+    , lhs_(std::move(lhs))
+    , op_(op)
+    , rhs_(std::move(rhs))
 {}
 
 
@@ -41,7 +41,7 @@ const BooleanExpression &ConnectiveFormula::rhs() const
 
 
 Quantification::Quantification(
-        const shared_ptr<Variable> &variable,
+        const shared_ptr<AbstractVariable> &variable,
         unique_ptr<BooleanExpression> &&expression,
         Scope &parent_scope)
     : BooleanExpression(parent_scope)
@@ -49,7 +49,7 @@ Quantification::Quantification(
 {}
 
 
-const Variable &Quantification::variable() const
+const AbstractVariable &Quantification::variable() const
 { return *variable_; }
 
 

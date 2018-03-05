@@ -1,20 +1,13 @@
 #ifndef FORMULA_H
 #define FORMULA_H
 
-#include "atoms.h"
+#include "expressions.h"
 
 #include <vector>
 #include <memory>
 
 
 namespace gologpp {
-
-
-class BooleanExpression : public Expression {
-public:
-	BooleanExpression(BooleanExpression &&);
-	using Expression::Expression;
-};
 
 
 class Negation : public BooleanExpression, public LanguageElement<Negation> {
@@ -38,13 +31,13 @@ enum ComparisonOperator {
 
 class Comparison : public BooleanExpression, public LanguageElement<Comparison> {
 public:
-	Comparison(const shared_ptr<Atom> &lhs, ComparisonOperator op, const shared_ptr<Atom> &rhs, Scope &parent_scope);
+	Comparison(unique_ptr<ValueExpression> &&lhs, ComparisonOperator op, unique_ptr<ValueExpression> &&rhs, Scope &parent_scope);
 	//DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 
 protected:
-	shared_ptr<Atom> lhs_;
+	unique_ptr<ValueExpression> lhs_;
 	ComparisonOperator op_;
-	shared_ptr<Atom> rhs_;
+	unique_ptr<ValueExpression> rhs_;
 };
 
 
@@ -85,18 +78,21 @@ public:
 \*--------------------------------------------*/
 
 
+class AbstractVariable;
+
+
 class Quantification : public BooleanExpression {
 public:
 	Quantification(
-	        const shared_ptr<Variable> &variable,
+	        const shared_ptr<AbstractVariable> &variable,
 	        unique_ptr<BooleanExpression> &&expression,
 	        Scope &parent_scope);
 
-	const Variable &variable() const;
+	const AbstractVariable &variable() const;
 	const BooleanExpression &expression() const;
 
 protected:
-	shared_ptr<Variable> variable_;
+	shared_ptr<AbstractVariable> variable_;
 	unique_ptr<BooleanExpression> expression_;
 };
 
@@ -104,14 +100,14 @@ protected:
 class ExistentialQuantification : public Quantification, public LanguageElement<ExistentialQuantification> {
 public:
 	using Quantification::Quantification;
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *expression_)
+	virtual void implement(Implementor &implementor) override;
 };
 
 
 class UniversalQuantification : public Quantification, public LanguageElement<UniversalQuantification> {
 public:
 	using Quantification::Quantification;
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *expression_)
+	virtual void implement(Implementor &implementor) override;
 };
 
 

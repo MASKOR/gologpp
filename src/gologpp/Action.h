@@ -7,7 +7,6 @@
 
 #include "gologpp.h"
 
-#include "EffectAxiom.h"
 #include "error.h"
 #include "Formula.h"
 #include "atoms.h"
@@ -17,10 +16,15 @@
 namespace gologpp {
 
 
+class AbstractEffectAxiom;
+
+
 class Action : public enable_shared_from_this<Action>, public Identifier, public LanguageElement<Action> {
 public:
+	typedef Statement expression_t;
+
 	Action(const string &name, const vector<string> &args,
-	       unique_ptr<BooleanExpression> &&precondition = nullptr, unique_ptr<EffectAxiom> &&effect = nullptr);
+	       unique_ptr<BooleanExpression> &&precondition = nullptr, unique_ptr<AbstractEffectAxiom> &&effect = nullptr);
 
 	Action(const Action &) = delete;
 	Action(Action &&other) = default;
@@ -33,36 +37,27 @@ public:
 	void set_precondition(T &&precondition)
 	{ precondition_ = unique_ptr<BooleanExpression>(new T(std::move(precondition))); }
 
-	const EffectAxiom &effect() const;
-	void set_effect(EffectAxiom &&effect);
+	const AbstractEffectAxiom &effect() const;
+
+	template<class T>
+	void set_effect(T &&effect)
+	{ effect_ = unique_ptr<AbstractEffectAxiom>(new T(std::move(effect))); }
 
 	const vector<string> &args() const;
 
 	Scope &scope();
 	const Scope &scope() const;
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*precondition_, *effect_, scope_)
+	virtual void implement(Implementor &) override;
 
 protected:
 	Scope scope_;
 
 	unique_ptr<BooleanExpression> precondition_;
-	unique_ptr<EffectAxiom> effect_;
+	unique_ptr<AbstractEffectAxiom> effect_;
 	vector<string> args_;
 };
 
-
-
-class Transition {
-public:
-	Transition(const shared_ptr<Action> &action, vector<unique_ptr<AnyValue>> &&binding);
-
-	const Action &action() const;
-
-private:
-	const shared_ptr<Action> action_;
-	const vector<unique_ptr<AnyValue>> binding_;
-};
 
 
 } // namespace gologpp

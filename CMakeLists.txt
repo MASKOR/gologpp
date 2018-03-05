@@ -13,11 +13,12 @@ set(INTERFACE_SRC
 		src/gologpp/Action.cpp
 		src/gologpp/atoms.cpp
 		src/gologpp/EffectAxiom.cpp
-		src/gologpp/Fluent.cpp
+		src/gologpp/expressions.cpp
 		src/gologpp/Formula.cpp
 		src/gologpp/Procedure.cpp
 		src/gologpp/Scope.cpp
 		src/gologpp/utilities.cpp
+		src/gologpp/arithmetic.cpp
 )
 
 set(READYLOG_SRC

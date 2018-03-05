@@ -1,9 +1,8 @@
 #ifndef GOLOGPP_REFERENCE_H_
 #define GOLOGPP_REFERENCE_H_
 
-#include "atoms.h"
-#include "Formula.h"
-#include "utilities.h"
+#include "Language.h"
+#include "Scope.h"
 
 #include <memory>
 #include <vector>
@@ -11,22 +10,22 @@
 namespace gologpp {
 
 template<class GologT>
-class Reference : public LanguageElement<Reference<GologT>>, public BooleanExpression {
+class Reference : public virtual AbstractLanguageElement, public LanguageElement<Reference<GologT>>, public GologT::expression_t {
 public:
 	Reference(const shared_ptr<GologT> &target, const vector<shared_ptr<Expression>> &args, Scope &parent_scope)
-	: BooleanExpression(parent_scope)
+	: GologT::expression_t(parent_scope)
 	, target_(target)
 	, args_(args)
 	{}
 
 	Reference(const shared_ptr<GologT> &target, const vector<string> &args, Scope &parent_scope)
-	: BooleanExpression(parent_scope)
+	: GologT::expression_t(parent_scope)
 	, target_(target)
 	, args_(parent_scope.variables(args))
 	{}
 
 	Reference(Reference<GologT> &&other)
-	: BooleanExpression(other.parent_scope())
+	: GologT::expression_t(other.parent_scope())
 	, target_(std::move(other.target_))
 	, args_(std::move(other.args_))
 	{}

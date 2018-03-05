@@ -9,10 +9,6 @@
 namespace gologpp {
 
 
-Statement::~Statement()
-{}
-
-
 Block::Block(vector<unique_ptr<Statement>> &&elements, Scope &parent_scope)
 : Statement(parent_scope)
 , elements_(std::move(elements))
@@ -65,25 +61,12 @@ const Block &Conditional::block_true() const
 { return block_true_; }
 
 
-Assignment::Assignment(Reference<Fluent> &&fluent, unique_ptr<Expression> &&expression, Scope &parent_scope)
-: Statement(parent_scope)
-, fluent_(std::move(fluent))
-, expression_(std::move(expression))
-{}
-
-const Reference<Fluent> &Assignment::fluent() const
-{ return fluent_; }
-
-const Expression &Assignment::expression() const
-{ return *expression_; }
-
-
-Pick::Pick(const shared_ptr<Variable> &variable, Block &&block, Scope &parent_scope)
+Pick::Pick(const shared_ptr<AbstractVariable> &variable, Block &&block, Scope &parent_scope)
 : Statement(parent_scope)
 , variable_(std::move(variable)), block_(std::move(block))
 {}
 
-const Variable &Pick::variable() const
+const AbstractVariable &Pick::variable() const
 { return *variable_; }
 
 const Block &Pick::block() const

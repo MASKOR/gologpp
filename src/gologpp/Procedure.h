@@ -4,25 +4,14 @@
 #include <vector>
 #include <memory>
 
+#include "gologpp.h"
+
 #include "Reference.h"
 #include "Language.h"
 #include "Scope.h"
-
+#include "expressions.h"
 
 namespace gologpp {
-
-class Fluent;
-class Statement;
-class Action;
-
-
-class Statement : public Expression {
-public:
-	using Expression::Expression;
-	Statement(Statement &&) = default;
-
-	virtual ~Statement();
-};
 
 
 class Block : public Statement, public LanguageElement<Block> {
@@ -68,30 +57,40 @@ protected:
 };
 
 
-class Assignment : public Statement, public LanguageElement<Assignment> {
+template<class ExpressionT>
+class Assignment : public Statement, public LanguageElement<Assignment<ExpressionT>> {
 public:
-	Assignment(Reference<Fluent> &&fluent, unique_ptr<Expression> &&expression, Scope &parent_scope);
+	Assignment(Reference<Fluent<ExpressionT>> &&fluent, unique_ptr<ExpressionT> &&expression, Scope &parent_scope)
+	: Statement(parent_scope)
+	, fluent_(std::move(fluent))
+	, expression_(std::move(expression))
+	{}
+
 	DEFINE_IMPLEMENT_WITH_MEMBERS(fluent_, *expression_)
 
-	const Reference<Fluent> &fluent() const;
-	const Expression &expression() const;
+	const Reference<Fluent<ExpressionT>> &fluent() const
+	{ return fluent_; }
+
+	const Expression &expression() const
+	{ return *expression_; }
+
 
 private:
-    Reference<Fluent> fluent_;
-    unique_ptr<Expression> expression_;
+    Reference<Fluent<ExpressionT>> fluent_;
+    unique_ptr<ExpressionT> expression_;
 };
 
 
 class Pick : public Statement, public LanguageElement<Pick> {
 public:
-	Pick(const shared_ptr<Variable> &variable, Block &&block, Scope &parent_scope);
+	Pick(const shared_ptr<AbstractVariable> &variable, Block &&block, Scope &parent_scope);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, block_)
 
-	const Variable &variable() const;
+	const AbstractVariable &variable() const;
 	const Block &block() const;
 
 private:
-	shared_ptr<Variable> variable_;
+	shared_ptr<AbstractVariable> variable_;
 	Block block_;
 };
 

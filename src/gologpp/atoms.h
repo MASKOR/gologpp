@@ -1,75 +1,49 @@
 #ifndef GOLOGPP_ATOMS_H_
 #define GOLOGPP_ATOMS_H_
 
+#include "gologpp.h"
+
 #include "utilities.h"
 #include "Language.h"
-#include "Scope.h"
+#include "expressions.h"
+
 #include <memory>
-#include <boost/variant.hpp>
 
 namespace gologpp {
 
-class AnyValue;
 
-class Expression : public std::enable_shared_from_this<Expression>, public virtual AbstractLanguageElement {
-protected:
-	Expression(Scope &parent_scope);
-	Expression(Expression &&);
-	Expression(const Expression &) = delete;
-
-	Expression &operator = (const Expression &) = delete;
-
+class AbstractVariable : public Name, public AbstractLanguageElement {
 public:
-	Scope &parent_scope();
-	const Scope &parent_scope() const;
-	virtual ~Expression();
+	AbstractVariable(const string &name, Scope &parent_scope);
 
 private:
 	Scope &parent_scope_;
 };
 
 
-class Atom : public Expression {
-public:
-	using Expression::Expression;
-	Atom(Atom &&);
-	Atom(const Atom &) = delete;
-};
-
-
-class Variable : public Atom, public Name, public LanguageElement<Variable> {
+template<class ExpressionT>
+class Variable
+: public ExpressionT
+, public Name
+, public LanguageElement<Variable<ExpressionT>>
+, public AbstractLanguageElement
+{
 protected:
-	Variable(const string &name, Scope &parent_scope);
+	Variable(const string &name, Scope &parent_scope)
+	: AbstractVariable(name, parent_scope)
+	{}
+
 public:
-	Variable(Variable &&) = default;
-	Variable(const Variable &) = delete;
-	Variable &operator = (Variable &&) = default;
-	Variable &operator = (const Variable &) = delete;
+	Variable(Variable<ExpressionT> &&) = default;
+	Variable(const Variable<ExpressionT> &) = delete;
+	Variable<ExpressionT> &operator = (Variable<ExpressionT> &&) = default;
+	Variable<ExpressionT> &operator = (const Variable<ExpressionT> &) = delete;
 
 	friend Scope;
 
 	virtual ~Variable() override = default;
 	DEFINE_IMPLEMENT
 };
-
-
-class AnyValue : public Atom, public LanguageElement<AnyValue> {
-public:
-	typedef boost::variant<string, int, long, double, bool> variant_t;
-
-	template<class T>
-	AnyValue(T value)
-	: Atom(Scope::global_scope())
-	, value_(value)
-	{}
-
-	const variant_t &value() const;
-	DEFINE_IMPLEMENT
-
-protected:
-	variant_t value_;
-};
-
 
 
 } // namespace gologpp
@@ -79,8 +53,8 @@ protected:
 namespace std {
 
 template<>
-struct hash<shared_ptr<gologpp::Variable>> {
-    size_t operator () (const shared_ptr<gologpp::Variable> &o) const
+struct hash<shared_ptr<gologpp::AbstractVariable>> {
+    size_t operator () (const shared_ptr<gologpp::AbstractVariable> &o) const
     { return o->hash(); }
 };
 
