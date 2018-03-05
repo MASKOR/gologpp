@@ -35,7 +35,10 @@ Implementation<Block>::Implementation(const Block &b)
 
 EC_word Implementation<Block>::term()
 {
-	return EC_atom("false");
+	EC_word tail = ::nil();
+	for (const unique_ptr<Statement> &stmt : block_.elements())
+		tail = ::list(stmt->impl().term(), tail);
+	return tail;
 }
 
 
@@ -46,7 +49,10 @@ Implementation<Choose>::Implementation(const Choose &c)
 
 EC_word Implementation<Choose>::term()
 {
-	return EC_atom("false");
+	EC_word tail = ::nil();
+	for (const Block &block : choose_.alternatives())
+		tail = ::list(block.impl().term(), tail);
+	return ::term(EC_functor("nondet", 1), tail);
 }
 
 
@@ -57,7 +63,11 @@ Implementation<Conditional>::Implementation(const Conditional &c)
 
 EC_word Implementation<Conditional>::term()
 {
-	return EC_atom("false");
+	return ::term(EC_functor("if", 3),
+		dynamic_cast<ReadylogImplementation &>(conditional_.condition().implementation()).term(),
+		conditional_.block_true().impl().term(),
+		conditional_.block_false().impl().term()
+	);
 }
 
 

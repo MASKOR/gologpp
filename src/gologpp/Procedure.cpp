@@ -25,29 +25,44 @@ void Block::implement(Implementor &implementor)
 		stmt->implement(implementor);
 }
 
+const vector<unique_ptr<Statement>> &Block::elements() const
+{ return elements_; }
 
-Choose::Choose(vector<unique_ptr<Block>> &&alternatives, Scope &parent_scope)
+
+Choose::Choose(vector<Block> &&alternatives, Scope &parent_scope)
 : Statement(parent_scope)
 , alternatives_(std::move(alternatives))
 {}
 
+const vector<Block> &Choose::alternatives() const
+{ return alternatives_; }
+
 
 void Choose::implement(Implementor &implementor)
 {
-	for (auto &stmt : alternatives_)
-		stmt->implement(implementor);
+	for (Block &block : alternatives_)
+		block.implement(implementor);
 }
 
 
 Conditional::Conditional(unique_ptr<BooleanExpression> &&condition,
-                         unique_ptr<Block> &&block_true,
-                         unique_ptr<Block> &&block_false,
+                         Block &&block_true,
+                         Block &&block_false,
                          Scope &parent_scope)
     : Statement(parent_scope)
     , condition_(std::move(condition))
     , block_true_(std::move(block_true))
     , block_false_(std::move(block_false))
 {}
+
+const BooleanExpression &Conditional::condition() const
+{ return *condition_; }
+
+const Block &Conditional::block_false() const
+{ return block_false_; }
+
+const Block &Conditional::block_true() const
+{ return block_true_; }
 
 
 Assignment::Assignment(Reference<Fluent> &&fluent, unique_ptr<Expression> &&expression, Scope &parent_scope)
@@ -56,17 +71,32 @@ Assignment::Assignment(Reference<Fluent> &&fluent, unique_ptr<Expression> &&expr
 , expression_(std::move(expression))
 {}
 
+const Reference<Fluent> &Assignment::fluent() const
+{ return fluent_; }
 
-Pick::Pick(const shared_ptr<Variable> &variable, unique_ptr<Block> &&block, Scope &parent_scope)
+const Expression &Assignment::expression() const
+{ return *expression_; }
+
+
+Pick::Pick(const shared_ptr<Variable> &variable, Block &&block, Scope &parent_scope)
 : Statement(parent_scope)
 , variable_(std::move(variable)), block_(std::move(block))
 {}
 
+const Variable &Pick::variable() const
+{ return *variable_; }
 
-Search::Search(unique_ptr<Block> &&block, Scope &parent_scope)
+const Block &Pick::block() const
+{ return block_; }
+
+
+Search::Search(Block &&block, Scope &parent_scope)
 : Statement(parent_scope)
 , block_(std::move(block))
 {}
+
+const Block &Search::block() const
+{ return block_; }
 
 
 Test::Test(unique_ptr<BooleanExpression> &&expression, Scope &parent_scope)
@@ -74,11 +104,17 @@ Test::Test(unique_ptr<BooleanExpression> &&expression, Scope &parent_scope)
 , expression_(std::move(expression))
 {}
 
+const BooleanExpression &Test::expression() const
+{ return *expression_; }
+
 
 While::While(unique_ptr<BooleanExpression> &&expression, unique_ptr<Block> &&block, Scope &parent_scope)
 : Statement(parent_scope)
 , expression_(std::move(expression)), block_(std::move(block))
 {}
+
+const BooleanExpression &While::expression() const
+{ return *expression_; }
 
 
 Procedure::Procedure(const string &name, const vector<string> &arg_names, unique_ptr<Block> &&block)

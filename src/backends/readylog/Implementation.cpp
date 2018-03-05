@@ -10,35 +10,35 @@
 
 namespace gologpp {
 
-#define DEFINE_GET_IMPL(GologT) \
-unique_ptr<AbstractImplementation> ReadylogImplementor::get_impl(GologT &obj) \
+#define DEFINE_MAKE_IMPL(GologT) \
+unique_ptr<AbstractImplementation> ReadylogImplementor::make_impl(GologT &obj) \
 { return unique_ptr<AbstractImplementation>(new Implementation<GologT>(obj)); }
 
-DEFINE_GET_IMPL(Action)
-DEFINE_GET_IMPL(Reference<Action>)
-DEFINE_GET_IMPL(EffectAxiom)
-DEFINE_GET_IMPL(Fluent)
-DEFINE_GET_IMPL(Reference<Fluent>)
-DEFINE_GET_IMPL(Scope)
+DEFINE_MAKE_IMPL(Action)
+DEFINE_MAKE_IMPL(Reference<Action>)
+DEFINE_MAKE_IMPL(EffectAxiom)
+DEFINE_MAKE_IMPL(Fluent)
+DEFINE_MAKE_IMPL(Reference<Fluent>)
+DEFINE_MAKE_IMPL(Scope)
 
-DEFINE_GET_IMPL(AnyValue)
-DEFINE_GET_IMPL(Variable)
+DEFINE_MAKE_IMPL(AnyValue)
+DEFINE_MAKE_IMPL(Variable)
 
-DEFINE_GET_IMPL(Negation)
-DEFINE_GET_IMPL(Conjunction)
-DEFINE_GET_IMPL(Disjunction)
-DEFINE_GET_IMPL(ExistentialQuantification)
-DEFINE_GET_IMPL(UniversalQuantification)
+DEFINE_MAKE_IMPL(Negation)
+DEFINE_MAKE_IMPL(Conjunction)
+DEFINE_MAKE_IMPL(Disjunction)
+DEFINE_MAKE_IMPL(ExistentialQuantification)
+DEFINE_MAKE_IMPL(UniversalQuantification)
 
-DEFINE_GET_IMPL(Block)
-DEFINE_GET_IMPL(Choose)
-DEFINE_GET_IMPL(Conditional)
-DEFINE_GET_IMPL(Assignment)
-DEFINE_GET_IMPL(Pick)
-DEFINE_GET_IMPL(Search)
-DEFINE_GET_IMPL(Test)
-DEFINE_GET_IMPL(While)
-DEFINE_GET_IMPL(Procedure)
-DEFINE_GET_IMPL(Reference<Procedure>)
+DEFINE_MAKE_IMPL(Block)
+DEFINE_MAKE_IMPL(Choose)
+DEFINE_MAKE_IMPL(Conditional)
+DEFINE_MAKE_IMPL(Assignment)
+DEFINE_MAKE_IMPL(Pick)
+DEFINE_MAKE_IMPL(Search)
+DEFINE_MAKE_IMPL(Test)
+DEFINE_MAKE_IMPL(While)
+DEFINE_MAKE_IMPL(Procedure)
+DEFINE_MAKE_IMPL(Reference<Procedure>)
 
 }

@@ -5,11 +5,6 @@
 #include <memory>
 #include "Implementation.h"
 
-#include <boost/fusion/algorithm/iteration/for_each.hpp>
-#include <boost/fusion/include/for_each.hpp>
-#include <boost/fusion/adapted/std_tuple.hpp>
-#include <boost/fusion/include/std_tuple.hpp>
-
 namespace gologpp {
 
 
@@ -21,7 +16,7 @@ public:
 	AbstractLanguageElement(const AbstractLanguageElement &) = delete;
 	AbstractLanguageElement(AbstractLanguageElement &&) = default;
 	AbstractLanguageElement &operator = (const AbstractLanguageElement &) = delete;
-	//AbstractLanguageElement &operator = (AbstractLanguageElement &&) = default;
+	AbstractLanguageElement &operator = (AbstractLanguageElement &&) = default;
 
 	virtual ~AbstractLanguageElement() = default;
 
@@ -44,7 +39,7 @@ protected:
 
 #define DEFINE_IMPLEMENT_WITH_MEMBERS(...) \
 	virtual void implement(Implementor &implementor) override { \
-		impl_ = implementor.get_impl(*this); \
+		impl_ = implementor.make_impl(*this); \
 		boost::fusion::for_each(std::tie(__VA_ARGS__), [&] (auto &e) { \
 			e.implement(implementor); \
 		} ); \
@@ -52,7 +47,7 @@ protected:
 
 #define DEFINE_IMPLEMENT \
 	virtual void implement(Implementor &implementor) override { \
-		impl_ = implementor.get_impl(*this); \
+		impl_ = implementor.make_impl(*this); \
 	}
 
 
@@ -66,8 +61,12 @@ public:
 
 	LanguageElement(LanguageElement &&other) = default;
 	LanguageElement(const LanguageElement &) = delete;
-	//LanguageElement &operator = (LanguageElement &&) = default;
+	LanguageElement &operator = (LanguageElement &&) = default;
 	LanguageElement &operator = (const LanguageElement &) = delete;
+
+	template<class = void>
+	Implementation<GologT> &impl() const
+	{ return impl_cast<GologT>(); }
 };
 
 
