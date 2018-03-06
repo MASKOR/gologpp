@@ -7,6 +7,13 @@
 namespace gologpp {
 
 
+enum ExpressionTypeTag {
+	BOOLEAN_EXPRESSION,
+	VALUE_EXPRESSION,
+	STATEMENT
+};
+
+
 class Expression : public std::enable_shared_from_this<Expression>, public virtual AbstractLanguageElement {
 protected:
 	Expression(Scope &parent_scope);
@@ -20,6 +27,8 @@ public:
 	Scope &parent_scope();
 	const Scope &parent_scope() const;
 
+	virtual ExpressionTypeTag expression_type_tag() const = 0;
+
 private:
 	Scope &parent_scope_;
 };
@@ -31,6 +40,8 @@ public:
 
 	BooleanExpression(BooleanExpression &&) = default;
 	using Expression::Expression;
+
+	virtual ExpressionTypeTag expression_type_tag() const override;
 };
 
 
@@ -40,6 +51,8 @@ public:
 
 	ValueExpression(ValueExpression &&) = default;
 	using Expression::Expression;
+
+	virtual ExpressionTypeTag expression_type_tag() const override;
 };
 
 
@@ -49,6 +62,8 @@ public:
 
 	Statement(Statement &&) = default;
 	using Expression::Expression;
+
+	virtual ExpressionTypeTag expression_type_tag() const override;
 };
 
 

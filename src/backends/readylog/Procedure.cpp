@@ -2,8 +2,6 @@
 #include <gologpp/Procedure.h>
 
 #include "Scope.h"
-#include "Reference.h"
-#include "atoms.h"
 
 namespace gologpp {
 
@@ -73,20 +71,6 @@ EC_word Implementation<Conditional>::term()
 }
 
 
-Implementation<Assignment>::Implementation(const Assignment &proc)
-: assignment_(proc)
-{}
-
-
-EC_word Implementation<Assignment>::term()
-{
-	return ::term(EC_functor("=", 2),
-		assignment_.fluent().impl().term(),
-		dynamic_cast<ReadylogImplementation &>(assignment_.expression().implementation()).term()
-	);
-}
-
-
 Implementation<Pick>::Implementation(const Pick &pick)
 : pick_(pick)
 {}
@@ -95,7 +79,7 @@ Implementation<Pick>::Implementation(const Pick &pick)
 EC_word Implementation<Pick>::term()
 {
 	return ::term(EC_functor("pick", 2),
-		pick_.variable().impl().term(),
+		dynamic_cast<ReadylogImplementation &>(pick_.variable().implementation()).term(),
 		pick_.block().impl().term()
 	);
 }
@@ -108,7 +92,7 @@ Implementation<Search>::Implementation(const Search &search)
 
 EC_word Implementation<Search>::term()
 {
-	return ::term(EC_functor("solve", 2))
+	return EC_atom("fail");
 }
 
 
@@ -119,7 +103,7 @@ Implementation<Test>::Implementation(const Test &test)
 
 EC_word Implementation<Test>::term()
 {
-	return EC_atom("false");
+	return EC_atom("fail");
 }
 
 
@@ -130,7 +114,7 @@ Implementation<While>::Implementation(const While &w)
 
 EC_word Implementation<While>::term()
 {
-	return EC_atom("false");
+	return EC_atom("fail");
 }
 
 

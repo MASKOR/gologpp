@@ -4,22 +4,40 @@
 #include "Implementation.h"
 
 #include <gologpp/EffectAxiom.h>
+#include "Reference.h"
+#include <gologpp/Action.h>
+#include <gologpp/Fluent.h>
+#include "Scope.h"
 
 #include <eclipseclass.h>
+
 
 namespace gologpp {
 
 
-template<>
-class Implementation<EffectAxiom> : public ReadylogImplementation {
+template<class ExpressionT>
+class Implementation<EffectAxiom<ExpressionT>> : public ReadylogImplementation {
 public:
-	Implementation(const EffectAxiom &);
+	Implementation(const EffectAxiom<ExpressionT> &eff)
+	: effect_(eff)
+	{}
+
 	virtual ~Implementation() override = default;
 
-	virtual EC_word term() override;
+	virtual EC_word term() override
+	{
+		effect_.action().parent_scope().impl().init_vars();
+		return ::term(
+			EC_functor("causes_val", 3),
+			effect_.action().impl().term(),
+			dynamic_cast<ReadylogImplementation &>(effect_.fluent().implementation()).term(),
+			dynamic_cast<ReadylogImplementation &>(effect_.value().implementation()).term()
+		);
+	}
+
 
 private:
-	const EffectAxiom &effect_;
+	const EffectAxiom<ExpressionT> &effect_;
 };
 
 } /* namespace gologpp */

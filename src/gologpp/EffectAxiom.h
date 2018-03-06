@@ -2,10 +2,9 @@
 #define GOLOGPP_EFFECTAXIOM_H_
 
 #include "utilities.h"
+#include "Action.h"
 #include "Reference.h"
 #include "Language.h"
-
-#include "Action.h"
 
 namespace gologpp {
 
@@ -13,9 +12,10 @@ class Expression;
 class AbstractFluent;
 
 
-class AbstractEffectAxiom : public AbstractLanguageElement {
+class AbstractEffectAxiom : public virtual AbstractLanguageElement {
 public:
 	AbstractEffectAxiom(Reference<Action> &&action);
+	AbstractEffectAxiom(AbstractEffectAxiom &&) = default;
 	virtual ~AbstractEffectAxiom();
 
 	const Reference<Action> &action() const;
@@ -28,12 +28,13 @@ protected:
 template<class ExpressionT>
 class EffectAxiom : public AbstractEffectAxiom, public LanguageElement<EffectAxiom<ExpressionT>> {
 public:
-	EffectAxiom(Reference<Action> &&action, Reference<Fluent<ExpressionT>> &&fluent, unique_ptr<ExpressionT> &&value);
-	EffectAxiom(EffectAxiom<ExpressionT> &&o)
-	: AbstractEffectAxiom(std::move(o))
-	, fluent_(std::move(o.fluent_))
-	, value_(std::move(o.value_))
+	EffectAxiom(Reference<Action> &&action, Reference<Fluent<ExpressionT>> &&fluent, unique_ptr<ExpressionT> &&value)
+	: AbstractEffectAxiom(std::move(action))
+	, fluent_(std::move(fluent))
+	, value_(std::move(value))
 	{}
+
+	EffectAxiom(EffectAxiom<ExpressionT> &&o) = default;
 
 	virtual ~EffectAxiom() override
 	{}

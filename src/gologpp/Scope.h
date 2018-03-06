@@ -17,6 +17,8 @@ template<class K, class V>
 using unordered_map = std::unordered_map<K, V>;
 
 
+Scope &global_scope();
+
 
 class Scope : public LanguageElement<Scope> {
 public:
@@ -28,10 +30,10 @@ public:
 	Scope &operator = (const Scope &) = delete;
 
 	template<class ExpressionT>
-	shared_ptr<Variable<ExpressionT>> variable(const string &name)
+	shared_ptr<AbstractVariable> variable(const string &name)
 	{
 		auto it = variables_.find(name);
-		shared_ptr<Variable<ExpressionT>> rv;
+		shared_ptr<AbstractVariable> rv;
 		if (it != variables_.end())
 			rv = it->second;
 		else {
@@ -43,7 +45,7 @@ public:
 
 	shared_ptr<AbstractVariable> variable(const string &name) const;
 
-	vector<shared_ptr<AbstractVariable>> variables(const vector<string> &names) const;
+	vector<shared_ptr<Expression>> variables(const vector<string> &names) const;
 	shared_ptr<Scope> parent_scope();
 
 	void implement(Implementor &implementor);
@@ -61,7 +63,6 @@ private:
 	Scope &parent_scope_;
 	unordered_map<string, shared_ptr<AbstractVariable>> variables_;
 };
-
 
 
 } // namespace gologpp

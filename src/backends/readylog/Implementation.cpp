@@ -7,6 +7,7 @@
 #include "Procedure.h"
 #include "Reference.h"
 #include "Scope.h"
+//#include "arithmetic.h"
 
 namespace gologpp {
 
@@ -16,13 +17,20 @@ unique_ptr<AbstractImplementation> ReadylogImplementor::make_impl(GologT &obj) \
 
 DEFINE_MAKE_IMPL(Action)
 DEFINE_MAKE_IMPL(Reference<Action>)
-DEFINE_MAKE_IMPL(EffectAxiom)
-DEFINE_MAKE_IMPL(Fluent)
-DEFINE_MAKE_IMPL(Reference<Fluent>)
+DEFINE_MAKE_IMPL(EffectAxiom<BooleanExpression>)
+DEFINE_MAKE_IMPL(EffectAxiom<ValueExpression>)
+DEFINE_MAKE_IMPL(Fluent<BooleanExpression>)
+DEFINE_MAKE_IMPL(Fluent<ValueExpression>)
+DEFINE_MAKE_IMPL(Reference<Fluent<BooleanExpression>>)
+DEFINE_MAKE_IMPL(Reference<Fluent<ValueExpression>>)
 DEFINE_MAKE_IMPL(Scope)
 
-DEFINE_MAKE_IMPL(AnyValue)
-DEFINE_MAKE_IMPL(Variable)
+DEFINE_MAKE_IMPL(Constant<BooleanExpression>)
+DEFINE_MAKE_IMPL(Constant<ValueExpression>)
+DEFINE_MAKE_IMPL(Variable<BooleanExpression>)
+DEFINE_MAKE_IMPL(Variable<ValueExpression>)
+
+//DEFINE_MAKE_IMPL(ArithmeticOperation)
 
 DEFINE_MAKE_IMPL(Negation)
 DEFINE_MAKE_IMPL(Conjunction)
@@ -33,7 +41,8 @@ DEFINE_MAKE_IMPL(UniversalQuantification)
 DEFINE_MAKE_IMPL(Block)
 DEFINE_MAKE_IMPL(Choose)
 DEFINE_MAKE_IMPL(Conditional)
-DEFINE_MAKE_IMPL(Assignment)
+DEFINE_MAKE_IMPL(Assignment<BooleanExpression>)
+DEFINE_MAKE_IMPL(Assignment<ValueExpression>)
 DEFINE_MAKE_IMPL(Pick)
 DEFINE_MAKE_IMPL(Search)
 DEFINE_MAKE_IMPL(Test)

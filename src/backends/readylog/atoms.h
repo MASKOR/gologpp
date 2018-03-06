@@ -5,6 +5,7 @@
 
 #include <gologpp/Implementation.h>
 #include <gologpp/atoms.h>
+#include <gologpp/error.h>
 
 #include <eclipseclass.h>
 
@@ -12,30 +13,55 @@ namespace gologpp {
 
 
 template<>
-class Implementation<Variable> : public ReadylogImplementation {
+class Implementation<AbstractVariable> : public ReadylogImplementation {
 public:
-	Implementation(const Variable &);
+	Implementation(const AbstractVariable &var)
+	: variable_(var)
+	{}
+
 	virtual ~Implementation() override = default;
 
-	void init();
-	virtual EC_word term() override;
+	void init()
+	{ ec_var_ = ::newvar(); }
+
+	virtual EC_word term() override
+	{ return ec_var_; }
 
 private:
-	const Variable &variable_;
+	const AbstractVariable &variable_;
 	EC_word ec_var_;
 };
 
 
 template<>
-class Implementation<AnyValue> : public ReadylogImplementation {
+class Implementation<Variable<BooleanExpression>> : public Implementation<AbstractVariable>
+{
 public:
-	Implementation(const AnyValue &);
+	using Implementation<AbstractVariable>::Implementation;
+};
+
+
+template<>
+class Implementation<Variable<ValueExpression>> : public Implementation<AbstractVariable>
+{
+public:
+	using Implementation<AbstractVariable>::Implementation;
+};
+
+
+template<class ExpressionT>
+class Implementation<Constant<ExpressionT>> : public ReadylogImplementation {
+public:
+	Implementation(const Constant<ExpressionT> &value)
+	: value_(value)
+	{}
+
 	virtual ~Implementation() override = default;
 
 	virtual EC_word term() override;
 
 private:
-	const AnyValue &value_;
+	const Constant<ExpressionT> &value_;
 };
 
 

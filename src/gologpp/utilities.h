@@ -30,8 +30,9 @@ public:
     Identifier(const Identifier &other) = default;
     
     virtual ~Identifier() override = default;
-    
+
     arity_t arity() const;
+
     virtual bool operator == (const Identifier &other) const;
     virtual size_t hash() const override;
 

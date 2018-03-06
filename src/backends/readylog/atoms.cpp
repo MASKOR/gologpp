@@ -3,40 +3,26 @@
 namespace gologpp {
 
 
-Implementation<Variable>::Implementation(const Variable &var)
-: variable_(var)
-{}
+template<>
+EC_word Implementation<Constant<BooleanExpression>>::term()
+{
+	if (value_.representation() == "true")
+		return EC_atom("true");
+	else if (value_.representation() == "false")
+		return EC_atom("fail");
+	else
+		throw Bug("Invalid boolean value `" + value_.representation() + "'");
+}
 
-void Implementation<Variable>::init()
-{ ec_var_ = ::newvar(); }
-
-EC_word Implementation<Variable>::term()
-{ return ec_var_; }
-
-
-
-Implementation<AnyValue>::Implementation(const AnyValue &val)
-: value_(val)
-{}
-
-
-struct wrap_word {
-template<class T>
-	EC_word operator () (const T &v) const
-	{ return ::EC_word(v); }
-};
 
 template<>
-EC_word wrap_word::operator () (const string &v) const
-{ return ::EC_word(v.c_str()); }
-
-template<>
-EC_word wrap_word::operator () (const bool &v) const
-{ return v ? EC_atom("true") : EC_atom("fail"); }
-
-
-EC_word Implementation<AnyValue>::term()
-{ return boost::apply_visitor(wrap_word(), value_.value()); }
+EC_word Implementation<Constant<ValueExpression>>::term()
+{
+	if (value_.representation().find('.') != string::npos)
+		return EC_word(std::stod(value_.representation()));
+	else
+		return EC_word(std::stol(value_.representation()));
+}
 
 
 }

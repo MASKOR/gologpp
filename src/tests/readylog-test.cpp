@@ -24,15 +24,33 @@ int main(int, const char **) {
 
 	EclipseContext &ctx = EclipseContext::instance();
 
-	shp<Fluent> on = ctx.add_fluent(Fluent("on", std::vector<string>{"X", "Y"}));
-	shp<Action> put = ctx.add_action(Action("put", std::vector<string>{"X", "Y"}));
-	put->set_precondition(Negation(
-		std::unique_ptr<BooleanExpression>(new Reference<Fluent>(on, put->args(), put->scope())), put->scope())
+	shp<Fluent<BooleanExpression>> on = ctx.add_fluent(
+		Fluent<BooleanExpression>(
+			"on",
+			std::vector<string>{"X", "Y"},
+			make_unique<Constant<BooleanExpression>>("false")
+		)
 	);
-	put->set_effect(EffectAxiom(
-	                    Reference<Action>(put, put->args(), put->scope()),
-	                    Reference<Fluent>(on, put->args(), put->scope()),
-	                    make_shared<AnyValue>(AnyValue(true))));
+	on->declare_variable<ValueExpression>("X");
+	on->declare_variable<ValueExpression>("Y");
+
+	shp<Action> put = ctx.add_action(Action("put", std::vector<string>{"X", "Y"}));
+	put->declare_variable<ValueExpression>("X");
+	put->declare_variable<ValueExpression>("Y");
+
+	put->set_precondition(Negation(
+		make_unique<Reference<Fluent<BooleanExpression>>>(
+			on,
+			put->scope().variables(put->arg_names()), put->scope()),
+			put->scope()
+		)
+	);
+
+	put->set_effect(EffectAxiom<BooleanExpression>(
+		Reference<Action>(put, put->scope().variables(put->arg_names()), put->scope()),
+	    Reference<Fluent<BooleanExpression>>(on, put->scope().variables(put->arg_names()), put->scope()),
+	    make_unique<Constant<BooleanExpression>>("true"))
+	);
 
 	ReadylogImplementor implementor;
 

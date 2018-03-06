@@ -33,7 +33,7 @@ EC_word Implementation<Action>::term()
 {
 	return ::term(
 		EC_functor(action_.name().c_str(), action_.arity()),
-		action_.scope().impl_cast<Scope>().variables(action_.args())
+		action_.scope().impl().variables(action_.arg_names())
 	);
 }
 
@@ -41,7 +41,7 @@ EC_word Implementation<Action>::term()
 EC_word Implementation<Action>::causes_val()
 {
 	action_.scope().impl_cast<Scope>().init_vars();
-	return action_.effect().impl_cast<EffectAxiom>().term();
+	return dynamic_cast<ReadylogImplementation &>(action_.effect().implementation()).term();
 }
 
 

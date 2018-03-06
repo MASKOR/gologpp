@@ -13,6 +13,7 @@ set(INTERFACE_SRC
 		src/gologpp/Action.cpp
 		src/gologpp/atoms.cpp
 		src/gologpp/EffectAxiom.cpp
+		src/gologpp/Fluent.cpp
 		src/gologpp/expressions.cpp
 		src/gologpp/Formula.cpp
 		src/gologpp/Procedure.cpp
@@ -24,9 +25,9 @@ set(INTERFACE_SRC
 set(READYLOG_SRC
 	src/backends/readylog/Action.cpp
 	src/backends/readylog/atoms.cpp
-	src/backends/readylog/EffectAxiom.cpp
+	#src/backends/readylog/EffectAxiom.cpp
 	src/backends/readylog/Execution.cpp
-	src/backends/readylog/Fluent.cpp
+	#src/backends/readylog/Fluent.cpp
 	src/backends/readylog/Formula.cpp
 	src/backends/readylog/Procedure.cpp
 	src/backends/readylog/Reference.cpp

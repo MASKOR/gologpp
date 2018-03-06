@@ -16,24 +16,9 @@ namespace gologpp {
 
 class Situation;
 
-class History : public enable_shared_from_this<History> {
-protected:
-    vector<unique_ptr<Transition>> transitions_;
-    shared_ptr<Situation> s0_;
-};
 
-
-class AbstractExecutionContext {
-};
-
-
-template<class impl_config_t>
-class ExecutionContext : public AbstractExecutionContext {
+class ExecutionContext {
 public:
-	typedef typename impl_config_t::action_impl_t action_impl_t;
-	typedef typename impl_config_t::fluent_impl_t fluent_impl_t;
-	typedef typename impl_config_t::proc_impl_t proc_impl_t;
-
 	template<class elem_t>
 	using id_map_t = std::unordered_map<Identifier, std::shared_ptr<elem_t>>;
 
@@ -45,7 +30,7 @@ public:
 	shared_ptr<T> add_fluent(T &&f)
 	{ return add_global(fluents_, std::move(f)); }
 
-	shared_ptr<Fluent> fluent(const string &name, arity_t arity)
+	shared_ptr<AbstractFluent> fluent(const string &name, arity_t arity)
 	{ return get_global(fluents_, name, arity); }
 
 
@@ -66,9 +51,7 @@ public:
 
 
 protected:
-    shared_ptr<History> history_;
-
-    id_map_t<Fluent> fluents_;
+    id_map_t<AbstractFluent> fluents_;
     id_map_t<Action> actions_;
     id_map_t<Procedure> procedures_;
 

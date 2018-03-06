@@ -8,7 +8,7 @@
 namespace gologpp {
 
 
-class EclipseContext : public ExecutionContext<readylog_impl_config_t>
+class EclipseContext : public ExecutionContext
 {
 public:
     virtual ~EclipseContext();

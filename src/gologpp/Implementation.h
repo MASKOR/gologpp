@@ -34,12 +34,13 @@ public:
 
 	virtual unique_ptr<AbstractImplementation> make_impl(Scope &) = 0;
 
-	virtual unique_ptr<AbstractImplementation> make_impl(Number &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Constant<BooleanExpression> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Constant<ValueExpression> &) = 0;
 
 	virtual unique_ptr<AbstractImplementation> make_impl(Variable<BooleanExpression> &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Variable<ValueExpression> &) = 0;
 
-	virtual unique_ptr<AbstractImplementation> make_impl(ArithmeticOperation &) = 0;
+	//virtual unique_ptr<AbstractImplementation> make_impl(ArithmeticOperation &) = 0;
 
 	virtual unique_ptr<AbstractImplementation> make_impl(Negation &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Conjunction &) = 0;

@@ -8,6 +8,7 @@
 
 namespace gologpp {
 
+
 template<>
 class Implementation<Scope> : public AbstractImplementation {
 public:
@@ -19,6 +20,7 @@ public:
 private:
 	const Scope &scope_;
 };
+
 
 } // namespace gologpp
 

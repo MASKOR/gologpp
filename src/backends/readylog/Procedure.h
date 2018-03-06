@@ -54,14 +54,23 @@ private:
 };
 
 
-template<>
-class Implementation<Assignment> : public ReadylogImplementation {
+template<class ExpressionT>
+class Implementation<Assignment<ExpressionT>> : public ReadylogImplementation {
 public:
-	Implementation(const Assignment &);
-	virtual EC_word term() override;
+	Implementation(const Assignment<ExpressionT> &ass)
+	: assignment_(ass)
+	{}
+
+	virtual EC_word term() override
+	{
+		return ::term(EC_functor("=", 2),
+			assignment_.fluent().impl().term(),
+			dynamic_cast<ReadylogImplementation &>(assignment_.expression().implementation()).term()
+		);
+	}
 
 private:
-	const Assignment &assignment_;
+	const Assignment<ExpressionT> &assignment_;
 };
 
 

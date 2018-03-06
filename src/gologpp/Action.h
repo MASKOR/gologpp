@@ -4,6 +4,7 @@
 #include <vector>
 #include <set>
 #include <memory>
+#include <algorithm>
 
 #include "gologpp.h"
 
@@ -23,7 +24,7 @@ class Action : public enable_shared_from_this<Action>, public Identifier, public
 public:
 	typedef Statement expression_t;
 
-	Action(const string &name, const vector<string> &args,
+	Action(const string &name, const vector<string> &arg_names,
 	       unique_ptr<BooleanExpression> &&precondition = nullptr, unique_ptr<AbstractEffectAxiom> &&effect = nullptr);
 
 	Action(const Action &) = delete;
@@ -43,7 +44,17 @@ public:
 	void set_effect(T &&effect)
 	{ effect_ = unique_ptr<AbstractEffectAxiom>(new T(std::move(effect))); }
 
-	const vector<string> &args() const;
+	template<class ExpressionT>
+	void declare_variable(const string &name)
+	{
+		if (std::find(args_.begin(), args_.end(), name) == args_.end())
+			throw Bug("Variable `" + name + "' not defined for Action `" + this->name() + "'");
+		scope_.variable<ExpressionT>(name);
+	}
+
+	const vector<string> &arg_names() const;
+
+	shared_ptr<AbstractVariable> argument(arity_t idx) const;
 
 	Scope &scope();
 	const Scope &scope() const;

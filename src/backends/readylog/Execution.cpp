@@ -9,7 +9,7 @@
 namespace gologpp {
 
 EclipseContext::EclipseContext()
-: ExecutionContext<readylog_impl_config_t>()
+: ExecutionContext()
 {
 	ec_set_option_ptr(EC_OPTION_ECLIPSEDIR, (void *)ECLIPSE_DIR);
 	std::cout << "Using eclipse-clp in " << ECLIPSE_DIR << std::endl;

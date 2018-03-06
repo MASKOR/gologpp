@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 #include "gologpp.h"
 
@@ -10,6 +11,7 @@
 #include "Language.h"
 #include "Scope.h"
 #include "expressions.h"
+#include "error.h"
 
 namespace gologpp {
 
@@ -44,6 +46,7 @@ public:
 	            Block &&block_true,
 	            Block &&block_false,
 	            Scope &parent_expr);
+
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, block_true_, block_false_)
 
 	const BooleanExpression &condition() const;
@@ -142,6 +145,15 @@ public:
 	const Scope &scope() const;
 	const Block &block() const;
 	const vector<string> &args() const;
+	shared_ptr<AbstractVariable> argument(arity_t idx) const;
+
+	template<class ExpressionT>
+	void declare_variable(const string &name)
+	{
+		if (std::find(args_.begin(), args_.end(), name) == args_.end())
+			throw Bug("Variable `" + name + "' not defined for Procedure `" + this->name() + "'");
+		scope_.variable<ExpressionT>(name);
+	}
 
 protected:
     Scope scope_;

@@ -30,11 +30,11 @@ shared_ptr<AbstractVariable> Scope::variable(const string &name) const
 }
 
 
-vector<shared_ptr<AbstractVariable>> Scope::variables(const vector<string> &names) const
+vector<shared_ptr<Expression>> Scope::variables(const vector<string> &names) const
 {
-	vector<shared_ptr<AbstractVariable>> rv;
+	vector<shared_ptr<Expression>> rv;
 	for (const string &name : names)
-		rv.push_back(variable(name));
+		rv.push_back(std::dynamic_pointer_cast<Expression>(variable(name)));
 	return rv;
 }
 
@@ -49,6 +49,10 @@ void Scope::implement(Implementor &implementor)
 
 const unordered_map<string, shared_ptr<AbstractVariable>> &Scope::map() const
 { return variables_; }
+
+
+Scope &global_scope()
+{ return Scope::global_scope(); }
 
 
 } // namespace gologpp

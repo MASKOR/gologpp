@@ -34,10 +34,12 @@ class Expression;
 class BooleanExpression;
 class ValueExpression;
 
-class Number;
+class AbstractVariable;
 
 template<class>
 class Variable;
+template<class>
+class Constant;
 
 class ArithmeticOperation;
 

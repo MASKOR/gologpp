@@ -2,44 +2,29 @@
 
 namespace gologpp {
 
-Fluent::Fluent(const string &name, const vector<string> &args)
-: BooleanExpression(Scope::global_scope())
-, Identifier(name, static_cast<arity_t>(args.size()))
+
+AbstractFluent::AbstractFluent(const string &name, const vector<string> &args)
+: Identifier(name, static_cast<arity_t>(args.size()))
+, scope_({}, Scope::global_scope())
 , args_(args)
-, scope_(args, Scope::global_scope())
 {}
 
 
-const vector<string> &Fluent::args() const
+const vector<string> &AbstractFluent::args() const
 { return args_; }
 
 
-Scope &Fluent::scope()
+shared_ptr<AbstractVariable> AbstractFluent::argument(arity_t idx) const
+{ return scope_.variable(args_[static_cast<size_t>(idx)]); }
+
+
+Scope &AbstractFluent::scope()
 { return scope_; }
 
 
-const Scope &Fluent::scope() const
+const Scope &AbstractFluent::scope() const
 { return scope_; }
 
-
-FunctionalFluent::FunctionalFluent(const string &name, const vector<string> &args)
-: ValueExpression(Scope::global_scope())
-, Identifier(name, static_cast<arity_t>(args.size()))
-, args_(args)
-, scope_(args, Scope::global_scope())
-{}
-
-
-const vector<string> &FunctionalFluent::args() const
-{ return args_; }
-
-
-Scope &FunctionalFluent::scope()
-{ return scope_; }
-
-
-const Scope &FunctionalFluent::scope() const
-{ return scope_; }
 
 
 } // namespace gologpp

@@ -1,5 +1,6 @@
 #include "Formula.h"
 #include <gologpp/Formula.h>
+#include <gologpp/atoms.h>
 
 namespace gologpp {
 

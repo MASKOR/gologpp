@@ -16,7 +16,7 @@ public:
 	const ValueExpression &rhs() const;
 	Operator op() const;
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
+	//DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 
 private:
 	unique_ptr<ValueExpression> lhs_, rhs_;

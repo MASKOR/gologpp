@@ -12,9 +12,14 @@
 namespace gologpp {
 
 
-class AbstractVariable : public Name, public AbstractLanguageElement {
+Scope &global_scope();
+
+
+class AbstractVariable : public Name, public virtual AbstractLanguageElement {
 public:
 	AbstractVariable(const string &name, Scope &parent_scope);
+
+	virtual ExpressionTypeTag expression_type_tag() const = 0;
 
 private:
 	Scope &parent_scope_;
@@ -24,13 +29,13 @@ private:
 template<class ExpressionT>
 class Variable
 : public ExpressionT
-, public Name
 , public LanguageElement<Variable<ExpressionT>>
-, public AbstractLanguageElement
+, public AbstractVariable
 {
 protected:
 	Variable(const string &name, Scope &parent_scope)
-	: AbstractVariable(name, parent_scope)
+	: ExpressionT(parent_scope)
+	, AbstractVariable(name, parent_scope)
 	{}
 
 public:
@@ -41,8 +46,42 @@ public:
 
 	friend Scope;
 
+	virtual ExpressionTypeTag expression_type_tag() const override
+	{ return ExpressionT::expression_type_tag(); }
+
 	virtual ~Variable() override = default;
 	DEFINE_IMPLEMENT
+};
+
+
+template<class ExpressionT>
+class Constant
+: public ExpressionT
+, public LanguageElement<Constant<ExpressionT>>
+, public virtual AbstractLanguageElement
+{
+public:
+	Constant(const string &representation)
+	: ExpressionT(global_scope())
+	, representation_(representation)
+	{}
+
+	Constant(Constant<ExpressionT> &&) = default;
+	Constant(const Constant<ExpressionT> &) = delete;
+	Constant<ExpressionT> &operator = (Constant<ExpressionT> &&) = default;
+	Constant<ExpressionT> &operator = (const Constant<ExpressionT> &) = delete;
+
+	virtual ~Constant() override = default;
+
+	const string &representation() const
+	{ return representation_; }
+
+	virtual ExpressionTypeTag expression_type_tag() const
+	{ return ExpressionT::expression_type_tag(); }
+
+	DEFINE_IMPLEMENT
+private:
+	const string &representation_;
 };
 
 
