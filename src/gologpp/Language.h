@@ -23,12 +23,9 @@ public:
 
 	virtual ~AbstractLanguageElement() = default;
 
-	template<class GologT>
-	Implementation<GologT> &impl_cast() const
-	{ return dynamic_cast<Implementation<GologT> &>(implementation()); }
-
-	virtual AbstractImplementation &implementation() const
-	{ return *impl_; }
+	template<class GologT = AbstractLanguageElement>
+	Implementation<GologT> &implementation() const
+	{ return dynamic_cast<Implementation<GologT> &>(*impl_); }
 
 	void set_implementation(unique_ptr<AbstractImplementation> &&impl)
 	{ impl_ = std::move(impl); }
@@ -71,8 +68,8 @@ public:
 	LanguageElement &operator = (const LanguageElement &) = delete;
 
 	template<class = void>
-	Implementation<GologT> &impl() const
-	{ return impl_cast<GologT>(); }
+	Implementation<GologT> &implementation() const
+	{ return dynamic_cast<Implementation<GologT> &>(*impl_); }
 };
 
 

@@ -19,7 +19,7 @@ namespace gologpp {
 class Block : public Statement, public LanguageElement<Block> {
 public:
 	Block(vector<unique_ptr<Statement>> &&elements, Scope &parent_scope);
-	void implement(Implementor &);
+	void implement(Implementor &) override;
 
 	const vector<unique_ptr<Statement>> &elements() const;
 
@@ -31,7 +31,7 @@ private:
 class Choose : public Statement, public LanguageElement<Choose> {
 public:
 	Choose(vector<Block> &&alternatives, Scope &parent_scope);
-	void implement(Implementor &);
+	void implement(Implementor &) override;
 
 	const vector<Block> &alternatives() const;
 
@@ -91,10 +91,12 @@ public:
 
 	const AbstractVariable &variable() const;
 	const Block &block() const;
+	const Scope &scope() const;
 
 private:
 	shared_ptr<AbstractVariable> variable_;
 	Block block_;
+	Scope scope_;
 };
 
 
@@ -124,41 +126,74 @@ protected:
 
 class While : public Statement, public LanguageElement<While> {
 public:
-	While(unique_ptr<BooleanExpression> &&expression, unique_ptr<Block> &&block, Scope &parent_scope);
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_, *block_)
+	While(unique_ptr<BooleanExpression> &&expression, Block &&block, Scope &parent_scope);
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_, block_)
 
 	const BooleanExpression &expression() const;
 	const Block &block() const;
 
 protected:
 	unique_ptr<BooleanExpression> expression_;
-	unique_ptr<Block> block_;
+	Block block_;
 };
 
 
-class Procedure : public Statement, public Identifier, public LanguageElement<Procedure> {
+template<class ExpressionT>
+class Return : public Statement, public LanguageElement<Return<ExpressionT>> {
 public:
-    Procedure(const string &name, const vector<string> &arg_names, unique_ptr<Block> &&block);
-    Procedure(Procedure &&) = default;
-	DEFINE_IMPLEMENT_WITH_MEMBERS(scope_, *block_)
+	Return(unique_ptr<ExpressionT> &&expr, Scope &parent_scope)
+	: ExpressionT(parent_scope)
+	, expr_(expr)
+	{}
+
+	const ExpressionT &expression() const
+	{ return *expr_; }
+
+private:
+	unique_ptr<ExpressionT> expr_;
+};
+
+
+class AbstractFunction : public Expression, public Identifier, public virtual AbstractLanguageElement {
+public:
+	AbstractFunction(const string &name, const vector<string> &arg_names, Block &&block);
+
+	virtual ~AbstractFunction() override;
 
 	const Scope &scope() const;
 	const Block &block() const;
 	const vector<string> &args() const;
 	shared_ptr<AbstractVariable> argument(arity_t idx) const;
 
-	template<class ExpressionT>
-	void declare_variable(const string &name)
+	template<class VarExpressionT>
+	void declare_argument(const string &name)
 	{
 		if (std::find(args_.begin(), args_.end(), name) == args_.end())
-			throw Bug("Variable `" + name + "' not defined for Procedure `" + this->name() + "'");
-		scope_.variable<ExpressionT>(name);
+			throw Bug("Argument `" + name + "' not defined for function `" + this->name() + "'");
+		scope_.variable<VarExpressionT>(name);
 	}
 
 protected:
     Scope scope_;
-    unique_ptr<Block> block_;
+    Block block_;
     vector<string> args_;
+};
+
+
+template<class ExpressionT>
+class Function
+: public ExpressionT
+, public AbstractFunction
+, public LanguageElement<Function<ExpressionT>>
+{
+public:
+    Function(const string &name, const vector<string> &arg_names, Block &&block)
+    : ExpressionT(Scope::global_scope())
+    , AbstractFunction(name, arg_names, std::move(block))
+    {}
+
+    Function(Function &&) = default;
+	DEFINE_IMPLEMENT_WITH_MEMBERS(scope_, block_)
 };
 
 

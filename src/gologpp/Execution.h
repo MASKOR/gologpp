@@ -26,50 +26,49 @@ public:
 	virtual ~ExecutionContext() = default;
 
 
-	template<class T>
-	shared_ptr<T> add_fluent(T &&f)
-	{ return add_global(fluents_, std::move(f)); }
+	template<class ExprT, class... ArgTs>
+	shared_ptr<Fluent<ExprT>> add_fluent(ArgTs &&... args)
+	{ return add_global<Fluent<ExprT>>(fluents_, std::forward<ArgTs>(args)...); }
 
 	shared_ptr<AbstractFluent> fluent(const string &name, arity_t arity)
 	{ return get_global(fluents_, name, arity); }
 
 
-	template<class T>
-	shared_ptr<T> add_action(T &&f)
-	{ return add_global(actions_, std::move(f)); }
+	template<class... ArgTs>
+	shared_ptr<Action> add_action(ArgTs &&... args)
+	{ return add_global<Action>(actions_, std::forward<ArgTs>(args)...); }
 
 	shared_ptr<Action> action(const string &name, arity_t arity)
 	{ return get_global(actions_, name, arity); }
 
 
-	template<class T>
-	shared_ptr<T> add_procedure(T &&f)
-	{ return add_global(procedures_, std::move(f)); }
+	template<class ExprT, class... ArgTs>
+	shared_ptr<Function<ExprT>> add_function(ArgTs &&... args)
+	{ return add_global<Function<ExprT>>(functions_, std::forward<ArgTs>(args)...); }
 
-	shared_ptr<Procedure> procedure(const string &name, arity_t arity)
-	{ return get_global(procedures_, name, arity); }
+	shared_ptr<AbstractFunction> function(const string &name, arity_t arity)
+	{ return get_global(functions_, name, arity); }
 
 
 protected:
     id_map_t<AbstractFluent> fluents_;
     id_map_t<Action> actions_;
-    id_map_t<Procedure> procedures_;
+	id_map_t<AbstractFunction> functions_;
 
 public:
-	template<class T1, class T2> inline
-	shared_ptr<T2> add_global(unordered_map<Identifier, shared_ptr<T1>> &map, T2 &&obj)
+	template<class RealT, class MappedT, class... ArgTs> inline
+	shared_ptr<RealT> add_global(id_map_t<MappedT> &map, ArgTs &&... args)
 	{
-		auto result = map.insert({Identifier(obj), dynamic_pointer_cast<T1>(make_shared<T2>(std::move(obj)))});
-		// TODO
-		// obj is moved from!
-		/*if (!result.second)
-			throw std::runtime_error(obj.name() + "(" + to_string(obj.arity()) + ") already defined.");*/
-		return dynamic_pointer_cast<T2>(result.first->second);
+		shared_ptr<RealT> obj = std::make_shared<RealT>(std::forward<ArgTs>(args)...);
+		auto result = map.insert( { Identifier(*obj), obj } );
+		if (!result.second)
+			throw std::runtime_error(obj->name() + "(" + to_string(obj->arity()) + ") already defined.");
+		return obj;
 	}
 
 
 	template<class T> inline
-	shared_ptr<T> get_global(unordered_map<Identifier, shared_ptr<T>> &map, const string &name, arity_t arity)
+	shared_ptr<T> get_global(id_map_t<T> &map, const string &name, arity_t arity)
 	{
 		auto it = map.find(Identifier(name, arity));
 		if (it != map.end())

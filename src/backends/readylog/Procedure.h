@@ -1,10 +1,17 @@
 #ifndef READYLOG_PROCEDURE_H_
 #define READYLOG_PROCEDURE_H_
 
-#include <gologpp/Implementation.h>
-#include <eclipseclass.h>
-
 #include "Implementation.h"
+
+#include <gologpp/Implementation.h>
+#include <gologpp/expressions.h>
+#include <gologpp/Procedure.h>
+
+#include <gologpp/user_error.h>
+
+#include <type_traits>
+
+#include <eclipseclass.h>
 
 namespace gologpp {
 
@@ -19,6 +26,41 @@ public:
 private:
 	const Procedure &procedure_;
 };
+
+
+template<class ExprT>
+class Implementation<Function<ExprT>> : public ReadylogImplementation {
+public:
+	Implementation(const Function<ExprT> &function)
+	: function_(function)
+	{}
+
+	virtual EC_word term() override
+	{
+		return ::term(EC_functor(function_.name().c_str(), function_.arity()),
+			function_.scope().implementation().variables(function_.args())
+		);
+	}
+
+	EC_word definition()
+	{
+		function_.scope().impl().init_vars();
+		EC_word return_var = ::newvar();
+		return ::term(EC_functor("function", 3),
+			term(),
+			return_var,
+			function_.block().implementation().term()
+		);
+	}
+
+	EC_word return_var()
+	{ return return_var_; }
+
+private:
+	const Function<ExprT> &function_;
+	EC_word return_var_;
+};
+
 
 
 template<>
@@ -64,8 +106,8 @@ public:
 	virtual EC_word term() override
 	{
 		return ::term(EC_functor("=", 2),
-			assignment_.fluent().impl().term(),
-			dynamic_cast<ReadylogImplementation &>(assignment_.expression().implementation()).term()
+			assignment_.fluent().implementation().term(),
+			assignment_.expression().implementation().term()
 		);
 	}
 
@@ -115,6 +157,34 @@ public:
 
 private:
 	const While &while_;
+};
+
+
+template<class ExpressionT>
+class Implementation<Return<ExpressionT>> : public ReadylogImplementation {
+public:
+	Implementation(const Return<ExpressionT> &r)
+	: ret_(r)
+	{}
+
+	virtual EC_word term() override {
+		shared_ptr<Expression> root_parent = ret_.parent_scope().owner();
+		while (&root_parent->parent_scope() != &global_scope())
+			root_parent = root_parent->parent_scope().owner();
+
+		try {
+			Function<ExpressionT> &function = dynamic_cast<Function<ExpressionT> &>(*root_parent);
+			return ::term(EC_functor("=", 2),
+				function.implementation().return_var(),
+				ret_.implementation().term()
+			);
+		} catch (std::bad_cast &) {
+			throw SemanticError(string(typeid(ret_).name()) + ": Return type mismatch");
+		}
+	}
+
+private:
+	const Return<ExpressionT> &ret_;
 };
 
 

@@ -39,7 +39,12 @@ EclipseContext &EclipseContext::instance()
 void EclipseContext::compile(const EC_word &term)
 {
 	post_goal(::term(EC_functor("assert", 1), term));
-	post_goal(EC_atom("listing"));
+	EC_word term_cp(term);
+	EC_functor term_fn;
+	term_cp.functor(&term_fn);
+	post_goal(::term(EC_functor("listing", 1),
+		EC_atom((string(term_fn.Name()) + "/" + std::to_string(term_fn.Arity())).c_str())
+	));
 	int rv = EC_resume();
 	if (rv != EC_status::EC_succeed)
 		throw EclipseError();

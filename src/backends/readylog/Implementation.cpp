@@ -7,7 +7,7 @@
 #include "Procedure.h"
 #include "Reference.h"
 #include "Scope.h"
-//#include "arithmetic.h"
+#include "arithmetic.h"
 
 namespace gologpp {
 
@@ -30,7 +30,7 @@ DEFINE_MAKE_IMPL(Constant<ValueExpression>)
 DEFINE_MAKE_IMPL(Variable<BooleanExpression>)
 DEFINE_MAKE_IMPL(Variable<ValueExpression>)
 
-//DEFINE_MAKE_IMPL(ArithmeticOperation)
+DEFINE_MAKE_IMPL(ArithmeticOperation)
 
 DEFINE_MAKE_IMPL(Negation)
 DEFINE_MAKE_IMPL(Conjunction)
@@ -49,5 +49,13 @@ DEFINE_MAKE_IMPL(Test)
 DEFINE_MAKE_IMPL(While)
 DEFINE_MAKE_IMPL(Procedure)
 DEFINE_MAKE_IMPL(Reference<Procedure>)
+
+DEFINE_MAKE_IMPL(Return<BooleanExpression>)
+DEFINE_MAKE_IMPL(Return<ValueExpression>)
+
+DEFINE_MAKE_IMPL(Function<BooleanExpression>)
+DEFINE_MAKE_IMPL(Function<ValueExpression>)
+DEFINE_MAKE_IMPL(Reference<Function<BooleanExpression>>)
+DEFINE_MAKE_IMPL(Reference<Function<ValueExpression>>)
 
 }

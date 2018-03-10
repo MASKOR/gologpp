@@ -17,8 +17,7 @@ template<class T>      using vector      = std::vector<T>;
 
 using string = std::string;
 
-
-class AbstractExecutionContext;
+class AbstractLanguageElement;
 
 class Action;
 
@@ -63,7 +62,12 @@ class Call;
 class Search;
 class Test;
 class While;
-class Procedure;
+template<class>
+class Return;
+
+template<class>
+class Function;
+using Procedure = Function<Statement>;
 
 template<class>
 class Reference;

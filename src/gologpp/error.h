@@ -1,10 +1,3 @@
-/*
- * error.h
- *
- *  Created on: 03.05.2016
- *      Author: ich
- */
-
 #ifndef GOLOGPP_ERROR_H_
 #define GOLOGPP_ERROR_H_
 
@@ -23,11 +16,10 @@ class EngineError : public std::exception {
 
 class Bug : public std::exception {
 public:
-	Bug(const string &msg)
-	    : msg_(msg) {}
+	Bug(const string &msg);
+	virtual ~Bug() override = default;
 
-	virtual const char *what() const noexcept override
-	{ return msg_.c_str(); }
+	virtual const char *what() const noexcept override;
 
 private:
 	string msg_;

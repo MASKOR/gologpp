@@ -16,14 +16,7 @@ public:
 	: GologT::expression_t(parent_scope)
 	, target_(target)
 	, args_(args)
-	{
-		arity_t idx = 0;
-		for (const shared_ptr<Expression> arg : args_) {
-			if (arg->expression_type_tag() != target_->argument(idx++)->expression_type_tag()) {
-
-			}
-		}
-	}
+	{}
 
 	Reference(Reference<GologT> &&other)
 	: GologT::expression_t(other.parent_scope())

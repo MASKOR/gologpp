@@ -6,14 +6,15 @@
 
 namespace gologpp {
 
+
+template<class GologT>
+class Implementation;
+
+
 class AbstractImplementation {
 public:
 	virtual ~AbstractImplementation() = default;
 };
-
-
-template<class GologT>
-class Implementation;
 
 
 class Implementor {
@@ -40,7 +41,7 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(Variable<BooleanExpression> &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Variable<ValueExpression> &) = 0;
 
-	//virtual unique_ptr<AbstractImplementation> make_impl(ArithmeticOperation &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(ArithmeticOperation &) = 0;
 
 	virtual unique_ptr<AbstractImplementation> make_impl(Negation &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Conjunction &) = 0;
@@ -57,14 +58,16 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(Search &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Test &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(While &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Return<BooleanExpression> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Return<ValueExpression> &) = 0;
 
-	virtual unique_ptr<AbstractImplementation> make_impl(Procedure &) = 0;
-	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Procedure> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Function<BooleanExpression> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Function<ValueExpression> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Function<Statement> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<BooleanExpression>> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<ValueExpression>> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<Statement>> &) = 0;
 };
-
-
-template<class ImplT, class GologT>
-ImplT &impl(const GologT &obj);
 
 
 }

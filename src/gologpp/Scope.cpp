@@ -6,8 +6,9 @@ namespace gologpp {
 Scope Scope::global_scope_;
 
 
-Scope::Scope(const vector<shared_ptr<AbstractVariable>> &variables, Scope &parent_scope)
+Scope::Scope(Expression *owner, const vector<shared_ptr<AbstractVariable>> &variables, Scope &parent_scope)
 : parent_scope_(parent_scope)
+, owner_(owner)
 {
 	for (const shared_ptr<AbstractVariable> &v : variables)
 		variables_.emplace(v->name(), v);
@@ -49,6 +50,10 @@ void Scope::implement(Implementor &implementor)
 
 const unordered_map<string, shared_ptr<AbstractVariable>> &Scope::map() const
 { return variables_; }
+
+
+shared_ptr<Expression> Scope::owner() const
+{ return owner_; }
 
 
 Scope &global_scope()

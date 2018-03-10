@@ -12,10 +12,10 @@ Implementation<Procedure>::Implementation(const Procedure &proc)
 
 EC_word Implementation<Procedure>::definition()
 {
-	procedure_.scope().impl_cast<Scope>().init_vars();
+	procedure_.scope().implementation().init_vars();
 	return ::term(EC_functor("proc", 2),
 		term(),
-		procedure_.block().impl_cast<Block>().term()
+		procedure_.block().implementation().term()
 	);
 }
 
@@ -23,7 +23,7 @@ EC_word Implementation<Procedure>::definition()
 EC_word Implementation<Procedure>::term()
 {
 	return ::term(EC_functor(procedure_.name().c_str(), procedure_.arity()),
-		procedure_.scope().impl_cast<Scope>().variables(procedure_.args())
+		procedure_.scope().implementation().variables(procedure_.args())
 	);
 }
 
@@ -37,7 +37,7 @@ EC_word Implementation<Block>::term()
 {
 	EC_word tail = ::nil();
 	for (const unique_ptr<Statement> &stmt : block_.elements())
-		tail = ::list(dynamic_cast<ReadylogImplementation &>(stmt->implementation()).term(), tail);
+		tail = ::list(stmt->implementation().term(), tail);
 	return tail;
 }
 
@@ -51,7 +51,7 @@ EC_word Implementation<Choose>::term()
 {
 	EC_word tail = ::nil();
 	for (const Block &block : choose_.alternatives())
-		tail = ::list(block.impl().term(), tail);
+		tail = ::list(block.implementation().term(), tail);
 	return ::term(EC_functor("nondet", 1), tail);
 }
 
@@ -64,9 +64,9 @@ Implementation<Conditional>::Implementation(const Conditional &c)
 EC_word Implementation<Conditional>::term()
 {
 	return ::term(EC_functor("if", 3),
-		dynamic_cast<ReadylogImplementation &>(conditional_.condition().implementation()).term(),
-		conditional_.block_true().impl().term(),
-		conditional_.block_false().impl().term()
+		conditional_.condition().implementation().term(),
+		conditional_.block_true().implementation().term(),
+		conditional_.block_false().implementation().term()
 	);
 }
 
@@ -79,8 +79,8 @@ Implementation<Pick>::Implementation(const Pick &pick)
 EC_word Implementation<Pick>::term()
 {
 	return ::term(EC_functor("pick", 2),
-		dynamic_cast<ReadylogImplementation &>(pick_.variable().implementation()).term(),
-		pick_.block().impl().term()
+		pick_.variable().implementation().term(),
+		pick_.block().implementation().term()
 	);
 }
 

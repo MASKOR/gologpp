@@ -20,12 +20,14 @@ set(INTERFACE_SRC
 		src/gologpp/Scope.cpp
 		src/gologpp/utilities.cpp
 		src/gologpp/arithmetic.cpp
+		src/gologpp/error.cpp
+		src/gologpp/user_error.cpp
 )
 
 set(READYLOG_SRC
 	src/backends/readylog/Action.cpp
 	src/backends/readylog/atoms.cpp
-	#src/backends/readylog/EffectAxiom.cpp
+	src/backends/readylog/arithmetic.cpp
 	src/backends/readylog/Execution.cpp
 	#src/backends/readylog/Fluent.cpp
 	src/backends/readylog/Formula.cpp

@@ -64,7 +64,9 @@ const Block &Conditional::block_true() const
 
 Pick::Pick(const shared_ptr<AbstractVariable> &variable, Block &&block, Scope &parent_scope)
 : Statement(parent_scope)
-, variable_(std::move(variable)), block_(std::move(block))
+, variable_(std::move(variable))
+, block_(std::move(block))
+, scope_(this, {variable}, parent_scope)
 {}
 
 const AbstractVariable &Pick::variable() const
@@ -95,7 +97,7 @@ const BooleanExpression &Test::expression() const
 
 
 
-While::While(unique_ptr<BooleanExpression> &&expression, unique_ptr<Block> &&block, Scope &parent_scope)
+While::While(unique_ptr<BooleanExpression> &&expression, Block &&block, Scope &parent_scope)
 : Statement(parent_scope)
 , expression_(std::move(expression)), block_(std::move(block))
 {}
@@ -105,25 +107,29 @@ const BooleanExpression &While::expression() const
 
 
 
-Procedure::Procedure(const string &name, const vector<string> &arg_names, unique_ptr<Block> &&block)
-: Statement(Scope::global_scope())
+AbstractFunction::AbstractFunction(const string &name, const vector<string> &arg_names, Block &&block)
+: Expression(Scope::global_scope())
 , Identifier(name, static_cast<arity_t>(arg_names.size()))
-, scope_({}, Scope::global_scope())
+, scope_(this, {}, Scope::global_scope())
 , block_(std::move(block))
 , args_(arg_names)
 {}
 
-const Block &Procedure::block() const
-{ return *block_; }
+AbstractFunction::~AbstractFunction()
+{}
 
-const Scope &Procedure::scope() const
+const Scope &AbstractFunction::scope() const
 { return scope_; }
 
-const vector<string> &Procedure::args() const
+const Block &AbstractFunction::block() const
+{ return block_; }
+
+const vector<string> &AbstractFunction::args() const
 { return args_; }
 
-shared_ptr<AbstractVariable> Procedure::argument(arity_t idx) const
+shared_ptr<AbstractVariable> AbstractFunction::argument(arity_t idx) const
 { return scope_.variable(args_[idx]); }
+
 
 
 } // namespace gologpp

@@ -20,10 +20,8 @@ namespace gologpp {
 class AbstractEffectAxiom;
 
 
-class Action : public enable_shared_from_this<Action>, public Identifier, public LanguageElement<Action> {
+class Action : public Statement, public Identifier, public LanguageElement<Action> {
 public:
-	typedef Statement expression_t;
-
 	Action(const string &name, const vector<string> &arg_names,
 	       unique_ptr<BooleanExpression> &&precondition = nullptr, unique_ptr<AbstractEffectAxiom> &&effect = nullptr);
 

@@ -27,8 +27,8 @@ Implementation<Conjunction>::Implementation(const Conjunction &c)
 EC_word Implementation<Conjunction>::term()
 {
 	return ::term(EC_functor("and", 2),
-		dynamic_cast<ReadylogImplementation &>(conjunction_.lhs().implementation()).term(),
-		dynamic_cast<ReadylogImplementation &>(conjunction_.rhs().implementation()).term()
+		conjunction_.lhs().implementation().term(),
+		conjunction_.rhs().implementation().term()
 	);
 }
 
@@ -41,8 +41,8 @@ Implementation<Disjunction>::Implementation(const Disjunction &d)
 EC_word Implementation<Disjunction>::term()
 {
 	return ::term(EC_functor("or", 2),
-		dynamic_cast<ReadylogImplementation &>(disjunction_.lhs().implementation()).term(),
-		dynamic_cast<ReadylogImplementation &>(disjunction_.rhs().implementation()).term()
+		disjunction_.lhs().implementation().term(),
+		disjunction_.rhs().implementation().term()
 	);
 }
 
@@ -55,8 +55,8 @@ Implementation<ExistentialQuantification>::Implementation(const ExistentialQuant
 EC_word Implementation<ExistentialQuantification>::term()
 {
 	return ::term(EC_functor("some", 2),
-		dynamic_cast<ReadylogImplementation &>(quantification_.variable().implementation()).term(),
-		dynamic_cast<ReadylogImplementation &>(quantification_.expression().implementation()).term()
+		quantification_.variable().implementation().term(),
+		quantification_.expression().implementation().term()
 	);
 }
 
@@ -70,9 +70,9 @@ EC_word Implementation<UniversalQuantification>::term()
 {
 	return ::term(EC_functor("neg", 1),
 		::term(EC_functor("some", 2),
-			dynamic_cast<ReadylogImplementation &>(quantification_.variable().implementation()).term(),
+			quantification_.variable().implementation().term(),
 			::term(EC_functor("neg", 1),
-				dynamic_cast<ReadylogImplementation &>(quantification_.expression().implementation()).term()
+				quantification_.expression().implementation().term()
 			)
 		)
 	);

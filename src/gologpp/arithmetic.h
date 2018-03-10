@@ -5,12 +5,13 @@
 
 namespace gologpp {
 
+
 class ArithmeticOperation : public ValueExpression, public LanguageElement<ArithmeticOperation> {
 public:
 	enum Operator {
 		ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, POWER
 	};
-	ArithmeticOperation(ValueExpression &&lhs, Operator op, ValueExpression &&rhs);
+	ArithmeticOperation(unique_ptr<ValueExpression> &&lhs, Operator op, unique_ptr<ValueExpression> &&rhs);
 
 	const ValueExpression &lhs() const;
 	const ValueExpression &rhs() const;
@@ -22,7 +23,6 @@ private:
 	unique_ptr<ValueExpression> lhs_, rhs_;
 	Operator operator_;
 };
-
 
 
 }

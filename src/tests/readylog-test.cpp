@@ -24,12 +24,10 @@ int main(int, const char **) {
 
 	EclipseContext &ctx = EclipseContext::instance();
 
-	shp<Fluent<BooleanExpression>> on = ctx.add_fluent(
-		Fluent<BooleanExpression>(
-			"on",
-			std::vector<string>{"X", "Y"},
-			make_unique<Constant<BooleanExpression>>("false")
-		)
+	shp<Fluent<BooleanExpression>> on = ctx.add_fluent<BooleanExpression>(
+		"on",
+		std::vector<string>{"X", "Y"},
+		make_unique<Constant<BooleanExpression>>("false")
 	);
 	on->declare_variable<ValueExpression>("X");
 	on->declare_variable<ValueExpression>("Y");
@@ -57,8 +55,8 @@ int main(int, const char **) {
 	on->implement(implementor);
 	put->implement(implementor);
 
-	ctx.compile(put->impl_cast<Action>().poss());
-	ctx.compile(put->impl_cast<Action>().prim_action());
-	ctx.compile(put->impl_cast<Action>().causes_val());
+	ctx.compile(put->implementation().poss());
+	ctx.compile(put->implementation().prim_action());
+	ctx.compile(put->implementation().causes_val());
 }
 

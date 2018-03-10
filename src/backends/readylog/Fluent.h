@@ -21,7 +21,7 @@ public:
 	{
 		return ::term(
 			EC_functor(fluent_.name().c_str(), fluent_.arity()),
-			fluent_.scope().impl().variables(fluent_.args())
+			fluent_.scope().implementation().variables(fluent_.args())
 		);
 	}
 

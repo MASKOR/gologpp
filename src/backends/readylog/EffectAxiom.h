@@ -26,12 +26,12 @@ public:
 
 	virtual EC_word term() override
 	{
-		effect_.action().parent_scope().impl().init_vars();
+		effect_.action().parent_scope().implementation().init_vars();
 		return ::term(
 			EC_functor("causes_val", 3),
-			effect_.action().impl().term(),
-			dynamic_cast<ReadylogImplementation &>(effect_.fluent().implementation()).term(),
-			dynamic_cast<ReadylogImplementation &>(effect_.value().implementation()).term()
+			effect_.action().implementation().term(),
+			effect_.fluent().implementation().term(),
+			effect_.value().implementation().term()
 		);
 	}
 

@@ -17,15 +17,15 @@ const Scope &Expression::parent_scope() const
 { return parent_scope_; }
 
 
-ExpressionTypeTag BooleanExpression::expression_type_tag() const
+ExpressionTypeTag BooleanExpression::expression_type_tag()
 { return BOOLEAN_EXPRESSION; }
 
 
-ExpressionTypeTag ValueExpression::expression_type_tag() const
+ExpressionTypeTag ValueExpression::expression_type_tag()
 { return VALUE_EXPRESSION; }
 
 
-ExpressionTypeTag Statement::expression_type_tag() const
+ExpressionTypeTag Statement::expression_type_tag()
 { return STATEMENT; }
 
 

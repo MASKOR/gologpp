@@ -27,7 +27,7 @@ public:
 	Scope &parent_scope();
 	const Scope &parent_scope() const;
 
-	virtual ExpressionTypeTag expression_type_tag() const = 0;
+	static ExpressionTypeTag expression_type_tag();
 
 private:
 	Scope &parent_scope_;
@@ -41,7 +41,7 @@ public:
 	BooleanExpression(BooleanExpression &&) = default;
 	using Expression::Expression;
 
-	virtual ExpressionTypeTag expression_type_tag() const override;
+	static ExpressionTypeTag expression_type_tag();
 };
 
 
@@ -52,7 +52,7 @@ public:
 	ValueExpression(ValueExpression &&) = default;
 	using Expression::Expression;
 
-	virtual ExpressionTypeTag expression_type_tag() const override;
+	static ExpressionTypeTag expression_type_tag();
 };
 
 
@@ -63,7 +63,7 @@ public:
 	Statement(Statement &&) = default;
 	using Expression::Expression;
 
-	virtual ExpressionTypeTag expression_type_tag() const override;
+	static ExpressionTypeTag expression_type_tag();
 };
 
 

@@ -8,12 +8,15 @@
 namespace gologpp {
 
 
-
-class ReadylogImplementation : public AbstractImplementation {
+template<>
+class Implementation<AbstractLanguageElement> : public AbstractImplementation {
 public:
-	virtual ~ReadylogImplementation() override = default;
+	virtual ~Implementation() override = default;
 	virtual EC_word term() = 0;
 };
+
+
+using ReadylogImplementation = Implementation<AbstractLanguageElement>;
 
 
 class ReadylogImplementor : public Implementor {
@@ -40,7 +43,7 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(Variable<BooleanExpression> &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Variable<ValueExpression> &) override;
 
-	//virtual unique_ptr<AbstractImplementation> make_impl(ArithmeticOperation &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(ArithmeticOperation &) override;
 
 	virtual unique_ptr<AbstractImplementation> make_impl(Negation &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Conjunction &) override;
@@ -57,9 +60,15 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(Search &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Test &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(While &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Return<BooleanExpression> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Return<ValueExpression> &) override;
 
-	virtual unique_ptr<AbstractImplementation> make_impl(Procedure &) override;
-	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Procedure> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Function<BooleanExpression> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Function<ValueExpression> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Function<Statement> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<BooleanExpression>> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<ValueExpression>> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<Statement>> &) override;
 };
 
 

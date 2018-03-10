@@ -17,7 +17,8 @@ namespace gologpp {
 
 
 class AbstractFluent
-: public Identifier
+: public Expression
+, public Identifier
 , public std::enable_shared_from_this<AbstractFluent>
 , public virtual AbstractLanguageElement
 {

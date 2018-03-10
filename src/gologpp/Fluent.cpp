@@ -4,8 +4,9 @@ namespace gologpp {
 
 
 AbstractFluent::AbstractFluent(const string &name, const vector<string> &args)
-: Identifier(name, static_cast<arity_t>(args.size()))
-, scope_({}, Scope::global_scope())
+: Expression(Scope::global_scope())
+, Identifier(name, static_cast<arity_t>(args.size()))
+, scope_(this, {}, Scope::global_scope())
 , args_(args)
 {}
 
