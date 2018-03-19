@@ -41,6 +41,22 @@ private:
 };
 
 
+struct identifier_hash {
+	template<class IdPtrT>
+	std::size_t operator () (const IdPtrT &p) const {
+		return std::dynamic_pointer_cast<Identifier>(p)->hash();
+	}
+};
+
+
+struct identifier_equals {
+	template<class IdPtrT>
+	bool operator () (const IdPtrT &lhs, const IdPtrT &rhs) const {
+		return *std::dynamic_pointer_cast<Identifier>(lhs) == *std::dynamic_pointer_cast<Identifier>(rhs);
+	}
+};
+
+
 } // namespace gologpp
 
 

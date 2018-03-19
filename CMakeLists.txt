@@ -18,6 +18,7 @@ set(INTERFACE_SRC
 		src/gologpp/Formula.cpp
 		src/gologpp/Procedure.cpp
 		src/gologpp/Scope.cpp
+		src/gologpp/Situation.cpp
 		src/gologpp/utilities.cpp
 		src/gologpp/arithmetic.cpp
 		src/gologpp/error.cpp

@@ -11,12 +11,21 @@
 #include <vector>
 #include <unordered_map>
 #include <tuple>
+#include <mutex>
+#include <queue>
 
 namespace gologpp {
 
 class Situation;
 
 
+class History : public LanguageElement<History> {
+public:
+	History();
+};
+
+
+template<class ImplementorT>
 class ExecutionContext {
 public:
 	template<class elem_t>
@@ -50,10 +59,38 @@ public:
 	{ return get_global(functions_, name, arity); }
 
 
+	History run(Block &&program) {
+		History history;
+		{
+			ImplementorT implementor;
+
+			for (id_map_t<AbstractFluent>::value_type &entry : fluents_)
+				entry.second->implement(implementor);
+			for (id_map_t<Action>::value_type &entry : actions_)
+				entry.second->implement(implementor);
+			for (id_map_t<AbstractFunction>::value_type &entry : functions_)
+				entry.second->implement(implementor);
+
+			program.implement(implementor);
+		}
+
+		{
+			std::lock_guard<std::mutex> { exog_mutex_ };
+			while (!exog_queue_.empty()) {
+				ExogAction &exog = exog_queue_.front();
+
+			}
+		}
+	}
+
+
 protected:
     id_map_t<AbstractFluent> fluents_;
     id_map_t<Action> actions_;
 	id_map_t<AbstractFunction> functions_;
+
+	std::mutex exog_mutex_;
+	std::queue<ExogAction> exog_queue_;
 
 public:
 	template<class RealT, class MappedT, class... ArgTs> inline
@@ -77,6 +114,7 @@ public:
 			return shared_ptr<T>();
 	}
 };
+
 
 
 } // namespace gologpp

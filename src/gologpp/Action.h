@@ -20,15 +20,15 @@ namespace gologpp {
 class AbstractEffectAxiom;
 
 
-class Action : public Statement, public Identifier, public LanguageElement<Action> {
+class AbstractAction : public Statement, public Identifier, public virtual AbstractLanguageElement {
 public:
-	Action(const string &name, const vector<string> &arg_names,
+	AbstractAction(const string &name, const vector<string> &arg_names,
 	       unique_ptr<BooleanExpression> &&precondition = nullptr, unique_ptr<AbstractEffectAxiom> &&effect = nullptr);
 
-	Action(const Action &) = delete;
-	Action(Action &&other) = default;
+	AbstractAction(const Action &) = delete;
+	AbstractAction(AbstractAction &&other) = default;
 
-	virtual ~Action() override = default;
+	virtual ~AbstractAction() override = default;
 
 	const BooleanExpression &precondition() const;
 
@@ -65,6 +65,18 @@ protected:
 	unique_ptr<BooleanExpression> precondition_;
 	unique_ptr<AbstractEffectAxiom> effect_;
 	vector<string> args_;
+};
+
+
+class Action : public AbstractAction, public LanguageElement<Action> {
+public:
+	using AbstractAction::AbstractAction;
+};
+
+
+class ExogAction : public AbstractAction, public LanguageElement<ExogAction> {
+public:
+	using AbstractAction::AbstractAction;
 };
 
 

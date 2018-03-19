@@ -9,4 +9,12 @@ AbstractVariable::AbstractVariable(const string &name, Scope &parent_scope)
 {}
 
 
+AbstractConstant::AbstractConstant(const string &representation)
+: representation_(representation)
+{}
+
+
+const string &AbstractConstant::representation() const
+{ return representation_; }
+
 }

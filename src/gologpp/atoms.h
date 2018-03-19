@@ -54,17 +54,26 @@ public:
 };
 
 
+class AbstractConstant : public virtual AbstractLanguageElement {
+public:
+	AbstractConstant(const string &representation);
+
+	virtual ExpressionTypeTag expression_type_tag() const = 0;
+	const string &representation() const;
+
+private:
+	const string representation_;
+};
+
+
 template<class ExpressionT>
 class Constant
 : public ExpressionT
+, public AbstractConstant
 , public LanguageElement<Constant<ExpressionT>>
-, public virtual AbstractLanguageElement
 {
 public:
-	Constant(const string &representation)
-	: ExpressionT(global_scope())
-	, representation_(representation)
-	{}
+	using AbstractConstant::AbstractConstant;
 
 	Constant(Constant<ExpressionT> &&) = default;
 	Constant(const Constant<ExpressionT> &) = delete;
@@ -73,15 +82,10 @@ public:
 
 	virtual ~Constant() override = default;
 
-	const string &representation() const
-	{ return representation_; }
-
-	virtual ExpressionTypeTag expression_type_tag() const
+	virtual ExpressionTypeTag expression_type_tag() const override
 	{ return ExpressionT::expression_type_tag(); }
 
 	DEFINE_IMPLEMENT
-private:
-	const string &representation_;
 };
 
 

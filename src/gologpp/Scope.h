@@ -11,14 +11,14 @@
 namespace gologpp {
 
 
-template<class K, class V>
-using unordered_map = std::unordered_map<K, V>;
-
-
 Scope &global_scope();
 
 
 class Scope : public LanguageElement<Scope> {
+private:
+	template<class K, class V>
+	using unordered_map = std::unordered_map<K, V>;
+
 public:
 	Scope(Expression *owner, const vector<shared_ptr<AbstractVariable>> &variables = {}, Scope &parent_scope = global_scope());
 
