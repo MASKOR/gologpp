@@ -33,8 +33,8 @@ int main(int, const char **) {
 	on->declare_variable<ValueExpression>("Y");
 
 	shp<Action> put = ctx.add_action(Action("put", std::vector<string>{"X", "Y"}));
-	put->declare_variable<ValueExpression>("X");
-	put->declare_variable<ValueExpression>("Y");
+	put->declare_argument<ValueExpression>("X");
+	put->declare_argument<ValueExpression>("Y");
 
 	put->set_precondition(Negation(
 		make_unique<Reference<Fluent<BooleanExpression>>>(

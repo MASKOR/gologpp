@@ -22,6 +22,9 @@ public:
 	virtual ~Implementor() = default;
 
 	virtual unique_ptr<AbstractImplementation> make_impl(Action &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(ExogAction &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Transition &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(ExogTransition &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Action> &) = 0;
 
 	virtual unique_ptr<AbstractImplementation> make_impl(EffectAxiom<BooleanExpression> &) = 0;
@@ -67,6 +70,8 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<BooleanExpression>> &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<ValueExpression>> &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<Statement>> &) = 0;
+
+	virtual unique_ptr<AbstractImplementation> make_impl(History &) = 0;
 };
 
 

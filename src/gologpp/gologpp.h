@@ -20,12 +20,16 @@ using string = std::string;
 class AbstractLanguageElement;
 
 class Action;
+class ExogAction;
+class Transition;
+class ExogTransition;
 
 template<class>
 class EffectAxiom;
 
 class Scope;
 
+class AbstractFluent;
 template<class>
 class Fluent;
 
@@ -34,9 +38,10 @@ class BooleanExpression;
 class ValueExpression;
 
 class AbstractVariable;
-
 template<class>
 class Variable;
+
+class AbstractConstant;
 template<class>
 class Constant;
 
@@ -72,6 +77,7 @@ using Procedure = Function<Statement>;
 template<class>
 class Reference;
 
+class History;
 
 template<class action_impl, class fluent_impl, class proc_impl>
 struct ImplConfig {

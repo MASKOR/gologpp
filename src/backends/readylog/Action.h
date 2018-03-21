@@ -28,6 +28,46 @@ private:
 };
 
 
+template<>
+class Implementation<ExogAction> : public Implementation<AbstractLanguageElement> {
+public:
+	Implementation(const ExogAction &a);
+	virtual ~Implementation() override = default;
+
+	virtual EC_word exog_action();
+	virtual EC_word causes_val();
+
+	virtual EC_word term() override;
+
+private:
+	const ExogAction &exog_;
+};
+
+
+template<>
+class Implementation<Transition> : public Implementation<AbstractLanguageElement> {
+public:
+	Implementation(const Transition &trans);
+	virtual ~Implementation() override = default;
+
+	virtual EC_word term() override;
+private:
+	const Transition &trans_;
+};
+
+
+template<>
+class Implementation<ExogTransition> : public Implementation<AbstractLanguageElement> {
+public:
+	Implementation(const ExogTransition &trans);
+	virtual ~Implementation() override = default;
+
+	virtual EC_word term() override;
+private:
+	const ExogTransition &trans_;
+};
+
+
 } // namespace gologpp
 
 

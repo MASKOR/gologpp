@@ -28,39 +28,26 @@ private:
 };
 
 
-template<class ExprT>
-class Implementation<Function<ExprT>> : public ReadylogImplementation {
+template<>
+class Implementation<AbstractFunction> : public ReadylogImplementation {
 public:
-	Implementation(const Function<ExprT> &function)
-	: function_(function)
-	{}
+	Implementation(const AbstractFunction &function);
 
-	virtual EC_word term() override
-	{
-		return ::term(EC_functor(function_.name().c_str(), function_.arity()),
-			function_.scope().implementation().variables(function_.args())
-		);
-	}
-
-	EC_word definition()
-	{
-		function_.scope().impl().init_vars();
-		EC_word return_var = ::newvar();
-		return ::term(EC_functor("function", 3),
-			term(),
-			return_var,
-			function_.block().implementation().term()
-		);
-	}
-
-	EC_word return_var()
-	{ return return_var_; }
+	virtual EC_word term() override;
+	EC_word definition();
+	EC_word return_var();
 
 private:
-	const Function<ExprT> &function_;
+	const AbstractFunction &function_;
 	EC_word return_var_;
 };
 
+
+template<class ExprT>
+class Implementation<Function<ExprT>> : public Implementation<AbstractFunction> {
+public:
+	using Implementation<AbstractFunction>::Implementation;
+};
 
 
 template<>
@@ -68,9 +55,12 @@ class Implementation<Block> : public ReadylogImplementation {
 public:
 	Implementation(const Block &);
 	virtual EC_word term() override;
+	EC_ref current_program();
+	void set_current_program(EC_ref e);
 
 private:
 	const Block &block_;
+	EC_ref current_program_;
 };
 
 

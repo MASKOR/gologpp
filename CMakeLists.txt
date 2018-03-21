@@ -30,7 +30,7 @@ set(READYLOG_SRC
 	src/backends/readylog/atoms.cpp
 	src/backends/readylog/arithmetic.cpp
 	src/backends/readylog/Execution.cpp
-	#src/backends/readylog/Fluent.cpp
+	src/backends/readylog/Fluent.cpp
 	src/backends/readylog/Formula.cpp
 	src/backends/readylog/Procedure.cpp
 	src/backends/readylog/Reference.cpp

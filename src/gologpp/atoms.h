@@ -73,7 +73,10 @@ class Constant
 , public LanguageElement<Constant<ExpressionT>>
 {
 public:
-	using AbstractConstant::AbstractConstant;
+	Constant(const string &representation)
+	: ExpressionT(global_scope())
+	, AbstractConstant(representation)
+	{}
 
 	Constant(Constant<ExpressionT> &&) = default;
 	Constant(const Constant<ExpressionT> &) = delete;

@@ -4,7 +4,6 @@
 #include "Procedure.h"
 
 namespace gologpp {
-namespace generic {
 
 using namespace std;
 
@@ -13,6 +12,4 @@ using namespace std;
 
 
 
-
-}
 }

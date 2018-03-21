@@ -13,19 +13,39 @@
 #include <tuple>
 #include <mutex>
 #include <queue>
+#include <condition_variable>
 
 namespace gologpp {
 
 class Situation;
+class History;
+
+
+class HistoryImplementation : public AbstractImplementation {
+public:
+	HistoryImplementation(History &history)
+	: history_(history)
+	{}
+
+	virtual void append_exog(ExogTransition &&) = 0;
+
+protected:
+	History &history_;
+};
 
 
 class History : public LanguageElement<History> {
 public:
 	History();
+
+	DEFINE_IMPLEMENT
+
+	HistoryImplementation &abstract_impl()
+	{ return dynamic_cast<HistoryImplementation &>(*impl_); }
+
 };
 
 
-template<class ImplementorT>
 class ExecutionContext {
 public:
 	template<class elem_t>
@@ -47,7 +67,7 @@ public:
 	shared_ptr<Action> add_action(ArgTs &&... args)
 	{ return add_global<Action>(actions_, std::forward<ArgTs>(args)...); }
 
-	shared_ptr<Action> action(const string &name, arity_t arity)
+	shared_ptr<AbstractAction> action(const string &name, arity_t arity)
 	{ return get_global(actions_, name, arity); }
 
 
@@ -58,39 +78,80 @@ public:
 	shared_ptr<AbstractFunction> function(const string &name, arity_t arity)
 	{ return get_global(functions_, name, arity); }
 
+	virtual bool final(Block &program, History &h) = 0;
+	virtual bool trans(Block &program, History &h) = 0;
 
-	History run(Block &&program) {
-		History history;
+	virtual void compile(const Block &program) = 0;
+	virtual void compile(const AbstractFluent &fluent) = 0;
+	virtual void compile(const AbstractAction &action) = 0;
+	virtual void compile(const AbstractFunction &function) = 0;
+
+	ExogTransition exog_queue_pop()
+	{
+		std::lock_guard<std::mutex> { exog_mutex_ };
+		ExogTransition rv = std::move(exog_queue_.front());
+		exog_queue_.pop();
+		return rv;
+	}
+
+	ExogTransition exog_queue_poll()
+	{
+		std::unique_lock<std::mutex> queue_empty_lock { queue_empty_mutex_ };
+		queue_empty_condition_.wait(queue_empty_lock, [&] { return !exog_queue_.empty(); });
+		return exog_queue_pop();
+	}
+
+	void exog_queue_push(ExogTransition &&exog)
+	{
+		std::lock_guard<std::mutex> { exog_mutex_ };
+		exog_queue_.push(std::move(exog));
 		{
-			ImplementorT implementor;
-
-			for (id_map_t<AbstractFluent>::value_type &entry : fluents_)
-				entry.second->implement(implementor);
-			for (id_map_t<Action>::value_type &entry : actions_)
-				entry.second->implement(implementor);
-			for (id_map_t<AbstractFunction>::value_type &entry : functions_)
-				entry.second->implement(implementor);
-
-			program.implement(implementor);
+			std::lock_guard<std::mutex> { queue_empty_mutex_ };
+			queue_empty_condition_.notify_one();
 		}
+	}
 
-		{
-			std::lock_guard<std::mutex> { exog_mutex_ };
+	template<class ImplementorT>
+	History run(Block &&program) {
+		ImplementorT implementor;
+
+		History history;
+		history.implement(implementor);
+
+		for (id_map_t<AbstractFluent>::value_type &entry : fluents_)
+			entry.second->implement(implementor);
+		for (id_map_t<AbstractAction>::value_type &entry : actions_)
+			entry.second->implement(implementor);
+		for (id_map_t<AbstractFunction>::value_type &entry : functions_)
+			entry.second->implement(implementor);
+
+		program.implement(implementor);
+
+		while (!final(program, history)) {
 			while (!exog_queue_.empty()) {
-				ExogAction &exog = exog_queue_.front();
-
+				ExogTransition exog = exog_queue_pop();
+				exog.implement(implementor);
+				history.abstract_impl().append_exog(std::move(exog));
+			}
+			if (!trans(program, history)) {
+				ExogTransition exog = exog_queue_poll();
+				exog.implement(implementor);
+				history.abstract_impl().append_exog(std::move(exog));
 			}
 		}
+		return history;
 	}
 
 
 protected:
     id_map_t<AbstractFluent> fluents_;
-    id_map_t<Action> actions_;
+    id_map_t<AbstractAction> actions_;
 	id_map_t<AbstractFunction> functions_;
 
 	std::mutex exog_mutex_;
-	std::queue<ExogAction> exog_queue_;
+	std::condition_variable queue_empty_condition_;
+	std::mutex queue_empty_mutex_;
+	std::queue<ExogTransition> exog_queue_;
 
 public:
 	template<class RealT, class MappedT, class... ArgTs> inline

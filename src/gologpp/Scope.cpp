@@ -48,7 +48,7 @@ void Scope::implement(Implementor &implementor)
 }
 
 
-const unordered_map<string, shared_ptr<AbstractVariable>> &Scope::map() const
+const std::unordered_map<string, shared_ptr<AbstractVariable>> &Scope::map() const
 { return variables_; }
 
 

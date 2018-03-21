@@ -8,6 +8,7 @@
 #include "Reference.h"
 #include "Scope.h"
 #include "arithmetic.h"
+#include "Execution.h"
 
 namespace gologpp {
 
@@ -16,6 +17,12 @@ unique_ptr<AbstractImplementation> ReadylogImplementor::make_impl(GologT &obj) \
 { return unique_ptr<AbstractImplementation>(new Implementation<GologT>(obj)); }
 
 DEFINE_MAKE_IMPL(Action)
+DEFINE_MAKE_IMPL(ExogAction)
+DEFINE_MAKE_IMPL(Transition)
+DEFINE_MAKE_IMPL(ExogTransition)
+
+DEFINE_MAKE_IMPL(History)
+
 DEFINE_MAKE_IMPL(Reference<Action>)
 DEFINE_MAKE_IMPL(EffectAxiom<BooleanExpression>)
 DEFINE_MAKE_IMPL(EffectAxiom<ValueExpression>)

@@ -28,6 +28,37 @@ EC_word Implementation<Procedure>::term()
 }
 
 
+Implementation<AbstractFunction>::Implementation(const AbstractFunction &function)
+: function_(function)
+{}
+
+
+EC_word Implementation<AbstractFunction>::term()
+{
+	return ::term(EC_functor(function_.name().c_str(), function_.arity()),
+	function_.scope().implementation().variables(function_.args())
+	);
+}
+
+
+EC_word Implementation<AbstractFunction>::definition()
+{
+	function_.scope().implementation().init_vars();
+	EC_word return_var = ::newvar();
+	return ::term(EC_functor("function", 3),
+		term(),
+		return_var,
+		function_.block().implementation().term()
+	);
+}
+
+
+EC_word Implementation<AbstractFunction>::return_var()
+{ return return_var_; }
+
+
+
+
 Implementation<Block>::Implementation(const Block &b)
 : block_(b)
 {}
@@ -38,8 +69,17 @@ EC_word Implementation<Block>::term()
 	EC_word tail = ::nil();
 	for (const unique_ptr<Statement> &stmt : block_.elements())
 		tail = ::list(stmt->implementation().term(), tail);
+	current_program_ = tail;
 	return tail;
 }
+
+
+EC_ref Implementation<Block>::current_program()
+{ return current_program_; }
+
+
+void Implementation<Block>::set_current_program(EC_ref e)
+{ current_program_ = e; }
 
 
 Implementation<Choose>::Implementation(const Choose &c)

@@ -25,6 +25,12 @@ public:
 	virtual ~ReadylogImplementor() override = default;
 
 	virtual unique_ptr<AbstractImplementation> make_impl(Action &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(ExogAction &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Transition &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(ExogTransition &) override;
+
+	virtual unique_ptr<AbstractImplementation> make_impl(History &) override;
+
 	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Action> &) override;
 
 	virtual unique_ptr<AbstractImplementation> make_impl(EffectAxiom<BooleanExpression> &) override;

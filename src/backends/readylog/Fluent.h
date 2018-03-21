@@ -8,26 +8,26 @@
 namespace gologpp {
 
 
-template<class ExpressionT>
-class Implementation<Fluent<ExpressionT>> : public ReadylogImplementation {
+template<>
+class Implementation<AbstractFluent> : public ReadylogImplementation {
 public:
-	Implementation(const Fluent<ExpressionT> &f)
-	: fluent_(f)
-	{}
-
+	Implementation(const AbstractFluent &f);
 	virtual ~Implementation() override = default;
 
-	virtual EC_word term() override
-	{
-		return ::term(
-			EC_functor(fluent_.name().c_str(), fluent_.arity()),
-			fluent_.scope().implementation().variables(fluent_.args())
-		);
-	}
+	EC_word prim_fluent();
+	virtual EC_word term() override;
 
 private:
-	const Fluent<ExpressionT> &fluent_;
+	const AbstractFluent &fluent_;
 };
+
+
+template<class ExprT>
+class Implementation<Fluent<ExprT>> : public Implementation<AbstractFluent> {
+public:
+	using Implementation<AbstractFluent>::Implementation;
+};
+
 
 
 } // namespace gologpp
