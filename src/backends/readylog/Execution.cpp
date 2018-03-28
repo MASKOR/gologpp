@@ -13,9 +13,10 @@ namespace gologpp {
 
 Implementation<History>::Implementation(History &history)
 : HistoryImplementation(history)
-, readylog_history_(::list(EC_atom("s0"), ::nil()))
 , history_len_(0)
-{}
+{
+	readylog_history_ = ::list(EC_atom("s0"), ::nil());
+}
 
 
 void Implementation<History>::append_exog(ExogTransition &&trans)
@@ -69,12 +70,15 @@ void EclipseContext::compile(const AbstractAction &action)
 	try {
 		Implementation<Action> action_impl = action.implementation<Action>();
 		compile(action_impl.prim_action());
-		compile(action_impl.poss());
-		compile(action_impl.causes_val());
+		compile(action_impl.prolog_poss_decl());
+		compile(action_impl.prolog_poss());
+		for (EC_word &ssa : action_impl.SSAs())
+			compile(ssa);
 	} catch (std::bad_cast &) {
 		Implementation<ExogAction> action_impl = action.implementation<ExogAction>();
 		compile(action_impl.exog_action());
-		compile(action_impl.causes_val());
+		for (EC_word &ssa : action_impl.SSAs())
+			compile(ssa);
 	}
 }
 
@@ -94,7 +98,10 @@ void EclipseContext::compile(const EC_word &term)
 	EC_functor term_fn;
 	term_cp.functor(&term_fn);
 	post_goal(::term(EC_functor("listing", 1),
-		EC_atom((string(term_fn.Name()) + "/" + std::to_string(term_fn.Arity())).c_str())
+		::term(EC_functor("/", 2),
+			EC_atom(term_fn.Name()),
+			term_fn.Arity()
+		)
 	));
 	int rv = EC_resume();
 	if (rv != EC_status::EC_succeed)

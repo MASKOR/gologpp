@@ -53,7 +53,7 @@ const std::unordered_map<string, shared_ptr<AbstractVariable>> &Scope::map() con
 
 
 shared_ptr<Expression> Scope::owner() const
-{ return owner_; }
+{ return owner_->shared_from_this(); }
 
 
 Scope &global_scope()

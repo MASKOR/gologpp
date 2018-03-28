@@ -31,7 +31,7 @@ public:
 	}
 
 protected:
-	unordered_map<shared_ptr<AbstractFluent>, unique_ptr<AbstractConstant>, identifier_hash, identifier_equals> fluent_values_;
+	std::unordered_map<shared_ptr<AbstractFluent>, unique_ptr<AbstractConstant>, identifier_hash, identifier_equals> fluent_values_;
 };
 
 

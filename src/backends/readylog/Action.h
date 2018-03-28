@@ -18,9 +18,12 @@ public:
 	Implementation(const Action &a);
 	virtual ~Implementation() override = default;
 
-	virtual EC_word prim_action();
-	virtual EC_word poss();
-	virtual EC_word causes_val();
+	EC_word prim_action();
+
+	vector<EC_word> SSAs();
+
+	EC_word prolog_poss_decl();
+	EC_word prolog_poss();
 
 	virtual EC_word term() override;
 private:
@@ -34,8 +37,8 @@ public:
 	Implementation(const ExogAction &a);
 	virtual ~Implementation() override = default;
 
-	virtual EC_word exog_action();
-	virtual EC_word causes_val();
+	EC_word exog_action();
+	vector<EC_word> SSAs();
 
 	virtual EC_word term() override;
 

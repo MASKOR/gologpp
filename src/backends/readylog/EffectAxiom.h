@@ -26,12 +26,41 @@ public:
 
 	virtual EC_word term() override
 	{
-		effect_.action().parent_scope().implementation().init_vars();
-		return ::term(
-			EC_functor("causes_val", 3),
-			effect_.action().implementation().term(),
-			effect_.fluent().implementation().term(),
-			effect_.value().implementation().term()
+		effect_.action()->scope().implementation().init_vars();
+		EC_ref Srest;
+		EC_ref Body_cond;
+		::post_goal(::term(EC_functor("process_condition", 3),
+			effect_.condition().implementation().term(),
+			Srest,
+			Body_cond
+		));
+		EC_ref Eval_val;
+		EC_ref Body_subf;
+		::post_goal(::term(EC_functor("process_subf", 5),
+			effect_.value().implementation().term(),
+			Eval_val,
+			Body_subf,
+			::newvar(),
+			Srest
+		));
+		EC_ref New_body;
+		::post_goal(::term(EC_functor("conjunct", 3),
+			Body_cond,
+			Body_subf,
+			New_body
+		));
+
+		if (EC_resume() != EC_status::EC_succeed) {
+			throw std::runtime_error("Failed to generate SSA for " + effect_.action()->name());
+		}
+
+		return ::term(EC_functor(":-", 2),
+			::term(EC_functor("ssa", 3),
+				effect_.fluent().implementation().term(),
+				Eval_val,
+				::list(effect_.action().implementation().term(), Srest)
+			),
+			New_body
 		);
 	}
 

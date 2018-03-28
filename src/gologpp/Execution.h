@@ -23,9 +23,8 @@ class History;
 
 class HistoryImplementation : public AbstractImplementation {
 public:
-	HistoryImplementation(History &history)
-	: history_(history)
-	{}
+	HistoryImplementation(History &history);
+	virtual ~HistoryImplementation();
 
 	virtual void append_exog(ExogTransition &&) = 0;
 
@@ -46,6 +45,7 @@ public:
 };
 
 
+template<class ImplementorT>
 class ExecutionContext {
 public:
 	template<class elem_t>
@@ -111,21 +111,27 @@ public:
 		}
 	}
 
-	template<class ImplementorT>
 	History run(Block &&program) {
 		ImplementorT implementor;
 
 		History history;
 		history.implement(implementor);
 
-		for (id_map_t<AbstractFluent>::value_type &entry : fluents_)
+		for (id_map_t<AbstractFluent>::value_type &entry : fluents_) {
 			entry.second->implement(implementor);
-		for (id_map_t<AbstractAction>::value_type &entry : actions_)
+			compile(*entry.second);
+		}
+		for (id_map_t<AbstractAction>::value_type &entry : actions_) {
 			entry.second->implement(implementor);
-		for (id_map_t<AbstractFunction>::value_type &entry : functions_)
+			compile(*entry.second);
+		}
+		for (id_map_t<AbstractFunction>::value_type &entry : functions_) {
 			entry.second->implement(implementor);
+			compile(*entry.second);
+		}
 
 		program.implement(implementor);
+		compile(program);
 
 		while (!final(program, history)) {
 			while (!exog_queue_.empty()) {
@@ -160,7 +166,7 @@ public:
 		shared_ptr<RealT> obj = std::make_shared<RealT>(std::forward<ArgTs>(args)...);
 		auto result = map.insert( { Identifier(*obj), obj } );
 		if (!result.second)
-			throw std::runtime_error(obj->name() + "(" + to_string(obj->arity()) + ") already defined.");
+			throw std::runtime_error(obj->name() + "(" + std::to_string(obj->arity()) + ") already defined.");
 		return obj;
 	}
 

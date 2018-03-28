@@ -29,11 +29,11 @@ public:
 
 	virtual ~AbstractAction() override = default;
 
-	const AbstractEffectAxiom &effect() const;
+	const vector<unique_ptr<AbstractEffectAxiom>> &effects() const;
 
 	template<class T>
-	void set_effect(T &&effect)
-	{ effect_ = unique_ptr<AbstractEffectAxiom>(new T(std::move(effect))); }
+	void add_effect(T &&effect)
+	{ effects_.push_back(unique_ptr<AbstractEffectAxiom>(new T(std::move(effect)))); }
 
 	template<class ExpressionT>
 	void declare_argument(const string &name)
@@ -53,7 +53,7 @@ public:
 protected:
 	Scope scope_;
 
-	unique_ptr<AbstractEffectAxiom> effect_;
+	vector<unique_ptr<AbstractEffectAxiom>> effects_;
 	vector<string> args_;
 };
 

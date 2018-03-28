@@ -19,16 +19,6 @@ EC_word Implementation<Action>::prim_action()
 }
 
 
-EC_word Implementation<Action>::poss()
-{
-	action_.scope().implementation().init_vars();
-	return ::term(
-		EC_functor("poss", 2), term(),
-		action_.precondition().implementation().term()
-	);
-}
-
-
 EC_word Implementation<Action>::term()
 {
 	return ::term(
@@ -38,10 +28,43 @@ EC_word Implementation<Action>::term()
 }
 
 
-EC_word Implementation<Action>::causes_val()
+EC_word Implementation<Action>::prolog_poss_decl()
 {
 	action_.scope().implementation().init_vars();
-	return action_.effect().implementation().term();
+	return ::term(EC_functor("prolog_poss", 1),
+		term()
+	);
+}
+
+
+EC_word Implementation<Action>::prolog_poss()
+{
+	EC_ref NewCondBody;
+	EC_ref S;
+	post_goal(::term(EC_functor("process_condition", 3),
+		action_.precondition().implementation().term(),
+		S,
+		NewCondBody
+	));
+	if (EC_status::EC_succeed != EC_resume())
+		throw new std::runtime_error("process_condition failed for " + action_.name());
+	return ::term(EC_functor(":-", 2),
+		::term(EC_functor("prolog_poss", 2),
+			term(),
+			S
+		),
+		NewCondBody
+	);
+}
+
+
+vector<EC_word> Implementation<Action>::SSAs()
+{
+	action_.scope().implementation().init_vars();
+	vector<EC_word> rv;
+	for (const unique_ptr<AbstractEffectAxiom> &effect : action_.effects())
+		rv.push_back(effect->implementation().term());
+	return rv;
 }
 
 
@@ -66,10 +89,13 @@ EC_word Implementation<ExogAction>::term()
 }
 
 
-EC_word Implementation<ExogAction>::causes_val()
+vector<EC_word> Implementation<ExogAction>::SSAs()
 {
 	exog_.scope().implementation().init_vars();
-	return exog_.effect().implementation().term();
+	vector<EC_word> rv;
+	for (const unique_ptr<AbstractEffectAxiom> &effect : exog_.effects())
+		rv.push_back(effect->implementation().term());
+	return rv;
 }
 
 

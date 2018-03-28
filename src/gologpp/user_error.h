@@ -7,17 +7,15 @@
 
 namespace gologpp {
 
-using namespace std;
-
 
 class SemanticError : public std::exception {
 public:
-	SemanticError(const string &description);
+	SemanticError(const std::string &description);
 	
 	virtual const char *what() const noexcept override;
 	
 private:
-	string message_;
+	std::string message_;
 };
 
 

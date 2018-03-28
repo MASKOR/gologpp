@@ -4,8 +4,6 @@
 
 namespace gologpp {
 
-using namespace std;
-
 
 AbstractAction::AbstractAction(const string &name, const vector<string> &args)
 : Statement(Scope::global_scope())
@@ -15,8 +13,8 @@ AbstractAction::AbstractAction(const string &name, const vector<string> &args)
 {}
 
 
-const AbstractEffectAxiom &AbstractAction::effect() const
-{ return *effect_; }
+const vector<unique_ptr<AbstractEffectAxiom>> &AbstractAction::effects() const
+{ return effects_; }
 
 
 const vector<string> &AbstractAction::arg_names() const
@@ -43,7 +41,8 @@ void Action::implement(Implementor &implementor)
 	impl_ = implementor.make_impl(*this);
 	scope_.implement(implementor);
 	precondition_->implement(implementor);
-	effect_->implement(implementor);
+	for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
+		effect->implement(implementor);
 }
 
 
@@ -51,7 +50,8 @@ void ExogAction::implement(Implementor &implementor)
 {
 	impl_ = implementor.make_impl(*this);
 	scope_.implement(implementor);
-	effect_->implement(implementor);
+	for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
+		effect->implement(implementor);
 }
 
 

@@ -5,8 +5,17 @@
 
 namespace gologpp {
 
-using namespace std;
+HistoryImplementation::HistoryImplementation(History &h)
+: history_(h)
+{}
 
+
+HistoryImplementation::~HistoryImplementation()
+{}
+
+
+History::History()
+{}
 
 
 

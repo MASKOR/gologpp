@@ -2,7 +2,7 @@
 
 namespace gologpp {
 
-Bug::Bug(const string &msg)
+Bug::Bug(const std::string &msg)
 : msg_(msg)
 {}
 

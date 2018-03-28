@@ -4,6 +4,7 @@
 #include <gologpp/Execution.h>
 #include "config.h"
 #include <eclipseclass.h>
+#include "Implementation.h"
 
 namespace gologpp {
 
@@ -23,7 +24,7 @@ private:
 };
 
 
-class EclipseContext : public ExecutionContext {
+class EclipseContext : public ExecutionContext<ReadylogImplementor> {
 public:
     virtual ~EclipseContext() override;
     static EclipseContext &instance();

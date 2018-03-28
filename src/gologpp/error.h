@@ -6,8 +6,6 @@
 
 namespace gologpp {
 
-using namespace std;
-
 class InconsistentModel : public std::exception {
 };
 
@@ -16,13 +14,13 @@ class EngineError : public std::exception {
 
 class Bug : public std::exception {
 public:
-	Bug(const string &msg);
+	Bug(const std::string &msg);
 	virtual ~Bug() override = default;
 
 	virtual const char *what() const noexcept override;
 
 private:
-	string msg_;
+	std::string msg_;
 };
 
 }

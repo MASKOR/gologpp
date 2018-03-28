@@ -14,22 +14,24 @@ class AbstractFluent;
 
 class AbstractEffectAxiom : public virtual AbstractLanguageElement {
 public:
-	AbstractEffectAxiom(Reference<Action> &&action);
+	AbstractEffectAxiom(Reference<Action> &&action, unique_ptr<BooleanExpression> &&condition);
 	AbstractEffectAxiom(AbstractEffectAxiom &&) = default;
 	virtual ~AbstractEffectAxiom();
 
 	const Reference<Action> &action() const;
+	const BooleanExpression &condition() const;
 
 protected:
 	Reference<Action> action_;
+	unique_ptr<BooleanExpression> condition_;
 };
 
 
 template<class ExpressionT>
 class EffectAxiom : public AbstractEffectAxiom, public LanguageElement<EffectAxiom<ExpressionT>> {
 public:
-	EffectAxiom(Reference<Action> &&action, Reference<Fluent<ExpressionT>> &&fluent, unique_ptr<ExpressionT> &&value)
-	: AbstractEffectAxiom(std::move(action))
+	EffectAxiom(Reference<Action> &&action, unique_ptr<BooleanExpression> &&condition, Reference<Fluent<ExpressionT>> &&fluent, unique_ptr<ExpressionT> &&value)
+	: AbstractEffectAxiom(std::move(action), std::move(condition))
 	, fluent_(std::move(fluent))
 	, value_(std::move(value))
 	{}

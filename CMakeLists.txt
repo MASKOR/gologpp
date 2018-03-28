@@ -23,6 +23,7 @@ set(INTERFACE_SRC
 		src/gologpp/arithmetic.cpp
 		src/gologpp/error.cpp
 		src/gologpp/user_error.cpp
+		src/gologpp/Execution.cpp
 )
 
 set(READYLOG_SRC
@@ -47,7 +48,7 @@ link_directories(${ECLIPSE_LIBRARY_DIRS})
 add_compile_options(-Wall)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g")
 
-find_file(READYLOG_PL readylog.pl
+find_file(READYLOG_PL preprocessor.pl
         PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../
         PATH_SUFFIXES /readylog/interpreter /kbsgolog/interpreters/readylog)
 add_definitions(-DREADYLOG_PATH=\"${READYLOG_PL}\" -DBACKEND=readylog)
@@ -56,9 +57,9 @@ add_definitions(-DECLIPSE_DIR=\"${ECLIPSE_DIR}\")
 add_library(readylogpp SHARED ${INTERFACE_SRC} ${READYLOG_SRC})
 target_link_libraries(readylogpp ${ECLIPSE_LIBRARIES})
 target_compile_options(readylogpp PUBLIC -fPIC)
-set_property(TARGET readylogpp PROPERTY CXX_STANDARD 14)
+set_property(TARGET readylogpp PROPERTY CXX_STANDARD 17)
 
 add_executable(readylog-test ${TEST_SRC})
 target_link_libraries(readylog-test readylogpp)
-set_property(TARGET readylog-test PROPERTY CXX_STANDARD 14)
+set_property(TARGET readylog-test PROPERTY CXX_STANDARD 17)
 

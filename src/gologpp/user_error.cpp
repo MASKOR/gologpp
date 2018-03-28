@@ -5,7 +5,7 @@ namespace gologpp {
 
 using namespace std;
 
-SemanticError::SemanticError(const string &description)
+SemanticError::SemanticError(const std::string &description)
 : message_(description)
 {}
 

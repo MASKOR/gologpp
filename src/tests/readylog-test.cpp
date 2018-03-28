@@ -27,7 +27,7 @@ int main(int, const char **) {
 	shp<Fluent<BooleanExpression>> on = ctx.add_fluent<BooleanExpression>(
 		"on",
 		std::vector<string>{"X", "Y"},
-		make_unique<Constant<BooleanExpression>>("false")
+		std::make_unique<Constant<BooleanExpression>>("false")
 	);
 	on->declare_variable<ValueExpression>("X");
 	on->declare_variable<ValueExpression>("Y");
@@ -37,26 +37,31 @@ int main(int, const char **) {
 	put->declare_argument<ValueExpression>("Y");
 
 	put->set_precondition(Negation(
-		make_unique<Reference<Fluent<BooleanExpression>>>(
+		std::make_unique<Reference<Fluent<BooleanExpression>>>(
 			on,
 			put->scope().variables(put->arg_names()), put->scope()),
 			put->scope()
 		)
 	);
 
-	put->set_effect(EffectAxiom<BooleanExpression>(
+	put->add_effect(EffectAxiom<BooleanExpression>(
 		Reference<Action>(put, put->scope().variables(put->arg_names()), put->scope()),
+		std::make_unique<Constant<BooleanExpression>>("true"),
 	    Reference<Fluent<BooleanExpression>>(on, put->scope().variables(put->arg_names()), put->scope()),
-	    make_unique<Constant<BooleanExpression>>("true"))
+	    std::make_unique<Constant<BooleanExpression>>("true"))
 	);
 
-	ReadylogImplementor implementor;
-
-	on->implement(implementor);
-	put->implement(implementor);
-
-	ctx.compile(put->implementation().poss());
-	ctx.compile(put->implementation().prim_action());
-	ctx.compile(put->implementation().causes_val());
+	vector<unique_ptr<Statement>> code;
+	code.push_back(unique_ptr<Statement>(
+		new Reference<Action>(
+			put,
+			{
+				std::make_shared<Constant<ValueExpression>>("1"),
+				std::make_shared<Constant<ValueExpression>>("2")
+			},
+			global_scope()
+		)
+	));
+	ctx.run(Block(std::move(code), global_scope() ));
 }
 

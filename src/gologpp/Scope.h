@@ -61,7 +61,7 @@ private:
 
 	static Scope global_scope_;
 	Scope &parent_scope_;
-	shared_ptr<Expression> owner_;
+	Expression *owner_;
 	unordered_map<string, shared_ptr<AbstractVariable>> variables_;
 };
 
