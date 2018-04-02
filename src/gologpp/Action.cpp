@@ -38,20 +38,24 @@ const BooleanExpression &Action::precondition() const
 
 void Action::implement(Implementor &implementor)
 {
-	impl_ = implementor.make_impl(*this);
-	scope_.implement(implementor);
-	precondition_->implement(implementor);
-	for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
-		effect->implement(implementor);
+	if (!impl_) {
+		impl_ = implementor.make_impl(*this);
+		scope_.implement(implementor);
+		precondition_->implement(implementor);
+		for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
+			effect->implement(implementor);
+	}
 }
 
 
 void ExogAction::implement(Implementor &implementor)
 {
-	impl_ = implementor.make_impl(*this);
-	scope_.implement(implementor);
-	for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
-		effect->implement(implementor);
+	if (!impl_) {
+		impl_ = implementor.make_impl(*this);
+		scope_.implement(implementor);
+		for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
+			effect->implement(implementor);
+	}
 }
 
 
@@ -65,17 +69,21 @@ const vector<unique_ptr<AbstractConstant>> &AbstractTransition::args() const
 
 void Transition::implement(Implementor &implementor)
 {
-	impl_ = implementor.make_impl(*this);
-	for (unique_ptr<AbstractConstant> &c : args_)
-		c->implement(implementor);
+	if (!impl_) {
+		impl_ = implementor.make_impl(*this);
+		for (unique_ptr<AbstractConstant> &c : args_)
+			c->implement(implementor);
+	}
 }
 
 
 void ExogTransition::implement(Implementor &implementor)
 {
-	impl_ = implementor.make_impl(*this);
-	for (unique_ptr<AbstractConstant> &c : args_)
-		c->implement(implementor);
+	if (!impl_) {
+		impl_ = implementor.make_impl(*this);
+		for (unique_ptr<AbstractConstant> &c : args_)
+			c->implement(implementor);
+	}
 }
 
 

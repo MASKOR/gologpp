@@ -2,6 +2,7 @@
 #define FORMULA_H
 
 #include "expressions.h"
+#include "atoms.h"
 
 #include <vector>
 #include <memory>
@@ -100,14 +101,14 @@ protected:
 class ExistentialQuantification : public Quantification, public LanguageElement<ExistentialQuantification> {
 public:
 	using Quantification::Quantification;
-	virtual void implement(Implementor &implementor) override;
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *expression_)
 };
 
 
 class UniversalQuantification : public Quantification, public LanguageElement<UniversalQuantification> {
 public:
 	using Quantification::Quantification;
-	virtual void implement(Implementor &implementor) override;
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *expression_)
 };
 
 

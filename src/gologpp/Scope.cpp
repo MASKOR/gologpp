@@ -42,9 +42,11 @@ vector<shared_ptr<Expression>> Scope::variables(const vector<string> &names) con
 
 void Scope::implement(Implementor &implementor)
 {
-	impl_ = implementor.make_impl(*this);
-	for (auto &entry : variables_)
-		entry.second->implement(implementor);
+	if (!impl_) {
+		impl_ = implementor.make_impl(*this);
+		for (auto &entry : variables_)
+			entry.second->implement(implementor);
+	}
 }
 
 

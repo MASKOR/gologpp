@@ -39,15 +39,18 @@ protected:
 
 #define DEFINE_IMPLEMENT_WITH_MEMBERS(...) \
 	virtual void implement(Implementor &implementor) override { \
-		impl_ = implementor.make_impl(*this); \
-		boost::fusion::for_each(std::tie(__VA_ARGS__), [&] (auto &e) { \
-			e.implement(implementor); \
-		} ); \
+		if (!impl_) { \
+			impl_ = implementor.make_impl(*this); \
+			boost::fusion::for_each(std::tie(__VA_ARGS__), [&] (auto &e) { \
+				e.implement(implementor); \
+			} ); \
+		} \
 	}
 
 #define DEFINE_IMPLEMENT \
 	virtual void implement(Implementor &implementor) override { \
-		impl_ = implementor.make_impl(*this); \
+		if (!impl_) \
+			impl_ = implementor.make_impl(*this); \
 	}
 
 

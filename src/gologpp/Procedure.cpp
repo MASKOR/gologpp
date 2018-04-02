@@ -16,9 +16,11 @@ Block::Block(vector<unique_ptr<Statement>> &&elements, Scope &parent_scope)
 
 void Block::implement(Implementor &implementor)
 {
-	impl_ = implementor.make_impl(*this);
-	for (auto &stmt : elements_)
-		stmt->implement(implementor);
+	if (!impl_) {
+		impl_ = implementor.make_impl(*this);
+		for (auto &stmt : elements_)
+			stmt->implement(implementor);
+	}
 }
 
 const vector<unique_ptr<Statement>> &Block::elements() const
@@ -36,8 +38,11 @@ const vector<Block> &Choose::alternatives() const
 
 void Choose::implement(Implementor &implementor)
 {
-	for (Block &block : alternatives_)
-		block.implement(implementor);
+	if (!impl_) {
+		impl_ = implementor.make_impl(*this);
+		for (Block &block : alternatives_)
+			block.implement(implementor);
+	}
 }
 
 

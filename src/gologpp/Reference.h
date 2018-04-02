@@ -38,7 +38,15 @@ public:
 	const vector<shared_ptr<Expression>> &args() const
 	{ return args_; }
 
-	DEFINE_IMPLEMENT
+	virtual void implement(Implementor &implementor) override
+	{
+		if (impl_)
+			return;
+
+		impl_ = implementor.make_impl(*this);
+		for (shared_ptr<Expression> &expr : args_)
+			expr->implement(implementor);
+	}
 
 private:
 	shared_ptr<GologT> target_;
