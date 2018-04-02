@@ -96,7 +96,12 @@ void EclipseContext::compile(const EC_word &term)
 	post_goal(::term(EC_functor("assert", 1), term));
 	EC_word term_cp(term);
 	EC_functor term_fn;
+	EC_word t2;
 	term_cp.functor(&term_fn);
+	if (string(term_fn.Name()) == ":-") {
+		term_cp.arg(1, t2);
+		t2.functor(&term_fn);
+	}
 	post_goal(::term(EC_functor("listing", 1),
 		::term(EC_functor("/", 2),
 			EC_atom(term_fn.Name()),
