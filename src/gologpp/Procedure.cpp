@@ -16,6 +16,7 @@ Block::Block(vector<unique_ptr<Statement>> &&elements, Scope &parent_scope)
 
 void Block::implement(Implementor &implementor)
 {
+	impl_ = implementor.make_impl(*this);
 	for (auto &stmt : elements_)
 		stmt->implement(implementor);
 }

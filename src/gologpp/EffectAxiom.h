@@ -46,7 +46,7 @@ public:
 	const ExpressionT &value() const
 	{ return *value_; }
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(action_, fluent_, *value_)
+	DEFINE_IMPLEMENT_WITH_MEMBERS(action_, *condition_, fluent_, *value_)
 
 protected:
 	Reference<Fluent<ExpressionT>> fluent_;
