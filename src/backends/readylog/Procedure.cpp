@@ -44,10 +44,9 @@ EC_word Implementation<AbstractFunction>::term()
 EC_word Implementation<AbstractFunction>::definition()
 {
 	function_.scope().implementation().init_vars();
-	EC_word return_var = ::newvar();
 	return ::term(EC_functor("function", 3),
 		term(),
-		return_var,
+		return_var_,
 		function_.block().implementation().term()
 	);
 }
