@@ -10,33 +10,32 @@ find_package(Eclipse)
 #pkg_check_modules(SWIPL REQUIRED "swipl")
 
 set(INTERFACE_SRC
-		src/gologpp/Action.cpp
-		src/gologpp/atoms.cpp
-		src/gologpp/EffectAxiom.cpp
-		src/gologpp/Fluent.cpp
-		src/gologpp/expressions.cpp
-		src/gologpp/Formula.cpp
-		src/gologpp/Procedure.cpp
-		src/gologpp/Scope.cpp
-		src/gologpp/Situation.cpp
-		src/gologpp/utilities.cpp
-		src/gologpp/arithmetic.cpp
-		src/gologpp/error.cpp
-		src/gologpp/user_error.cpp
-		src/gologpp/Execution.cpp
+		src/model/action.cpp
+		src/model/atoms.cpp
+		src/model/effect_axiom.cpp
+		src/model/fluent.cpp
+		src/model/expressions.cpp
+		src/model/formula.cpp
+		src/model/procedural.cpp
+		src/model/scope.cpp
+		src/model/situation.cpp
+		src/model/utilities.cpp
+		src/model/arithmetic.cpp
+		src/model/error.cpp
+		src/model/user_error.cpp
+		src/model/execution.cpp
 )
 
 set(READYLOG_SRC
-	src/backends/readylog/Action.cpp
-	src/backends/readylog/atoms.cpp
-	src/backends/readylog/arithmetic.cpp
-	src/backends/readylog/Execution.cpp
-	src/backends/readylog/Fluent.cpp
-	src/backends/readylog/Formula.cpp
-	src/backends/readylog/Procedure.cpp
-	src/backends/readylog/Reference.cpp
-	src/backends/readylog/Scope.cpp
-	src/backends/readylog/Implementation.cpp
+	src/impl/readylog/action.cpp
+	src/impl/readylog/atoms.cpp
+	src/impl/readylog/arithmetic.cpp
+	src/impl/readylog/execution.cpp
+	src/impl/readylog/fluent.cpp
+	src/impl/readylog/formula.cpp
+	src/impl/readylog/procedural.cpp
+	src/impl/readylog/scope.cpp
+	src/impl/readylog/implementation.cpp
 )
 
 set(TEST_SRC

@@ -1,19 +1,19 @@
-#include <gologpp/Formula.h>
-#include <gologpp/Reference.h>
+#include <model/formula.h>
+#include <model/reference.h>
 
-#include <gologpp/Action.h>
-#include <gologpp/Fluent.h>
-#include <gologpp/Procedure.h>
+#include <model/action.h>
+#include <model/fluent.h>
+#include <model/procedural.h>
 
-#include <backends/readylog/Action.h>
-#include <backends/readylog/EffectAxiom.h>
-#include <backends/readylog/Formula.h>
-#include <backends/readylog/Execution.h>
-#include <backends/readylog/Reference.h>
-#include <backends/readylog/Fluent.h>
-#include <backends/readylog/atoms.h>
+#include <impl/readylog/action.h>
+#include <impl/readylog/effect_axiom.h>
+#include <impl/readylog/formula.h>
+#include <impl/readylog/execution.h>
+#include <impl/readylog/reference.h>
+#include <impl/readylog/fluent.h>
+#include <impl/readylog/atoms.h>
 
-#include <backends/readylog/Implementation.h>
+#include <impl/readylog/implementation.h>
 
 #include <memory>
 
@@ -29,12 +29,12 @@ int main(int, const char **) {
 		std::vector<string>{"X", "Y"},
 		std::make_unique<Constant<BooleanExpression>>("false")
 	);
-	on->declare_variable<ValueExpression>("X");
-	on->declare_variable<ValueExpression>("Y");
+	on->declare_variable<NumericExpression>("X");
+	on->declare_variable<NumericExpression>("Y");
 
 	shp<Action> put = ctx.add_action("put", std::vector<string>{"X", "Y"});
-	put->declare_argument<ValueExpression>("X");
-	put->declare_argument<ValueExpression>("Y");
+	put->declare_argument<NumericExpression>("X");
+	put->declare_argument<NumericExpression>("Y");
 
 	put->set_precondition(Negation(
 		std::make_unique<Reference<Fluent<BooleanExpression>>>(
@@ -56,8 +56,8 @@ int main(int, const char **) {
 		new Reference<Action>(
 			put,
 			{
-				std::make_shared<Constant<ValueExpression>>("1"),
-				std::make_shared<Constant<ValueExpression>>("2")
+				std::make_shared<Constant<NumericExpression>>("1"),
+				std::make_shared<Constant<NumericExpression>>("2")
 			},
 			global_scope()
 		)
