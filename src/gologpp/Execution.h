@@ -131,7 +131,6 @@ public:
 		}
 
 		program.implement(implementor);
-		compile(program);
 
 		while (!final(program, history)) {
 			while (!exog_queue_.empty()) {

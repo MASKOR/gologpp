@@ -38,13 +38,20 @@ EclipseContext::EclipseContext()
 {
 	ec_set_option_ptr(EC_OPTION_ECLIPSEDIR, (void *)ECLIPSE_DIR);
 	std::cout << "Using eclipse-clp in " << ECLIPSE_DIR << std::endl;
-	if (ec_init())
-		throw std::runtime_error("Error initializing ECLiPSe subsystem");
+
+	int rv;
+	if ((rv = ec_init()))
+		throw std::runtime_error("Error " + std::to_string(rv) + " initializing ECLiPSe subsystem");
 
 	std::cout << "Loading readylog from " << READYLOG_PATH " ..." << std::endl;
+	post_goal("lib(tracer_tty)");
 	post_goal(::term(EC_functor("compile", 1), EC_atom(READYLOG_PATH)));
 	EC_resume();
-	std::cout << "... done." << std::endl;
+	rv = EC_resume();
+	if (rv == EC_status::EC_succeed)
+		std::cout << "... done." << std::endl;
+	else
+		throw std::runtime_error("Error " + std::to_string(rv) + " loading readylog interpreter");
 }
 
 
@@ -94,7 +101,8 @@ void EclipseContext::compile(const AbstractFunction &function)
 void EclipseContext::compile(const EC_word &term)
 {
 	post_goal(::term(EC_functor("assert", 1), term));
-	EC_word term_cp(term);
+	post_goal(::term(EC_functor("write", 1), term));
+	/*EC_word term_cp(term);
 	EC_functor term_fn;
 	EC_word t2;
 	term_cp.functor(&term_fn);
@@ -107,7 +115,7 @@ void EclipseContext::compile(const EC_word &term)
 			EC_atom(term_fn.Name()),
 			term_fn.Arity()
 		)
-	));
+	));*/
 	int rv = EC_resume();
 	if (rv != EC_status::EC_succeed)
 		throw EclipseError();
@@ -116,27 +124,28 @@ void EclipseContext::compile(const EC_word &term)
 
 bool EclipseContext::final(Block &program, History &history)
 {
-	post_goal(::term(EC_functor("final", 2),
+	EC_word final = ::term(EC_functor("final", 2),
 		program.implementation().current_program(),
 		history.implementation().current_history()
-	));
+	);
+	post_goal(::term(EC_functor("trace", 1), final));
 	return EC_resume() == EC_status::EC_succeed;
 }
 
 
-bool EclipseContext::trans(Block &e, History &h)
+bool EclipseContext::trans(Block &block, History &history)
 {
 	EC_ref h1, e1;
 	post_goal(::term(EC_functor("trans", 4),
-		e.implementation().current_program(),
-		h.implementation().current_history(),
+		block.implementation().current_program(),
+		history.implementation().current_history(),
 		e1, h1
 	));
 	int rv = EC_resume();
 
 	if (rv == EC_status::EC_succeed) {
-		e.implementation().set_current_program(e1);
-		h.implementation().set_current_history(h1);
+		block.implementation().set_current_program(e1);
+		history.implementation().set_current_history(h1);
 		return true;
 	}
 	return false;
