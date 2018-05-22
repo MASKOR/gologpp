@@ -73,11 +73,15 @@ EC_word Implementation<Block>::term()
 }
 
 
-EC_ref Implementation<Block>::current_program()
-{ return current_program_; }
+EC_word Implementation<Block>::current_program()
+{
+	EC_word rv = ::newvar();
+	rv.unify(current_program_);
+	return rv;
+}
 
 
-void Implementation<Block>::set_current_program(EC_ref e)
+void Implementation<Block>::set_current_program(EC_word e)
 { current_program_ = e; }
 
 

@@ -1,8 +1,8 @@
 #ifndef READYLOG_FLUENT_H_
 #define READYLOG_FLUENT_H_
 
-#include <eclipseclass.h>
 #include "implementation.h"
+#include <eclipseclass.h>
 
 
 namespace gologpp {

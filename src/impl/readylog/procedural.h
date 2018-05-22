@@ -55,12 +55,12 @@ class Implementation<Block> : public ReadylogImplementation {
 public:
 	Implementation(const Block &);
 	virtual EC_word term() override;
-	EC_ref current_program();
-	void set_current_program(EC_ref e);
+	EC_word current_program();
+	void set_current_program(EC_word e);
 
 private:
 	const Block &block_;
-	EC_ref current_program_;
+	EC_word current_program_;
 };
 
 

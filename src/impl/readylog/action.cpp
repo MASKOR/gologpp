@@ -1,6 +1,7 @@
 #include "action.h"
 #include "effect_axiom.h"
 #include "scope.h"
+#include "execution.h"
 
 #include <eclipseclass.h>
 
@@ -39,15 +40,17 @@ EC_word Implementation<Action>::prolog_poss_decl()
 
 EC_word Implementation<Action>::prolog_poss()
 {
-	EC_ref NewCondBody;
-	EC_ref S;
-	post_goal(::term(EC_functor("process_condition", 3),
-		action_.precondition().implementation().term(),
-		S,
-		NewCondBody
-	));
-	if (EC_status::EC_succeed != EC_resume())
+	EC_ref NewCondBody, S;
+
+	action_.scope().implementation().init_vars();
+
+	if ( ! EclipseContext::instance().ec_query(::term(EC_functor("process_condition", 3),
+			action_.precondition().implementation().term(),
+			S,
+			NewCondBody
+	)))
 		throw new std::runtime_error("process_condition failed for " + action_.name());
+
 	return ::term(EC_functor(":-", 2),
 		::term(EC_functor("prolog_poss", 2),
 			term(),

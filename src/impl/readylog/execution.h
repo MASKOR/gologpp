@@ -1,10 +1,15 @@
 #ifndef READYLOG_EXECUTION_H_
 #define READYLOG_EXECUTION_H_
 
+#include <iostream>
+
 #include <model/execution.h>
 #include "config.h"
 #include <eclipseclass.h>
 #include "implementation.h"
+
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
+#include <boost/fusion/adapted/std_tuple.hpp>
 
 namespace gologpp {
 
@@ -15,13 +20,16 @@ public:
 	virtual ~Implementation() override = default;
 
 	virtual void append_exog(ExogTransition &&exog) override;
-	virtual EC_ref current_history();
-	virtual void set_current_history(EC_ref h);
+	EC_word current_history();
+	void set_current_history(EC_word h);
 
 private:
-	EC_ref readylog_history_;
+	EC_word readylog_history_;
 	size_t history_len_;
 };
+
+
+EC_word operator && (const EC_word &lhs, const EC_word &rhs);
 
 
 class EclipseContext : public ExecutionContext<ReadylogImplementor> {
@@ -34,14 +42,42 @@ public:
 	virtual void compile(const AbstractFluent &fluent) override;
 	virtual void compile(const AbstractFunction &function) override;
 
-    virtual void compile(const EC_word &term);
+    virtual void compile_term(const EC_word &term);
 
     virtual bool final(Block &program, History &history) override;
     virtual bool trans(Block &program, History &history) override;
 
-private:
-    EclipseContext();
+	bool ec_query(EC_word t)
+	{
+		/* Insanity ensues:
+		   Since the EC_ref::cut_to() mechanism seems to be broken, as well as post_goal("!"),
+		   which simply has no effect, once/1 seems to be the ONLY way to cut choicepoints from
+		   posted goals.
 
+		   More info:
+		   http://eclipseclp.org/doc/embedding/embroot081.html
+		   https://sourceforge.net/p/eclipse-clp/mailman/message/23203000/
+		   http://eclipseclp.org/archive/eclipse-users/0704.html
+		*/
+		post_goal(::term(EC_functor("writeln", 1), t));
+		post_goal(::term(EC_functor("once", 1), t));
+		post_goal(::term(EC_functor("writeln", 1), t));
+		last_rv_ = EC_resume(*ec_start_);
+		std::cout << std::endl;
+
+		return last_rv_ == EC_status::EC_succeed;
+	}
+
+	void ec_cut();
+
+	void ec_write(EC_word t);
+
+
+private:
+	EC_ref *ec_start_;
+	int last_rv_;
+
+    EclipseContext();
 };
 
 

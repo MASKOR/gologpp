@@ -25,12 +25,20 @@ void Implementation<History>::append_exog(ExogTransition &&trans)
 }
 
 
-EC_ref Implementation<History>::current_history()
-{ return readylog_history_; }
+EC_word Implementation<History>::current_history()
+{
+	EC_word rv = ::newvar();
+	rv.unify(readylog_history_);
+	return rv;
+}
 
 
-void Implementation<History>::set_current_history(EC_ref h)
+void Implementation<History>::set_current_history(EC_word h)
 { readylog_history_ = h; }
+
+
+EC_word operator && (const EC_word &lhs, const EC_word &rhs)
+{ return ::term(EC_functor(",", 2), lhs, rhs); }
 
 
 EclipseContext::EclipseContext()
@@ -43,12 +51,15 @@ EclipseContext::EclipseContext()
 	if ((rv = ec_init()))
 		throw std::runtime_error("Error " + std::to_string(rv) + " initializing ECLiPSe subsystem");
 
+	ec_start_ = new EC_ref();
+
 	std::cout << "Loading readylog from " << READYLOG_PATH " ..." << std::endl;
+
 	post_goal("lib(tracer_tty)");
+	post_goal("set_flag(gc, verbose)");
 	post_goal(::term(EC_functor("compile", 1), EC_atom(READYLOG_PATH)));
-	EC_resume();
-	rv = EC_resume();
-	if (rv == EC_status::EC_succeed)
+
+	if ((last_rv_ = EC_resume(*ec_start_)) == EC_status::EC_succeed)
 		std::cout << "... done." << std::endl;
 	else
 		throw std::runtime_error("Error " + std::to_string(rv) + " loading readylog interpreter");
@@ -69,56 +80,59 @@ EclipseContext &EclipseContext::instance()
 
 
 void EclipseContext::compile(const Block &block)
-{ compile(block.implementation().term()); }
+{
+	// Discard result since this is only called for the toplevel program,
+	// which only needs to initialize its internal state.
+	block.implementation().term();
+}
 
 
 void EclipseContext::compile(const AbstractAction &action)
 {
 	try {
 		Implementation<Action> action_impl = action.implementation<Action>();
-		compile(action_impl.prim_action());
-		compile(action_impl.prolog_poss_decl());
-		compile(action_impl.prolog_poss());
+		compile_term(action_impl.prim_action());
+		compile_term(action_impl.prolog_poss_decl());
+		compile_term(action_impl.prolog_poss());
 		for (EC_word &ssa : action_impl.SSAs())
-			compile(ssa);
+			compile_term(ssa);
 	} catch (std::bad_cast &) {
 		Implementation<ExogAction> action_impl = action.implementation<ExogAction>();
-		compile(action_impl.exog_action());
+		compile_term(action_impl.exog_action());
 		for (EC_word &ssa : action_impl.SSAs())
-			compile(ssa);
+			compile_term(ssa);
 	}
 }
 
 
 void EclipseContext::compile(const AbstractFluent &fluent)
-{ compile(fluent.implementation<AbstractFluent>().prim_fluent()); }
+{ compile_term(fluent.implementation<AbstractFluent>().prim_fluent()); }
 
 
 void EclipseContext::compile(const AbstractFunction &function)
-{ compile(function.implementation<AbstractFunction>().definition()); }
+{ compile_term(function.implementation<AbstractFunction>().definition()); }
 
 
-void EclipseContext::compile(const EC_word &term)
+void EclipseContext::compile_term(const EC_word &term)
 {
-	post_goal(::term(EC_functor("assert", 1), term));
-	post_goal(::term(EC_functor("write", 1), term));
-	/*EC_word term_cp(term);
-	EC_functor term_fn;
-	EC_word t2;
-	term_cp.functor(&term_fn);
-	if (string(term_fn.Name()) == ":-") {
-		term_cp.arg(1, t2);
-		t2.functor(&term_fn);
-	}
-	post_goal(::term(EC_functor("listing", 1),
-		::term(EC_functor("/", 2),
-			EC_atom(term_fn.Name()),
-			term_fn.Arity()
-		)
-	));*/
-	int rv = EC_resume();
-	if (rv != EC_status::EC_succeed)
+	if (! ec_query (
+		::term(EC_functor("assert", 1), term)
+	) )
 		throw EclipseError();
+}
+
+
+void EclipseContext::ec_write(EC_word t)
+{
+	//ec_query(::term(EC_functor("writeln", 1), t));
+}
+
+
+void EclipseContext::ec_cut()
+{
+	EC_resume();
+	if (last_rv_ == EC_status::EC_succeed)
+		ec_start_->cut_to();
 }
 
 
@@ -128,22 +142,22 @@ bool EclipseContext::final(Block &program, History &history)
 		program.implementation().current_program(),
 		history.implementation().current_history()
 	);
-	post_goal(::term(EC_functor("trace", 1), final));
-	return EC_resume() == EC_status::EC_succeed;
+	bool rv = ec_query(final);
+	return rv;
 }
 
 
 bool EclipseContext::trans(Block &block, History &history)
 {
 	EC_ref h1, e1;
-	post_goal(::term(EC_functor("trans", 4),
-		block.implementation().current_program(),
-		history.implementation().current_history(),
-		e1, h1
-	));
-	int rv = EC_resume();
 
-	if (rv == EC_status::EC_succeed) {
+	if (ec_query(
+		::term(EC_functor("trans", 4),
+			block.implementation().current_program(),
+			history.implementation().current_history(),
+			e1, h1
+		)
+	)) {
 		block.implementation().set_current_program(e1);
 		history.implementation().set_current_history(h1);
 		return true;
