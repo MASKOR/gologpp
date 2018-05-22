@@ -24,26 +24,22 @@ class ExogAction;
 class Transition;
 class ExogTransition;
 
-template<class>
-class EffectAxiom;
+template<class> class EffectAxiom;
 
 class Scope;
 
 class AbstractFluent;
-template<class>
-class Fluent;
+template<class> class Fluent;
 
 class Expression;
 class BooleanExpression;
 class NumericExpression;
 
 class AbstractVariable;
-template<class>
-class Variable;
+template<class> class Variable;
 
 class AbstractConstant;
-template<class>
-class Constant;
+template<class> class Constant;
 
 class ArithmeticOperation;
 
@@ -60,22 +56,18 @@ class Statement;
 class Block;
 class Choose;
 class Conditional;
-template<class>
-class Assignment;
+template<class> class Assignment;
 class Pick;
 class Call;
 class Search;
 class Test;
 class While;
-template<class>
-class Return;
+template<class> class Return;
 
-template<class>
-class Function;
+template<class> class Function;
 using Procedure = Function<Statement>;
 
-template<class>
-class Reference;
+template<class> class Reference;
 
 class History;
 
