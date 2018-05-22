@@ -21,7 +21,7 @@ public:
 
 	virtual ExpressionTypeTag expression_type_tag() const = 0;
 
-private:
+protected:
 	Scope &parent_scope_;
 };
 
