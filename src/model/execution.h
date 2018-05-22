@@ -40,7 +40,7 @@ public:
 	DEFINE_IMPLEMENT
 
 	HistoryImplementation &abstract_impl()
-	{ return dynamic_cast<HistoryImplementation &>(*impl_); }
+	{ return static_cast<HistoryImplementation &>(*impl_); }
 
 };
 
