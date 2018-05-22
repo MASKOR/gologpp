@@ -18,7 +18,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g")
 find_file(READYLOG_PL preprocessor.pl
         PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../
         PATH_SUFFIXES /readylog/interpreter /kbsgolog/interpreters/readylog)
-add_definitions(-DREADYLOG_PATH=\"${READYLOG_PL}\" -DBACKEND=readylog)
+add_definitions(-DREADYLOG_PATH=\"${READYLOG_PL}\")
 add_definitions(-DECLIPSE_DIR=\"${ECLIPSE_DIR}\")
 
 
@@ -40,6 +40,7 @@ set(INTERFACE_SRC
 )
 add_library(gologpp SHARED ${INTERFACE_SRC})
 target_compile_options(gologpp PUBLIC -fPIC)
+set_property(TARGET gologpp PROPERTY CXX_STANDARD 14)
 
 
 set(PARSER_SRC
@@ -47,6 +48,7 @@ set(PARSER_SRC
 )
 add_library(parsegologpp SHARED ${PARSER_SRC})
 target_link_libraries(parsegologpp gologpp)
+set_property(TARGET parsegologpp PROPERTY CXX_STANDARD 14)
 
 
 set(READYLOG_SRC
@@ -69,6 +71,6 @@ set(TEST_SRC
 	src/tests/readylog-test.cpp)
 
 add_executable(readylog-test ${TEST_SRC})
-target_link_libraries(readylog-test readylogpp)
+target_link_libraries(readylog-test readylogpp parsegologpp)
 set_property(TARGET readylog-test PROPERTY CXX_STANDARD 14)
 
