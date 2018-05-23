@@ -1,5 +1,6 @@
 project(gologpp)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
+include(CMakeDependentOption)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake PATH)
 
@@ -20,6 +21,16 @@ find_file(READYLOG_PL preprocessor.pl
         PATH_SUFFIXES /readylog/interpreter /kbsgolog/interpreters/readylog)
 add_definitions(-DREADYLOG_PATH=\"${READYLOG_PL}\")
 add_definitions(-DECLIPSE_DIR=\"${ECLIPSE_DIR}\")
+
+set(EXTRA_COMPILER_MACROS "" CACHE STRING "Extra macro definitions to pass to the compiler with the -D option")
+add_definitions(-DUSES_NO_ENGINE_HANDLE)
+
+foreach(def ${EXTRA_COMPILER_MACROS})
+	message(${def})
+	add_definitions(-D${def})
+endforeach()
+
+#add_definitions(-DHAVE_PTHREAD_H)
 
 
 set(INTERFACE_SRC
@@ -43,34 +54,64 @@ target_compile_options(gologpp PUBLIC -fPIC)
 set_property(TARGET gologpp PROPERTY CXX_STANDARD 14)
 
 
-set(PARSER_SRC
-	src/parser/parser.cpp
-)
-add_library(parsegologpp SHARED ${PARSER_SRC})
-target_link_libraries(parsegologpp gologpp)
-set_property(TARGET parsegologpp PROPERTY CXX_STANDARD 14)
+option(BUILD_PARSER "Build the parser library" ON)
+if (${BUILD_PARSER})
+	set(PARSER_SRC
+		src/parser/parser.cpp
+	)
+	add_library(parsegologpp SHARED ${PARSER_SRC})
+	target_link_libraries(parsegologpp gologpp)
+	set_property(TARGET parsegologpp PROPERTY CXX_STANDARD 14)
+	add_definitions(-DGOLOGPP_BUILD_PARSER)
+endif()
 
 
-set(READYLOG_SRC
-	src/impl/readylog/action.cpp
-	src/impl/readylog/atoms.cpp
-	src/impl/readylog/arithmetic.cpp
-	src/impl/readylog/execution.cpp
-	src/impl/readylog/fluent.cpp
-	src/impl/readylog/formula.cpp
-	src/impl/readylog/procedural.cpp
-	src/impl/readylog/scope.cpp
-	src/impl/readylog/implementation.cpp
-)
-add_library(readylogpp SHARED ${READYLOG_SRC})
-target_link_libraries(readylogpp gologpp ${ECLIPSE_LIBRARIES})
-set_property(TARGET readylogpp PROPERTY CXX_STANDARD 14)
+option(BUILD_READYLOG_IMPL "Build the readylog implementation" ON)
+if (${BUILD_READYLOG_IMPL})
+	set(READYLOG_SRC
+		src/impl/readylog/action.cpp
+		src/impl/readylog/atoms.cpp
+		src/impl/readylog/arithmetic.cpp
+		src/impl/readylog/execution.cpp
+		src/impl/readylog/fluent.cpp
+		src/impl/readylog/formula.cpp
+		src/impl/readylog/procedural.cpp
+		src/impl/readylog/scope.cpp
+		src/impl/readylog/implementation.cpp
+	)
+	add_library(readylogpp SHARED ${READYLOG_SRC})
+	target_link_libraries(readylogpp gologpp ${ECLIPSE_LIBRARIES})
+	set_property(TARGET readylogpp PROPERTY CXX_STANDARD 14)
+	add_definitions(-DGOLOGPP_BUILD_READYLOG_IMPL)
+endif()
 
 
-set(TEST_SRC
-	src/tests/readylog-test.cpp)
+option(BUILD_TESTS "Build tests" ON)
+CMAKE_DEPENDENT_OPTION(TEST_OBJECTMODEL "Enable test for object model" ON "BUILD_TESTS;BUILD_READYLOG_IMPL" OFF)
+CMAKE_DEPENDENT_OPTION(TEST_PARSER "Enable test for parser" ON "BUILD_TESTS;BUILD_PARSER" OFF)
+CMAKE_DEPENDENT_OPTION(TEST_ECLIPSE "Enable test for eclipse-clp" ON "BUILD_TESTS;ECLIPSE_FOUND" OFF)
+if (${BUILD_TESTS})
+	add_definitions(-DGOLOGPP_BUILD_TESTS)
+	set(TEST_LINK_LIBRARIES gologpp)
 
-add_executable(readylog-test ${TEST_SRC})
-target_link_libraries(readylog-test readylogpp parsegologpp)
-set_property(TARGET readylog-test PROPERTY CXX_STANDARD 14)
+	if (${TEST_OBJECTMODEL})
+		add_definitions(-DGOLOGPP_TEST_OBJECTMODEL)
+		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} readylogpp)
+	endif()
 
+	if (${TEST_PARSER})
+		add_definitions(-DGOLOGPP_TEST_PARSER)
+		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} parsegologpp)
+	endif()
+
+	if (${TEST_ECLIPSE})
+		add_definitions(-DGOLOGPP_TEST_ECLIPSE)
+	endif()
+
+	set(TEST_SRC
+		src/tests/readylog-test.cpp)
+
+	add_executable(readylog-test ${TEST_SRC})
+	target_link_libraries(readylog-test ${TEST_LINK_LIBRARIES})
+	set_property(TARGET readylog-test PROPERTY CXX_STANDARD 14)
+endif()

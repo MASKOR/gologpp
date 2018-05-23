@@ -12,14 +12,16 @@ namespace gologpp {
 template<class GologT>
 class Reference : public virtual AbstractLanguageElement, public LanguageElement<Reference<GologT>>, public GologT::expression_t {
 public:
-	Reference(const shared_ptr<GologT> &target, Scope &parent_scope, vector<unique_ptr<Expression>> &&args = {})
+	Reference(const shared_ptr<GologT> &target, vector<unique_ptr<Expression>> &&args, Scope &parent_scope)
 	: GologT::expression_t(parent_scope)
+	, target_id_(*target)
 	, target_(target)
 	, args_(std::move(args))
 	{}
 
 	Reference(Reference<GologT> &&other)
 	: GologT::expression_t(other.parent_scope())
+	, target_id_(std::move(other.target_id_))
 	, target_(std::move(other.target_))
 	, args_(std::move(other.args_))
 	{}
@@ -48,7 +50,7 @@ public:
 	GologT &target() const
 	{ return *target_; }
 
-	const vector<shared_ptr<Expression>> &args() const
+	const vector<unique_ptr<Expression>> &args() const
 	{ return args_; }
 
 	virtual void implement(Implementor &implementor) override
@@ -60,14 +62,15 @@ public:
 		if (impl_)
 			return;
 
-		impl_ = implementor.make_impl(static_cast<Reference<GologT> &>(*this));
+		impl_ = implementor.make_impl(*this);
 		for (unique_ptr<Expression> &expr : args_)
 			expr->implement(implementor);
 	}
 
 private:
+	Identifier target_id_;
 	shared_ptr<GologT> target_;
-	vector<shared_ptr<Expression>> args_;
+	vector<unique_ptr<Expression>> args_;
 };
 
 
