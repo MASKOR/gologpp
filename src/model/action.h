@@ -22,7 +22,8 @@ class AbstractEffectAxiom;
 
 class AbstractAction : public Statement, public Identifier, public virtual AbstractLanguageElement {
 public:
-	AbstractAction(const string &name, const vector<string> &arg_names);
+	AbstractAction(Scope *own_scope, const string &name, const vector<string> &arg_names);
+	AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 
 	AbstractAction(const AbstractAction &) = delete;
 	AbstractAction(AbstractAction &&other) = default;
@@ -40,7 +41,7 @@ public:
 	{
 		if (std::find(args_.begin(), args_.end(), name) == args_.end())
 			throw Bug("Variable `" + name + "' not defined for Action `" + this->name() + "'");
-		scope_.variable<ExpressionT>(name);
+		scope_->variable<ExpressionT>(name);
 	}
 
 	const vector<string> &arg_names() const;
@@ -51,10 +52,12 @@ public:
 	const Scope &scope() const;
 
 protected:
-	Scope scope_;
+	unique_ptr<Scope> scope_;
 
 	vector<unique_ptr<AbstractEffectAxiom>> effects_;
-	vector<string> args_;
+
+	vector<shared_ptr<AbstractVariable>> args_;
+	vector<string> arg_names_;
 };
 
 
@@ -66,15 +69,16 @@ public:
 
 	const BooleanExpression &precondition() const;
 
-	template<class T>
-	void set_precondition(T &&precondition)
-	{ precondition_ = unique_ptr<BooleanExpression>(new T(std::move(precondition))); }
+	void set_precondition(unique_ptr<BooleanExpression> &&);
+	void set_precondition_ptr(BooleanExpression *);
 
 	virtual void implement(Implementor &) override;
 
 protected:
 	unique_ptr<BooleanExpression> precondition_;
 };
+
+
 
 
 class ExogAction : public AbstractAction, public LanguageElement<ExogAction> {

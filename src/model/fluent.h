@@ -24,6 +24,7 @@ class AbstractFluent
 {
 public:
 	AbstractFluent(const string &name, const vector<string> &args);
+	AbstractFluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 	AbstractFluent(AbstractFluent &&) = default;
 
 	virtual ~AbstractFluent() override = default;
@@ -36,7 +37,7 @@ public:
 	const Scope &scope() const;
 
 	template<class ExpressionT>
-	void declare_variable(const string &name)
+	void declare_argument(const string &name)
 	{
 		if (std::find(args_.begin(), args_.end(), name) == args_.end())
 			throw Bug("Fluent `" + this->name() + "' has no argument named `" + name + "'");
@@ -63,6 +64,12 @@ public:
 	, initial_value_(std::move(init))
 	{}
 
+	Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, unique_ptr<ExpressionT> &&init)
+	: ExpressionT(Scope::global_scope())
+	, AbstractFluent(own_scope, name, args)
+	, initial_value_(std::move(init))
+	{}
+
 	Fluent(Fluent &&) = default;
 
 	virtual ~Fluent() override = default;
@@ -74,6 +81,8 @@ private:
 };
 
 
+typedef Fluent<BooleanExpression> BooleanFluent;
+typedef Fluent<NumericExpression> NumericFluent;
 
 
 

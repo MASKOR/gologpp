@@ -18,7 +18,7 @@ namespace gologpp {
 
 class Block : public Statement, public LanguageElement<Block> {
 public:
-	Block(vector<unique_ptr<Statement>> &&elements, Scope &parent_scope);
+	Block(const vector<Statement *> &elements, Scope &parent_scope);
 	virtual void implement(Implementor &) override;
 
 	const vector<unique_ptr<Statement>> &elements() const;
@@ -30,33 +30,33 @@ private:
 
 class Choose : public Statement, public LanguageElement<Choose> {
 public:
-	Choose(vector<Block> &&alternatives, Scope &parent_scope);
+	Choose(const vector<Statement *> &alternatives, Scope &parent_scope);
 	void implement(Implementor &) override;
 
-	const vector<Block> &alternatives() const;
+	const vector<unique_ptr<Statement>> &alternatives() const;
 
 private:
-	vector<Block> alternatives_;
+	vector<unique_ptr<Statement>> alternatives_;
 };
 
 
 class Conditional : public Statement, public LanguageElement<Conditional> {
 public:
 	Conditional(unique_ptr<BooleanExpression> &&condition,
-	            Block &&block_true,
-	            Block &&block_false,
+	            unique_ptr<Statement> &&block_true,
+	            unique_ptr<Statement> &&block_false,
 	            Scope &parent_expr);
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, block_true_, block_false_)
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, *block_true_, *block_false_)
 
 	const BooleanExpression &condition() const;
-	const Block &block_true() const;
-	const Block &block_false() const;
+	const Statement &block_true() const;
+	const Statement &block_false() const;
 
 protected:
 	unique_ptr<BooleanExpression> condition_;
-	Block block_true_;
-	Block block_false_;
+	unique_ptr<Statement> block_true_;
+	unique_ptr<Statement> block_false_;
 };
 
 

@@ -43,6 +43,8 @@ public:
 
 	virtual unique_ptr<AbstractImplementation> make_impl(Variable<BooleanExpression> &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Variable<NumericExpression> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Variable<BooleanExpression>> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Variable<NumericExpression>> &) = 0;
 
 	virtual unique_ptr<AbstractImplementation> make_impl(ArithmeticOperation &) = 0;
 

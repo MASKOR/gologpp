@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "language.h"
+#include "gologpp.h"
 
 namespace gologpp {
 
@@ -16,7 +17,7 @@ enum ExpressionTypeTag {
 
 class Expression : public std::enable_shared_from_this<Expression>, public virtual AbstractLanguageElement {
 protected:
-	Expression(Scope &parent_scope);
+	Expression(Scope &parent_scope = global_scope());
 	Expression(const Expression &) = delete;
 	Expression(Expression &&) = default;
 	Expression &operator = (const Expression &) = delete;
@@ -34,7 +35,7 @@ private:
 };
 
 
-class BooleanExpression : public Expression {
+class BooleanExpression : public virtual Expression {
 public:
 	typedef BooleanExpression expression_t;
 
@@ -45,7 +46,7 @@ public:
 };
 
 
-class NumericExpression : public Expression {
+class NumericExpression : public virtual Expression {
 public:
 	typedef NumericExpression expression_t;
 
@@ -56,7 +57,7 @@ public:
 };
 
 
-class Statement : public Expression {
+class Statement : public virtual Expression {
 public:
 	typedef Statement expression_t;
 
@@ -65,6 +66,10 @@ public:
 
 	static ExpressionTypeTag expression_type_tag();
 };
+
+
+typedef BooleanExpression Bool;
+typedef NumericExpression Number;
 
 
 }

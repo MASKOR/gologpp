@@ -28,18 +28,22 @@ public:
 	Scope &operator = (const Scope &) = delete;
 
 	template<class ExpressionT>
-	shared_ptr<AbstractVariable> variable(const string &name)
+	shared_ptr<Variable<ExpressionT>> variable(const string &name)
 	{
 		auto it = variables_.find(name);
-		shared_ptr<AbstractVariable> rv;
+		shared_ptr<Variable<ExpressionT>> rv;
 		if (it != variables_.end())
-			rv = it->second;
+			rv = std::dynamic_pointer_cast<Variable<ExpressionT>>(it->second);
 		else {
 			rv.reset(new Variable<ExpressionT>(name, *this));
 			variables_.emplace(name, rv);
 		}
 		return rv;
 	}
+
+	template<class ExpressionT>
+	Variable<ExpressionT> *variable_raw(const string &name)
+	{ return variable<ExpressionT>(name).get(); }
 
 	shared_ptr<AbstractVariable> variable(const string &name) const;
 
@@ -52,6 +56,7 @@ public:
 	static Scope &global_scope()
 	{ return global_scope_; }
 
+	void set_owner(Expression *owner);
 	shared_ptr<Expression> owner() const;
 
 private:

@@ -9,9 +9,9 @@
 namespace gologpp {
 
 
-Block::Block(vector<unique_ptr<Statement>> &&elements, Scope &parent_scope)
+Block::Block(const vector<Statement *> &elements, Scope &parent_scope)
 : Statement(parent_scope)
-, elements_(std::move(elements))
+, elements_(elements.begin(), elements.end())
 {}
 
 void Block::implement(Implementor &implementor)
@@ -28,28 +28,28 @@ const vector<unique_ptr<Statement>> &Block::elements() const
 
 
 
-Choose::Choose(vector<Block> &&alternatives, Scope &parent_scope)
+Choose::Choose(const vector<Statement *> &alternatives, Scope &parent_scope)
 : Statement(parent_scope)
-, alternatives_(std::move(alternatives))
+, alternatives_(alternatives.begin(), alternatives.end())
 {}
 
-const vector<Block> &Choose::alternatives() const
+const vector<unique_ptr<Statement>> &Choose::alternatives() const
 { return alternatives_; }
 
 void Choose::implement(Implementor &implementor)
 {
 	if (!impl_) {
 		impl_ = implementor.make_impl(*this);
-		for (Block &block : alternatives_)
-			block.implement(implementor);
+		for (unique_ptr<Statement> &stmt : alternatives_)
+			stmt->implement(implementor);
 	}
 }
 
 
 
 Conditional::Conditional(unique_ptr<BooleanExpression> &&condition,
-                         Block &&block_true,
-                         Block &&block_false,
+                         unique_ptr<Statement> &&block_true,
+                         unique_ptr<Statement> &&block_false,
                          Scope &parent_scope)
     : Statement(parent_scope)
     , condition_(std::move(condition))
@@ -60,11 +60,11 @@ Conditional::Conditional(unique_ptr<BooleanExpression> &&condition,
 const BooleanExpression &Conditional::condition() const
 { return *condition_; }
 
-const Block &Conditional::block_false() const
-{ return block_false_; }
+const Statement &Conditional::block_false() const
+{ return *block_false_; }
 
-const Block &Conditional::block_true() const
-{ return block_true_; }
+const Statement &Conditional::block_true() const
+{ return *block_true_; }
 
 
 

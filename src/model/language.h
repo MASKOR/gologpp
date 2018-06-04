@@ -54,9 +54,6 @@ protected:
 	}
 
 
-class Expression;
-
-
 template<class GologT>
 class LanguageElement : public virtual AbstractLanguageElement {
 public:

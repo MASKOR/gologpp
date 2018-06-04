@@ -27,6 +27,7 @@ class ExogTransition;
 template<class> class EffectAxiom;
 
 class Scope;
+Scope &global_scope();
 
 class AbstractFluent;
 template<class> class Fluent;

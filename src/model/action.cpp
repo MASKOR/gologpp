@@ -5,10 +5,18 @@
 namespace gologpp {
 
 
-AbstractAction::AbstractAction(const string &name, const vector<string> &args)
+AbstractAction::AbstractAction(Scope *own_scope, const string &name, const vector<string> &args)
 : Statement(Scope::global_scope())
 , Identifier(name, static_cast<arity_t>(args.size()))
-, scope_(this, {}, Scope::global_scope())
+, scope_(own_scope)
+, arg_names_(args)
+{}
+
+
+AbstractAction::AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
+: Statement(Scope::global_scope())
+, Identifier(name, static_cast<arity_t>(args.size()))
+, scope_(own_scope)
 , args_(args)
 {}
 
@@ -18,29 +26,37 @@ const vector<unique_ptr<AbstractEffectAxiom>> &AbstractAction::effects() const
 
 
 const vector<string> &AbstractAction::arg_names() const
-{ return args_; }
+{ return arg_names_; }
 
 
 shared_ptr<AbstractVariable> AbstractAction::argument(arity_t idx) const
-{ return scope_.variable(args_[static_cast<size_t>(idx)]); }
+{ return scope_->variable(arg_names_[static_cast<size_t>(idx)]); }
 
 
 Scope &AbstractAction::scope()
-{ return scope_; }
+{ return *scope_; }
 
 const Scope &AbstractAction::scope() const
-{ return scope_; }
+{ return *scope_; }
 
 
 const BooleanExpression &Action::precondition() const
 { return *precondition_; }
 
 
+void Action::set_precondition(unique_ptr<BooleanExpression> &&cond)
+{ precondition_ = std::move(cond); }
+
+
+void Action::set_precondition_ptr(BooleanExpression *cond)
+{ precondition_.reset(cond); }
+
+
 void Action::implement(Implementor &implementor)
 {
 	if (!impl_) {
 		impl_ = implementor.make_impl(*this);
-		scope_.implement(implementor);
+		scope().implement(implementor);
 		precondition_->implement(implementor);
 		for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
 			effect->implement(implementor);
@@ -52,7 +68,7 @@ void ExogAction::implement(Implementor &implementor)
 {
 	if (!impl_) {
 		impl_ = implementor.make_impl(*this);
-		scope_.implement(implementor);
+		scope().implement(implementor);
 		for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
 			effect->implement(implementor);
 	}

@@ -9,7 +9,7 @@ namespace gologpp {
 class ArithmeticOperation : public NumericExpression, public LanguageElement<ArithmeticOperation> {
 public:
 	enum Operator {
-		ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, POWER
+		ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, POWER, MODULO
 	};
 	ArithmeticOperation(unique_ptr<NumericExpression> &&lhs, Operator op, unique_ptr<NumericExpression> &&rhs);
 

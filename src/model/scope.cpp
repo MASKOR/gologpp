@@ -54,6 +54,10 @@ const std::unordered_map<string, shared_ptr<AbstractVariable>> &Scope::map() con
 { return variables_; }
 
 
+void Scope::set_owner(Expression *owner)
+{ owner_ = owner; }
+
+
 shared_ptr<Expression> Scope::owner() const
 { return owner_->shared_from_this(); }
 

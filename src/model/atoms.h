@@ -15,14 +15,21 @@ namespace gologpp {
 Scope &global_scope();
 
 
-class AbstractVariable : public Name, public virtual AbstractLanguageElement {
+class AbstractVariable : public virtual Expression, public Identifier, public virtual AbstractLanguageElement {
 public:
 	AbstractVariable(const string &name, Scope &parent_scope);
 
 	virtual ExpressionTypeTag expression_type_tag() const = 0;
 
-protected:
-	Scope &parent_scope_;
+	template<class ExpressionT>
+	operator Variable<ExpressionT> *() {
+		return dynamic_cast<Variable<ExpressionT> *>(this);
+	}
+
+	template<class ExpressionT>
+	operator ExpressionT *() {
+		return static_cast<ExpressionT *>(dynamic_cast<Variable<ExpressionT> *>(this));
+	}
 };
 
 
@@ -54,14 +61,14 @@ public:
 };
 
 
-class AbstractConstant : public virtual AbstractLanguageElement {
+class AbstractConstant : public virtual Expression, public virtual AbstractLanguageElement {
 public:
 	AbstractConstant(const string &representation);
 
 	virtual ExpressionTypeTag expression_type_tag() const = 0;
 	const string &representation() const;
 
-private:
+protected:
 	const string representation_;
 };
 
@@ -78,6 +85,12 @@ public:
 	, AbstractConstant(representation)
 	{}
 
+	template<class NumT>
+	Constant(NumT n)
+	: ExpressionT(global_scope())
+	, AbstractConstant(std::to_string(n))
+	{}
+
 	Constant(Constant<ExpressionT> &&) = default;
 	Constant(const Constant<ExpressionT> &) = delete;
 	Constant<ExpressionT> &operator = (Constant<ExpressionT> &&) = default;
@@ -90,6 +103,13 @@ public:
 
 	DEFINE_IMPLEMENT
 };
+
+
+typedef Constant<BooleanExpression> BooleanConstant;
+typedef Constant<NumericExpression> NumericConstant;
+
+typedef Variable<BooleanExpression> BooleanVariable;
+typedef Variable<NumericExpression> NumericVariable;
 
 
 } // namespace gologpp
