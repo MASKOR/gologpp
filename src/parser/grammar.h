@@ -15,6 +15,8 @@
 #include <boost/phoenix/function.hpp>
 #include <boost/phoenix/core/value.hpp>
 #include <boost/phoenix/object/static_cast.hpp>
+#include <boost/phoenix/phoenix.hpp>
+#include <boost/variant.hpp>
 
 #include <string>
 #include <vector>
@@ -23,6 +25,8 @@
 #include <model/gologpp.h>
 #include <model/effect_axiom.h>
 #include <model/action.h>
+#include <model/fluent.h>
+#include <model/procedural.h>
 
 namespace gologpp {
 namespace parser {
@@ -50,6 +54,27 @@ template<class T>
 static inline auto l(T x)
 { return qi::lit(x); }
 
+template <typename Result>
+struct get_impl
+{
+    template <typename T>
+    struct result
+    {
+        typedef Result type;
+    };
+
+    template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+    Result operator()(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& v) const
+    {
+        return boost::get<Result>(v);
+    }
+};
+
+template<class T>
+phoenix::function<get_impl<T> > const get = get_impl<T>();
+
+
+
 
 static rule<string()> r_name = qi::lexeme [
 	qi::alpha >> *(qi::alnum | qi::char_('_'))
@@ -68,6 +93,34 @@ static rule<BooleanConstant *()> bool_constant = (
 ) [
 	_val = new_<BooleanConstant>(_1)
 ];
+
+static rule<NumericConstant *()> num_constant = float_ [ _val = new_<NumericConstant>(_1) ];
+static rule<AbstractConstant *()> constant    = bool_constant | num_constant;
+static rule<AbstractVariable *(Scope &)> var  = bool_var(_r1) | num_var(_r1);
+static rule<shared_ptr<AbstractVariable>(Scope &)> var_shared = var(_r1) [ _val = construct<shared_ptr<AbstractVariable>>(_1) ];
+
+static rule<Expression *(Scope &)> atom = bool_var(_r1)
+	| attr_cast<Expression *>(num_var(_r1))
+	| attr_cast<Expression *>(bool_constant)
+	| attr_cast<Expression *>(bool_constant);
+
+
+
+struct PredicateRefParser : grammar<Reference<BooleanExpression> *(Scope &)> {
+	PredicateRefParser() : PredicateRefParser::base_type(pred_ref)
+	{
+		pred_ref = (r_name >> "(" >> (
+			attr_cast<Expression *>(pred_ref(_r1))
+			| attr_cast<Expression *>(bool_var(_r1))
+			| attr_cast<Expression *>(bool_constant)
+		) %  "," >> ")"
+		) [
+			_val = new_<Reference<BooleanExpression>>(_1, _r1, _2)
+		];
+	}
+
+	rule<Reference<BooleanExpression> *(Scope &)> pred_ref;
+};
 
 
 
@@ -106,6 +159,13 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 				_r1
 			)
 		];
+
+		negation = l("!") >> expression(_r1) [
+			_val = new_<Negation>(construct<unique_ptr<BooleanExpression>>(_1), _r1)
+		];
+
+		brace = l("(") >> expression(_r1) >> l(")");
+
 	}
 
 	rule<BooleanExpression *(Scope &)> expression;
@@ -116,6 +176,69 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 	rule<BooleanExpression *(Scope &)> negation;
 	rule<BooleanExpression *(Scope &)> brace;
 };
+
+
+
+struct StatementParser : grammar<Statement *(Scope &)> {
+	StatementParser() : StatementParser::base_type(statement)
+	{
+		block = (l("{") >> *statement(_r1) >> l("}")) [
+			_val = new_<Block>(_1, _r1)
+		];
+
+		choose = (l("choose") >> l("{") >> (statement(_r1) % l(',')) >> l('}')) [
+			_val = new_<Choose>(_1, _r1)
+		];
+
+		conditional = (l("if") >> l("(") >> BooleanExpressionParser()(_r1) >> l(")")
+			>> statement(_r1) >> l("else") >> statement(_r1)
+		) [
+			_val = new_<Conditional>(
+				construct<unique_ptr<BooleanExpression>>(_1),
+				construct<unique_ptr<Statement>>(_2),
+				construct<unique_ptr<Statement>>(_3),
+				_r1
+			)
+		];
+
+	}
+
+	rule<Statement *(Scope &)> statement;
+	rule<Block *(Scope &)> block;
+	rule<Choose *(Scope &)> choose;
+	rule<Conditional *(Scope &)> conditional;
+	rule<Assignment<BooleanExpression> *(Scope &)> bool_assignment;
+};
+
+
+
+
+/*
+struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
+	NumericExpressionParser() : NumericExpressionParser::base_type(expression)
+	{
+		expression = atom(_r1) | operation(_r1);
+		atom = num_constant | num_var(_r1);
+
+		operation = ((atom(_r1) | expression(_r1)) >> arith_operator >> (expression(_r1) | atom(_r1))) [
+			_val = new_<ArithmeticOperation>(_1, _2)
+		];
+		arith_operator =
+				qi::string("+") [ _val = val(ArithmeticOperation::ADDITION) ]
+				| qi::string("-") [ _val = val(ArithmeticOperation::SUBTRACTION) ]
+				| qi::string("/") [ _val = val(ArithmeticOperation::DIVISION) ]
+				| qi::string("*") [ _val = val(ArithmeticOperation::MULTIPLICATION) ]
+				| qi::string("**") [ _val = val(ArithmeticOperation::POWER) ]
+				| qi::string("%") [ _val = val(ArithmeticOperation::MODULO) ]
+		;
+	}
+
+	rule<NumericExpression *(Scope &)> expression;
+	rule<NumericExpression *(Scope &)> atom;
+	rule<NumericExpression *(Scope &)> operation;
+	rule<NumericExpression *(Scope &)> brace;
+	rule<ArithmeticOperation::Operator()> arith_operator;
+};//*/
 
 
 
@@ -145,10 +268,33 @@ struct ActionParser : grammar<shared_ptr<Action>()> {
 		;
 	}
 
-	FormulaParser p_formula;
+	BooleanExpressionParser formula;
 	Scope *scope;
-	rule<shared_ptr<Action>()> r_action;
-	rule<BooleanExpression *(Scope &)> r_precond;
+	rule<shared_ptr<Action>()> action;
+};
+
+
+
+struct FluentParser : grammar<AbstractFluent *()> {
+	FluentParser()
+	: FluentParser::base_type(fluent)
+	{
+		fluent = (
+			l("fluent") >> r_name >> l('(') [ ref(scope) = new_<Scope>(nullptr) ]
+			>> *var_shared(ref(*scope)) >> l(')') >> l('=') >> bool_constant
+		) [
+			_val = new_<BooleanFluent>(ref(scope), _1, _2, construct<unique_ptr<BooleanExpression>>(_3))
+		]
+		| (
+			l("fluent") >> r_name >> l('(') [ ref(scope) = new_<Scope>(nullptr) ]
+			>> *var_shared(ref(*scope)) >> l(')') >> l('=') >> num_constant
+		) [
+			_val = new_<NumericFluent>(ref(scope), _1, _2, construct<unique_ptr<NumericExpression>>(_3))
+		];
+	}
+
+	rule<AbstractFluent *()> fluent;
+	Scope *scope;
 };
 
 
