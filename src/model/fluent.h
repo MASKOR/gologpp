@@ -17,36 +17,21 @@ namespace gologpp {
 
 
 class AbstractFluent
-: public Expression
-, public Identifier
+: public Global
 , public std::enable_shared_from_this<AbstractFluent>
 , public virtual AbstractLanguageElement
 {
 public:
-	AbstractFluent(const string &name, const vector<string> &args);
 	AbstractFluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 	AbstractFluent(AbstractFluent &&) = default;
 
 	virtual ~AbstractFluent() override = default;
 
-	const vector<string> &args() const;
-
-	shared_ptr<AbstractVariable> argument(arity_t idx) const;
-
 	Scope &scope();
 	const Scope &scope() const;
 
-	template<class ExpressionT>
-	void declare_argument(const string &name)
-	{
-		if (std::find(args_.begin(), args_.end(), name) == args_.end())
-			throw Bug("Fluent `" + this->name() + "' has no argument named `" + name + "'");
-		scope_.variable<ExpressionT>(name);
-	}
-
 protected:
-	Scope scope_;
-	vector<string> args_;
+	unique_ptr<Scope> scope_;
 };
 
 
@@ -58,12 +43,6 @@ class Fluent
 , public LanguageElement<Fluent<ExpressionT>>
 {
 public:
-	Fluent(const string &name, const vector<string> &args, unique_ptr<ExpressionT> &&init)
-	: ExpressionT(Scope::global_scope())
-	, AbstractFluent(name, args)
-	, initial_value_(std::move(init))
-	{}
-
 	Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, unique_ptr<ExpressionT> &&init)
 	: ExpressionT(Scope::global_scope())
 	, AbstractFluent(own_scope, name, args)
@@ -74,15 +53,11 @@ public:
 
 	virtual ~Fluent() override = default;
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(scope_, *initial_value_)
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*scope_, *initial_value_)
 
 private:
 	unique_ptr<ExpressionT> initial_value_;
 };
-
-
-typedef Fluent<BooleanExpression> BooleanFluent;
-typedef Fluent<NumericExpression> NumericFluent;
 
 
 

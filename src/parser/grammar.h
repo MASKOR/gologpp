@@ -27,6 +27,7 @@
 #include <model/action.h>
 #include <model/fluent.h>
 #include <model/procedural.h>
+#include <model/unbound_reference.h>
 
 namespace gologpp {
 namespace parser {
@@ -106,8 +107,8 @@ static rule<Expression *(Scope &)> atom = bool_var(_r1)
 
 
 
-struct PredicateRefParser : grammar<Reference<BooleanExpression> *(Scope &)> {
-	PredicateRefParser() : PredicateRefParser::base_type(pred_ref)
+struct ReferenceParser : grammar<UnboundReference *(Scope &)> {
+	ReferenceParser() : ReferenceParser::base_type(pred_ref)
 	{
 		pred_ref = (r_name >> "(" >> (
 			attr_cast<Expression *>(pred_ref(_r1))
@@ -115,11 +116,11 @@ struct PredicateRefParser : grammar<Reference<BooleanExpression> *(Scope &)> {
 			| attr_cast<Expression *>(bool_constant)
 		) %  "," >> ")"
 		) [
-			_val = new_<Reference<BooleanExpression>>(_1, _r1, _2)
+			_val = new_<UnboundReference>(_1, _r1, _2)
 		];
 	}
 
-	rule<Reference<BooleanExpression> *(Scope &)> pred_ref;
+	rule<UnboundReference *(Scope &)> pred_ref;
 };
 
 

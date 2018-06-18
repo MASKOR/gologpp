@@ -1,14 +1,24 @@
 #include "scope.h"
 #include "atoms.h"
+#include "procedural.h"
+#include "action.h"
+#include "fluent.h"
+#include "effect_axiom.h"
 
 namespace gologpp {
 
 Scope Scope::global_scope_;
 
 
+Scope::Scope()
+: parent_scope_(*this)
+{}
+
+
 Scope::Scope(Expression *owner, const vector<shared_ptr<AbstractVariable>> &variables, Scope &parent_scope)
 : parent_scope_(parent_scope)
 , owner_(owner)
+, globals_(parent_scope.globals_)
 {
 	for (const shared_ptr<AbstractVariable> &v : variables)
 		variables_.emplace(v->name(), v);
@@ -18,6 +28,7 @@ Scope::Scope(Expression *owner, const vector<shared_ptr<AbstractVariable>> &vari
 Scope::Scope(Scope &&other)
 : parent_scope_(other.parent_scope_)
 , variables_(std::move(other.variables_))
+, globals_(std::move(other.globals_))
 {}
 
 

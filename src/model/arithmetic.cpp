@@ -4,10 +4,10 @@
 namespace gologpp {
 
 
-ArithmeticOperation::ArithmeticOperation(unique_ptr<NumericExpression> &&lhs, Operator op, unique_ptr<NumericExpression> &&rhs)
+ArithmeticOperation::ArithmeticOperation(NumericExpression *lhs, Operator op, NumericExpression *rhs)
 : NumericExpression(lhs->parent_scope())
-, lhs_(std::move(lhs))
-, rhs_(std::move(rhs))
+, lhs_(lhs)
+, rhs_(rhs)
 , operator_(op)
 {
 	if (&lhs->parent_scope() != &rhs->parent_scope())

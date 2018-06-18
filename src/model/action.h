@@ -20,9 +20,8 @@ namespace gologpp {
 class AbstractEffectAxiom;
 
 
-class AbstractAction : public Statement, public Identifier, public virtual AbstractLanguageElement {
+class AbstractAction : public Statement, public Global, public virtual AbstractLanguageElement {
 public:
-	AbstractAction(Scope *own_scope, const string &name, const vector<string> &arg_names);
 	AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 
 	AbstractAction(const AbstractAction &) = delete;
@@ -31,22 +30,7 @@ public:
 	virtual ~AbstractAction() override = default;
 
 	const vector<unique_ptr<AbstractEffectAxiom>> &effects() const;
-
-	template<class T>
-	void add_effect(T &&effect)
-	{ effects_.push_back(unique_ptr<AbstractEffectAxiom>(new T(std::move(effect)))); }
-
-	template<class ExpressionT>
-	void declare_argument(const string &name)
-	{
-		if (std::find(args_.begin(), args_.end(), name) == args_.end())
-			throw Bug("Variable `" + name + "' not defined for Action `" + this->name() + "'");
-		scope_->variable<ExpressionT>(name);
-	}
-
-	const vector<string> &arg_names() const;
-
-	shared_ptr<AbstractVariable> argument(arity_t idx) const;
+	void add_effect(AbstractEffectAxiom *effect);
 
 	Scope &scope();
 	const Scope &scope() const;
@@ -55,9 +39,6 @@ protected:
 	unique_ptr<Scope> scope_;
 
 	vector<unique_ptr<AbstractEffectAxiom>> effects_;
-
-	vector<shared_ptr<AbstractVariable>> args_;
-	vector<string> arg_names_;
 };
 
 
@@ -69,8 +50,7 @@ public:
 
 	const BooleanExpression &precondition() const;
 
-	void set_precondition(unique_ptr<BooleanExpression> &&);
-	void set_precondition_ptr(BooleanExpression *);
+	void set_precondition(BooleanExpression *);
 
 	virtual void implement(Implementor &) override;
 

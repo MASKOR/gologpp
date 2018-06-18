@@ -19,11 +19,17 @@ using string = std::string;
 
 class AbstractLanguageElement;
 
+class AbstractAction;
 class Action;
 class ExogAction;
 class Transition;
 class ExogTransition;
 
+class Expression;
+class BooleanExpression;
+class NumericExpression;
+
+class AbstractEffectAxiom;
 template<class> class EffectAxiom;
 
 class Scope;
@@ -32,15 +38,20 @@ Scope &global_scope();
 class AbstractFluent;
 template<class> class Fluent;
 
-class Expression;
-class BooleanExpression;
-class NumericExpression;
+typedef Fluent<BooleanExpression> BooleanFluent;
+typedef Fluent<NumericExpression> NumericFluent;
 
 class AbstractVariable;
 template<class> class Variable;
 
 class AbstractConstant;
 template<class> class Constant;
+
+typedef Constant<BooleanExpression> BooleanConstant;
+typedef Constant<NumericExpression> NumericConstant;
+
+typedef Variable<BooleanExpression> BooleanVariable;
+typedef Variable<NumericExpression> NumericVariable;
 
 class ArithmeticOperation;
 
@@ -65,19 +76,15 @@ class Test;
 class While;
 template<class> class Return;
 
+class AbstractFunction;
 template<class> class Function;
 using Procedure = Function<Statement>;
+using BooleanFunction = Function<BooleanExpression>;
+using NumericFunction = Function<NumericExpression>;
 
 template<class> class Reference;
 
 class History;
-
-template<class action_impl, class fluent_impl, class proc_impl>
-struct ImplConfig {
-	typedef action_impl action_impl_t;
-	typedef fluent_impl fluent_impl_t;
-	typedef proc_impl proc_impl_t;
-};
 
 
 } // namespace gologpp

@@ -3,28 +3,18 @@
 namespace gologpp {
 
 
-AbstractFluent::AbstractFluent(const string &name, const vector<string> &args)
-: Expression(Scope::global_scope())
-, Identifier(name, static_cast<arity_t>(args.size()))
-, scope_(this, {}, Scope::global_scope())
-, args_(args)
+AbstractFluent::AbstractFluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
+: Global(name, args)
+, scope_(own_scope)
 {}
 
 
-const vector<string> &AbstractFluent::args() const
-{ return args_; }
-
-
-shared_ptr<AbstractVariable> AbstractFluent::argument(arity_t idx) const
-{ return scope_.variable(args_[static_cast<size_t>(idx)]); }
-
-
 Scope &AbstractFluent::scope()
-{ return scope_; }
+{ return *scope_; }
 
 
 const Scope &AbstractFluent::scope() const
-{ return scope_; }
+{ return *scope_; }
 
 
 

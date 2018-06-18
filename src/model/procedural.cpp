@@ -113,12 +113,10 @@ const BooleanExpression &While::expression() const
 
 
 
-AbstractFunction::AbstractFunction(const string &name, const vector<string> &arg_names, Block &&block)
-: Expression(Scope::global_scope())
-, Identifier(name, static_cast<arity_t>(arg_names.size()))
+AbstractFunction::AbstractFunction(const string &name, const vector<shared_ptr<AbstractVariable>> &args, Block &&block)
+: Global(name, args)
 , scope_(this, {}, Scope::global_scope())
 , block_(std::move(block))
-, args_(arg_names)
 {}
 
 AbstractFunction::~AbstractFunction()
@@ -129,13 +127,6 @@ const Scope &AbstractFunction::scope() const
 
 const Block &AbstractFunction::block() const
 { return block_; }
-
-const vector<string> &AbstractFunction::args() const
-{ return args_; }
-
-shared_ptr<AbstractVariable> AbstractFunction::argument(arity_t idx) const
-{ return scope_.variable(args_[idx]); }
-
 
 
 } // namespace gologpp

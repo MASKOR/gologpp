@@ -3,10 +3,14 @@
 
 #include <vector>
 #include <unordered_map>
+#include <boost/variant.hpp>
+#include <boost/variant/polymorphic_get.hpp>
 
 #include "language.h"
 #include "utilities.h"
 #include "atoms.h"
+#include "gologpp.h"
+#include "reference.h"
 
 namespace gologpp {
 
@@ -19,7 +23,20 @@ private:
 	template<class K, class V>
 	using unordered_map = std::unordered_map<K, V>;
 
+	template<class... GologTs>
+	using globals_map = std::unordered_map<Identifier, boost::variant<shared_ptr<GologTs>...>>;
+
 public:
+	typedef globals_map<
+		Procedure,
+		BooleanFunction,
+		NumericFunction,
+		Action,
+		ExogAction,
+		BooleanFluent,
+		NumericFluent
+	> globals_map_t;
+
 	Scope(Expression *owner, const vector<shared_ptr<AbstractVariable>> &variables = {}, Scope &parent_scope = global_scope());
 
 	Scope(Scope &&);
@@ -59,15 +76,19 @@ public:
 	void set_owner(Expression *owner);
 	shared_ptr<Expression> owner() const;
 
+	template<class GologT = Global>
+	shared_ptr<GologT> lookup_global(const Identifier &id)
+	{ return std::dynamic_pointer_cast<GologT>((*globals_)[id]); }
+
 private:
-	Scope()
-	: parent_scope_(*this)
-	{}
+	Scope();
 
 	static Scope global_scope_;
 	Scope &parent_scope_;
 	Expression *owner_;
 	unordered_map<string, shared_ptr<AbstractVariable>> variables_;
+
+	shared_ptr<unordered_map<Identifier, shared_ptr<Global>>> globals_;
 };
 
 
@@ -75,16 +96,6 @@ private:
 
 
 
-namespace std {
-
-template<>
-struct hash<gologpp::Identifier> {
-    size_t operator () (const gologpp::Identifier &o) const
-    { return o.hash(); }
-};
-
-
-} // namespace std
 
 
 

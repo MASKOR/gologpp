@@ -105,13 +105,6 @@ public:
 };
 
 
-typedef Constant<BooleanExpression> BooleanConstant;
-typedef Constant<NumericExpression> NumericConstant;
-
-typedef Variable<BooleanExpression> BooleanVariable;
-typedef Variable<NumericExpression> NumericVariable;
-
-
 } // namespace gologpp
 
 

@@ -5,6 +5,7 @@
 #include "action.h"
 #include "reference.h"
 #include "language.h"
+#include "unbound_reference.h"
 
 namespace gologpp {
 
@@ -14,15 +15,15 @@ class AbstractFluent;
 
 class AbstractEffectAxiom : public virtual AbstractLanguageElement {
 public:
-	AbstractEffectAxiom(Reference<Action> &&action, unique_ptr<BooleanExpression> &&condition);
+	AbstractEffectAxiom(shared_ptr<Action> &action, unique_ptr<BooleanExpression> &&condition);
 	AbstractEffectAxiom(AbstractEffectAxiom &&) = default;
 	virtual ~AbstractEffectAxiom();
 
-	const Reference<Action> &action() const;
+	const Action &action() const;
 	const BooleanExpression &condition() const;
 
 protected:
-	Reference<Action> action_;
+	shared_ptr<Action> action_;
 	unique_ptr<BooleanExpression> condition_;
 };
 
@@ -30,11 +31,20 @@ protected:
 template<class ExpressionT>
 class EffectAxiom : public AbstractEffectAxiom, public LanguageElement<EffectAxiom<ExpressionT>> {
 public:
-	EffectAxiom(Reference<Action> &&action, unique_ptr<BooleanExpression> &&condition, Reference<Fluent<ExpressionT>> &&fluent, unique_ptr<ExpressionT> &&value)
-	: AbstractEffectAxiom(std::move(action), std::move(condition))
+	EffectAxiom(shared_ptr<Action> &action, BooleanExpression *condition,
+	            Reference<Fluent<ExpressionT>> &&fluent, ExpressionT *value)
+	: AbstractEffectAxiom(action, unique_ptr<BooleanExpression>(condition))
 	, fluent_(std::move(fluent))
-	, value_(std::move(value))
+	, value_(value)
 	{}
+
+	EffectAxiom(shared_ptr<Action> &action, BooleanExpression *condition,
+	            UnboundReference *fluent, ExpressionT *value)
+	: AbstractEffectAxiom(action, unique_ptr<BooleanExpression>(condition))
+	, fluent_(std::move(fluent->bind<Fluent<ExpressionT>>()))
+	, value_(value)
+	{}
+
 
 	EffectAxiom(EffectAxiom<ExpressionT> &&o) = default;
 
@@ -46,7 +56,7 @@ public:
 	const ExpressionT &value() const
 	{ return *value_; }
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(action_, *condition_, fluent_, *value_)
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*action_, *condition_, fluent_, *value_)
 
 protected:
 	Reference<Fluent<ExpressionT>> fluent_;

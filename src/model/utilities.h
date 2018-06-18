@@ -60,4 +60,15 @@ struct identifier_equals {
 } // namespace gologpp
 
 
+
+namespace std {
+
+template<>
+struct hash<gologpp::Identifier> {
+    size_t operator () (const gologpp::Identifier &o) const
+    { return o.hash(); }
+};
+
+} // namespace std
+
 #endif // GOLOGPP_UTILITIES_H_

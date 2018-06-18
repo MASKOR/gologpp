@@ -3,16 +3,39 @@
 
 #include <memory>
 #include "language.h"
+#include "utilities.h"
 #include "gologpp.h"
 
 namespace gologpp {
 
 
 enum ExpressionTypeTag {
+	UNKNOWN,
 	BOOLEAN_EXPRESSION,
 	VALUE_EXPRESSION,
-	STATEMENT
+	STATEMENT,
 };
+
+
+template<ExpressionTypeTag tag>
+struct ExpressionTagToType {
+};
+
+template<>
+struct ExpressionTagToType<ExpressionTypeTag::BOOLEAN_EXPRESSION> {
+	typedef BooleanExpression type;
+};
+
+template<>
+struct ExpressionTagToType<ExpressionTypeTag::VALUE_EXPRESSION> {
+	typedef NumericExpression type;
+};
+
+template<>
+struct ExpressionTagToType<ExpressionTypeTag::STATEMENT> {
+	typedef Statement type;
+};
+
 
 
 class Expression : public std::enable_shared_from_this<Expression>, public virtual AbstractLanguageElement {
@@ -32,6 +55,19 @@ public:
 
 private:
 	Scope &parent_scope_;
+};
+
+
+class Global : public Identifier, public virtual Expression {
+public:
+	Global(const string &name, const vector<shared_ptr<AbstractVariable>> &args);
+
+	vector<shared_ptr<AbstractVariable>> &args();
+	const vector<shared_ptr<AbstractVariable>> &args() const;
+	shared_ptr<AbstractVariable> argument(arity_t idx) const;
+
+private:
+	vector<shared_ptr<AbstractVariable>> args_;
 };
 
 

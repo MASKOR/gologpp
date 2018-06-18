@@ -11,13 +11,13 @@ public:
 	enum Operator {
 		ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, POWER, MODULO
 	};
-	ArithmeticOperation(unique_ptr<NumericExpression> &&lhs, Operator op, unique_ptr<NumericExpression> &&rhs);
+	ArithmeticOperation(NumericExpression *lhs, Operator op, NumericExpression *rhs);
 
 	const NumericExpression &lhs() const;
 	const NumericExpression &rhs() const;
 	Operator op() const;
 
-	//DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 
 private:
 	unique_ptr<NumericExpression> lhs_, rhs_;

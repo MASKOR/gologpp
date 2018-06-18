@@ -2,19 +2,22 @@
 #define GOLOGPP_REFERENCE_H_
 
 #include "language.h"
-#include "scope.h"
+#include "expressions.h"
+#include "utilities.h"
+#include "gologpp.h"
 
 #include <memory>
 #include <vector>
 
 namespace gologpp {
 
+
 template<class GologT>
 class Reference : public virtual AbstractLanguageElement, public LanguageElement<Reference<GologT>>, public GologT::expression_t {
 public:
 	Reference(const shared_ptr<GologT> &target, vector<unique_ptr<Expression>> &&args, Scope &parent_scope)
 	: GologT::expression_t(parent_scope)
-	, target_id_(*target)
+	, target_id_(dynamic_cast<Global &>(*target))
 	, target_(target)
 	, args_(std::move(args))
 	{}
@@ -77,6 +80,11 @@ private:
 template<>
 template<>
 void Reference<BooleanExpression>::implement_<BooleanExpression>(Implementor &);
+
+
+template<>
+template<>
+void Reference<NumericExpression>::implement_<NumericExpression>(Implementor &);
 
 
 } // namespace gologpp

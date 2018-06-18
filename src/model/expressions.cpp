@@ -29,4 +29,21 @@ ExpressionTypeTag Statement::expression_type_tag()
 { return STATEMENT; }
 
 
+Global::Global(const string &name, const vector<shared_ptr<AbstractVariable>> &args)
+: Identifier (name, static_cast<arity_t>(args.size()))
+, args_(args)
+{}
+
+
+const vector<shared_ptr<AbstractVariable>> &Global::args() const
+{ return args_; }
+
+vector<shared_ptr<AbstractVariable>> &Global::args()
+{ return args_; }
+
+shared_ptr<AbstractVariable> Global::argument(arity_t idx) const
+{ return args_[idx]; }
+
+
+
 }

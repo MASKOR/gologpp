@@ -154,29 +154,19 @@ private:
 };
 
 
-class AbstractFunction : public Expression, public Identifier, public virtual AbstractLanguageElement {
+class AbstractFunction : public Global, public virtual AbstractLanguageElement {
 public:
-	AbstractFunction(const string &name, const vector<string> &arg_names, Block &&block);
+	AbstractFunction(const string &name, const vector<shared_ptr<AbstractVariable>> &args, Block &&block);
 
 	virtual ~AbstractFunction() override;
 
 	const Scope &scope() const;
 	const Block &block() const;
-	const vector<string> &args() const;
-	shared_ptr<AbstractVariable> argument(arity_t idx) const;
-
-	template<class VarExpressionT>
-	void declare_argument(const string &name)
-	{
-		if (std::find(args_.begin(), args_.end(), name) == args_.end())
-			throw Bug("Argument `" + name + "' not defined for function `" + this->name() + "'");
-		scope_.variable<VarExpressionT>(name);
-	}
 
 protected:
     Scope scope_;
     Block block_;
-    vector<string> args_;
+    vector<shared_ptr<AbstractVariable>> args_;
 };
 
 
@@ -187,9 +177,9 @@ class Function
 , public LanguageElement<Function<ExpressionT>>
 {
 public:
-    Function(const string &name, const vector<string> &arg_names, Block &&block)
+    Function(const string &name, const vector<shared_ptr<AbstractVariable>> &args, Block &&block)
     : ExpressionT(Scope::global_scope())
-    , AbstractFunction(name, arg_names, std::move(block))
+    , AbstractFunction(name, args, std::move(block))
     {}
 
     Function(Function &&) = default;
