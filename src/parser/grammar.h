@@ -81,11 +81,11 @@ static rule<string()> r_name = qi::lexeme [
 	qi::alpha >> *(qi::alnum | qi::char_('_'))
 ];
 
-static rule<BooleanVariable *(Scope &)> bool_var = qi::lit('?') >> r_name [
+static rule<BooleanVariable *(Scope &)> bool_var = '?' >> r_name [
 	_val = bind(&Scope::variable_raw<BooleanExpression>, _r1, _1)
 ];
 
-static rule<NumericVariable *(Scope &)> num_var = qi::lit('%') >> r_name [
+static rule<NumericVariable *(Scope &)> num_var = '%' >> r_name [
 	_val = bind(&Scope::variable_raw<NumericExpression>, _r1, _1)
 ];
 
@@ -139,7 +139,7 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 		 * That's why we have to do this weird switching of alternation ordering between LHS and RHS. */
 		conjunction = (
 			(atom(_r1) | formula(_r1))
-			>> qi::lit("&&")
+			>> "&&"
 			>> (formula(_r1) | (atom(_r1)))
 		) [
 			_val = new_<Conjunction>(
@@ -151,7 +151,7 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 
 		disjunction = (
 			(atom(_r1) | formula(_r1))
-			>> qi::lit("||")
+			>> "||"
 			>> (formula(_r1) | atom(_r1))
 		) [
 			_val = new_<Disjunction>(
@@ -161,11 +161,11 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 			)
 		];
 
-		negation = l("!") >> expression(_r1) [
+		negation = '!' >> expression(_r1) [
 			_val = new_<Negation>(construct<unique_ptr<BooleanExpression>>(_1), _r1)
 		];
 
-		brace = l("(") >> expression(_r1) >> l(")");
+		brace = '(' >> expression(_r1) >> ')';
 
 	}
 
@@ -183,16 +183,16 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 struct StatementParser : grammar<Statement *(Scope &)> {
 	StatementParser() : StatementParser::base_type(statement)
 	{
-		block = (l("{") >> *statement(_r1) >> l("}")) [
+		block = ('{' >> *statement(_r1) >> '}') [
 			_val = new_<Block>(_1, _r1)
 		];
 
-		choose = (l("choose") >> l("{") >> (statement(_r1) % l(',')) >> l('}')) [
+		choose = (l("choose") >> '{' >> (statement(_r1) % ',') >> '}') [
 			_val = new_<Choose>(_1, _r1)
 		];
 
-		conditional = (l("if") >> l("(") >> BooleanExpressionParser()(_r1) >> l(")")
-			>> statement(_r1) >> l("else") >> statement(_r1)
+		conditional = (l("if") >> '(' >> BooleanExpressionParser()(_r1) >> ')'
+			>> statement(_r1) >> "else" >> statement(_r1)
 		) [
 			_val = new_<Conditional>(
 				construct<unique_ptr<BooleanExpression>>(_1),
@@ -249,23 +249,23 @@ struct ActionParser : grammar<shared_ptr<Action>()> {
 	{
 		action =
 			(
-				l("action") >> r_name >> l('(') [ ref(scope) = new_<Scope>(nullptr) ]
-				>> *var_shared(ref(*scope)) >> l(')')
+				("action" >> r_name >> '(') [ ref(scope) = new_<Scope>(nullptr) ]
+				>> *var_shared(ref(*scope)) >> ')'
 			) [
 				_val = construct<shared_ptr<Action>>(
 					new_<Action>(ref(scope), _1, _2)
 				)
 			]
-			>> l("{") >> l("precondition:") >> formula(ref(*scope)) [
+			>> '{' >> "precondition:" >> formula(ref(*scope)) [
 				phoenix::bind(
 					&Action::set_precondition_ptr,
 					_val,
 					ref(_1)
 				)
 			] //*/
-			>> l("effect:")
-			>> l("signal:")
-			>> l('}') //*/
+			>> "effect:"
+			>> "signal:"
+			>> '}' //*/
 		;
 	}
 
@@ -281,14 +281,14 @@ struct FluentParser : grammar<AbstractFluent *()> {
 	: FluentParser::base_type(fluent)
 	{
 		fluent = (
-			l("fluent") >> r_name >> l('(') [ ref(scope) = new_<Scope>(nullptr) ]
-			>> *var_shared(ref(*scope)) >> l(')') >> l('=') >> bool_constant
+			("fluent" >> r_name >> '(') [ ref(scope) = new_<Scope>(nullptr) ]
+			>> *var_shared(ref(*scope)) >> ')' >> '=' >> bool_constant
 		) [
 			_val = new_<BooleanFluent>(ref(scope), _1, _2, construct<unique_ptr<BooleanExpression>>(_3))
 		]
 		| (
-			l("fluent") >> r_name >> l('(') [ ref(scope) = new_<Scope>(nullptr) ]
-			>> *var_shared(ref(*scope)) >> l(')') >> l('=') >> num_constant
+			("fluent" >> r_name >> '(') [ ref(scope) = new_<Scope>(nullptr) ]
+			>> *var_shared(ref(*scope)) >> ')' >> '=' >> num_constant
 		) [
 			_val = new_<NumericFluent>(ref(scope), _1, _2, construct<unique_ptr<NumericExpression>>(_3))
 		];
