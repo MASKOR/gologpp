@@ -39,9 +39,9 @@ public:
 	{}
 
 	EffectAxiom(shared_ptr<Action> &action, BooleanExpression *condition,
-	            UnboundReference *fluent, ExpressionT *value)
+	            UnboundReference<Fluent<ExpressionT>> *fluent_ref, ExpressionT *value)
 	: AbstractEffectAxiom(action, unique_ptr<BooleanExpression>(condition))
-	, fluent_(std::move(fluent->bind<Fluent<ExpressionT>>()))
+	, fluent_(std::move(fluent_ref->bind()))
 	, value_(value)
 	{}
 

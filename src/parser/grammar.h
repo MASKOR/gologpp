@@ -106,8 +106,8 @@ static rule<Expression *(Scope &)> atom = bool_var(_r1)
 	| attr_cast<Expression *>(bool_constant);
 
 
-
-struct UnboundReferenceParser : grammar<UnboundReference *(Scope &)> {
+template<class ExpressionT>
+struct UnboundReferenceParser : grammar<UnboundReference<ExpressionT> *(Scope &)> {
 	UnboundReferenceParser() : UnboundReferenceParser::base_type(pred_ref)
 	{
 		pred_ref = (r_name >> "(" >> (
@@ -116,11 +116,11 @@ struct UnboundReferenceParser : grammar<UnboundReference *(Scope &)> {
 			| attr_cast<Expression *>(bool_constant)
 		) %  "," >> ")"
 		) [
-			_val = new_<UnboundReference>(_1, _r1, _2)
+			_val = new_<UnboundReference<ExpressionT>>(_1, _r1, _2)
 		];
 	}
 
-	rule<UnboundReference *(Scope &)> pred_ref;
+	rule<UnboundReference<ExpressionT> *(Scope &)> pred_ref;
 };
 
 
@@ -179,41 +179,6 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 };
 
 
-
-struct StatementParser : grammar<Statement *(Scope &)> {
-	StatementParser() : StatementParser::base_type(statement)
-	{
-		block = ('{' >> *statement(_r1) >> '}') [
-			_val = new_<Block>(_1, _r1)
-		];
-
-		choose = (l("choose") >> '{' >> (statement(_r1) % ',') >> '}') [
-			_val = new_<Choose>(_1, _r1)
-		];
-
-		conditional = (l("if") >> '(' >> BooleanExpressionParser()(_r1) >> ')'
-			>> statement(_r1) >> "else" >> statement(_r1)
-		) [
-			_val = new_<Conditional>(
-				construct<unique_ptr<BooleanExpression>>(_1),
-				construct<unique_ptr<Statement>>(_2),
-				construct<unique_ptr<Statement>>(_3),
-				_r1
-			)
-		];
-
-	}
-
-	rule<Statement *(Scope &)> statement;
-	rule<Block *(Scope &)> block;
-	rule<Choose *(Scope &)> choose;
-	rule<Conditional *(Scope &)> conditional;
-	rule<Assignment<BooleanExpression> *(Scope &)> bool_assignment;
-};
-
-
-
-
 struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 	NumericExpressionParser() : NumericExpressionParser::base_type(expression)
 	{
@@ -239,7 +204,84 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 	rule<NumericExpression *(Scope &)> operation;
 	rule<NumericExpression *(Scope &)> brace;
 	rule<ArithmeticOperation::Operator()> arith_operator;
-};//*/
+};
+
+
+
+struct StatementParser : grammar<Statement *(Scope &)> {
+	StatementParser() : StatementParser::base_type(statement)
+	{
+		block = ('{' >> *statement(_r1) >> '}') [
+			_val = new_<Block>(_1, _r1)
+		];
+
+		choose = (l("choose") >> '{' >> (statement(_r1) % ',') >> '}') [
+			_val = new_<Choose>(_1, _r1)
+		];
+
+		conditional = (l("if") >> '(' >> BooleanExpressionParser()(_r1) >> ')'
+			>> statement(_r1) >> "else" >> statement(_r1)
+		) [
+			_val = new_<Conditional>(
+				construct<unique_ptr<BooleanExpression>>(_1),
+				construct<unique_ptr<Statement>>(_2),
+				construct<unique_ptr<Statement>>(_3),
+				_r1
+			)
+		];
+
+		bool_assignment = (UnboundReferenceParser<BooleanFluent>()(_r1) >> '=' >> BooleanExpressionParser()(_r1)) [
+			_val = new_<Assignment<BooleanExpression>>(_1, _2, _r1)
+		];
+
+		numeric_assignment = (UnboundReferenceParser<NumericFluent>()(_r1) >> '=' >> NumericExpressionParser()(_r1)) [
+			_val = new_<Assignment<NumericExpression>>(_1, _2, _r1)
+		];
+
+		pick = (l("pick") >> '(' >> var_shared(_r1) >> ')' >> statement(_r1)) [
+			_val = new_<Pick>(_1, _2, _r1)
+		];
+
+		search = (l("search") >> statement(_r1)) [
+			_val = new_<Search>(_1, _r1)
+		];
+
+		test = (l("test") >> '(' >> BooleanExpressionParser()(_r1) >> ')') [
+			_val = new_<Test>(_1, _r1)
+		];
+
+		r_while = (l("while") >> '(' >> BooleanExpressionParser()(_r1) >> ')' >> statement(_r1)) [
+			_val = new_<While>(_1, _2, _r1)
+		];
+
+		boolean_return = (l("return") >> BooleanExpressionParser()(_r1)) [
+			_val = new_<Return<BooleanExpression>>(_1, _r1)
+		];
+
+		numeric_return = (l("return") >> NumericExpressionParser()(_r1)) [
+			_val = new_<Return<NumericExpression>>(_1, _r1)
+		];
+
+		procedure_call = UnboundReferenceParser<Procedure>()(_r1) [
+			_val = new_<Reference<Procedure>>(phoenix::bind(&UnboundReference<Procedure>::bind<Procedure>, _1))
+		];
+	}
+
+	rule<Statement *(Scope &)> statement;
+	rule<Block *(Scope &)> block;
+	rule<Choose *(Scope &)> choose;
+	rule<Conditional *(Scope &)> conditional;
+	rule<Assignment<BooleanExpression> *(Scope &)> bool_assignment;
+	rule<Assignment<NumericExpression> *(Scope &)> numeric_assignment;
+	rule<Pick *(Scope &)> pick;
+	rule<Search *(Scope &)> search;
+	rule<Test *(Scope &)> test;
+	rule<While *(Scope &)> r_while;
+	rule<Return<BooleanExpression> *(Scope &)> boolean_return;
+	rule<Return<NumericExpression> *(Scope &)> numeric_return;
+	rule<Reference<Procedure> *(Scope &)> procedure_call;
+};
+
 
 
 
@@ -251,14 +293,14 @@ struct EffectParser : grammar<AbstractEffectAxiom *(shared_ptr<Action> &, Scope 
 
 		boolean_effect = (
 			BooleanExpressionParser()(_r2) >> "->"
-			>> UnboundReferenceParser()(_r2) >> '=' >> BooleanExpressionParser()(_r2)
+			>> UnboundReferenceParser<BooleanFluent>()(_r2) >> '=' >> BooleanExpressionParser()(_r2)
 		) [
 			_val = new_<EffectAxiom<BooleanExpression>>(_r1, _1, _2, _3)
 		];
 
 		numeric_effect = (
 			BooleanExpressionParser()(_r2) >> "->"
-			>> UnboundReferenceParser()(_r2) >> '=' >> NumericExpressionParser()(_r2)
+			>> UnboundReferenceParser<NumericFluent>()(_r2) >> '=' >> NumericExpressionParser()(_r2)
 		) [
 			_val = new_<EffectAxiom<NumericExpression>>(_r1, _1, _2, _3)
 		];

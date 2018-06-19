@@ -12,6 +12,7 @@
 #include "scope.h"
 #include "expressions.h"
 #include "error.h"
+#include "unbound_reference.h"
 
 namespace gologpp {
 
@@ -69,6 +70,12 @@ public:
 	, expression_(std::move(expression))
 	{}
 
+	Assignment(UnboundReference<Fluent<ExpressionT>> *ref, ExpressionT *expression, Scope &parent_scope)
+	: Statement(parent_scope)
+	, fluent_(ref->bind())
+	, expression_(expression)
+	{}
+
 	DEFINE_IMPLEMENT_WITH_MEMBERS(fluent_, *expression_)
 
 	const Reference<Fluent<ExpressionT>> &fluent() const
@@ -86,35 +93,35 @@ private:
 
 class Pick : public Statement, public LanguageElement<Pick> {
 public:
-	Pick(const shared_ptr<AbstractVariable> &variable, Block &&block, Scope &parent_scope);
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, block_)
+	Pick(const shared_ptr<AbstractVariable> &variable, Statement *stmt, Scope &parent_scope);
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *statement_)
 
 	const AbstractVariable &variable() const;
-	const Block &block() const;
+	const Statement &statement() const;
 	const Scope &scope() const;
 
 private:
 	shared_ptr<AbstractVariable> variable_;
-	Block block_;
+	unique_ptr<Statement> statement_;
 	Scope scope_;
 };
 
 
 class Search : public Statement, public LanguageElement<Search> {
 public:
-	Search(Block &&block, Scope &parent_scope);
-	DEFINE_IMPLEMENT_WITH_MEMBERS(block_)
+	Search(Statement *statement, Scope &parent_scope);
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*statement_)
 
-	const Block &block() const;
+	const Statement &statement() const;
 
 private:
-	Block block_;
+	unique_ptr<Statement> statement_;
 };
 
 
 class Test : public Statement, public LanguageElement<Test> {
 public:
-    Test(unique_ptr<BooleanExpression> &&expression, Scope &parent_scope);
+    Test(BooleanExpression *expression, Scope &parent_scope);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_)
 
 	const BooleanExpression &expression() const;
@@ -126,25 +133,27 @@ protected:
 
 class While : public Statement, public LanguageElement<While> {
 public:
-	While(unique_ptr<BooleanExpression> &&expression, Block &&block, Scope &parent_scope);
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_, block_)
+	While(BooleanExpression *expression, Statement *stmt, Scope &parent_scope);
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_, *statement_)
 
 	const BooleanExpression &expression() const;
 	const Block &block() const;
 
 protected:
 	unique_ptr<BooleanExpression> expression_;
-	Block block_;
+	unique_ptr<Statement> statement_;
 };
 
 
 template<class ExpressionT>
 class Return : public Statement, public LanguageElement<Return<ExpressionT>> {
 public:
-	Return(unique_ptr<ExpressionT> &&expr, Scope &parent_scope)
-	: ExpressionT(parent_scope)
+	Return(ExpressionT *expr, Scope &parent_scope)
+	: Statement(parent_scope)
 	, expr_(expr)
 	{}
+
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*expr_)
 
 	const ExpressionT &expression() const
 	{ return *expr_; }

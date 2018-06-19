@@ -68,34 +68,34 @@ const Statement &Conditional::block_true() const
 
 
 
-Pick::Pick(const shared_ptr<AbstractVariable> &variable, Block &&block, Scope &parent_scope)
+Pick::Pick(const shared_ptr<AbstractVariable> &variable, Statement *statement, Scope &parent_scope)
 : Statement(parent_scope)
 , variable_(std::move(variable))
-, block_(std::move(block))
+, statement_(statement)
 , scope_(this, {variable}, parent_scope)
 {}
 
 const AbstractVariable &Pick::variable() const
 { return *variable_; }
 
-const Block &Pick::block() const
-{ return block_; }
+const Statement &Pick::statement() const
+{ return *statement_; }
 
 
 
-Search::Search(Block &&block, Scope &parent_scope)
+Search::Search(Statement *statement, Scope &parent_scope)
 : Statement(parent_scope)
-, block_(std::move(block))
+, statement_(statement)
 {}
 
-const Block &Search::block() const
-{ return block_; }
+const Statement &Search::statement() const
+{ return *statement_; }
 
 
 
-Test::Test(unique_ptr<BooleanExpression> &&expression, Scope &parent_scope)
+Test::Test(BooleanExpression *expression, Scope &parent_scope)
 : Statement(parent_scope)
-, expression_(std::move(expression))
+, expression_(expression)
 {}
 
 const BooleanExpression &Test::expression() const
@@ -103,9 +103,10 @@ const BooleanExpression &Test::expression() const
 
 
 
-While::While(unique_ptr<BooleanExpression> &&expression, Block &&block, Scope &parent_scope)
+While::While(BooleanExpression *expression, Statement *statement, Scope &parent_scope)
 : Statement(parent_scope)
-, expression_(std::move(expression)), block_(std::move(block))
+, expression_(expression)
+, statement_(statement)
 {}
 
 const BooleanExpression &While::expression() const
