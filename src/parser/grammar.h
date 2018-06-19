@@ -107,8 +107,8 @@ static rule<Expression *(Scope &)> atom = bool_var(_r1)
 
 
 
-struct ReferenceParser : grammar<UnboundReference *(Scope &)> {
-	ReferenceParser() : ReferenceParser::base_type(pred_ref)
+struct UnboundReferenceParser : grammar<UnboundReference *(Scope &)> {
+	UnboundReferenceParser() : UnboundReferenceParser::base_type(pred_ref)
 	{
 		pred_ref = (r_name >> "(" >> (
 			attr_cast<Expression *>(pred_ref(_r1))
@@ -214,15 +214,15 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 
 
 
-/*
 struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 	NumericExpressionParser() : NumericExpressionParser::base_type(expression)
 	{
 		expression = atom(_r1) | operation(_r1);
 		atom = num_constant | num_var(_r1);
+		brace = '(' >> expression(_r1) >> ')';
 
 		operation = ((atom(_r1) | expression(_r1)) >> arith_operator >> (expression(_r1) | atom(_r1))) [
-			_val = new_<ArithmeticOperation>(_1, _2)
+			_val = new_<ArithmeticOperation>(_1, _2, _3)
 		];
 		arith_operator =
 				qi::string("+") [ _val = val(ArithmeticOperation::ADDITION) ]
@@ -243,6 +243,34 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 
 
 
+struct EffectParser : grammar<AbstractEffectAxiom *(shared_ptr<Action> &, Scope &)> {
+	EffectParser()
+	: EffectParser::base_type(effect)
+	{
+		effect = boolean_effect(_r1, _r2) | numeric_effect(_r1, _r2);
+
+		boolean_effect = (
+			BooleanExpressionParser()(_r2) >> "->"
+			>> UnboundReferenceParser()(_r2) >> '=' >> BooleanExpressionParser()(_r2)
+		) [
+			_val = new_<EffectAxiom<BooleanExpression>>(_r1, _1, _2, _3)
+		];
+
+		numeric_effect = (
+			BooleanExpressionParser()(_r2) >> "->"
+			>> UnboundReferenceParser()(_r2) >> '=' >> NumericExpressionParser()(_r2)
+		) [
+			_val = new_<EffectAxiom<NumericExpression>>(_r1, _1, _2, _3)
+		];
+	}
+
+	rule<AbstractEffectAxiom *(shared_ptr<Action> &, Scope &)> effect;
+	rule<EffectAxiom<BooleanExpression> *(shared_ptr<Action> &, Scope &)> boolean_effect;
+	rule<EffectAxiom<NumericExpression> *(shared_ptr<Action> &, Scope &)> numeric_effect;
+};
+
+
+
 struct ActionParser : grammar<shared_ptr<Action>()> {
 	ActionParser()
 	: ActionParser::base_type(action)
@@ -258,13 +286,19 @@ struct ActionParser : grammar<shared_ptr<Action>()> {
 			]
 			>> '{' >> "precondition:" >> formula(ref(*scope)) [
 				phoenix::bind(
-					&Action::set_precondition_ptr,
+					&Action::set_precondition,
 					_val,
-					ref(_1)
+					_1
 				)
 			] //*/
-			>> "effect:"
-			>> "signal:"
+			>> "effect:" >> (EffectParser()(_val, ref(*scope)) [
+				phoenix::bind(
+					&Action::add_effect,
+					_val,
+					_1
+				)
+			] % ';')
+			//>> "signal:" //*/
 			>> '}' //*/
 		;
 	}
@@ -281,13 +315,13 @@ struct FluentParser : grammar<AbstractFluent *()> {
 	: FluentParser::base_type(fluent)
 	{
 		fluent = (
-			("fluent" >> r_name >> '(') [ ref(scope) = new_<Scope>(nullptr) ]
+			(l("boolean") >> "fluent" >> r_name >> '(') [ ref(scope) = new_<Scope>(nullptr) ]
 			>> *var_shared(ref(*scope)) >> ')' >> '=' >> bool_constant
 		) [
 			_val = new_<BooleanFluent>(ref(scope), _1, _2, construct<unique_ptr<BooleanExpression>>(_3))
 		]
 		| (
-			("fluent" >> r_name >> '(') [ ref(scope) = new_<Scope>(nullptr) ]
+			(l("numeric") >> "fluent" >> r_name >> '(') [ ref(scope) = new_<Scope>(nullptr) ]
 			>> *var_shared(ref(*scope)) >> ')' >> '=' >> num_constant
 		) [
 			_val = new_<NumericFluent>(ref(scope), _1, _2, construct<unique_ptr<NumericExpression>>(_3))
