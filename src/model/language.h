@@ -55,7 +55,7 @@ protected:
 
 
 template<class GologT>
-class LanguageElement : public virtual AbstractLanguageElement {
+class LanguageElement : public virtual AbstractLanguageElement, public std::enable_shared_from_this<GologT> {
 public:
 	typedef GologT golog_t;
 
@@ -70,6 +70,17 @@ public:
 	template<class = GologT>
 	Implementation<GologT> &implementation() const
 	{ return static_cast<Implementation<GologT> &>(*impl_); }
+
+	unique_ptr<Reference<GologT>> ref(Scope &parent_scope, const vector<unique_ptr<Expression>> args)
+	{
+		static_assert(std::is_base_of<Identifier, GologT>::value,
+			"Cannot reference a type is not derived from Identifier");
+		return std::make_unique<Reference<GologT>>(
+			static_cast<GologT *>(this)->shared_from_this(),
+			parent_scope,
+			args
+		);
+	}
 };
 
 

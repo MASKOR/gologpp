@@ -27,7 +27,7 @@
 #include <model/action.h>
 #include <model/fluent.h>
 #include <model/procedural.h>
-#include <model/unbound_reference.h>
+#include <model/reference.h>
 
 namespace gologpp {
 namespace parser {
@@ -107,7 +107,7 @@ static rule<Expression *(Scope &)> atom = bool_var(_r1)
 
 
 template<class ExpressionT>
-struct UnboundReferenceParser : grammar<UnboundReference<ExpressionT> *(Scope &)> {
+struct UnboundReferenceParser : grammar<Reference<ExpressionT> *(Scope &)> {
 	UnboundReferenceParser() : UnboundReferenceParser::base_type(pred_ref)
 	{
 		pred_ref = (r_name >> "(" >> (
@@ -116,11 +116,11 @@ struct UnboundReferenceParser : grammar<UnboundReference<ExpressionT> *(Scope &)
 			| attr_cast<Expression *>(bool_constant)
 		) %  "," >> ")"
 		) [
-			_val = new_<UnboundReference<ExpressionT>>(_1, _r1, _2)
+			_val = new_<Reference<ExpressionT>>(_1, _r1, _2)
 		];
 	}
 
-	rule<UnboundReference<ExpressionT> *(Scope &)> pred_ref;
+	rule<Reference<ExpressionT> *(Scope &)> pred_ref;
 };
 
 
@@ -211,7 +211,11 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 struct StatementParser : grammar<Statement *(Scope &)> {
 	StatementParser() : StatementParser::base_type(statement)
 	{
-		block = ('{' >> *statement(_r1) >> '}') [
+		statement = block(_r1) | choose(_r1) | conditional(_r1) | bool_assignment(_r1)
+			| numeric_assignment(_r1) | pick(_r1) | search(_r1) | test(_r1) | r_while(_r1)
+			| boolean_return(_r1) | numeric_return(_r1) | procedure_call(_r1);
+
+		block = ('{' >> (statement(_r1) % ';') >> '}') [
 			_val = new_<Block>(_1, _r1)
 		];
 
@@ -261,10 +265,6 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 		numeric_return = (l("return") >> NumericExpressionParser()(_r1)) [
 			_val = new_<Return<NumericExpression>>(_1, _r1)
 		];
-
-		procedure_call = UnboundReferenceParser<Procedure>()(_r1) [
-			_val = new_<Reference<Procedure>>(phoenix::bind(&UnboundReference<Procedure>::bind<Procedure>, _1))
-		];
 	}
 
 	rule<Statement *(Scope &)> statement;
@@ -279,7 +279,7 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 	rule<While *(Scope &)> r_while;
 	rule<Return<BooleanExpression> *(Scope &)> boolean_return;
 	rule<Return<NumericExpression> *(Scope &)> numeric_return;
-	rule<Reference<Procedure> *(Scope &)> procedure_call;
+	UnboundReferenceParser<Procedure> procedure_call;
 };
 
 
@@ -357,13 +357,13 @@ struct FluentParser : grammar<AbstractFluent *()> {
 	: FluentParser::base_type(fluent)
 	{
 		fluent = (
-			(l("boolean") >> "fluent" >> r_name >> '(') [ ref(scope) = new_<Scope>(nullptr) ]
+			(l("?") >> "fluent" >> r_name >> '(') [ ref(scope) = new_<Scope>(nullptr) ]
 			>> *var_shared(ref(*scope)) >> ')' >> '=' >> bool_constant
 		) [
 			_val = new_<BooleanFluent>(ref(scope), _1, _2, construct<unique_ptr<BooleanExpression>>(_3))
 		]
 		| (
-			(l("numeric") >> "fluent" >> r_name >> '(') [ ref(scope) = new_<Scope>(nullptr) ]
+			(l("%") >> "fluent" >> r_name >> '(') [ ref(scope) = new_<Scope>(nullptr) ]
 			>> *var_shared(ref(*scope)) >> ')' >> '=' >> num_constant
 		) [
 			_val = new_<NumericFluent>(ref(scope), _1, _2, construct<unique_ptr<NumericExpression>>(_3))

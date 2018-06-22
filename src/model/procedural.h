@@ -12,7 +12,6 @@
 #include "scope.h"
 #include "expressions.h"
 #include "error.h"
-#include "unbound_reference.h"
 
 namespace gologpp {
 
@@ -64,29 +63,23 @@ protected:
 template<class ExpressionT>
 class Assignment : public Statement, public LanguageElement<Assignment<ExpressionT>> {
 public:
-	Assignment(Reference<Fluent<ExpressionT>> &&fluent, unique_ptr<ExpressionT> &&expression, Scope &parent_scope)
+	Assignment(Reference<Fluent<ExpressionT>> *fluent, ExpressionT *expression, Scope &parent_scope)
 	: Statement(parent_scope)
-	, fluent_(std::move(fluent))
-	, expression_(std::move(expression))
-	{}
-
-	Assignment(UnboundReference<Fluent<ExpressionT>> *ref, ExpressionT *expression, Scope &parent_scope)
-	: Statement(parent_scope)
-	, fluent_(ref->bind())
+	, fluent_(fluent)
 	, expression_(expression)
 	{}
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(fluent_, *expression_)
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*fluent_, *expression_)
 
 	const Reference<Fluent<ExpressionT>> &fluent() const
-	{ return fluent_; }
+	{ return *fluent_; }
 
-	const Expression &expression() const
+	const ExpressionT &expression() const
 	{ return *expression_; }
 
 
 private:
-    Reference<Fluent<ExpressionT>> fluent_;
+    unique_ptr<Reference<Fluent<ExpressionT>>> fluent_;
     unique_ptr<ExpressionT> expression_;
 };
 

@@ -5,7 +5,6 @@
 #include "action.h"
 #include "reference.h"
 #include "language.h"
-#include "unbound_reference.h"
 
 namespace gologpp {
 
@@ -32,19 +31,10 @@ template<class ExpressionT>
 class EffectAxiom : public AbstractEffectAxiom, public LanguageElement<EffectAxiom<ExpressionT>> {
 public:
 	EffectAxiom(shared_ptr<Action> &action, BooleanExpression *condition,
-	            Reference<Fluent<ExpressionT>> &&fluent, ExpressionT *value)
+	            Reference<Fluent<ExpressionT>> *fluent, ExpressionT *value)
 	: AbstractEffectAxiom(action, unique_ptr<BooleanExpression>(condition))
-	, fluent_(std::move(fluent))
-	, value_(value)
+	, assignment_(fluent, value, action->scope())
 	{}
-
-	EffectAxiom(shared_ptr<Action> &action, BooleanExpression *condition,
-	            UnboundReference<Fluent<ExpressionT>> *fluent_ref, ExpressionT *value)
-	: AbstractEffectAxiom(action, unique_ptr<BooleanExpression>(condition))
-	, fluent_(std::move(fluent_ref->bind()))
-	, value_(value)
-	{}
-
 
 	EffectAxiom(EffectAxiom<ExpressionT> &&o) = default;
 
@@ -52,15 +42,14 @@ public:
 	{}
 
 	const Reference<Fluent<ExpressionT>> &fluent() const
-	{ return fluent_; }
+	{ return assignment_.fluent(); }
 	const ExpressionT &value() const
-	{ return *value_; }
+	{ return assignment_.expression(); }
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*action_, *condition_, fluent_, *value_)
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*action_, *condition_, assignment_)
 
 protected:
-	Reference<Fluent<ExpressionT>> fluent_;
-	unique_ptr<ExpressionT> value_;
+	Assignment<ExpressionT> assignment_;
 };
 
 

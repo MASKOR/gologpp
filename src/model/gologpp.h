@@ -25,6 +25,9 @@ class ExogAction;
 class Transition;
 class ExogTransition;
 
+class Identifier;
+
+class Global;
 class Expression;
 class BooleanExpression;
 class NumericExpression;
@@ -82,6 +85,7 @@ using Procedure = Function<Statement>;
 using BooleanFunction = Function<BooleanExpression>;
 using NumericFunction = Function<NumericExpression>;
 
+class AbstractReference;
 template<class> class Reference;
 
 class History;

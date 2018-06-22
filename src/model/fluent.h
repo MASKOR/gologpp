@@ -18,7 +18,6 @@ namespace gologpp {
 
 class AbstractFluent
 : public Global
-, public std::enable_shared_from_this<AbstractFluent>
 , public virtual AbstractLanguageElement
 {
 public:
@@ -39,7 +38,6 @@ template<class ExpressionT>
 class Fluent
 : public ExpressionT
 , public AbstractFluent
-, public std::enable_shared_from_this<Fluent<ExpressionT>>
 , public LanguageElement<Fluent<ExpressionT>>
 {
 public:

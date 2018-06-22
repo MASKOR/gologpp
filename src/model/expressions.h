@@ -17,28 +17,7 @@ enum ExpressionTypeTag {
 };
 
 
-template<ExpressionTypeTag tag>
-struct ExpressionTagToType {
-};
-
-template<>
-struct ExpressionTagToType<ExpressionTypeTag::BOOLEAN_EXPRESSION> {
-	typedef BooleanExpression type;
-};
-
-template<>
-struct ExpressionTagToType<ExpressionTypeTag::VALUE_EXPRESSION> {
-	typedef NumericExpression type;
-};
-
-template<>
-struct ExpressionTagToType<ExpressionTypeTag::STATEMENT> {
-	typedef Statement type;
-};
-
-
-
-class Expression : public std::enable_shared_from_this<Expression>, public virtual AbstractLanguageElement {
+class Expression : public virtual AbstractLanguageElement {
 protected:
 	Expression(Scope &parent_scope = global_scope());
 	Expression(const Expression &) = delete;
@@ -51,7 +30,7 @@ public:
 	Scope &parent_scope();
 	const Scope &parent_scope() const;
 
-	static ExpressionTypeTag expression_type_tag();
+	virtual ExpressionTypeTag expression_type_tag() const = 0;
 
 private:
 	Scope &parent_scope_;
@@ -59,9 +38,10 @@ private:
 
 
 class Global : public Identifier, public virtual Expression {
-public:
+protected:
 	Global(const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 
+public:
 	vector<shared_ptr<AbstractVariable>> &args();
 	const vector<shared_ptr<AbstractVariable>> &args() const;
 	shared_ptr<AbstractVariable> argument(arity_t idx) const;
@@ -72,35 +52,35 @@ private:
 
 
 class BooleanExpression : public virtual Expression {
-public:
-	typedef BooleanExpression expression_t;
-
+protected:
 	BooleanExpression(BooleanExpression &&) = default;
 	using Expression::Expression;
 
-	static ExpressionTypeTag expression_type_tag();
+public:
+	typedef BooleanExpression expression_t;
+	virtual ExpressionTypeTag expression_type_tag() const override;
 };
 
 
 class NumericExpression : public virtual Expression {
-public:
-	typedef NumericExpression expression_t;
-
+protected:
 	NumericExpression(NumericExpression &&) = default;
 	using Expression::Expression;
 
-	static ExpressionTypeTag expression_type_tag();
+public:
+	typedef NumericExpression expression_t;
+	virtual ExpressionTypeTag expression_type_tag() const override;
 };
 
 
 class Statement : public virtual Expression {
-public:
-	typedef Statement expression_t;
-
+protected:
 	Statement(Statement &&) = default;
 	using Expression::Expression;
 
-	static ExpressionTypeTag expression_type_tag();
+public:
+	typedef Statement expression_t;
+	virtual ExpressionTypeTag expression_type_tag() const override;
 };
 
 

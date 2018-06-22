@@ -65,7 +65,6 @@ class AbstractConstant : public virtual Expression, public virtual AbstractLangu
 public:
 	AbstractConstant(const string &representation);
 
-	virtual ExpressionTypeTag expression_type_tag() const = 0;
 	const string &representation() const;
 
 protected:

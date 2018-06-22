@@ -10,7 +10,6 @@
 #include "utilities.h"
 #include "atoms.h"
 #include "gologpp.h"
-#include "reference.h"
 
 namespace gologpp {
 
@@ -23,19 +22,9 @@ private:
 	template<class K, class V>
 	using unordered_map = std::unordered_map<K, V>;
 
-	template<class... GologTs>
-	using globals_map = std::unordered_map<Identifier, boost::variant<shared_ptr<GologTs>...>>;
-
 public:
-	typedef globals_map<
-		Procedure,
-		BooleanFunction,
-		NumericFunction,
-		Action,
-		ExogAction,
-		BooleanFluent,
-		NumericFluent
-	> globals_map_t;
+	using VariablesMap = unordered_map<string, shared_ptr<AbstractVariable>>;
+	using GlobalsMap = unordered_map<Identifier, shared_ptr<Global>>;
 
 	Scope(Expression *owner, const vector<shared_ptr<AbstractVariable>> &variables = {}, Scope &parent_scope = global_scope());
 
@@ -64,11 +53,10 @@ public:
 
 	shared_ptr<AbstractVariable> variable(const string &name) const;
 
-	vector<shared_ptr<Expression>> variables(const vector<string> &names) const;
+	vector<shared_ptr<AbstractVariable>> variables(const vector<string> &names) const;
 	shared_ptr<Scope> parent_scope();
 
 	void implement(Implementor &implementor);
-	const unordered_map<string, shared_ptr<AbstractVariable>> &map() const;
 
 	static Scope &global_scope()
 	{ return global_scope_; }
@@ -80,15 +68,25 @@ public:
 	shared_ptr<GologT> lookup_global(const Identifier &id)
 	{ return std::dynamic_pointer_cast<GologT>((*globals_)[id]); }
 
+	void register_global(Global *g);
+
+	const VariablesMap &var_map() const;
+
+	void implement_globals(Implementor &implementor)
+	{
+		for (GlobalsMap::value_type &entry : *globals_)
+			entry.second->implement(implementor);
+	}
+
 private:
 	Scope();
 
 	static Scope global_scope_;
 	Scope &parent_scope_;
 	Expression *owner_;
-	unordered_map<string, shared_ptr<AbstractVariable>> variables_;
+	VariablesMap variables_;
 
-	shared_ptr<unordered_map<Identifier, shared_ptr<Global>>> globals_;
+	shared_ptr<GlobalsMap> globals_;
 };
 
 

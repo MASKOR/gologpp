@@ -9,7 +9,9 @@ AbstractAction::AbstractAction(Scope *own_scope, const string &name, const vecto
 : Statement(Scope::global_scope())
 , Global(name, args)
 , scope_(own_scope)
-{}
+{
+	scope_->set_owner(this);
+}
 
 
 const vector<unique_ptr<AbstractEffectAxiom>> &AbstractAction::effects() const

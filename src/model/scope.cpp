@@ -12,6 +12,7 @@ Scope Scope::global_scope_;
 
 Scope::Scope()
 : parent_scope_(*this)
+, globals_(new unordered_map<Identifier, shared_ptr<Global>>())
 {}
 
 
@@ -42,11 +43,11 @@ shared_ptr<AbstractVariable> Scope::variable(const string &name) const
 }
 
 
-vector<shared_ptr<Expression>> Scope::variables(const vector<string> &names) const
+vector<shared_ptr<AbstractVariable>> Scope::variables(const vector<string> &names) const
 {
-	vector<shared_ptr<Expression>> rv;
+	vector<shared_ptr<AbstractVariable>> rv;
 	for (const string &name : names)
-		rv.push_back(std::dynamic_pointer_cast<Expression>(variable(name)));
+		rv.push_back(variable(name));
 	return rv;
 }
 
@@ -61,16 +62,17 @@ void Scope::implement(Implementor &implementor)
 }
 
 
-const std::unordered_map<string, shared_ptr<AbstractVariable>> &Scope::map() const
-{ return variables_; }
-
-
 void Scope::set_owner(Expression *owner)
 { owner_ = owner; }
 
-
 shared_ptr<Expression> Scope::owner() const
 { return owner_->shared_from_this(); }
+
+void Scope::register_global(Global *g)
+{ (*globals_)[static_cast<Identifier>(*g)].reset(g); }
+
+const Scope::VariablesMap &Scope::var_map() const
+{ return variables_; }
 
 
 Scope &global_scope()

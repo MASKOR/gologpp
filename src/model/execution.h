@@ -48,9 +48,6 @@ public:
 template<class ImplementorT>
 class ExecutionContext {
 public:
-	template<class elem_t>
-	using id_map_t = std::unordered_map<Identifier, std::shared_ptr<elem_t>>;
-
 	ExecutionContext() = default;
 	virtual ~ExecutionContext() = default;
 
@@ -117,18 +114,7 @@ public:
 		History history;
 		history.implement(implementor);
 
-		for (id_map_t<AbstractFluent>::value_type &entry : fluents_) {
-			entry.second->implement(implementor);
-			compile(*entry.second);
-		}
-		for (id_map_t<AbstractAction>::value_type &entry : actions_) {
-			entry.second->implement(implementor);
-			compile(*entry.second);
-		}
-		for (id_map_t<AbstractFunction>::value_type &entry : functions_) {
-			entry.second->implement(implementor);
-			compile(*entry.second);
-		}
+		global_scope().implement_globals(implementor);
 
 		program.implement(implementor);
 		compile(program);
@@ -150,10 +136,6 @@ public:
 
 
 protected:
-    id_map_t<AbstractFluent> fluents_;
-    id_map_t<AbstractAction> actions_;
-	id_map_t<AbstractFunction> functions_;
-
 	std::mutex exog_mutex_;
 	std::condition_variable queue_empty_condition_;
 	std::mutex queue_empty_mutex_;
