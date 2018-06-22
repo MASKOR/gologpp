@@ -29,44 +29,48 @@ void test_objectmodel()
 #ifdef GOLOGPP_TEST_OBJECTMODEL
 	EclipseContext &ctx = EclipseContext::instance();
 
-	shp<Fluent<BooleanExpression>> on = ctx.add_fluent<BooleanExpression>(
+	Scope *on_scope = new Scope(nullptr);
+	on_scope->variable<NumericExpression>("X");
+	NumericFluent *on = new NumericFluent(on_scope,
 		"on",
-		std::vector<string>{"X", "Y"},
-		std::make_unique<Constant<BooleanExpression>>("false")
-	);
-	on->declare_variable<NumericExpression>("X");
-	on->declare_variable<NumericExpression>("Y");
-
-	shp<Action> put = ctx.add_action("put", std::vector<string>{"X", "Y"});
-	put->declare_argument<NumericExpression>("X");
-	put->declare_argument<NumericExpression>("Y");
-
-	put->set_precondition(Negation(
-		std::make_unique<Reference<Fluent<BooleanExpression>>>(
-			on,
-			put->scope().variables(put->arg_names()), put->scope()),
-			put->scope()
-		)
+		on_scope->variables({"X"}),
+		std::make_unique<NumericConstant>(0)
 	);
 
-	put->add_effect(EffectAxiom<BooleanExpression>(
-		Reference<Action>(put, put->scope().variables(put->arg_names()), put->scope()),
-		std::make_unique<Constant<BooleanExpression>>("true"),
-	    Reference<Fluent<BooleanExpression>>(on, put->scope().variables(put->arg_names()), put->scope()),
-	    std::make_unique<Constant<BooleanExpression>>("true"))
-	);
+	Scope *put_scope = new Scope(nullptr);
+	put_scope->variable<NumericExpression>("X");
+	put_scope->variable<NumericExpression>("Y");
+	Action *put = new Action(put_scope, "put", put_scope->variables({"X", "Y"}));
 
-	vector<unique_ptr<Statement>> code;
-	code.push_back(unique_ptr<Statement>(
-		new Reference<Action>(
-			put,
-			{
-				std::make_shared<Constant<NumericExpression>>("1"),
-				std::make_shared<Constant<NumericExpression>>("2")
-			},
-			global_scope()
-		)
+	put->set_precondition(new Comparison(
+		new Reference<NumericFluent>("on", *put_scope, vector<Expression *>{ put_scope->variable<NumericExpression>("X")->ref() }
+		),
+		ComparisonOperator::neq,
+		new Reference<NumericVariable>(put_scope->variable<NumericExpression>("Y"), *put_scope),
+		*put_scope
 	));
+
+	Reference<NumericFluent> *on_ref = on->ref(
+		*put_scope,
+		{ unique_ptr<Expression>(put_scope->variable<NumericExpression>("X")->ref()) }
+	);
+	put->add_effect(new EffectAxiom<NumericExpression>(
+		put->shared(),
+		new BooleanConstant("true"),
+		on_ref,
+	    put_scope->variable<NumericExpression>("Y")->ref()
+	) );
+
+	vector<Statement *> code;
+	code.push_back(
+		put->ref(
+			global_scope(),
+			{
+				std::make_unique<Constant<NumericExpression>>("1"),
+				std::make_unique<Constant<NumericExpression>>("2")
+			}
+		)
+	);
 	ctx.run(Block(std::move(code), global_scope() ));
 #endif
 }
@@ -80,7 +84,7 @@ void test_parser()
 	boost::spirit::qi::phrase_parse(
 		formula.cbegin(),
 		formula.cend(),
-		parser::FormulaParser()(boost::phoenix::ref(global_scope())),
+		parser::BooleanExpressionParser()(boost::phoenix::ref(global_scope())),
 		boost::spirit::ascii::space_type(),
 		expr
 	);
