@@ -2,6 +2,18 @@
 
 namespace gologpp {
 
+Implementation<AbstractVariable>::Implementation(const AbstractVariable &)
+{}
+
+Implementation<AbstractVariable>::~Implementation()
+{}
+
+void Implementation<AbstractVariable>::init()
+{ ec_var_ = ::newvar(); }
+
+EC_word Implementation<AbstractVariable>::term()
+{ return ec_var_; }
+
 
 template<>
 EC_word Implementation<Constant<BooleanExpression>>::term()

@@ -29,9 +29,9 @@ public:
 	{
 		EC_word *args = new EC_word[reference_.args().size()];
 		arity_t i = 0;
-		for (const shared_ptr<Expression> &exp : reference_.args())
-			args[i++] = dynamic_cast<ReadylogImplementation &>(exp->implementation()).term();
-		return ::term(EC_functor(reference_.target().name().c_str(), reference_.target().arity()), args);
+		for (const unique_ptr<Expression> &expr : reference_.args())
+			args[i++] = dynamic_cast<ReadylogImplementation &>(expr->implementation()).term();
+		return ::term(EC_functor(reference_.name().c_str(), reference_.arity()), args);
 	}
 
 

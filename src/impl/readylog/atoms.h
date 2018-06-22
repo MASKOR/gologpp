@@ -15,20 +15,13 @@ namespace gologpp {
 template<>
 class Implementation<AbstractVariable> : public ReadylogImplementation {
 public:
-	Implementation(const AbstractVariable &var)
-	: variable_(var)
-	{}
+	Implementation(const AbstractVariable &);
+	virtual ~Implementation() override;
 
-	virtual ~Implementation() override = default;
-
-	void init()
-	{ ec_var_ = ::newvar(); }
-
-	virtual EC_word term() override
-	{ return ec_var_; }
+	void init();
+	virtual EC_word term() override;
 
 private:
-	const AbstractVariable &variable_;
 	EC_word ec_var_;
 };
 

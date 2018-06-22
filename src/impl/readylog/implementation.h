@@ -19,6 +19,17 @@ public:
 using ReadylogImplementation = Implementation<AbstractLanguageElement>;
 
 
+template<class ListT>
+EC_word *translate_args(ListT args)
+{
+	EC_word *rv = new EC_word[args.size()];
+	arity_t i = 0;
+	for (auto &arg : args)
+		rv[i++] = arg->implementation().term();
+	return rv;
+}
+
+
 class ReadylogImplementor : public Implementor {
 public:
 	ReadylogImplementor() = default;
@@ -75,6 +86,10 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<BooleanExpression>> &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<NumericExpression>> &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<Statement>> &) override;
+
+	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Statement> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Reference<BooleanExpression> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Reference<NumericExpression> &) override;
 };
 
 

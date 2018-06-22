@@ -23,6 +23,9 @@ Implementation<ArithmeticOperation>::Implementation(const ArithmeticOperation &o
 	case ArithmeticOperation::POWER:
 		functor_ = "^";
 		break;
+	case ArithmeticOperation::MODULO:
+		functor_ = "mod";
+		break;
 	}
 }
 

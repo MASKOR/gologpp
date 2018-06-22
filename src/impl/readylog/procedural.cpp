@@ -23,7 +23,7 @@ EC_word Implementation<Procedure>::definition()
 EC_word Implementation<Procedure>::term()
 {
 	return ::term(EC_functor(procedure_.name().c_str(), procedure_.arity()),
-		procedure_.scope().implementation().variables(procedure_.args())
+		translate_args(procedure_.args())
 	);
 }
 
@@ -36,7 +36,7 @@ Implementation<AbstractFunction>::Implementation(const AbstractFunction &functio
 EC_word Implementation<AbstractFunction>::term()
 {
 	return ::term(EC_functor(function_.name().c_str(), function_.arity()),
-	function_.scope().implementation().variables(function_.args())
+		translate_args(function_.args())
 	);
 }
 
@@ -93,8 +93,8 @@ Implementation<Choose>::Implementation(const Choose &c)
 EC_word Implementation<Choose>::term()
 {
 	EC_word tail = ::nil();
-	for (const Block &block : choose_.alternatives())
-		tail = ::list(block.implementation().term(), tail);
+	for (const unique_ptr<Statement> &stmt : choose_.alternatives())
+		tail = ::list(stmt->implementation().term(), tail);
 	return ::term(EC_functor("nondet", 1), tail);
 }
 
@@ -123,7 +123,7 @@ EC_word Implementation<Pick>::term()
 {
 	return ::term(EC_functor("pick", 2),
 		pick_.variable().implementation().term(),
-		pick_.block().implementation().term()
+		pick_.statement().implementation().term()
 	);
 }
 

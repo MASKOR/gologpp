@@ -12,6 +12,7 @@
 
 namespace gologpp {
 
+
 #define DEFINE_MAKE_IMPL(GologT) \
 unique_ptr<AbstractImplementation> ReadylogImplementor::make_impl(GologT &obj) \
 { return unique_ptr<AbstractImplementation>(new Implementation<GologT>(obj)); }
@@ -64,5 +65,9 @@ DEFINE_MAKE_IMPL(Function<BooleanExpression>)
 DEFINE_MAKE_IMPL(Function<NumericExpression>)
 DEFINE_MAKE_IMPL(Reference<Function<BooleanExpression>>)
 DEFINE_MAKE_IMPL(Reference<Function<NumericExpression>>)
+
+DEFINE_MAKE_IMPL(Reference<Statement>)
+DEFINE_MAKE_IMPL(Reference<BooleanExpression>)
+DEFINE_MAKE_IMPL(Reference<NumericExpression>)
 
 }

@@ -20,7 +20,7 @@ EC_word *Implementation<Scope>::variables(const vector<string> &names)
 
 void Implementation<Scope>::init_vars()
 {
-	for (auto &entry : scope_.map())
+	for (auto &entry : scope_.var_map())
 		entry.second->implementation<AbstractVariable>().init();
 }
 
