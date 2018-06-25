@@ -28,6 +28,20 @@ private:
 
 
 template<>
+class Implementation<Comparison> : public Implementation<BooleanExpression> {
+public:
+	Implementation(const Comparison &);
+	virtual ~Implementation() override;
+
+	virtual EC_word term() override;
+
+private:
+	const Comparison &comparison_;
+	const char *functor_;
+};
+
+
+template<>
 class Implementation<Conjunction> : public Implementation<BooleanExpression> {
 public:
 	Implementation(const Conjunction &);

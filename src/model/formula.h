@@ -32,8 +32,12 @@ enum ComparisonOperator {
 
 class Comparison : public BooleanExpression, public LanguageElement<Comparison> {
 public:
-	Comparison(unique_ptr<NumericExpression> &&lhs, ComparisonOperator op, unique_ptr<NumericExpression> &&rhs, Scope &parent_scope);
-	//DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
+	Comparison(NumericExpression *lhs, ComparisonOperator op, NumericExpression *rhs, Scope &parent_scope);
+	ComparisonOperator cmp_operator() const;
+	const NumericExpression &lhs() const;
+	const NumericExpression &rhs() const;
+
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 
 protected:
 	unique_ptr<NumericExpression> lhs_;

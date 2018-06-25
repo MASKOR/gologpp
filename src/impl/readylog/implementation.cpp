@@ -41,6 +41,7 @@ DEFINE_MAKE_IMPL(Variable<NumericExpression>)
 DEFINE_MAKE_IMPL(ArithmeticOperation)
 
 DEFINE_MAKE_IMPL(Negation)
+DEFINE_MAKE_IMPL(Comparison)
 DEFINE_MAKE_IMPL(Conjunction)
 DEFINE_MAKE_IMPL(Disjunction)
 DEFINE_MAKE_IMPL(ExistentialQuantification)

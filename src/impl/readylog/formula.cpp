@@ -19,6 +19,40 @@ EC_word Implementation<Negation>::term()
 }
 
 
+Implementation<Comparison>::Implementation(const Comparison &cmp)
+: comparison_(cmp)
+{
+	switch(comparison_.cmp_operator()) {
+	case ComparisonOperator::eq:
+		functor_ = "=:=";
+		break;
+	case ComparisonOperator::ge:
+		functor_ = ">=";
+		break;
+	case ComparisonOperator::gt:
+		functor_ = ">";
+		break;
+	case ComparisonOperator::le:
+		functor_ = "=<";
+		break;
+	case ComparisonOperator::lt:
+		functor_ = "<";
+		break;
+	case ComparisonOperator::neq:
+		functor_ = "=\\=";
+	}
+}
+
+
+EC_word Implementation<Comparison>::term()
+{
+	return ::term(EC_functor(functor_, 2),
+		comparison_.lhs().implementation().term(),
+		comparison_.rhs().implementation().term()
+	);
+}
+
+
 Implementation<Conjunction>::Implementation(const Conjunction &c)
 : conjunction_(c)
 {}

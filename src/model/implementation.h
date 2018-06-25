@@ -49,6 +49,7 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(ArithmeticOperation &) = 0;
 
 	virtual unique_ptr<AbstractImplementation> make_impl(Negation &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Comparison &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Conjunction &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Disjunction &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(ExistentialQuantification &) = 0;
