@@ -56,6 +56,11 @@ public:
 	virtual ExpressionTypeTag expression_type_tag() const override
 	{ return ExpressionT::expression_type_tag(); }
 
+	Reference<Variable<ExpressionT>> *ref()
+	{
+		return new Reference<Variable<ExpressionT>>(this->shared(), parent_scope());
+	}
+
 	virtual ~Variable() override = default;
 	DEFINE_IMPLEMENT
 };
