@@ -51,30 +51,6 @@ public:
 	ExecutionContext() = default;
 	virtual ~ExecutionContext() = default;
 
-
-	template<class ExprT, class... ArgTs>
-	shared_ptr<Fluent<ExprT>> add_fluent(ArgTs &&... args)
-	{ return add_global<Fluent<ExprT>>(fluents_, std::forward<ArgTs>(args)...); }
-
-	shared_ptr<AbstractFluent> fluent(const string &name, arity_t arity)
-	{ return get_global(fluents_, name, arity); }
-
-
-	template<class... ArgTs>
-	shared_ptr<Action> add_action(ArgTs &&... args)
-	{ return add_global<Action>(actions_, std::forward<ArgTs>(args)...); }
-
-	shared_ptr<AbstractAction> action(const string &name, arity_t arity)
-	{ return get_global(actions_, name, arity); }
-
-
-	template<class ExprT, class... ArgTs>
-	shared_ptr<Function<ExprT>> add_function(ArgTs &&... args)
-	{ return add_global<Function<ExprT>>(functions_, std::forward<ArgTs>(args)...); }
-
-	shared_ptr<AbstractFunction> function(const string &name, arity_t arity)
-	{ return get_global(functions_, name, arity); }
-
 	virtual bool final(Block &program, History &h) = 0;
 	virtual bool trans(Block &program, History &h) = 0;
 
@@ -141,27 +117,6 @@ protected:
 	std::mutex queue_empty_mutex_;
 	std::queue<ExogTransition> exog_queue_;
 
-public:
-	template<class RealT, class MappedT, class... ArgTs> inline
-	shared_ptr<RealT> add_global(id_map_t<MappedT> &map, ArgTs &&... args)
-	{
-		shared_ptr<RealT> obj = std::make_shared<RealT>(std::forward<ArgTs>(args)...);
-		auto result = map.insert( { Identifier(*obj), obj } );
-		if (!result.second)
-			throw std::runtime_error(obj->name() + "(" + std::to_string(obj->arity()) + ") already defined.");
-		return obj;
-	}
-
-
-	template<class T> inline
-	shared_ptr<T> get_global(id_map_t<T> &map, const string &name, arity_t arity)
-	{
-		auto it = map.find(Identifier(name, arity));
-		if (it != map.end())
-			return it->second;
-		else
-			return shared_ptr<T>();
-	}
 };
 
 
