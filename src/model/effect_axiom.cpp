@@ -3,7 +3,7 @@
 
 namespace gologpp {
 
-AbstractEffectAxiom::AbstractEffectAxiom(shared_ptr<Action> &action, unique_ptr<BooleanExpression> &&condition)
+AbstractEffectAxiom::AbstractEffectAxiom(const shared_ptr<Action> &action, unique_ptr<BooleanExpression> &&condition)
 : action_(action)
 , condition_(std::move(condition))
 {}

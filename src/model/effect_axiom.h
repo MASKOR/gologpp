@@ -14,7 +14,7 @@ class AbstractFluent;
 
 class AbstractEffectAxiom : public virtual AbstractLanguageElement {
 public:
-	AbstractEffectAxiom(shared_ptr<Action> &action, unique_ptr<BooleanExpression> &&condition);
+	AbstractEffectAxiom(const shared_ptr<Action> &action, unique_ptr<BooleanExpression> &&condition);
 	AbstractEffectAxiom(AbstractEffectAxiom &&) = default;
 	virtual ~AbstractEffectAxiom();
 
@@ -30,7 +30,7 @@ protected:
 template<class ExpressionT>
 class EffectAxiom : public AbstractEffectAxiom, public LanguageElement<EffectAxiom<ExpressionT>> {
 public:
-	EffectAxiom(shared_ptr<Action> &action, BooleanExpression *condition,
+	EffectAxiom(const shared_ptr<Action> &action, BooleanExpression *condition,
 	            Reference<Fluent<ExpressionT>> *fluent, ExpressionT *value)
 	: AbstractEffectAxiom(action, unique_ptr<BooleanExpression>(condition))
 	, assignment_(fluent, value, action->scope())
