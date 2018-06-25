@@ -75,7 +75,7 @@ void test_objectmodel()
 void test_parser()
 {
 #ifdef GOLOGPP_TEST_PARSER
-	std::string formula("$x || true && false");
+	std::string formula("?x || true && false");
 	BooleanExpression *expr;
 	boost::spirit::qi::phrase_parse(
 		formula.cbegin(),
