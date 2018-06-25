@@ -55,25 +55,9 @@ template<class T>
 static inline auto l(T x)
 { return qi::lit(x); }
 
-template <typename Result>
-struct get_impl
-{
-    template <typename T>
-    struct result
-    {
-        typedef Result type;
-    };
-
-    template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-    Result operator()(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& v) const
-    {
-        return boost::get<Result>(v);
-    }
-};
-
 template<class T>
-phoenix::function<get_impl<T> > const get = get_impl<T>();
-
+static inline auto _r(T &&x)
+{ return boost::phoenix::ref(std::forward<T>(x)); }
 
 
 
@@ -81,11 +65,11 @@ static rule<string()> r_name = qi::lexeme [
 	qi::alpha >> *(qi::alnum | qi::char_('_'))
 ];
 
-static rule<BooleanVariable *(Scope &)> bool_var = '?' >> r_name [
+static rule<BooleanVariable *(Scope &)> bool_var = '?' > r_name [
 	_val = bind(&Scope::variable_raw<BooleanExpression>, _r1, _1)
 ];
 
-static rule<NumericVariable *(Scope &)> num_var = '%' >> r_name [
+static rule<NumericVariable *(Scope &)> num_var = '%' > r_name [
 	_val = bind(&Scope::variable_raw<NumericExpression>, _r1, _1)
 ];
 
@@ -128,7 +112,7 @@ struct UnboundReferenceParser : grammar<Reference<ExpressionT> *(Scope &)> {
 struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 	BooleanExpressionParser() : BooleanExpressionParser::base_type(expression)
 	{
-		expression = atom(_r1) | formula(_r1);
+		expression = formula(_r1) | atom(_r1);
 
 		atom = bool_constant | bool_var(_r1);
 		formula = conjunction(_r1) | disjunction(_r1) | negation(_r1) | brace(_r1);
@@ -138,9 +122,7 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 		 * Cf. https://www.boost.org/doc/libs/1_67_0/libs/spirit/doc/html/spirit/qi/reference/operator/alternative.html
 		 * That's why we have to do this weird switching of alternation ordering between LHS and RHS. */
 		conjunction = (
-			(atom(_r1) | formula(_r1))
-			>> "&&"
-			>> (formula(_r1) | (atom(_r1)))
+			(atom(_r1) >> "&&") > expression(_r1)
 		) [
 			_val = new_<Conjunction>(
 				construct<unique_ptr<BooleanExpression>>(_1),
@@ -150,9 +132,7 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 		];
 
 		disjunction = (
-			(atom(_r1) | formula(_r1))
-			>> "||"
-			>> (formula(_r1) | atom(_r1))
+			(atom(_r1) >> "||") > expression(_r1)
 		) [
 			_val = new_<Disjunction>(
 				construct<unique_ptr<BooleanExpression>>(_1),
@@ -161,11 +141,11 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 			)
 		];
 
-		negation = '!' >> expression(_r1) [
+		negation = '!' > expression(_r1) [
 			_val = new_<Negation>(construct<unique_ptr<BooleanExpression>>(_1), _r1)
 		];
 
-		brace = '(' >> expression(_r1) >> ')';
+		brace = '(' > expression(_r1) > ')';
 
 	}
 
@@ -319,21 +299,22 @@ struct ActionParser : grammar<shared_ptr<Action>()> {
 	{
 		action =
 			(
-				("action" >> r_name >> '(') [ ref(scope) = new_<Scope>(nullptr) ]
-				>> *var_shared(ref(*scope)) >> ')'
+				("action" >> r_name >> '(') [ _r(scope) = new_<Scope>(nullptr) ]
+				>> *var_shared(_r(*scope)) >> ')'
 			) [
 				_val = construct<shared_ptr<Action>>(
-					new_<Action>(ref(scope), _1, _2)
+					new_<Action>(_r(scope), _1, _2)
 				)
 			]
-			>> '{' >> "precondition:" >> formula(ref(*scope)) [
+			>> '{'
+			>> "precondition:" >> formula(_r(*scope)) [
 				phoenix::bind(
 					&Action::set_precondition,
 					_val,
 					_1
 				)
 			] //*/
-			>> "effect:" >> (EffectParser()(_val, ref(*scope)) [
+			>> "effect:" >> (EffectParser()(_val, _r(*scope)) [
 				phoenix::bind(
 					&Action::add_effect,
 					_val,
@@ -357,16 +338,16 @@ struct FluentParser : grammar<AbstractFluent *()> {
 	: FluentParser::base_type(fluent)
 	{
 		fluent = (
-			(l("?") >> "fluent" >> r_name >> '(') [ ref(scope) = new_<Scope>(nullptr) ]
-			>> *var_shared(ref(*scope)) >> ')' >> '=' >> bool_constant
+			(l("?") >> "fluent" >> r_name >> '(') [ _r(scope) = new_<Scope>(nullptr) ]
+			>> *var_shared(_r(*scope)) >> ')' >> '=' >> bool_constant
 		) [
-			_val = new_<BooleanFluent>(ref(scope), _1, _2, construct<unique_ptr<BooleanExpression>>(_3))
+			_val = new_<BooleanFluent>(_r(scope), _1, _2, construct<unique_ptr<BooleanExpression>>(_3))
 		]
 		| (
-			(l("%") >> "fluent" >> r_name >> '(') [ ref(scope) = new_<Scope>(nullptr) ]
-			>> *var_shared(ref(*scope)) >> ')' >> '=' >> num_constant
+			(l("%") >> "fluent" >> r_name >> '(') [ _r(scope) = new_<Scope>(nullptr) ]
+			>> *var_shared(_r(*scope)) >> ')' >> '=' >> num_constant
 		) [
-			_val = new_<NumericFluent>(ref(scope), _1, _2, construct<unique_ptr<NumericExpression>>(_3))
+			_val = new_<NumericFluent>(_r(scope), _1, _2, construct<unique_ptr<NumericExpression>>(_3))
 		];
 	}
 
