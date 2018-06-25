@@ -37,6 +37,8 @@ DEFINE_MAKE_IMPL(Constant<BooleanExpression>)
 DEFINE_MAKE_IMPL(Constant<NumericExpression>)
 DEFINE_MAKE_IMPL(Variable<BooleanExpression>)
 DEFINE_MAKE_IMPL(Variable<NumericExpression>)
+DEFINE_MAKE_IMPL(Reference<Variable<BooleanExpression>>)
+DEFINE_MAKE_IMPL(Reference<Variable<NumericExpression>>)
 
 DEFINE_MAKE_IMPL(ArithmeticOperation)
 

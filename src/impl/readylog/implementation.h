@@ -59,6 +59,8 @@ public:
 
 	virtual unique_ptr<AbstractImplementation> make_impl(Variable<BooleanExpression> &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Variable<NumericExpression> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Variable<BooleanExpression>> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Variable<NumericExpression>> &) override;
 
 	virtual unique_ptr<AbstractImplementation> make_impl(ArithmeticOperation &) override;
 
