@@ -1,6 +1,8 @@
 #ifndef GOLOGPP_ERROR_H_
 #define GOLOGPP_ERROR_H_
 
+#include "gologpp.h"
+
 #include <exception>
 #include <string>
 
@@ -21,6 +23,18 @@ public:
 
 private:
 	std::string msg_;
+};
+
+
+class UserError : public std::exception {
+};
+
+class InvalidExpressionType : public UserError {
+public:
+	InvalidExpressionType(const Expression &expr);
+
+private:
+	const Expression &expression;
 };
 
 }

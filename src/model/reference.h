@@ -16,7 +16,7 @@ namespace gologpp {
 
 class AbstractReference {
 public:
-	AbstractReference(Identifier &&target_id)
+	AbstractReference(const Identifier &target_id)
 	: target_id_(target_id)
 	{}
 
