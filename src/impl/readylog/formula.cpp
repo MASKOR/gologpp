@@ -19,6 +19,10 @@ EC_word Implementation<Negation>::term()
 }
 
 
+Implementation<Comparison>::~Implementation()
+{}
+
+
 Implementation<Comparison>::Implementation(const Comparison &cmp)
 : comparison_(cmp)
 {
