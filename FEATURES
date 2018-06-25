@@ -1,0 +1,14 @@
+GologPP Features:
+
+No compile-time dependency on implementation
+-> Separate source trees, implementation depends on object model, NOT vice-versa
+
+Parsing and AST instantiation also independent of implementation
+  In fact, object model can be fully instantiatied even without an implementation being defined
+
+Multiple, independent inheritance hierarchies governing syntactic & semantic (implementation) interfaces
+
+Currently:
+N robot platforms, M golog implementations -> N*M platform interfaces
+With GologPP:
+N GologPP-Platform interfaces + M GologPP implementations!
