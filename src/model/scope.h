@@ -62,7 +62,7 @@ public:
 	{ return global_scope_; }
 
 	void set_owner(Expression *owner);
-	shared_ptr<Expression> owner() const;
+	const Expression *owner() const;
 
 	template<class GologT = Global>
 	shared_ptr<GologT> lookup_global(const Identifier &id)

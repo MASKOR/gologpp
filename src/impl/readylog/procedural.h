@@ -158,12 +158,12 @@ public:
 	{}
 
 	virtual EC_word term() override {
-		shared_ptr<Expression> root_parent = ret_.parent_scope().owner();
+		const Expression *root_parent = ret_.parent_scope().owner();
 		while (&root_parent->parent_scope() != &global_scope())
 			root_parent = root_parent->parent_scope().owner();
 
 		try {
-			Function<ExpressionT> &function = dynamic_cast<Function<ExpressionT> &>(*root_parent);
+			const Function<ExpressionT> &function = dynamic_cast<const Function<ExpressionT> &>(*root_parent);
 			return ::term(EC_functor("=", 2),
 				function.implementation().return_var(),
 				ret_.implementation().term()
