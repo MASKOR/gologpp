@@ -12,3 +12,8 @@ Currently:
 N robot platforms, M golog implementations -> N*M platform interfaces
 With GologPP:
 N GologPP-Platform interfaces + M GologPP implementations!
+
+Safe extensibility: If new language elements are introduced, they are handled generically. Where explicit handling is needed, failure to do so will generate a compiler error.
+
+Perfect separation of Syntactic model and implementation. The syntactic model describes NOTHING BUT the syntactic-referential structure of a program, while the implementation does NOTHING BUT implementing the semantics of each element.
+
