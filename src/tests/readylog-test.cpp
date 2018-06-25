@@ -43,35 +43,37 @@ void test_objectmodel()
 	Action *put = new Action(put_scope, "put", put_scope->variables({"X", "Y"}));
 
 	put->set_precondition(new Comparison(
-		new Reference<NumericFluent>("on", *put_scope, vector<Expression *>{ put_scope->variable<NumericExpression>("X")->ref() }
+		new Reference<NumericFluent>("on", *put_scope, vector<Expression *>{ put_scope->variable<NumericExpression>("X")->ref(*put_scope) }
 		),
 		ComparisonOperator::neq,
 		new Reference<NumericVariable>(put_scope->variable<NumericExpression>("Y"), *put_scope),
 		*put_scope
 	));
 
-	Reference<NumericFluent> *on_ref = on->ref(
-		*put_scope,
-		{ unique_ptr<Expression>(put_scope->variable<NumericExpression>("X")->ref()) }
-	);
-	put->add_effect(new EffectAxiom<NumericExpression>(
-		put->shared(),
-		new BooleanConstant("true"),
-		on_ref,
-	    put_scope->variable<NumericExpression>("Y")->ref()
-	) );
+	{ vector<unique_ptr<Expression>> arg;
+		arg.emplace_back(put_scope->variable<NumericExpression>("X")->ref(*put_scope));
 
-	vector<Statement *> code;
-	code.push_back(
-		put->ref(
-			global_scope(),
-			{
-				std::make_unique<Constant<NumericExpression>>("1"),
-				std::make_unique<Constant<NumericExpression>>("2")
-			}
-		)
-	);
-	ctx.run(Block(std::move(code), global_scope() ));
+		Reference<NumericFluent> *on_ref = on->ref(
+			*put_scope,
+			std::move(arg)
+		);
+		put->add_effect(new EffectAxiom<NumericExpression>(
+			put->shared_from_this(),
+			new BooleanConstant(true),
+			on_ref,
+			put_scope->variable<NumericExpression>("Y")->ref(*put_scope)
+		) );
+	}
+
+	{ vector<unique_ptr<Expression>> args;
+
+		args.emplace_back(new NumericConstant(1));
+		args.emplace_back(new NumericConstant(2));
+		vector<Statement *> code;
+		code.push_back(put->ref(global_scope(), std::move(args)));
+
+		ctx.run(Block(std::move(code), global_scope() ));
+	}
 #endif
 }
 
