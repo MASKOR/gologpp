@@ -21,6 +21,7 @@ class Situation;
 class History;
 
 
+
 class HistoryImplementation : public AbstractImplementation {
 public:
 	HistoryImplementation(History &history);
@@ -33,6 +34,7 @@ protected:
 };
 
 
+
 class History : public LanguageElement<History> {
 public:
 	History();
@@ -43,6 +45,7 @@ public:
 	{ return static_cast<HistoryImplementation &>(*impl_); }
 
 };
+
 
 
 template<class ImplementorT>
@@ -59,6 +62,7 @@ public:
 	virtual void compile(const AbstractAction &action) = 0;
 	virtual void compile(const AbstractFunction &function) = 0;
 
+
 	ExogTransition exog_queue_pop()
 	{
 		std::lock_guard<std::mutex> { exog_mutex_ };
@@ -67,12 +71,14 @@ public:
 		return rv;
 	}
 
+
 	ExogTransition exog_queue_poll()
 	{
 		std::unique_lock<std::mutex> queue_empty_lock { queue_empty_mutex_ };
 		queue_empty_condition_.wait(queue_empty_lock, [&] { return !exog_queue_.empty(); });
 		return exog_queue_pop();
 	}
+
 
 	void exog_queue_push(ExogTransition &&exog)
 	{
@@ -84,7 +90,9 @@ public:
 		}
 	}
 
-	History run(Block &&program) {
+
+	History run(Block &&program)
+	{
 		ImplementorT implementor;
 
 		History history;
