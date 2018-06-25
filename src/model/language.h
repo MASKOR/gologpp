@@ -71,22 +71,16 @@ public:
 	Implementation<GologT> &implementation() const
 	{ return static_cast<Implementation<GologT> &>(*impl_); }
 
-	Reference<GologT> *ref(Scope &parent_scope, vector<unique_ptr<Expression>> &&args)
+	Reference<GologT> *ref(Scope &parent_scope, vector<unique_ptr<Expression>> &&args = {})
 	{
 		static_assert(std::is_base_of<Identifier, GologT>::value,
 			"Cannot reference a type is not derived from Identifier");
 		return new Reference<GologT>(
-			this->shared(),
+			this->shared_from_this(),
 			parent_scope,
 			std::move(args)
 		);
 	}
-
-	shared_ptr<GologT> shared()
-	{
-		return std::dynamic_pointer_cast<GologT>(static_cast<GologT *>(this)->shared_from_this());
-	}
-
 };
 
 
