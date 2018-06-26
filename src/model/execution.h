@@ -55,10 +55,25 @@ public:
 	virtual bool final(Block &program, History &h) = 0;
 	virtual bool trans(Block &program, History &h) = 0;
 
+	/**
+	 * @brief compile called once for the toplevel @param program.
+	 */
 	virtual void compile(const Block &program) = 0;
 	virtual void compile(const AbstractFluent &fluent) = 0;
 	virtual void compile(const AbstractAction &action) = 0;
 	virtual void compile(const AbstractFunction &function) = 0;
+
+	virtual History run(Block &&program) = 0;
+
+	ExogTransition exog_queue_pop();
+	ExogTransition exog_queue_poll();
+	void exog_queue_push(ExogTransition &&exog);
+
+protected:
+	std::mutex exog_mutex_;
+	std::condition_variable queue_empty_condition_;
+	std::mutex queue_empty_mutex_;
+	std::queue<ExogTransition> exog_queue_;
 };
 
 
@@ -69,35 +84,8 @@ public:
 	ExecutionContext() = default;
 	virtual ~ExecutionContext() override = default;
 
-	ExogTransition exog_queue_pop()
-	{
-		std::lock_guard<std::mutex> { exog_mutex_ };
-		ExogTransition rv = std::move(exog_queue_.front());
-		exog_queue_.pop();
-		return rv;
-	}
 
-
-	ExogTransition exog_queue_poll()
-	{
-		std::unique_lock<std::mutex> queue_empty_lock { queue_empty_mutex_ };
-		queue_empty_condition_.wait(queue_empty_lock, [&] { return !exog_queue_.empty(); });
-		return exog_queue_pop();
-	}
-
-
-	void exog_queue_push(ExogTransition &&exog)
-	{
-		std::lock_guard<std::mutex> { exog_mutex_ };
-		exog_queue_.push(std::move(exog));
-		{
-			std::lock_guard<std::mutex> { queue_empty_mutex_ };
-			queue_empty_condition_.notify_one();
-		}
-	}
-
-
-	History run(Block &&program)
+	virtual History run(Block &&program) override
 	{
 		ImplementorT implementor;
 
@@ -123,13 +111,6 @@ public:
 		}
 		return history;
 	}
-
-
-protected:
-	std::mutex exog_mutex_;
-	std::condition_variable queue_empty_condition_;
-	std::mutex queue_empty_mutex_;
-	std::queue<ExogTransition> exog_queue_;
 
 };
 
