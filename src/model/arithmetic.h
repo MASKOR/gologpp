@@ -2,6 +2,7 @@
 #define GOLOGPP_ARITHMETIC_H_
 
 #include "expressions.h"
+#include "language.h"
 
 namespace gologpp {
 

@@ -3,9 +3,8 @@
 namespace gologpp {
 
 
-AbstractVariable::AbstractVariable(const string &name, Scope &parent_scope)
-: Expression(parent_scope)
-, Identifier(name, 0)
+AbstractVariable::AbstractVariable(const string &name)
+: Identifier(name, 0)
 {}
 
 

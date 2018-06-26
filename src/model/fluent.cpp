@@ -7,7 +7,7 @@ AbstractFluent::AbstractFluent(Scope *own_scope, const string &name, const vecto
 : Global(name, args)
 , scope_(own_scope)
 {
-	scope_->set_owner(this);
+	scope_->set_owner(dynamic_cast<Expression *>(this));
 }
 
 

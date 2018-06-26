@@ -3,6 +3,7 @@
 
 #include "language.h"
 #include "expressions.h"
+#include "atoms.h"
 #include "utilities.h"
 #include "gologpp.h"
 #include "scope.h"

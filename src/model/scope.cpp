@@ -68,9 +68,6 @@ void Scope::set_owner(Expression *owner)
 const Expression *Scope::owner() const
 { return owner_; }
 
-void Scope::register_global(Global *g)
-{ (*globals_)[static_cast<Identifier>(*g)].reset(g); }
-
 const Scope::VariablesMap &Scope::var_map() const
 { return variables_; }
 

@@ -116,7 +116,7 @@ const BooleanExpression &While::expression() const
 
 AbstractFunction::AbstractFunction(const string &name, const vector<shared_ptr<AbstractVariable>> &args, Block &&block)
 : Global(name, args)
-, scope_(this, {}, Scope::global_scope())
+, scope_(dynamic_cast<Expression *>(this), {}, Scope::global_scope())
 , block_(std::move(block))
 {}
 

@@ -18,13 +18,25 @@ const Scope &Expression::parent_scope() const
 { return parent_scope_; }
 
 
+BooleanExpression::BooleanExpression(Scope &parent_scope)
+:Expression (parent_scope)
+{}
+
 ExpressionTypeTag BooleanExpression::expression_type_tag() const
 { return BOOLEAN_EXPRESSION; }
 
 
+NumericExpression::NumericExpression(Scope &parent_scope)
+:Expression (parent_scope)
+{}
+
 ExpressionTypeTag NumericExpression::expression_type_tag() const
 { return VALUE_EXPRESSION; }
 
+
+Statement::Statement(Scope &parent_scope)
+:Expression (parent_scope)
+{}
 
 ExpressionTypeTag Statement::expression_type_tag() const
 { return STATEMENT; }

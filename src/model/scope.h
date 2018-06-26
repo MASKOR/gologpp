@@ -6,9 +6,10 @@
 #include <boost/variant.hpp>
 #include <boost/variant/polymorphic_get.hpp>
 
-#include "language.h"
 #include "utilities.h"
-#include "atoms.h"
+#include "language.h"
+#include "expressions.h"
+
 #include "gologpp.h"
 
 namespace gologpp {
@@ -68,14 +69,19 @@ public:
 	shared_ptr<GologT> lookup_global(const Identifier &id)
 	{ return std::dynamic_pointer_cast<GologT>((*globals_)[id]); }
 
-	void register_global(Global *g);
+	template<class GologT>
+	void register_global(GologT *g)
+	{
+		static_assert(std::is_base_of<Global, GologT>::value, "Valid only for subclasses of Global");
+		(*globals_)[static_cast<Identifier>(*g)] = shared_ptr<GologT>(g);
+	}
 
 	const VariablesMap &var_map() const;
 
 	void implement_globals(Implementor &implementor)
 	{
 		for (GlobalsMap::value_type &entry : *globals_)
-			entry.second->implement(implementor);
+			std::dynamic_pointer_cast<AbstractLanguageElement>(entry.second)->implement(implementor);
 	}
 
 private:

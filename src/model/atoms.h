@@ -4,8 +4,8 @@
 #include "gologpp.h"
 
 #include "utilities.h"
-#include "language.h"
 #include "expressions.h"
+#include "language.h"
 
 #include <memory>
 
@@ -15,9 +15,9 @@ namespace gologpp {
 Scope &global_scope();
 
 
-class AbstractVariable : public virtual Expression, public Identifier, public virtual AbstractLanguageElement {
+class AbstractVariable : public Identifier, public virtual AbstractLanguageElement {
 public:
-	AbstractVariable(const string &name, Scope &parent_scope);
+	AbstractVariable(const string &name);
 
 	virtual ExpressionTypeTag expression_type_tag() const = 0;
 
@@ -38,11 +38,12 @@ class Variable
 : public ExpressionT
 , public LanguageElement<Variable<ExpressionT>>
 , public AbstractVariable
+, public std::enable_shared_from_this<Variable<ExpressionT>>
 {
 protected:
 	Variable(const string &name, Scope &parent_scope)
 	: ExpressionT(parent_scope)
-	, AbstractVariable(name, parent_scope)
+	, AbstractVariable(name)
 	{}
 
 public:
@@ -56,12 +57,22 @@ public:
 	virtual ExpressionTypeTag expression_type_tag() const override
 	{ return ExpressionT::expression_type_tag(); }
 
+	Reference<Variable<ExpressionT>> *ref(Scope &parent_scope)
+	{
+		return new Reference<Variable<ExpressionT>>(
+			this->shared_from_this(),
+			parent_scope,
+			{}
+		);
+	}
+
+
 	virtual ~Variable() override = default;
 	DEFINE_IMPLEMENT
 };
 
 
-class AbstractConstant : public virtual Expression, public virtual AbstractLanguageElement {
+class AbstractConstant : public virtual AbstractLanguageElement {
 public:
 	AbstractConstant(const string &representation);
 

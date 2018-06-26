@@ -37,25 +37,8 @@ protected:
 };
 
 
-#define DEFINE_IMPLEMENT_WITH_MEMBERS(...) \
-	virtual void implement(Implementor &implementor) override { \
-		if (!impl_) { \
-			impl_ = implementor.make_impl(*this); \
-			boost::fusion::for_each(std::tie(__VA_ARGS__), [&] (auto &e) { \
-				e.implement(implementor); \
-			} ); \
-		} \
-	}
-
-#define DEFINE_IMPLEMENT \
-	virtual void implement(Implementor &implementor) override { \
-		if (!impl_) \
-			impl_ = implementor.make_impl(*this); \
-	}
-
-
 template<class GologT>
-class LanguageElement : public virtual AbstractLanguageElement, public std::enable_shared_from_this<GologT> {
+class LanguageElement : public virtual AbstractLanguageElement {
 public:
 	typedef GologT golog_t;
 
@@ -71,16 +54,6 @@ public:
 	Implementation<GologT> &implementation() const
 	{ return static_cast<Implementation<GologT> &>(*impl_); }
 
-	Reference<GologT> *ref(Scope &parent_scope, vector<unique_ptr<Expression>> &&args = {})
-	{
-		static_assert(std::is_base_of<Identifier, GologT>::value,
-			"Cannot reference a type is not derived from Identifier");
-		return new Reference<GologT>(
-			this->shared_from_this(),
-			parent_scope,
-			std::move(args)
-		);
-	}
 };
 
 

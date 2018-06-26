@@ -18,6 +18,7 @@ template<class T>      using vector      = std::vector<T>;
 using string = std::string;
 
 class AbstractLanguageElement;
+template<class> class LanguageElement;
 
 class AbstractAction;
 class Action;
@@ -89,6 +90,28 @@ class AbstractReference;
 template<class> class Reference;
 
 class History;
+
+class AbstractImplementation;
+template<class> class Implementation;
+class Implementor;
+
+
+#define DEFINE_IMPLEMENT_WITH_MEMBERS(...) \
+	virtual void implement(Implementor &implementor) override { \
+		if (!impl_) { \
+			impl_ = implementor.make_impl(*this); \
+			boost::fusion::for_each(std::tie(__VA_ARGS__), [&] (auto &e) { \
+				e.implement(implementor); \
+			} ); \
+		} \
+	}
+
+#define DEFINE_IMPLEMENT \
+	virtual void implement(Implementor &implementor) override { \
+		if (!impl_) \
+			impl_ = implementor.make_impl(*this); \
+	}
+
 
 
 } // namespace gologpp
