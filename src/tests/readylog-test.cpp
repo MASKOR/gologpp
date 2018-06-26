@@ -53,12 +53,12 @@ void test_objectmodel()
 	{ vector<unique_ptr<Expression>> arg;
 		arg.emplace_back(put_scope->variable<NumericExpression>("X")->ref(*put_scope));
 
-		Reference<NumericFluent> *on_ref = on->ref(
+		Reference<NumericFluent> *on_ref = on->ref<NumericFluent>(
 			*put_scope,
 			std::move(arg)
 		);
 		put->add_effect(new EffectAxiom<NumericExpression>(
-			put->shared_from_this(),
+			std::dynamic_pointer_cast<Action>(put->shared_from_this()),
 			new BooleanConstant(true),
 			on_ref,
 			put_scope->variable<NumericExpression>("Y")->ref(*put_scope)
@@ -70,7 +70,7 @@ void test_objectmodel()
 		args.emplace_back(new NumericConstant(1));
 		args.emplace_back(new NumericConstant(2));
 		vector<Statement *> code;
-		code.push_back(put->ref(global_scope(), std::move(args)));
+		code.push_back(put->ref<Action>(global_scope(), std::move(args)));
 
 		ctx.run(Block(std::move(code), global_scope() ));
 	}
