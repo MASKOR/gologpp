@@ -56,7 +56,7 @@ EclipseContext::EclipseContext()
 	std::cout << "Loading readylog from " << READYLOG_PATH " ..." << std::endl;
 
 	post_goal("lib(tracer_tty)");
-	post_goal("set_flag(gc, verbose)");
+	//post_goal("set_flag(gc, verbose)");
 	post_goal(::term(EC_functor("compile", 1), EC_atom(READYLOG_PATH)));
 
 	if ((last_rv_ = EC_resume(*ec_start_)) == EC_status::EC_succeed)
