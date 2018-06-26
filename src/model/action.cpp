@@ -1,5 +1,6 @@
 #include "action.h"
 #include "effect_axiom.h"
+#include "execution.h"
 #include <string>
 
 namespace gologpp {
@@ -9,9 +10,7 @@ AbstractAction::AbstractAction(Scope *own_scope, const string &name, const vecto
 : Statement(Scope::global_scope())
 , Global(name, args)
 , scope_(own_scope)
-{
-	scope_->set_owner(this);
-}
+{ scope_->set_owner(this); }
 
 
 const vector<unique_ptr<AbstractEffectAxiom>> &AbstractAction::effects() const
@@ -26,6 +25,8 @@ Scope &AbstractAction::scope()
 const Scope &AbstractAction::scope() const
 { return *scope_; }
 
+void AbstractAction::compile(AExecutionContext &ctx)
+{ ctx.compile(*this); }
 
 const BooleanExpression &Action::precondition() const
 { return *precondition_; }

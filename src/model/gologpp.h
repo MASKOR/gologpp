@@ -32,6 +32,11 @@ class Global;
 class Expression;
 class BooleanExpression;
 class NumericExpression;
+class Statement;
+
+typedef BooleanExpression Bool;
+typedef NumericExpression Number;
+
 
 class AbstractEffectAxiom;
 template<class> class EffectAxiom;
@@ -67,8 +72,6 @@ class Implication;
 class ExistentialQuantification;
 class UniversalQuantification;
 
-class Statement;
-
 class Block;
 class Choose;
 class Conditional;
@@ -94,6 +97,9 @@ class History;
 class AbstractImplementation;
 template<class> class Implementation;
 class Implementor;
+
+class AExecutionContext;
+template<class> class ExecutionContext;
 
 
 #define DEFINE_IMPLEMENT_WITH_MEMBERS(...) \

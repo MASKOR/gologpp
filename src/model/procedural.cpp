@@ -3,6 +3,7 @@
 
 #include "procedural.h"
 #include "formula.h"
+#include "execution.h"
 
 #include "user_error.h"
 
@@ -128,6 +129,9 @@ const Scope &AbstractFunction::scope() const
 
 const Block &AbstractFunction::block() const
 { return block_; }
+
+void AbstractFunction::compile(AExecutionContext &ctx)
+{ ctx.compile(*this); }
 
 
 } // namespace gologpp

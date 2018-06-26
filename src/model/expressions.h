@@ -58,6 +58,8 @@ public:
 		);
 	}
 
+	virtual void compile(AExecutionContext &ctx) = 0;
+
 private:
 	vector<shared_ptr<AbstractVariable>> args_;
 };
@@ -94,10 +96,6 @@ public:
 	typedef Statement expression_t;
 	virtual ExpressionTypeTag expression_type_tag() const override;
 };
-
-
-typedef BooleanExpression Bool;
-typedef NumericExpression Number;
 
 
 }

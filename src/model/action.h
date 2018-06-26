@@ -35,6 +35,8 @@ public:
 	Scope &scope();
 	const Scope &scope() const;
 
+	virtual void compile(AExecutionContext &ctx) override;
+
 protected:
 	unique_ptr<Scope> scope_;
 

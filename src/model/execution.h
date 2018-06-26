@@ -48,11 +48,9 @@ public:
 
 
 
-template<class ImplementorT>
-class ExecutionContext {
+class AExecutionContext {
 public:
-	ExecutionContext() = default;
-	virtual ~ExecutionContext() = default;
+	virtual ~AExecutionContext() = default;
 
 	virtual bool final(Block &program, History &h) = 0;
 	virtual bool trans(Block &program, History &h) = 0;
@@ -61,7 +59,15 @@ public:
 	virtual void compile(const AbstractFluent &fluent) = 0;
 	virtual void compile(const AbstractAction &action) = 0;
 	virtual void compile(const AbstractFunction &function) = 0;
+};
 
+
+
+template<class ImplementorT>
+class ExecutionContext : public AExecutionContext {
+public:
+	ExecutionContext() = default;
+	virtual ~ExecutionContext() override = default;
 
 	ExogTransition exog_queue_pop()
 	{
@@ -98,7 +104,7 @@ public:
 		History history;
 		history.implement(implementor);
 
-		global_scope().implement_globals(implementor);
+		global_scope().implement_globals(implementor, *this);
 
 		program.implement(implementor);
 		compile(program);

@@ -165,6 +165,8 @@ public:
 	const Scope &scope() const;
 	const Block &block() const;
 
+	virtual void compile(AExecutionContext &ctx) override;
+
 protected:
     Scope scope_;
     Block block_;
