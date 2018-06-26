@@ -21,8 +21,10 @@ public:
 	: target_id_(target_id)
 	{}
 
-	template<class GologT>
-	Reference<GologT> bind();
+	virtual ~AbstractReference();
+
+	virtual void bind() = 0;
+	virtual bool bound() = 0;
 
 	const Identifier &target_id() const
 	{ return target_id_; }
@@ -68,15 +70,26 @@ public:
 	TargetT *operator -> () const
 	{ return &target(); }
 
-	TargetT &target() const
+	const vector<unique_ptr<Expression>> &args() const
+	{ return args_; }
+
+	const string &name() const
+	{ return target_id().name(); }
+
+	arity_t arity() const
+	{ return target_id().arity(); }
+
+	virtual bool bound() override
+	{ return static_cast<bool>(target_); }
+
+
+	TargetT &target()
 	{
 		if (!target_)
 			bind();
 		return *target_;
 	}
 
-	const vector<unique_ptr<Expression>> &args() const
-	{ return args_; }
 
 	virtual void implement(Implementor &implementor) override
 	{
@@ -88,52 +101,15 @@ public:
 			expr->implement(implementor);
 	}
 
-	const string &name() const
-	{ return target_id().name(); }
 
-	arity_t arity() const
-	{ return target_id().arity(); }
-
-
-	void bind() {
-		shared_ptr<Global> target = global_scope().lookup_global(target_id());
-
-		vector<unique_ptr<Expression>> bound_args;
-
-		for (arity_t idx = 0; idx < arity(); ++idx) {
-
-			AbstractReference *uref = dynamic_cast<AbstractReference *>(args_[idx].get());
-
-			if (uref) {
-				switch (target->argument(idx)->expression_type_tag()) {
-				case ExpressionTypeTag::BOOLEAN_EXPRESSION:
-					bound_args[idx] = unique_ptr<Expression>(
-						new Reference<BooleanExpression>(uref->bind<BooleanExpression>())
-					);
-					break;
-				case ExpressionTypeTag::VALUE_EXPRESSION:
-					bound_args[idx] = unique_ptr<Expression>(
-						new Reference<NumericExpression>(uref->bind<NumericExpression>())
-					);
-					break;
-				case ExpressionTypeTag::STATEMENT:
-					throw Bug(target->name() + ", argument #" + std::to_string(idx)
-						+ " has expression type STATEMENT. This should have been impossible.");
-					break;
-				case ExpressionTypeTag::UNKNOWN:
-					throw Bug(target->name() + ", argument #" + std::to_string(idx)
-						+ " has expression type UNKNOWN. This should have been impossible.");
-					break;
-
-				// No default: since we want a compiler warning on unhandled values.
-				}
-			}
-			else {
-				std::swap(bound_args[idx], args_[idx]);
-			}
+	virtual void bind() override {
+		for (unique_ptr<Expression> &arg : args_) {
+			AbstractReference *uref = dynamic_cast<AbstractReference *>(arg.get());
+			if (uref && !uref->bound())
+				uref->bind();
 		}
 
-		target_ = std::dynamic_pointer_cast<TargetT>(target);
+		target_ = global_scope().lookup_global<TargetT>(target_id());
 	}
 
 private:
@@ -141,16 +117,6 @@ private:
 	vector<unique_ptr<Expression>> args_;
 };
 
-/*
-template<>
-template<>
-void Reference<BooleanExpression>::implement_<BooleanExpression>(Implementor &);
-
-
-template<>
-template<>
-void Reference<NumericExpression>::implement_<NumericExpression>(Implementor &);
-*/
 
 } // namespace gologpp
 
