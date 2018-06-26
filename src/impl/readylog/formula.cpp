@@ -28,7 +28,7 @@ Implementation<Comparison>::Implementation(const Comparison &cmp)
 {
 	switch(comparison_.cmp_operator()) {
 	case ComparisonOperator::eq:
-		functor_ = "=:=";
+		functor_ = "=";
 		break;
 	case ComparisonOperator::ge:
 		functor_ = ">=";
@@ -43,7 +43,7 @@ Implementation<Comparison>::Implementation(const Comparison &cmp)
 		functor_ = "<";
 		break;
 	case ComparisonOperator::neq:
-		functor_ = "=\\=";
+		functor_ = "\\=";
 	}
 }
 
