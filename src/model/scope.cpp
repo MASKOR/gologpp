@@ -72,6 +72,19 @@ const Scope::VariablesMap &Scope::var_map() const
 { return variables_; }
 
 
+void Scope::implement_globals(Implementor &implementor, AExecutionContext &ctx)
+{
+	// Two loops since we want everything implemented before we attempt to compile anything.
+	// It's all connected, you know...
+	for (GlobalsMap::value_type &entry : *globals_)
+		std::dynamic_pointer_cast<AbstractLanguageElement>(entry.second)
+			->implement(implementor);
+	for (GlobalsMap::value_type &entry : *globals_)
+		entry.second->compile(ctx);
+}
+
+
+
 Scope &global_scope()
 { return Scope::global_scope(); }
 

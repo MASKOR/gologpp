@@ -78,14 +78,7 @@ public:
 
 	const VariablesMap &var_map() const;
 
-	void implement_globals(Implementor &implementor, AExecutionContext &ctx)
-	{
-		for (GlobalsMap::value_type &entry : *globals_) {
-			std::dynamic_pointer_cast<AbstractLanguageElement>(entry.second)
-				->implement(implementor);
-			entry.second->compile(ctx);
-		}
-	}
+	void implement_globals(Implementor &implementor, AExecutionContext &ctx);
 
 private:
 	Scope();
