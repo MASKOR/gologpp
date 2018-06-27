@@ -296,25 +296,28 @@ struct EffectParser : grammar<AbstractEffectAxiom *(shared_ptr<Action> &, Scope 
 struct ActionParser : grammar<shared_ptr<Action>()> {
 	ActionParser()
 	: ActionParser::base_type(action)
+	, scope(nullptr)
 	{
 		action =
 			(
-				("action" >> r_name >> '(') [ _r(scope) = new_<Scope>(nullptr) ]
-				>> *var_shared(_r(*scope)) >> ')'
+				(("action" >> r_name >> '(') [ phoenix::delete_(_r(scope)), _r(scope) = new_<Scope>(nullptr) ])
+				// CRUCIAL detail: use lazy dereference, i.e. *_r(scope), not _r(*scope).
+				// Otherwise, the dereferencing happens at the wrong time.
+				> *var_shared(*_r(scope)) > ')'
 			) [
 				_val = construct<shared_ptr<Action>>(
 					new_<Action>(_r(scope), _1, _2)
 				)
 			]
 			>> '{'
-			>> "precondition:" >> formula(_r(*scope)) [
+			>> "precondition:" >> formula(*_r(scope)) [
 				phoenix::bind(
 					&Action::set_precondition,
 					_val,
 					_1
 				)
 			] //*/
-			>> "effect:" >> (EffectParser()(_val, _r(*scope)) [
+			>> "effect:" >> (EffectParser()(_val, *_r(scope)) [
 				phoenix::bind(
 					&Action::add_effect,
 					_val,
@@ -338,14 +341,14 @@ struct FluentParser : grammar<AbstractFluent *()> {
 	: FluentParser::base_type(fluent)
 	{
 		fluent = (
-			(l("?") >> "fluent" >> r_name >> '(') [ _r(scope) = new_<Scope>(nullptr) ]
-			>> *var_shared(_r(*scope)) >> ')' >> '=' >> bool_constant
+			((l("?") >> "fluent" >> r_name >> '(') [ _r(scope) = new_<Scope>(nullptr) ])
+			>> *var_shared(*_r(scope)) >> ')' >> '=' >> bool_constant
 		) [
 			_val = new_<BooleanFluent>(_r(scope), _1, _2, construct<unique_ptr<BooleanExpression>>(_3))
 		]
 		| (
 			(l("%") >> "fluent" >> r_name >> '(') [ _r(scope) = new_<Scope>(nullptr) ]
-			>> *var_shared(_r(*scope)) >> ')' >> '=' >> num_constant
+			>> *var_shared(*_r(scope)) >> ')' >> '=' >> num_constant
 		) [
 			_val = new_<NumericFluent>(_r(scope), _1, _2, construct<unique_ptr<NumericExpression>>(_3))
 		];
