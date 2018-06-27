@@ -166,7 +166,7 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 		atom = num_constant | num_var(_r1);
 		brace = '(' >> expression(_r1) >> ')';
 
-		operation = ((atom(_r1) | expression(_r1)) >> arith_operator >> (expression(_r1) | atom(_r1))) [
+		operation = (atom(_r1) >> arith_operator >> expression(_r1)) [
 			_val = new_<ArithmeticOperation>(_1, _2, _3)
 		];
 		arith_operator =
