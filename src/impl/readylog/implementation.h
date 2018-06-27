@@ -20,11 +20,11 @@ using ReadylogImplementation = Implementation<AbstractLanguageElement>;
 
 
 template<class ListT>
-EC_word *translate_args(ListT args)
+EC_word *translate_args(const ListT &args)
 {
 	EC_word *rv = new EC_word[args.size()];
 	arity_t i = 0;
-	for (auto &arg : args)
+	for (const auto &arg : args)
 		rv[i++] = arg->implementation().term();
 	return rv;
 }
