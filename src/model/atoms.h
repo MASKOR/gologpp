@@ -8,6 +8,7 @@
 #include "language.h"
 
 #include <memory>
+#include <type_traits>
 
 namespace gologpp {
 
@@ -90,15 +91,16 @@ class Constant
 , public LanguageElement<Constant<ExpressionT>>
 {
 public:
-	Constant(const string &representation)
-	: ExpressionT(global_scope())
-	, AbstractConstant(representation)
-	{}
-
-	template<class NumT>
-	Constant(NumT n)
+	template<class T>
+	Constant(T n)
 	: ExpressionT(global_scope())
 	, AbstractConstant(std::to_string(n))
+	{}
+
+
+	Constant(const string &repr)
+	: ExpressionT(global_scope())
+	, AbstractConstant(repr)
 	{}
 
 	Constant(Constant<ExpressionT> &&) = default;
@@ -113,6 +115,14 @@ public:
 
 	DEFINE_IMPLEMENT
 };
+
+template<>
+template<>
+Constant<BooleanExpression>::Constant(bool);
+
+template<>
+template<>
+Constant<NumericExpression>::Constant(const string &);
 
 
 } // namespace gologpp
