@@ -91,7 +91,7 @@ void test_parser()
 		expr
 	);
 
-	std::string action_str("action wurst($y) { precondition: $x");
+	std::string action_str("action wurst(?X) { precondition: ?Y effect: }");
 	shp<Action> action;
 	std::cout << boost::spirit::qi::phrase_parse(
 		action_str.cbegin(),
@@ -100,7 +100,8 @@ void test_parser()
 		boost::spirit::ascii::space_type(),
 		action
 	) << std::endl;
-	std::cout << action->name() << std::endl;
+	if (action)
+		std::cout << action->name() << std::endl;
 #endif
 }
 
