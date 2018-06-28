@@ -2,8 +2,6 @@
 #include <iostream>
 #include <atomic>
 
-#include <parser/grammar.h>
-
 #include <model/formula.h>
 #include <model/reference.h>
 
@@ -11,6 +9,7 @@
 #include <model/fluent.h>
 #include <model/procedural.h>
 
+#ifdef GOLOGPP_TEST_OBJECTMODEL
 #include <impl/readylog/action.h>
 #include <impl/readylog/effect_axiom.h>
 #include <impl/readylog/formula.h>
@@ -18,8 +17,12 @@
 #include <impl/readylog/reference.h>
 #include <impl/readylog/fluent.h>
 #include <impl/readylog/atoms.h>
-
 #include <impl/readylog/implementation.h>
+#endif
+
+#ifdef GOLOGPP_TEST_PARSER
+#include <parser/parser.h>
+#endif
 
 
 using namespace gologpp;
@@ -82,26 +85,10 @@ void test_parser()
 {
 #ifdef GOLOGPP_TEST_PARSER
 	std::string formula("?x || true && false");
-	BooleanExpression *expr;
-	boost::spirit::qi::phrase_parse(
-		formula.cbegin(),
-		formula.cend(),
-		parser::BooleanExpressionParser()(boost::phoenix::ref(global_scope())),
-		boost::spirit::ascii::space_type(),
-		expr
-	);
+	parser::parse_string(formula);
 
-	std::string action_str("action wurst(?X) { precondition: ?Y effect: }");
-	shp<Action> action;
-	std::cout << boost::spirit::qi::phrase_parse(
-		action_str.cbegin(),
-		action_str.cend(),
-		parser::ActionParser(),
-		boost::spirit::ascii::space_type(),
-		action
-	) << std::endl;
-	if (action)
-		std::cout << action->name() << std::endl;
+	std::string action_str("action wurst(?X) { precondition: ?Y }");
+	parser::parse_string(action_str);
 #endif
 }
 

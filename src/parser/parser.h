@@ -7,7 +7,9 @@ namespace gologpp {
 namespace parser {
 
 
-shared_ptr<Scope> parse_string(const std::string &code);
+Scope &parse_string(const std::string &code);
+
+Scope &parse_file(const std::string &filename);
 
 
 } // namespace parser
