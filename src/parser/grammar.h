@@ -3,19 +3,12 @@
 
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/qi_char_.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_fusion.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/phoenix/object/construct.hpp>
 #include <boost/phoenix/object/new.hpp>
-#include <boost/phoenix/scope/lambda.hpp>
-#include <boost/phoenix/bind.hpp>
-#include <boost/phoenix/operator.hpp>
-#include <boost/phoenix/function.hpp>
-#include <boost/phoenix/core/value.hpp>
-#include <boost/phoenix/object/static_cast.hpp>
-#include <boost/phoenix/phoenix.hpp>
+#include <boost/phoenix/object/delete.hpp>
+#include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/variant.hpp>
 
 #include <string>
@@ -28,6 +21,7 @@
 #include <model/fluent.h>
 #include <model/procedural.h>
 #include <model/reference.h>
+#include <model/atoms.h>
 
 namespace gologpp {
 namespace parser {
