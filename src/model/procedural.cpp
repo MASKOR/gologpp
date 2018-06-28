@@ -58,6 +58,21 @@ Conditional::Conditional(unique_ptr<BooleanExpression> &&condition,
     , block_false_(std::move(block_false))
 {}
 
+
+Conditional::Conditional(
+	BooleanExpression *condition,
+	Statement *block_true,
+	const boost::optional<Statement *> &block_false,
+	Scope &parent_expr
+)
+: Conditional(
+	unique_ptr<BooleanExpression>(condition),
+	unique_ptr<Statement>(block_true),
+	unique_ptr<Statement>(block_false.value_or(nullptr)),
+	parent_expr
+)
+{}
+
 const BooleanExpression &Conditional::condition() const
 { return *condition_; }
 

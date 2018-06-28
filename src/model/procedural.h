@@ -5,6 +5,8 @@
 #include <memory>
 #include <algorithm>
 
+#include <boost/optional.hpp>
+
 #include "gologpp.h"
 
 #include "reference.h"
@@ -45,6 +47,11 @@ public:
 	Conditional(unique_ptr<BooleanExpression> &&condition,
 	            unique_ptr<Statement> &&block_true,
 	            unique_ptr<Statement> &&block_false,
+	            Scope &parent_expr);
+
+	Conditional(BooleanExpression *condition,
+	            Statement *block_true,
+	            const boost::optional<Statement *> &block_false,
 	            Scope &parent_expr);
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, *block_true_, *block_false_)
