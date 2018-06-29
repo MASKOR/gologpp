@@ -130,20 +130,20 @@ const BooleanExpression &While::expression() const
 
 
 
-AbstractFunction::AbstractFunction(const string &name, const vector<shared_ptr<AbstractVariable>> &args, Block &&block)
+AbstractFunction::AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *statement)
 : Global(name, args)
-, scope_(dynamic_cast<Expression *>(this), {}, Scope::global_scope())
-, block_(std::move(block))
+, scope_(own_scope)
+, statement_(statement)
 {}
 
 AbstractFunction::~AbstractFunction()
 {}
 
 const Scope &AbstractFunction::scope() const
-{ return scope_; }
+{ return *scope_; }
 
-const Block &AbstractFunction::block() const
-{ return block_; }
+const Statement &AbstractFunction::statement() const
+{ return *statement_; }
 
 void AbstractFunction::compile(AExecutionContext &ctx)
 { ctx.compile(*this); }

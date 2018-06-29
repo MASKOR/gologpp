@@ -165,18 +165,18 @@ private:
 
 class AbstractFunction : public Global, public virtual AbstractLanguageElement {
 public:
-	AbstractFunction(const string &name, const vector<shared_ptr<AbstractVariable>> &args, Block &&block);
+	AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *statement);
 
 	virtual ~AbstractFunction() override;
 
 	const Scope &scope() const;
-	const Block &block() const;
+	const Statement &statement() const;
 
 	virtual void compile(AExecutionContext &ctx) override;
 
 protected:
-    Scope scope_;
-    Block block_;
+    unique_ptr<Scope> scope_;
+    unique_ptr<Statement> statement_;
     vector<shared_ptr<AbstractVariable>> args_;
 };
 
@@ -188,13 +188,13 @@ class Function
 , public LanguageElement<Function<ExpressionT>>
 {
 public:
-    Function(const string &name, const vector<shared_ptr<AbstractVariable>> &args, Block &&block)
+    Function(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *statement)
     : ExpressionT(Scope::global_scope())
-    , AbstractFunction(name, args, std::move(block))
+    , AbstractFunction(own_scope, name, args, statement)
     {}
 
     Function(Function &&) = default;
-	DEFINE_IMPLEMENT_WITH_MEMBERS(scope_, block_)
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*scope_, *statement_)
 };
 
 

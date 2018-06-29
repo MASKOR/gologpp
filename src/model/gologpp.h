@@ -66,9 +66,7 @@ class ArithmeticOperation;
 
 class Negation;
 class Comparison;
-class Conjunction;
-class Disjunction;
-class Implication;
+class BooleanOperation;
 class ExistentialQuantification;
 class UniversalQuantification;
 

@@ -48,7 +48,7 @@ void test_objectmodel()
 	put->set_precondition(new Comparison(
 		new Reference<NumericFluent>("on", *put_scope, vector<Expression *>{ put_scope->variable<NumericExpression>("X")->ref(*put_scope) }
 		),
-		ComparisonOperator::neq,
+		ComparisonOperator::NEQ,
 		new Reference<NumericVariable>(put_scope->variable<NumericExpression>("Y"), *put_scope),
 		*put_scope
 	));
@@ -84,11 +84,21 @@ void test_objectmodel()
 void test_parser()
 {
 #ifdef GOLOGPP_TEST_PARSER
-	std::string formula("?x || true && false");
-	parser::parse_string(formula);
+	//std::string formula("?x || true && false");
+	//parser::parse_string(formula);
 
 	std::string action_str("action wurst(?X) { precondition: ?Y }");
-	parser::parse_string(action_str);
+	unique_ptr<Statement> none = parser::parse_string(action_str);
+
+	global_scope().clear();
+
+	parser::parse_file("../blocksworld.gpp");
+	shared_ptr<NumericFluent> on = global_scope().lookup_global<NumericFluent>({"on", 1});
+	shared_ptr<Action> put = global_scope().lookup_global<Action>({"put", 2});
+	shared_ptr<BooleanFunction> goal = global_scope().lookup_global<BooleanFunction>({"goal", 0});
+
+	std::cout << on->name() << " " << put->name() << " " << goal->name() << std::endl;
+
 #endif
 }
 

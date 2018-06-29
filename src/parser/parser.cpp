@@ -1,5 +1,7 @@
 #include <fstream>
 
+#include <boost/phoenix/core/reference.hpp>
+
 #include "grammar.h"
 #include "parser.h"
 
@@ -7,22 +9,22 @@ namespace gologpp {
 namespace parser {
 
 
-Scope &parse_string(const std::string &code)
+unique_ptr<Statement> parse_string(const std::string &code)
 {
-	Scope *rv;
+	Statement *rv;
 	ProgramParser program_parser;
 	boost::spirit::qi::phrase_parse(
 		code.cbegin(),
 		code.cend(),
-		program_parser,
+		program_parser(boost::phoenix::ref(global_scope())),
 		boost::spirit::ascii::space_type(),
 		rv
 	);
-	return *rv;
+	return unique_ptr<Statement>(rv);
 }
 
 
-Scope &parse_file(const std::string &filename)
+unique_ptr<Statement> parse_file(const std::string &filename)
 {
 	std::ifstream file(filename);
 	std::stringstream buffer;

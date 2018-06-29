@@ -15,7 +15,7 @@ EC_word Implementation<Procedure>::definition()
 	procedure_.scope().implementation().init_vars();
 	return ::term(EC_functor("proc", 2),
 		term(),
-		procedure_.block().implementation().term()
+		procedure_.statement().implementation().term()
 	);
 }
 
@@ -47,7 +47,7 @@ EC_word Implementation<AbstractFunction>::definition()
 	return ::term(EC_functor("function", 3),
 		term(),
 		return_var_,
-		function_.block().implementation().term()
+		function_.statement().implementation().term()
 	);
 }
 
