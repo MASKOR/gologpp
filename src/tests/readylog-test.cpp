@@ -39,11 +39,14 @@ void test_objectmodel()
 		on_scope->variables({"X"}),
 		std::make_unique<NumericConstant>(0)
 	);
+	global_scope().register_global(on);
+	shared_ptr<NumericFluent> on_shared = global_scope().lookup_global<NumericFluent>({"on", 1});
 
 	Scope *put_scope = new Scope(nullptr);
 	put_scope->variable<NumericExpression>("X");
 	put_scope->variable<NumericExpression>("Y");
 	Action *put = new Action(put_scope, "put", put_scope->variables({"X", "Y"}));
+	global_scope().register_global(put);
 
 	put->set_precondition(new Comparison(
 		new Reference<NumericFluent>("on", *put_scope, vector<Expression *>{ put_scope->variable<NumericExpression>("X")->ref(*put_scope) }
@@ -77,6 +80,8 @@ void test_objectmodel()
 
 		ctx.run(Block(std::move(code), global_scope() ));
 	}
+
+	global_scope().clear();
 #endif
 }
 

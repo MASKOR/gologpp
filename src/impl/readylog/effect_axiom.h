@@ -27,7 +27,7 @@ public:
 
 	virtual EC_word term() override
 	{
-		effect_.action().scope().implementation().init_vars();
+		effect_.action()->scope().implementation().init_vars();
 
 		EC_ref Srest, Body_cond, Eval_val, Body_subf, New_body;
 
@@ -50,13 +50,13 @@ public:
 				New_body
 			)
 		))
-			throw std::runtime_error("Failed to generate SSA for " + effect_.action().name());
+			throw std::runtime_error("Failed to generate SSA for " + effect_.action()->name());
 
 		return ::term(EC_functor(":-", 2),
 			::term(EC_functor("ssa", 3),
 				effect_.fluent().implementation().term(),
 				Eval_val,
-				::list(effect_.action().implementation().term(), Srest)
+				::list(effect_.action()->implementation().term(), Srest)
 			),
 			New_body
 		);

@@ -69,17 +69,9 @@ public:
 	shared_ptr<GologT> lookup_global(const Identifier &id)
 	{ return std::dynamic_pointer_cast<GologT>((*globals_)[id]); }
 
-	template<class GologT>
-	void register_global(GologT *g)
-	{
-		static_assert(std::is_base_of<Global, GologT>::value, "Valid only for subclasses of Global");
-		(*globals_)[static_cast<Identifier>(*g)] = shared_ptr<GologT>(g);
-	}
-
+	void register_global(Global *g);
 	const VariablesMap &var_map() const;
-
 	void implement_globals(Implementor &implementor, AExecutionContext &ctx);
-
 	void clear();
 
 private:

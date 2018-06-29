@@ -80,14 +80,14 @@ public:
 	{ return target_id().arity(); }
 
 	virtual bool bound() override
-	{ return static_cast<bool>(target_); }
+	{ return !target_.expired(); }
 
 
-	TargetT &target()
+	shared_ptr<TargetT> target()
 	{
-		if (!target_)
+		if (!bound())
 			bind();
-		return *target_;
+		return target_.lock();
 	}
 
 
@@ -113,7 +113,7 @@ public:
 	}
 
 private:
-	shared_ptr<TargetT> target_;
+	weak_ptr<TargetT> target_;
 	vector<unique_ptr<Expression>> args_;
 };
 

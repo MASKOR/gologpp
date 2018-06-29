@@ -45,7 +45,7 @@ ExpressionTypeTag Statement::expression_type_tag() const
 Global::Global(const string &name, const vector<shared_ptr<AbstractVariable>> &args)
 : Identifier (name, static_cast<arity_t>(args.size()))
 , args_(args)
-{ global_scope().register_global(this); }
+{}
 
 
 const vector<shared_ptr<AbstractVariable>> &Global::args() const

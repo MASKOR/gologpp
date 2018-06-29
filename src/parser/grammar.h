@@ -438,11 +438,15 @@ struct ProgramParser : grammar<Statement *(Scope &)> {
 	ProgramParser()
 	: ProgramParser::base_type(program)
 	{
-		program = ( *(
-			omit[fluent]
-			| omit[action]
-			| omit[function]
-		) > statement(_r1) );
+		program = *( omit[ // Discard attributes, just register as Globals
+			fluent [ phoenix::bind(
+				&Scope::register_global, _r1, _1)
+			] | action [ phoenix::bind(
+				&Scope::register_global, _r1, _1)
+			] | function [ phoenix::bind(
+				&Scope::register_global, _r1, _1)
+			]
+		] ) > statement(_r1);
 	}
 
 	rule<Statement *(Scope &)> program;

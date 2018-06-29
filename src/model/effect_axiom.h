@@ -18,11 +18,11 @@ public:
 	AbstractEffectAxiom(AbstractEffectAxiom &&) = default;
 	virtual ~AbstractEffectAxiom();
 
-	const AbstractAction &action() const;
+	const shared_ptr<AbstractAction> action() const;
 	const BooleanExpression &condition() const;
 
 protected:
-	shared_ptr<AbstractAction> action_;
+	weak_ptr<AbstractAction> action_;
 	unique_ptr<BooleanExpression> condition_;
 };
 
@@ -51,7 +51,7 @@ public:
 	const ExpressionT &value() const
 	{ return assignment_.expression(); }
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*action_, *condition_, assignment_)
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, assignment_)
 
 protected:
 	Assignment<ExpressionT> assignment_;

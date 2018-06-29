@@ -25,7 +25,7 @@ public:
 	{}
 
 	EC_word term() override
-	{ return reference_.target().implementation().term(); }
+	{ return reference_.target()->implementation().term(); }
 
 private:
 	Reference<Variable<ExpressionT>> &reference_;

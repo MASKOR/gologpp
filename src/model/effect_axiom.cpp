@@ -12,8 +12,8 @@ AbstractEffectAxiom::~AbstractEffectAxiom()
 {}
 
 
-const AbstractAction &AbstractEffectAxiom::action() const
-{ return *action_; }
+const shared_ptr<AbstractAction> AbstractEffectAxiom::action() const
+{ return action_.lock(); }
 
 
 const BooleanExpression &AbstractEffectAxiom::condition() const

@@ -84,6 +84,11 @@ void Scope::implement_globals(Implementor &implementor, AExecutionContext &ctx)
 }
 
 
+
+void Scope::register_global(Global *g)
+{ (*globals_)[static_cast<Identifier>(*g)] = shared_ptr<Global>(g); }
+
+
 void Scope::clear()
 {
 	variables_.clear();
