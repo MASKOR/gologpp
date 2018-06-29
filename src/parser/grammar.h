@@ -77,12 +77,19 @@ static rule<string()> r_name = qi::lexeme [
 
 
 template<class ExpressionT>
-static rule<Variable<ExpressionT> *(Scope &)> var()
-{
-	return type_mark<ExpressionT>() >> r_name [
-		_val = bind(&Scope::variable_raw<ExpressionT>, _r1, _1)
-	];
-}
+struct VariableParser : grammar<Variable<ExpressionT> *(Scope &)> {
+	VariableParser(): VariableParser::base_type(variable) {
+		variable = type_mark<ExpressionT>() >> r_name [
+			_val = bind(&Scope::variable_raw<ExpressionT>, _r1, _1)
+		];
+	}
+
+	rule<Variable<ExpressionT> *(Scope &)> variable;
+};
+
+static VariableParser<BooleanExpression> bool_var;
+static VariableParser<NumericExpression> num_var;
+
 
 static rule<BooleanConstant *()> bool_constant = (
 	qi::string("true") | qi::string("false")
@@ -95,19 +102,14 @@ static rule<NumericConstant *()> num_constant = float_ [
 	_val = new_<NumericConstant>(_1)
 ];
 
-static rule<AbstractConstant *()> constant =
-	bool_constant | num_constant;
+static rule<AbstractConstant *()> constant = bool_constant | num_constant;
 
-static rule<AbstractVariable *(Scope &)> abstract_var =
-	var<NumericExpression>()(_r1) | var<BooleanExpression>()(_r1);
+static rule<AbstractVariable *(Scope &)> abstract_var =	bool_var(_r1) | num_var(_r1);
 
 static rule<shared_ptr<AbstractVariable>(Scope &)> var_shared =
 	abstract_var(_r1) [ _val = construct<shared_ptr<AbstractVariable>>(_1) ];
 
-static rule<Expression *(Scope &)> atom = var<NumericExpression>()(_r1)
-	| attr_cast<Expression *>(var<BooleanExpression>()(_r1))
-	| attr_cast<Expression *>(bool_constant)
-	| attr_cast<Expression *>(num_constant);
+static rule<Expression *(Scope &)> atom = bool_var(_r1) | num_var(_r1) | bool_constant | num_constant;
 
 
 template<class ExpressionT>
@@ -131,13 +133,14 @@ struct UnboundReferenceParser : grammar<Reference<ExpressionT> *(Scope &)> {
 struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 	NumericExpressionParser() : NumericExpressionParser::base_type(expression)
 	{
-		expression = atom(_r1) | operation(_r1);
-		atom = num_constant | var<NumericExpression>()(_r1) | num_reference(_r1);
+		expression = num_atom(_r1) | operation(_r1);
+		num_atom = num_constant | num_var(_r1) | num_reference(_r1);
 		brace = '(' > expression(_r1) > ')';
 
-		operation = ((atom(_r1) >> arith_operator) > expression(_r1)) [
+		operation = ((num_atom(_r1) >> arith_operator) > expression(_r1)) [
 			_val = new_<ArithmeticOperation>(at_c<0>(_1), at_c<1>(_1), _2)
 		];
+
 		arith_operator =
 			qi::string("+") [ _val = val(ArithmeticOperation::ADDITION) ]
 			| qi::string("-") [ _val = val(ArithmeticOperation::SUBTRACTION) ]
@@ -149,7 +152,7 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 	}
 
 	rule<NumericExpression *(Scope &)> expression;
-	rule<NumericExpression *(Scope &)> atom;
+	rule<NumericExpression *(Scope &)> num_atom;
 	rule<NumericExpression *(Scope &)> operation;
 	rule<NumericExpression *(Scope &)> brace;
 	rule<ArithmeticOperation::Operator()> arith_operator;
@@ -164,7 +167,7 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 	{
 		expression = atom(_r1) | formula(_r1);
 
-		atom = bool_constant | var<BooleanExpression>()(_r1) | bool_reference(_r1);
+		atom = bool_constant | bool_var(_r1) | bool_reference(_r1);
 		formula = operation(_r1) | num_comparison(_r1) | negation(_r1) | brace(_r1);
 
 		operation = (
