@@ -44,8 +44,7 @@ DEFINE_MAKE_IMPL(ArithmeticOperation)
 
 DEFINE_MAKE_IMPL(Negation)
 DEFINE_MAKE_IMPL(Comparison)
-DEFINE_MAKE_IMPL(Conjunction)
-DEFINE_MAKE_IMPL(Disjunction)
+DEFINE_MAKE_IMPL(BooleanOperation)
 DEFINE_MAKE_IMPL(ExistentialQuantification)
 DEFINE_MAKE_IMPL(UniversalQuantification)
 

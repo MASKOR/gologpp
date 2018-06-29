@@ -26,23 +26,23 @@ Implementation<Comparison>::~Implementation()
 Implementation<Comparison>::Implementation(const Comparison &cmp)
 : comparison_(cmp)
 {
-	switch(comparison_.cmp_operator()) {
-	case ComparisonOperator::eq:
+	switch(comparison_.op()) {
+	case ComparisonOperator::EQ:
 		functor_ = "=";
 		break;
-	case ComparisonOperator::ge:
+	case ComparisonOperator::GE:
 		functor_ = ">=";
 		break;
-	case ComparisonOperator::gt:
+	case ComparisonOperator::GT:
 		functor_ = ">";
 		break;
-	case ComparisonOperator::le:
+	case ComparisonOperator::LE:
 		functor_ = "=<";
 		break;
-	case ComparisonOperator::lt:
+	case ComparisonOperator::LT:
 		functor_ = "<";
 		break;
-	case ComparisonOperator::neq:
+	case ComparisonOperator::NEQ:
 		functor_ = "\\=";
 	}
 }
@@ -57,30 +57,34 @@ EC_word Implementation<Comparison>::term()
 }
 
 
-Implementation<Conjunction>::Implementation(const Conjunction &c)
+Implementation<BooleanOperation>::Implementation(const BooleanOperation &c)
 : conjunction_(c)
-{}
-
-
-EC_word Implementation<Conjunction>::term()
 {
-	return ::term(EC_functor("and", 2),
-		conjunction_.lhs().implementation().term(),
-		conjunction_.rhs().implementation().term()
-	);
+	switch(c.op()) {
+	case BooleanOperator::AND:
+		functor_ = "and";
+		break;
+	case BooleanOperator::IFF:
+		functor_ = "=";
+		break;
+	case BooleanOperator::IMPLIES:
+		functor_ = "lif";
+		break;
+	case BooleanOperator::OR:
+		functor_ = "or";
+		break;
+	case BooleanOperator::XOR:
+		functor_ = "\\=";
+		break;
+	}
 }
 
 
-Implementation<Disjunction>::Implementation(const Disjunction &d)
-: disjunction_(d)
-{}
-
-
-EC_word Implementation<Disjunction>::term()
+EC_word Implementation<BooleanOperation>::term()
 {
-	return ::term(EC_functor("or", 2),
-		disjunction_.lhs().implementation().term(),
-		disjunction_.rhs().implementation().term()
+	return ::term(EC_functor(functor_, 2),
+		conjunction_.lhs().implementation().term(),
+		conjunction_.rhs().implementation().term()
 	);
 }
 

@@ -109,31 +109,36 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 		expression = formula(_r1) | atom(_r1);
 
 		atom = bool_constant | bool_var(_r1);
-		formula = conjunction(_r1) | disjunction(_r1) | negation(_r1) | brace(_r1);
+		formula = operation(_r1) | num_comparison(_r1) | negation(_r1) | brace(_r1);
 
-		/* Recursive alternatives are a little dumb in boost::spirit since the | operator immediately
-		 * commits to the leftmost match.
-		 * Cf. https://www.boost.org/doc/libs/1_67_0/libs/spirit/doc/html/spirit/qi/reference/operator/alternative.html
-		 * That's why we have to do this weird switching of alternation ordering between LHS and RHS. */
-		conjunction = (
-			(atom(_r1) >> "&&") > expression(_r1)
+		operation = (
+			(expression(_r1) >> bool_op) > expression(_r1)
 		) [
-			_val = new_<Conjunction>(
-				construct<unique_ptr<BooleanExpression>>(_1),
-				construct<unique_ptr<BooleanExpression>>(_2),
-				_r1
-			)
+			_val = new_<BooleanOperation>(at_c<0>(_1), at_c<1>(_1), _2, _r1)
 		];
 
-		disjunction = (
-			(atom(_r1) >> "||") > expression(_r1)
+		num_comparison = (
+			(num_expression(_r1) >> num_cmp_op) > num_expression(_r1)
 		) [
-			_val = new_<Disjunction>(
-				construct<unique_ptr<BooleanExpression>>(_1),
-				construct<unique_ptr<BooleanExpression>>(_2),
-				_r1
-			)
+			_val = new_<Comparison>(at_c<0>(_1), at_c<1>(_1), _2, _r1)
 		];
+
+		bool_op =
+			qi::string("==") [ _val = val(BooleanOperator::IFF) ]
+			| qi::string("!=") [ _val = val(BooleanOperator::XOR) ]
+			| qi::string("&") [ _val = val(BooleanOperator::AND) ]
+			| qi::string("|") [ _val = val(BooleanOperator::OR) ]
+			| qi::string("->") [ _val = val(BooleanOperator::IMPLIES) ]
+		;
+
+		num_cmp_op =
+			qi::string(">") [ _val = val(ComparisonOperator::GT) ]
+			| qi::string(">=") [ _val = val(ComparisonOperator::GE) ]
+			| qi::string("<=") [ _val = val(ComparisonOperator::LE) ]
+			| qi::string("<") [ _val = val(ComparisonOperator::LT) ]
+			| qi::string("==") [ _val = val(ComparisonOperator::NEQ) ]
+			| qi::string("!=") [ _val = val(ComparisonOperator::EQ) ]
+		;
 
 		negation = '!' > expression(_r1) [
 			_val = new_<Negation>(construct<unique_ptr<BooleanExpression>>(_1), _r1)
@@ -141,15 +146,20 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 
 		brace = '(' > expression(_r1) > ')';
 
+
 	}
 
 	rule<BooleanExpression *(Scope &)> expression;
 	rule<BooleanExpression *(Scope &)> atom;
 	rule<BooleanExpression *(Scope &)> formula;
-	rule<BooleanExpression *(Scope &)> conjunction;
-	rule<BooleanExpression *(Scope &)> disjunction;
+	rule<BooleanExpression *(Scope &)> operation;
 	rule<BooleanExpression *(Scope &)> negation;
 	rule<BooleanExpression *(Scope &)> brace;
+	UnboundReferenceParser<BooleanExpression> bool_reference;
+	rule<BooleanOperator()> bool_op;
+	rule<BooleanExpression *(Scope &)> num_comparison;
+	NumericExpressionParser num_expression;
+	rule<ComparisonOperator()> num_cmp_op;
 };
 
 

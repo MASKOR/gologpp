@@ -66,8 +66,7 @@ public:
 
 	virtual unique_ptr<AbstractImplementation> make_impl(Negation &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Comparison &) override;
-	virtual unique_ptr<AbstractImplementation> make_impl(Conjunction &) override;
-	virtual unique_ptr<AbstractImplementation> make_impl(Disjunction &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(BooleanOperation &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(ExistentialQuantification &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(UniversalQuantification &) override;
 

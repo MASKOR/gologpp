@@ -42,24 +42,14 @@ private:
 
 
 template<>
-class Implementation<Conjunction> : public Implementation<BooleanExpression> {
+class Implementation<BooleanOperation> : public Implementation<BooleanExpression> {
 public:
-	Implementation(const Conjunction &);
+	Implementation(const BooleanOperation &);
 	virtual EC_word term() override;
 
 private:
-	const Conjunction &conjunction_;
-};
-
-
-template<>
-class Implementation<Disjunction> : public Implementation<BooleanExpression> {
-public:
-	Implementation(const Disjunction &);
-	virtual EC_word term() override;
-
-private:
-	const Disjunction &disjunction_;
+	const BooleanOperation &conjunction_;
+	const char *functor_;
 };
 
 

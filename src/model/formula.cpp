@@ -26,7 +26,7 @@ Comparison::Comparison(NumericExpression *lhs, ComparisonOperator op, NumericExp
 {}
 
 
-ComparisonOperator Comparison::cmp_operator() const
+ComparisonOperator Comparison::op() const
 { return op_; }
 
 const NumericExpression &Comparison::lhs() const
@@ -36,17 +36,20 @@ const NumericExpression &Comparison::rhs() const
 { return *rhs_; }
 
 
-ConnectiveFormula::ConnectiveFormula(unique_ptr<BooleanExpression> &&lhs, unique_ptr<BooleanExpression> &&rhs, Scope &parent_scope)
+BooleanOperation::BooleanOperation(BooleanExpression *lhs, BooleanOperator op, BooleanExpression *rhs, Scope &parent_scope)
 : BooleanExpression(parent_scope)
-, lhs_(std::move(lhs)), rhs_(std::move(rhs))
+, lhs_(lhs)
+, op_(op)
+, rhs_(rhs)
 {}
 
+BooleanOperator BooleanOperation::op() const
+{ return op_; }
 
-const BooleanExpression &ConnectiveFormula::lhs() const
+const BooleanExpression &BooleanOperation::lhs() const
 { return *lhs_; }
 
-
-const BooleanExpression &ConnectiveFormula::rhs() const
+const BooleanExpression &BooleanOperation::rhs() const
 { return *rhs_; }
 
 

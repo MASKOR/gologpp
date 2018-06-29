@@ -26,14 +26,14 @@ protected:
 
 
 enum ComparisonOperator {
-	eq = 1, neq, ge, gt, le, lt
+	EQ = 1, NEQ, GE, GT, LE, LT
 };
 
 
 class Comparison : public BooleanExpression, public LanguageElement<Comparison> {
 public:
 	Comparison(NumericExpression *lhs, ComparisonOperator op, NumericExpression *rhs, Scope &parent_scope);
-	ComparisonOperator cmp_operator() const;
+	ComparisonOperator op() const;
 	const NumericExpression &lhs() const;
 	const NumericExpression &rhs() const;
 
@@ -51,31 +51,25 @@ protected:
   Connective formulas, i.e. AND, OR, IMPLIES
 \*--------------------------------------------*/
 
+enum BooleanOperator {
+	AND = 1, OR, XOR, IMPLIES, IFF
+};
 
-class ConnectiveFormula : public BooleanExpression {
+
+class BooleanOperation : public BooleanExpression {
 public:
-	ConnectiveFormula(unique_ptr<BooleanExpression> &&lhs, unique_ptr<BooleanExpression> &&rhs, Scope &parent_scope);
+	BooleanOperation(BooleanExpression *lhs, BooleanOperator op, BooleanExpression *rhs, Scope &parent_scope);
+	BooleanOperator op() const;
 	const BooleanExpression &lhs() const;
 	const BooleanExpression &rhs() const;
 
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 protected:
 	unique_ptr<BooleanExpression> lhs_;
+	BooleanOperator op_;
 	unique_ptr<BooleanExpression> rhs_;
 };
 
-
-class Conjunction : public ConnectiveFormula {
-public:
-	using ConnectiveFormula::ConnectiveFormula;
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
-};
-
-
-class Disjunction : public ConnectiveFormula {
-public:
-	using ConnectiveFormula::ConnectiveFormula;
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
-};
 
 
 /*--------------------------------------------*\
