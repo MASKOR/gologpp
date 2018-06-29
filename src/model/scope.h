@@ -80,6 +80,8 @@ public:
 
 	void implement_globals(Implementor &implementor, AExecutionContext &ctx);
 
+	void clear();
+
 private:
 	Scope();
 

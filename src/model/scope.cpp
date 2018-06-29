@@ -84,6 +84,12 @@ void Scope::implement_globals(Implementor &implementor, AExecutionContext &ctx)
 }
 
 
+void Scope::clear()
+{
+	variables_.clear();
+	if (this == &global_scope())
+		globals_->clear();
+}
 
 Scope &global_scope()
 { return Scope::global_scope(); }
