@@ -11,6 +11,7 @@
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/operator/self.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
+#include <boost/phoenix/bind/bind_function.hpp>
 
 #include <boost/variant.hpp>
 
@@ -77,18 +78,19 @@ static rule<string()> r_name = qi::lexeme [
 
 
 template<class ExpressionT>
-struct VariableParser : grammar<Variable<ExpressionT> *(Scope &)> {
+struct VariableParser : grammar<shared_ptr<Variable<ExpressionT>>(Scope &)> {
 	VariableParser(): VariableParser::base_type(variable) {
 		variable = type_mark<ExpressionT>() >> r_name [
-			_val = bind(&Scope::variable_raw<ExpressionT>, _r1, _1)
+			_val = bind(&Scope::variable<ExpressionT>, _r1, _1)
 		];
 	}
 
-	rule<Variable<ExpressionT> *(Scope &)> variable;
+	rule<shared_ptr<Variable<ExpressionT>>(Scope &)> variable;
 };
 
 static VariableParser<BooleanExpression> bool_var;
 static VariableParser<NumericExpression> num_var;
+
 
 
 static rule<BooleanConstant *()> bool_constant = (
@@ -104,12 +106,21 @@ static rule<NumericConstant *()> num_constant = float_ [
 
 static rule<AbstractConstant *()> constant = bool_constant | num_constant;
 
-static rule<AbstractVariable *(Scope &)> abstract_var =	bool_var(_r1) | num_var(_r1);
+static rule<shared_ptr<AbstractVariable> (Scope &)> abstract_var =
+		bool_var(_r1) [ _val = phoenix::bind(
+			&std::dynamic_pointer_cast<AbstractVariable, BooleanVariable>,
+			_1
+		) ]
+		| num_var(_r1) [ _val = phoenix::bind(
+			&std::dynamic_pointer_cast<AbstractVariable, NumericVariable>,
+			_1
+		) ];
 
-static rule<shared_ptr<AbstractVariable>(Scope &)> var_shared =
-	abstract_var(_r1) [ _val = construct<shared_ptr<AbstractVariable>>(_1) ];
-
-static rule<Expression *(Scope &)> atom = bool_var(_r1) | num_var(_r1) | bool_constant | num_constant;
+static rule<Expression *(Scope &)> atom =
+		bool_var(_r1) [ _val = new_<Reference<BooleanVariable>>(_1, _r1) ]
+		| num_var(_r1) [ _val = new_<Reference<NumericVariable>>(_1, _r1) ]
+		| bool_constant
+		| num_constant;
 
 
 template<class ExpressionT>
@@ -133,11 +144,11 @@ struct UnboundReferenceParser : grammar<Reference<ExpressionT> *(Scope &)> {
 struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 	NumericExpressionParser() : NumericExpressionParser::base_type(expression)
 	{
-		expression = num_atom(_r1) | operation(_r1);
-		num_atom = num_constant | num_var(_r1) | num_reference(_r1);
+		expression = num_constant | num_var_ref(_r1) | num_reference(_r1) | operation(_r1);
+		num_var_ref = num_var(_r1) [ _val = new_<Reference<NumericVariable>>(_1, _r1) ];
 		brace = '(' > expression(_r1) > ')';
 
-		operation = ((num_atom(_r1) >> arith_operator) > expression(_r1)) [
+		operation = ((expression(_r1) >> arith_operator) > expression(_r1)) [
 			_val = new_<ArithmeticOperation>(at_c<0>(_1), at_c<1>(_1), _2)
 		];
 
@@ -152,9 +163,9 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 	}
 
 	rule<NumericExpression *(Scope &)> expression;
-	rule<NumericExpression *(Scope &)> num_atom;
 	rule<NumericExpression *(Scope &)> operation;
 	rule<NumericExpression *(Scope &)> brace;
+	rule<NumericExpression *(Scope &)> num_var_ref;
 	rule<ArithmeticOperation::Operator()> arith_operator;
 	UnboundReferenceParser<NumericExpression> num_reference;
 };
@@ -167,7 +178,8 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 	{
 		expression = atom(_r1) | formula(_r1);
 
-		atom = bool_constant | bool_var(_r1) | bool_reference(_r1);
+		atom = bool_constant | bool_var_ref(_r1) | bool_reference(_r1);
+		bool_var_ref = bool_var(_r1) [ _val = new_<Reference<BooleanVariable>>(_1, _r1) ];
 		formula = operation(_r1) | num_comparison(_r1) | negation(_r1) | brace(_r1);
 
 		operation = (
@@ -214,6 +226,7 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 	rule<BooleanExpression *(Scope &)> operation;
 	rule<BooleanExpression *(Scope &)> negation;
 	rule<BooleanExpression *(Scope &)> brace;
+	rule<BooleanExpression *(Scope &)> bool_var_ref;
 	UnboundReferenceParser<BooleanExpression> bool_reference;
 	rule<BooleanOperator()> bool_op;
 	rule<BooleanExpression *(Scope &)> num_comparison;
@@ -252,7 +265,7 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 			_val = new_<Assignment<NumericExpression>>(_1, _2, _r1)
 		];
 
-		pick = (l("pick") > '(' > var_shared(_r1) > ')' > statement(_r1)) [
+		pick = (l("pick") > '(' > abstract_var(_r1) > ')' > statement(_r1)) [
 			_val = new_<Pick>(_1, _2, _r1)
 		];
 
@@ -309,7 +322,7 @@ struct FunctionParser : grammar<Function<ExpressionT> *()> {
 				delete_(_r(scope)),
 				_r(scope) = new_<Scope>(nullptr)
 			]
-			> *var_shared(*_r(scope)) > ')' > statement(*_r(scope))
+			> *abstract_var(*_r(scope)) > ')' > statement(*_r(scope))
 		) [
 			_val = new_<Function<ExpressionT>>(_r(scope), _1, _2, _3)
 		];
@@ -347,7 +360,7 @@ struct EffectParser : grammar<AbstractEffectAxiom *(Action &, Scope &)> {
 			(boolean_expression(_r2) >> "->"
 			>> bool_fluent_ref(_r2)) > '=' > boolean_expression(_r2)
 		) [
-			// Parentheses above create a 2-tuple as first attribute, so use at_c
+			// Bracketing above create a 2-tuple as first attribute, so use at_c
 			// to access its elements.
 			_val = new_<EffectAxiom<BooleanExpression>>(_r1, at_c<0>(_1), at_c<1>(_1), _2)
 		];
@@ -380,7 +393,7 @@ struct ActionParser : grammar<Action *()> {
 			(("action" > r_name > '(') [ delete_(_r(scope)), _r(scope) = new_<Scope>(nullptr) ])
 			// CRUCIAL detail: use lazy dereference, i.e. *_r(scope), not _r(*scope).
 			// Otherwise, we create a reference to the contents of an uninitialized pointer.
-			> *var_shared(*_r(scope)) > ')'
+			> *abstract_var(*_r(scope)) > ')'
 		) [
 			_val = new_<Action>(_r(scope), _1, _2)
 		]
@@ -418,14 +431,14 @@ struct FluentParser : grammar<AbstractFluent *()> {
 	, scope(nullptr)
 	{
 		fluent = (
-			(((l("?") >> "fluent") > r_name > '(') [ delete_(_r(scope)), _r(scope) = new_<Scope>(nullptr) ])
-			> *var_shared(*_r(scope)) > ')' > '=' > bool_constant
+			(((type_mark<BooleanExpression>() >> "fluent") > r_name > '(') [ delete_(_r(scope)), _r(scope) = new_<Scope>(nullptr) ])
+			> *abstract_var(*_r(scope)) > ')' > '=' > bool_constant
 		) [
 			_val = new_<BooleanFluent>(_r(scope), _1, _2, construct<unique_ptr<BooleanExpression>>(_3))
 		]
 		| (
-			((l("%") >> "fluent") > r_name > '(') [ _r(scope) = new_<Scope>(nullptr) ]
-			> *var_shared(*_r(scope)) > ')' > '=' > num_constant
+			((type_mark<NumericExpression>() >> "fluent") > r_name > '(') [ delete_(_r(scope)), _r(scope) = new_<Scope>(nullptr) ]
+			> *abstract_var(*_r(scope)) > ')' > '=' > num_constant
 		) [
 			_val = new_<NumericFluent>(_r(scope), _1, _2, construct<unique_ptr<NumericExpression>>(_3))
 		];
@@ -442,12 +455,14 @@ struct ProgramParser : grammar<Statement *(Scope &)> {
 	: ProgramParser::base_type(program)
 	{
 		program = *( omit[ // Discard attributes, just register as Globals
-			fluent [ phoenix::bind(
-				&Scope::register_global, _r1, _1)
-			] | action [ phoenix::bind(
-				&Scope::register_global, _r1, _1)
-			] | function [ phoenix::bind(
-				&Scope::register_global, _r1, _1)
+			fluent [
+				phoenix::bind(&Scope::register_global, _r1, _1)
+			]
+			| action [
+				phoenix::bind(&Scope::register_global, _r1, _1)
+			]
+			| function [
+				phoenix::bind(&Scope::register_global, _r1, _1)
 			]
 		] ) > statement(_r1);
 	}

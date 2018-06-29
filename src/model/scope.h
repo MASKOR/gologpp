@@ -48,10 +48,6 @@ public:
 		return rv;
 	}
 
-	template<class ExpressionT>
-	Variable<ExpressionT> *variable_raw(const string &name)
-	{ return variable<ExpressionT>(name).get(); }
-
 	shared_ptr<AbstractVariable> variable(const string &name) const;
 
 	vector<shared_ptr<AbstractVariable>> variables(const vector<string> &names) const;
