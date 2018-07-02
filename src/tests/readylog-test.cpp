@@ -92,7 +92,7 @@ void test_parser()
 	//std::string formula("?x || true && false");
 	//parser::parse_string(formula);
 
-	std::string action_str("action wurst(?X) { precondition: ?Y }");
+	std::string action_str("action wurst(?X) { precondition: ?Y } wurst(1)");
 	unique_ptr<Statement> none = parser::parse_string(action_str);
 
 	global_scope().clear();
@@ -102,7 +102,8 @@ void test_parser()
 	shared_ptr<Action> put = global_scope().lookup_global<Action>({"put", 2});
 	shared_ptr<BooleanFunction> goal = global_scope().lookup_global<BooleanFunction>({"goal", 0});
 
-	std::cout << on->name() << " " << put->name() << " " << goal->name() << std::endl;
+	if (on && put && goal)
+		std::cout << on->name() << " " << put->name() << " " << goal->name() << std::endl;
 
 #endif
 }
