@@ -465,6 +465,34 @@ struct FluentParser : grammar<AbstractFluent *()> {
 
 
 
+void handle_error(const string::const_iterator &begin, const string::const_iterator &errpos, const string::const_iterator &end, const boost::spirit::info &expected) {
+	string::const_iterator lbegin = errpos;
+	string fill;
+	while (lbegin > begin && *lbegin != '\n') {
+		--lbegin;
+		if (*lbegin == '\t')
+			fill = '\t' + fill;
+		else if (*lbegin != '\n')
+			fill = " " + fill;
+	}
+	if (*lbegin == '\n')
+		lbegin++;
+
+	string::const_iterator lend = errpos;
+	while (lend < end && *lend != '\n')
+		++lend;
+
+	string line(lbegin, lend);
+	string mark(fill + '^');
+
+	std::cout << "Syntax error: " << std::endl
+			<< line << std::endl
+			<< mark << std::endl
+			<< "Expected: " << expected << std::endl;
+}
+
+
+
 struct ProgramParser : grammar<Statement *(Scope &)> {
 	ProgramParser()
 	: ProgramParser::base_type(program)
@@ -480,6 +508,10 @@ struct ProgramParser : grammar<Statement *(Scope &)> {
 				phoenix::bind(&Scope::register_global, _r1, _1)
 			]
 		] ) > statement(_r1);
+
+		qi::on_error<qi::fail>(program,
+			phoenix::bind(&handle_error, _1, _3, _2, _4)
+		);
 	}
 
 	rule<Statement *(Scope &)> program;
