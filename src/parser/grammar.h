@@ -201,6 +201,13 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 			_val = new_<Comparison>(at_c<0>(_1), at_c<1>(_1), _2, _r1)
 		];
 
+		quantification = (quantification_op > '(' > abstract_var(_r1) > ')' > expression(_r1)) [
+			_val = new_<Quantification>(_1, _2, _3, _r1)
+		];
+
+		quantification_op = qi::string("exists") [ _val = val(QuantificationOperator::EXISTS) ]
+			| qi::string("forall") [ _val = val(QuantificationOperator::FORALL) ];
+
 		bool_op =
 			qi::string("==") [ _val = val(BooleanOperator::IFF) ]
 			| qi::string("!=") [ _val = val(BooleanOperator::XOR) ]
@@ -233,6 +240,8 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 	rule<BooleanExpression *(Scope &)> negation;
 	rule<BooleanExpression *(Scope &)> brace;
 	rule<BooleanExpression *(Scope &)> bool_var_ref;
+	rule<BooleanExpression *(Scope &)> quantification;
+	rule<QuantificationOperator()> quantification_op;
 	UnboundReferenceParser<BooleanExpression> bool_reference;
 	rule<BooleanOperator()> bool_op;
 	rule<BooleanExpression *(Scope &)> num_comparison;
