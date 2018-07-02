@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <vector>
+#include <boost/optional.hpp>
 
 namespace gologpp {
 
@@ -61,6 +62,11 @@ public:
 	, AbstractReference({target_name, static_cast<arity_t>(args.size())})
 	, args_(args.begin(), args.end())
 	{}
+
+	Reference(const string &target_name, Scope &parent_scope, const boost::optional<vector<Expression *>> &args)
+	: Reference(target_name, parent_scope, args.get_value_or({}))
+	{}
+
 
 	virtual ~Reference() override = default;
 
