@@ -492,7 +492,7 @@ void handle_error(const string::const_iterator &begin, const string::const_itera
 		else if (*lbegin != '\n')
 			fill = " " + fill;
 	}
-	if (*lbegin == '\n')
+	if (lbegin != errpos && *lbegin == '\n')
 		lbegin++;
 
 	string::const_iterator lend = errpos;
