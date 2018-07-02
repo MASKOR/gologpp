@@ -1,0 +1,37 @@
+%fluent on(%x) = 0
+
+action put(%x, %y) {
+precondition:
+	on(%x) != %y &
+	%x != 0 &
+	!(exists (%z) (
+		on(%z) == %x |
+		on(%z) == %y
+	))
+
+effect:
+
+	on(%x) = %y
+}
+
+
+?function goal() {
+	return on(1) == 0 & on(2) == 1 & on(3) == 2;
+}
+
+
+{
+	search while (!goal()) {
+		choose {
+			%y = 1;
+			%y = 2;
+			%y = 3;
+			%y = 0;
+		}
+		choose {
+			put(1, %y);
+			put(2, %y);
+			put(3, %y);
+		}
+	}
+}
