@@ -6,6 +6,8 @@
 #include "reference.h"
 #include "language.h"
 
+#include <boost/optional.hpp>
+
 namespace gologpp {
 
 class Expression;
@@ -14,15 +16,15 @@ class AbstractFluent;
 
 class AbstractEffectAxiom : public virtual AbstractLanguageElement {
 public:
-	AbstractEffectAxiom(const shared_ptr<AbstractAction> &action, unique_ptr<BooleanExpression> &&condition);
+	AbstractEffectAxiom(const AbstractAction *action, BooleanExpression *condition);
 	AbstractEffectAxiom(AbstractEffectAxiom &&) = default;
 	virtual ~AbstractEffectAxiom();
 
-	const shared_ptr<AbstractAction> action() const;
+	const AbstractAction &action() const;
 	const BooleanExpression &condition() const;
 
 protected:
-	weak_ptr<AbstractAction> action_;
+	const AbstractAction *action_;
 	unique_ptr<BooleanExpression> condition_;
 };
 
@@ -30,15 +32,24 @@ protected:
 template<class ExpressionT>
 class EffectAxiom : public AbstractEffectAxiom, public LanguageElement<EffectAxiom<ExpressionT>> {
 public:
-	EffectAxiom(const shared_ptr<AbstractAction> &action, BooleanExpression *condition,
+	EffectAxiom(AbstractAction *action, BooleanExpression *condition,
 	            Reference<Fluent<ExpressionT>> *fluent, ExpressionT *value)
-	: AbstractEffectAxiom(action, unique_ptr<BooleanExpression>(condition))
+	: AbstractEffectAxiom(action, condition)
 	, assignment_(fluent, value, action->scope())
 	{}
 
-	EffectAxiom(AbstractAction &action, BooleanExpression *condition,
-	            Reference<Fluent<ExpressionT>> *fluent, ExpressionT *value)
-	: EffectAxiom(std::static_pointer_cast<AbstractAction>(action.shared_from_this()), condition, fluent, value)
+	EffectAxiom(
+		AbstractAction *action,
+		boost::optional<BooleanExpression *> condition,
+	    Reference<Fluent<ExpressionT>> *fluent,
+		ExpressionT *value
+	)
+	: EffectAxiom(
+		action,
+		condition.get_value_or(new BooleanConstant(true)),
+		fluent,
+		value
+	)
 	{}
 
 	EffectAxiom(EffectAxiom<ExpressionT> &&o) = default;

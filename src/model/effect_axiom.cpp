@@ -3,17 +3,17 @@
 
 namespace gologpp {
 
-AbstractEffectAxiom::AbstractEffectAxiom(const shared_ptr<AbstractAction> &action, unique_ptr<BooleanExpression> &&condition)
+AbstractEffectAxiom::AbstractEffectAxiom(const AbstractAction *action, BooleanExpression *condition)
 : action_(action)
-, condition_(std::move(condition))
+, condition_(condition)
 {}
 
 AbstractEffectAxiom::~AbstractEffectAxiom()
 {}
 
 
-const shared_ptr<AbstractAction> AbstractEffectAxiom::action() const
-{ return action_.lock(); }
+const AbstractAction &AbstractEffectAxiom::action() const
+{ return *action_; }
 
 
 const BooleanExpression &AbstractEffectAxiom::condition() const

@@ -365,36 +365,39 @@ struct AbstractFunctionParser : grammar<AbstractFunction *()> {
 
 
 
-struct EffectParser : grammar<AbstractEffectAxiom *(Action &, Scope &)> {
+struct EffectParser : grammar<AbstractEffectAxiom *(AbstractAction *, Scope &)> {
 	EffectParser()
 	: EffectParser::base_type(effect)
 	{
 		effect = boolean_effect(_r1, _r2) | numeric_effect(_r1, _r2);
 
+		//FIXME: disambiguate cases like fluent(a1) = func(a1)!
+		//Requires forward declarations!
+
 		boolean_effect = (
-			(boolean_expression(_r2) >> "->"
-			>> bool_fluent_ref(_r2)) > '=' > boolean_expression(_r2)
+			-(boolean_expression(_r2) >> "->")
+			>> bool_fluent_ref(_r2)
+			>> '=' >> boolean_expression(_r2)
 		) [
-			// Bracketing above create a 2-tuple as first attribute, so use at_c
-			// to access its elements.
-			_val = new_<EffectAxiom<BooleanExpression>>(_r1, at_c<0>(_1), at_c<1>(_1), _2)
+			_val = new_<EffectAxiom<BooleanExpression>>(_r1, _1, _2, _3)
 		];
 
 		numeric_effect = (
-			(boolean_expression(_r2) >> "->"
-			>> num_fluent_ref(_r2)) > '=' > numeric_expression(_r2)
+			-(boolean_expression(_r2) >> "->")
+			>> num_fluent_ref(_r2)
+			>> '=' >> numeric_expression(_r2)
 		) [
-			_val = new_<EffectAxiom<NumericExpression>>(_r1, at_c<0>(_1), at_c<1>(_1), _2)
+			_val = new_<EffectAxiom<NumericExpression>>(_r1, _1, _2, _3)
 		];
 	}
 
-	rule<AbstractEffectAxiom *(Action &, Scope &)> effect;
+	rule<AbstractEffectAxiom *(AbstractAction *, Scope &)> effect;
 	BooleanExpressionParser boolean_expression;
 	NumericExpressionParser numeric_expression;
 	UnboundReferenceParser<BooleanFluent> bool_fluent_ref;
 	UnboundReferenceParser<NumericFluent> num_fluent_ref;
-	rule<EffectAxiom<BooleanExpression> *(Action &, Scope &)> boolean_effect;
-	rule<EffectAxiom<NumericExpression> *(Action &, Scope &)> numeric_effect;
+	rule<EffectAxiom<BooleanExpression> *(AbstractAction *, Scope &)> boolean_effect;
+	rule<EffectAxiom<NumericExpression> *(AbstractAction *, Scope &)> numeric_effect;
 };
 
 
@@ -420,7 +423,7 @@ struct ActionParser : grammar<Action *()> {
 					_1
 				)
 			] )
-			> -( "effect:" > (effect(*_val, *_r(scope)) [
+			> -( "effect:" > (effect(_val, *_r(scope)) [
 				phoenix::bind(
 					&Action::add_effect,
 					*_val,
