@@ -64,7 +64,7 @@ void test_objectmodel()
 			std::move(arg)
 		);
 		put->add_effect(new EffectAxiom<NumericExpression>(
-			std::dynamic_pointer_cast<Action>(put->shared_from_this()),
+			put,
 			new BooleanConstant(true),
 			on_ref,
 			put_scope->variable<NumericExpression>("Y")->ref(*put_scope)
