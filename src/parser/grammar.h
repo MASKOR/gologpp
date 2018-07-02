@@ -143,7 +143,7 @@ template<class ExpressionT>
 struct UnboundReferenceParser : grammar<Reference<ExpressionT> *(Scope &)> {
 	UnboundReferenceParser() : UnboundReferenceParser::base_type(pred_ref, string("reference to ") + typeid(ExpressionT).name())
 	{
-		pred_ref = (r_name >> "(" >> ( (
+		pred_ref = (r_name >> "(" >> -( (
 			attr_cast<Expression *>(pred_ref(_r1))
 			| attr_cast<Expression *>(atom(_r1))
 		) %  ",") > ")"
@@ -169,7 +169,7 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 			_val = new_<ArithmeticOperation>(at_c<0>(_1), at_c<1>(_1), _2)
 		];
 
-		brace = '(' > expression(_r1) > ')';
+		brace = '(' >> expression(_r1) >> ')';
 
 		arith_operator =
 			qi::string("+") [ _val = val(ArithmeticOperation::ADDITION) ]
@@ -200,8 +200,8 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 	{
 		expression = binary_expr(_r1) | unary_expr(_r1);
 
-		unary_expr = num_comparison(_r1) | negation(_r1)  | bool_constant
-			| bool_var_ref(_r1) | quantification(_r1) | bool_reference(_r1) | brace(_r1);
+		unary_expr = quantification(_r1) | negation(_r1) | bool_constant
+			| bool_var_ref(_r1) | brace(_r1) | num_comparison(_r1) | bool_reference(_r1);
 
 		binary_expr = (
 			(unary_expr(_r1) >> bool_op) > expression(_r1)
@@ -243,7 +243,7 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 			_val = new_<Negation>(construct<unique_ptr<BooleanExpression>>(_1), _r1)
 		];
 
-		brace = '(' > expression(_r1) > ')';
+		brace = '(' >> expression(_r1) >> ')';
 
 		bool_var_ref = bool_var(_r1) [ _val = new_<Reference<BooleanVariable>>(_1, _r1) ];
 	}
@@ -268,9 +268,9 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 struct StatementParser : grammar<Statement *(Scope &)> {
 	StatementParser() : StatementParser::base_type(statement, "statement")
 	{
-		statement = choose(_r1) | conditional(_r1) | bool_assignment(_r1)
-			| numeric_assignment(_r1) | pick(_r1) | search(_r1) | test(_r1) | r_while(_r1)
-			| boolean_return(_r1) | numeric_return(_r1) | procedure_call(_r1) | block(_r1);
+		statement = choose(_r1) | conditional(_r1) | pick(_r1) | search(_r1)
+			| test(_r1) | r_while(_r1) | block(_r1) | boolean_return(_r1) | numeric_return(_r1)
+			| numeric_assignment(_r1) | bool_assignment(_r1) | procedure_call(_r1);
 
 		block = ('{' > (statement(_r1) % ';') > '}') [
 			_val = new_<Block>(_1, _r1)
