@@ -5,6 +5,7 @@
 #include <boost/spirit/include/qi_char_.hpp>
 #include <boost/spirit/include/phoenix_fusion.hpp>
 #include <boost/spirit/include/qi_omit.hpp>
+#include <boost/spirit/home/qi/nonterminal/error_handler.hpp>
 
 #include <boost/phoenix/object/construct.hpp>
 #include <boost/phoenix/object/new.hpp>
@@ -18,6 +19,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <iostream>
 
 #include <model/gologpp.h>
 #include <model/effect_axiom.h>
@@ -144,13 +146,16 @@ struct UnboundReferenceParser : grammar<Reference<ExpressionT> *(Scope &)> {
 struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 	NumericExpressionParser() : NumericExpressionParser::base_type(expression)
 	{
-		expression = num_constant | num_var_ref(_r1) | num_reference(_r1) | operation(_r1);
-		num_var_ref = num_var(_r1) [ _val = new_<Reference<NumericVariable>>(_1, _r1) ];
-		brace = '(' > expression(_r1) > ')';
+		expression = binary_expr(_r1) | unary_expr(_r1);
+		unary_expr = brace(_r1) | num_constant | num_var_ref(_r1) | num_reference(_r1);
 
-		operation = ((expression(_r1) >> arith_operator) > expression(_r1)) [
+		binary_expr = (
+			(unary_expr(_r1) >> arith_operator) > expression(_r1)
+		) [
 			_val = new_<ArithmeticOperation>(at_c<0>(_1), at_c<1>(_1), _2)
 		];
+
+		brace = '(' > expression(_r1) > ')';
 
 		arith_operator =
 			qi::string("+") [ _val = val(ArithmeticOperation::ADDITION) ]
@@ -160,12 +165,15 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 			| qi::string("**") [ _val = val(ArithmeticOperation::POWER) ]
 			| qi::string("%") [ _val = val(ArithmeticOperation::MODULO) ]
 		;
+		num_var_ref = num_var(_r1) [ _val = new_<Reference<NumericVariable>>(_1, _r1) ];
 	}
 
 	rule<NumericExpression *(Scope &)> expression;
+	rule<NumericExpression *(Scope &)> binary_expr;
 	rule<NumericExpression *(Scope &)> operation;
 	rule<NumericExpression *(Scope &)> brace;
 	rule<NumericExpression *(Scope &)> num_var_ref;
+	rule<NumericExpression *(Scope &)> unary_expr;
 	rule<ArithmeticOperation::Operator()> arith_operator;
 	UnboundReferenceParser<NumericExpression> num_reference;
 };
@@ -176,14 +184,13 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 	BooleanExpressionParser() : BooleanExpressionParser::base_type(expression)
 	{
-		expression = atom(_r1) | formula(_r1);
+		expression = binary_expr(_r1) | unary_expr(_r1);
 
-		atom = bool_constant | bool_var_ref(_r1) | bool_reference(_r1);
-		bool_var_ref = bool_var(_r1) [ _val = new_<Reference<BooleanVariable>>(_1, _r1) ];
-		formula = operation(_r1) | num_comparison(_r1) | negation(_r1) | brace(_r1);
+		unary_expr = num_comparison(_r1) | negation(_r1)  | bool_constant
+			| bool_var_ref(_r1) | quantification(_r1) | bool_reference(_r1) | brace(_r1);
 
-		operation = (
-			(expression(_r1) >> bool_op) > expression(_r1)
+		binary_expr = (
+			(unary_expr(_r1) >> bool_op) > expression(_r1)
 		) [
 			_val = new_<BooleanOperation>(at_c<0>(_1), at_c<1>(_1), _2, _r1)
 		];
@@ -211,19 +218,18 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 			| qi::string("!=") [ _val = val(ComparisonOperator::EQ) ]
 		;
 
-		negation = '!' > expression(_r1) [
+		negation = '!' > unary_expr(_r1) [
 			_val = new_<Negation>(construct<unique_ptr<BooleanExpression>>(_1), _r1)
 		];
 
 		brace = '(' > expression(_r1) > ')';
 
-
+		bool_var_ref = bool_var(_r1) [ _val = new_<Reference<BooleanVariable>>(_1, _r1) ];
 	}
 
 	rule<BooleanExpression *(Scope &)> expression;
-	rule<BooleanExpression *(Scope &)> atom;
-	rule<BooleanExpression *(Scope &)> formula;
-	rule<BooleanExpression *(Scope &)> operation;
+	rule<BooleanExpression *(Scope &)> unary_expr;
+	rule<BooleanExpression *(Scope &)> binary_expr;
 	rule<BooleanExpression *(Scope &)> negation;
 	rule<BooleanExpression *(Scope &)> brace;
 	rule<BooleanExpression *(Scope &)> bool_var_ref;
