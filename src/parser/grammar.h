@@ -408,7 +408,7 @@ struct ActionParser : grammar<Action *()> {
 			(("action" > r_name > '(') [ delete_(_r(scope)), _r(scope) = new_<Scope>(nullptr) ])
 			// CRUCIAL detail: use lazy dereference, i.e. *_r(scope), not _r(*scope).
 			// Otherwise, we create a reference to the contents of an uninitialized pointer.
-			> *abstract_var(*_r(scope)) > ')'
+			> abstract_var(*_r(scope)) % ',' > ')'
 		) [
 			_val = new_<Action>(_r(scope), _1, _2)
 		]
