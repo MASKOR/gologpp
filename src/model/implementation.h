@@ -51,8 +51,7 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(Negation &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Comparison &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(BooleanOperation &) = 0;
-	virtual unique_ptr<AbstractImplementation> make_impl(ExistentialQuantification &) = 0;
-	virtual unique_ptr<AbstractImplementation> make_impl(UniversalQuantification &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Quantification &) = 0;
 
 	virtual unique_ptr<AbstractImplementation> make_impl(Block &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Choose &) = 0;

@@ -66,8 +66,7 @@ class ArithmeticOperation;
 class Negation;
 class Comparison;
 class BooleanOperation;
-class ExistentialQuantification;
-class UniversalQuantification;
+class Quantification;
 
 class Block;
 class Choose;

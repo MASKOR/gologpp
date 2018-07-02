@@ -1,6 +1,7 @@
 #include "formula.h"
 #include <model/formula.h>
 #include <model/atoms.h>
+#include <model/error.h>
 
 namespace gologpp {
 
@@ -89,35 +90,30 @@ EC_word Implementation<BooleanOperation>::term()
 }
 
 
-Implementation<ExistentialQuantification>::Implementation(const ExistentialQuantification &q)
+Implementation<Quantification>::Implementation(const Quantification &q)
 : quantification_(q)
 {}
 
 
-EC_word Implementation<ExistentialQuantification>::term()
+EC_word Implementation<Quantification>::term()
 {
-	return ::term(EC_functor("some", 2),
-		quantification_.variable().implementation().term(),
-		quantification_.expression().implementation().term()
-	);
-}
-
-
-Implementation<UniversalQuantification>::Implementation(const UniversalQuantification &q)
-: quantification_(q)
-{}
-
-
-EC_word Implementation<UniversalQuantification>::term()
-{
-	return ::term(EC_functor("neg", 1),
-		::term(EC_functor("some", 2),
+	switch (quantification_.op()) {
+	case QuantificationOperator::EXISTS:
+		return ::term(EC_functor("some", 2),
 			quantification_.variable().implementation().term(),
-			::term(EC_functor("neg", 1),
-				quantification_.expression().implementation().term()
+			quantification_.expression().implementation().term()
+		);
+	case QuantificationOperator::FORALL:
+		return ::term(EC_functor("neg", 1),
+			::term(EC_functor("some", 2),
+				quantification_.variable().implementation().term(),
+				::term(EC_functor("neg", 1),
+					quantification_.expression().implementation().term()
+				)
 			)
-		)
-	);
+		);
+	}
+	throw Bug("Unknown QuantificationOperator");
 }
 
 

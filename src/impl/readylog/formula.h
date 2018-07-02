@@ -54,25 +54,15 @@ private:
 
 
 template<>
-class Implementation<ExistentialQuantification> : public Implementation<BooleanExpression> {
+class Implementation<Quantification> : public Implementation<BooleanExpression> {
 public:
-	Implementation(const ExistentialQuantification &);
+	Implementation(const Quantification &);
 	virtual EC_word term() override;
 
 private:
-	const ExistentialQuantification &quantification_;
+	const Quantification &quantification_;
 };
 
-
-template<>
-class Implementation<UniversalQuantification> : public Implementation<BooleanExpression> {
-public:
-	Implementation(const UniversalQuantification &);
-	virtual EC_word term() override;
-
-private:
-	const UniversalQuantification &quantification_;
-};
 
 
 } // namespace gologpp

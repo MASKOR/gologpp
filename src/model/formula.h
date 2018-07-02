@@ -79,35 +79,30 @@ protected:
 
 class AbstractVariable;
 
+enum QuantificationOperator {
+	EXISTS = 1, FORALL
+};
+
 
 class Quantification : public BooleanExpression {
 public:
 	Quantification(
+			QuantificationOperator op,
 	        const shared_ptr<AbstractVariable> &variable,
-	        unique_ptr<BooleanExpression> &&expression,
+	        BooleanExpression *expression,
 	        Scope &parent_scope);
 
+	QuantificationOperator op() const;
 	const AbstractVariable &variable() const;
 	const BooleanExpression &expression() const;
 
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *expression_)
 protected:
+	QuantificationOperator op_;
 	shared_ptr<AbstractVariable> variable_;
 	unique_ptr<BooleanExpression> expression_;
 };
 
-
-class ExistentialQuantification : public Quantification, public LanguageElement<ExistentialQuantification> {
-public:
-	using Quantification::Quantification;
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *expression_)
-};
-
-
-class UniversalQuantification : public Quantification, public LanguageElement<UniversalQuantification> {
-public:
-	using Quantification::Quantification;
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *expression_)
-};
 
 
 } // namespace gologpp
