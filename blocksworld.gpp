@@ -16,7 +16,7 @@ effect:
 
 
 ?function goal() {
-	return on(1) == 0 & on(2) == 1 & on(3) == 2;
+	return on(1) == 0 & on(2) == 1 & on(3) == 2
 }
 
 
@@ -26,12 +26,12 @@ effect:
 			%y = 1;
 			%y = 2;
 			%y = 3;
-			%y = 0;
+			%y = 0
 		}
 		choose {
 			put(1, %y);
 			put(2, %y);
-			put(3, %y);
+			put(3, %y)
 		}
 	}
 }
