@@ -17,3 +17,8 @@ Safe extensibility: If new language elements are introduced, they are handled ge
 
 Perfect separation of Syntactic model and implementation. The syntactic model describes NOTHING BUT the syntactic-referential structure of a program, while the implementation does NOTHING BUT implementing the semantics of each element.
 
+Maximum type safety within the implementation, Language types as template arguments reflect language type semantics
+
+Use the right tool for the job:
+C++ for metamodeling, interfacing, embedding, control flow & static consistency checking (of the metamodel, its usage as well as on the target language code)
+Backend language (like Prolog) for language semantics.
