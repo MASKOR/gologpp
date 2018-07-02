@@ -11,7 +11,7 @@ namespace parser {
 
 unique_ptr<Statement> parse_string(const std::string &code)
 {
-	Statement *rv;
+	Statement *rv = nullptr;
 	ProgramParser program_parser;
 	boost::spirit::qi::phrase_parse(
 		code.cbegin(),
@@ -31,6 +31,7 @@ unique_ptr<Statement> parse_file(const std::string &filename)
 	buffer << file.rdbuf();
 	return parse_string(buffer.str());
 }
+
 
 }
 }
