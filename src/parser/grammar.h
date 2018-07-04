@@ -6,6 +6,7 @@
 #include <boost/spirit/include/phoenix_fusion.hpp>
 #include <boost/spirit/include/qi_omit.hpp>
 #include <boost/spirit/home/qi/nonterminal/error_handler.hpp>
+#include <boost/spirit/include/support_line_pos_iterator.hpp>
 
 #include <boost/phoenix/object/construct.hpp>
 #include <boost/phoenix/object/new.hpp>
@@ -44,12 +45,13 @@ using namespace boost::spirit;
 using namespace boost::spirit::qi::labels;
 using namespace boost::phoenix;
 
+using iterator = boost::spirit::line_pos_iterator<string::const_iterator>;
 
 template<typename ResultT>
-using rule = boost::spirit::qi::rule<string::const_iterator, ResultT, ascii::space_type>;
+using rule = boost::spirit::qi::rule<iterator, ResultT, ascii::space_type>;
 
 template<typename ResultT>
-using grammar = boost::spirit::qi::grammar<string::const_iterator, ResultT, ascii::space_type>;
+using grammar = boost::spirit::qi::grammar<iterator, ResultT, ascii::space_type>;
 
 
 template<class T>
@@ -66,11 +68,11 @@ static auto type_mark();
 
 template<>
 auto type_mark<BooleanExpression>()
-{ return l('?'); }
+{ return qi::lit('?'); }
 
 template<>
 auto type_mark<NumericExpression>()
-{ return l('%'); }
+{ return qi::lit('%'); }
 
 
 template<class ExpressionT>
@@ -161,15 +163,20 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 	NumericExpressionParser() : NumericExpressionParser::base_type(expression, "numeric expression")
 	{
 		expression = binary_expr(_r1) | unary_expr(_r1);
+		expression.name("numeric expression");
+
 		unary_expr = brace(_r1) | num_constant | num_var_ref(_r1) | num_reference(_r1);
+		unary_expr.name("unary numeric expression");
 
 		binary_expr = (
 			(unary_expr(_r1) >> arith_operator) > expression(_r1)
 		) [
 			_val = new_<ArithmeticOperation>(at_c<0>(_1), at_c<1>(_1), _2)
 		];
+		binary_expr.name("binary numeric expression");
 
 		brace = '(' >> expression(_r1) >> ')';
+		brace.name("braced numeric expression");
 
 		arith_operator =
 			qi::string("+") [ _val = val(ArithmeticOperation::ADDITION) ]
@@ -179,7 +186,10 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 			| qi::string("**") [ _val = val(ArithmeticOperation::POWER) ]
 			| qi::string("%") [ _val = val(ArithmeticOperation::MODULO) ]
 		;
+		arith_operator.name("arithmetic operator");
+
 		num_var_ref = num_var(_r1) [ _val = new_<Reference<NumericVariable>>(_1, _r1) ];
+		num_var_ref.name("reference to numeric variable");
 	}
 
 	rule<NumericExpression *(Scope &)> expression;
@@ -199,28 +209,34 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 	BooleanExpressionParser() : BooleanExpressionParser::base_type(expression, "boolean expression")
 	{
 		expression = binary_expr(_r1) | unary_expr(_r1);
+		expression.name("boolean expression");
 
 		unary_expr = quantification(_r1) | negation(_r1) | bool_constant
 			| bool_var_ref(_r1) | brace(_r1) | num_comparison(_r1) | bool_reference(_r1);
+		unary_expr.name("unary boolean expression");
 
 		binary_expr = (
 			(unary_expr(_r1) >> bool_op) > expression(_r1)
 		) [
 			_val = new_<BooleanOperation>(at_c<0>(_1), at_c<1>(_1), _2, _r1)
 		];
+		binary_expr.name("binary boolean expression");
 
 		num_comparison = (
 			(num_expression(_r1) >> num_cmp_op) > num_expression(_r1)
 		) [
 			_val = new_<Comparison>(at_c<0>(_1), at_c<1>(_1), _2, _r1)
 		];
+		num_comparison.name("numeric comparison");
 
 		quantification = (quantification_op > '(' > abstract_var(_r1) > ')' > expression(_r1)) [
 			_val = new_<Quantification>(_1, _2, _3, _r1)
 		];
+		quantification.name("quantification");
 
 		quantification_op = qi::string("exists") [ _val = val(QuantificationOperator::EXISTS) ]
 			| qi::string("forall") [ _val = val(QuantificationOperator::FORALL) ];
+		quantification_op.name("quantification operator");
 
 		bool_op =
 			qi::string("==") [ _val = val(BooleanOperator::IFF) ]
@@ -229,6 +245,7 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 			| qi::string("|") [ _val = val(BooleanOperator::OR) ]
 			| qi::string("->") [ _val = val(BooleanOperator::IMPLIES) ]
 		;
+		bool_op.name("boolean operator");
 
 		num_cmp_op =
 			qi::string(">") [ _val = val(ComparisonOperator::GT) ]
@@ -238,14 +255,18 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 			| qi::string("==") [ _val = val(ComparisonOperator::NEQ) ]
 			| qi::string("!=") [ _val = val(ComparisonOperator::EQ) ]
 		;
+		num_cmp_op.name("numeric comparison operator");
 
 		negation = '!' > unary_expr(_r1) [
 			_val = new_<Negation>(construct<unique_ptr<BooleanExpression>>(_1), _r1)
 		];
+		negation.name("negation");
 
 		brace = '(' >> expression(_r1) >> ')';
+		brace.name("braced boolean expression");
 
 		bool_var_ref = bool_var(_r1) [ _val = new_<Reference<BooleanVariable>>(_1, _r1) ];
+		bool_var_ref.name("reference to boolean variable");
 	}
 
 	rule<BooleanExpression *(Scope &)> expression;
@@ -271,52 +292,64 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 		statement = choose(_r1) | conditional(_r1) | pick(_r1) | search(_r1)
 			| test(_r1) | r_while(_r1) | block(_r1) | boolean_return(_r1) | numeric_return(_r1)
 			| numeric_assignment(_r1) | bool_assignment(_r1) | procedure_call(_r1);
+		statement.name("statement");
 
 		block = ('{' > (statement(_r1) % ';') > '}') [
 			_val = new_<Block>(_1, _r1)
 		];
+		block.name("block");
 
 		choose = (l("choose") > '{' > (statement(_r1) % ',') > '}') [
 			_val = new_<Choose>(_1, _r1)
 		];
+		choose.name("choose");
 
 		conditional = (l("if") > '(' > boolean_expression(_r1) > ')'
 			> statement(_r1) > -("else" > statement(_r1))
 		) [
 			_val = new_<Conditional>(_1, _2, _3, _r1)
 		];
+		conditional.name("conditional");
 
 		bool_assignment = (bool_fluent_ref(_r1) >> '=' >> boolean_expression(_r1)) [
 			_val = new_<Assignment<BooleanExpression>>(_1, _2, _r1)
 		];
+		bool_assignment.name("boolean assignment");
 
 		numeric_assignment = (num_fluent_ref(_r1) >> '=' >> numeric_expression(_r1)) [
 			_val = new_<Assignment<NumericExpression>>(_1, _2, _r1)
 		];
+		numeric_assignment.name("numeric assignment");
 
 		pick = (l("pick") > '(' > abstract_var(_r1) > ')' > statement(_r1)) [
 			_val = new_<Pick>(_1, _2, _r1)
 		];
+		pick.name("pick");
 
 		search = (l("search") > statement(_r1)) [
 			_val = new_<Search>(_1, _r1)
 		];
+		search.name("search");
 
 		test = (l("test") > '(' > boolean_expression(_r1) > ')') [
 			_val = new_<Test>(_1, _r1)
 		];
+		test.name("test");
 
 		r_while = (l("while") > '(' > boolean_expression(_r1) > ')' > statement(_r1)) [
 			_val = new_<While>(_1, _2, _r1)
 		];
+		r_while.name("while");
 
 		boolean_return = (l("return") > boolean_expression(_r1)) [
 			_val = new_<Return<BooleanExpression>>(_1, _r1)
 		];
+		boolean_return.name("boolean return");
 
 		numeric_return = (l("return") > numeric_expression(_r1)) [
 			_val = new_<Return<NumericExpression>>(_1, _r1)
 		];
+		numeric_return.name("numeric return");
 	}
 
 	rule<Statement *(Scope &)> statement;
@@ -482,30 +515,31 @@ struct FluentParser : grammar<AbstractFluent *()> {
 
 
 
-void handle_error(const string::const_iterator &begin, const string::const_iterator &errpos, const string::const_iterator &end, const boost::spirit::info &expected) {
-	string::const_iterator lbegin = errpos;
-	string fill;
-	while (lbegin > begin && *lbegin != '\n') {
-		--lbegin;
-		if (*lbegin == '\t')
-			fill = '\t' + fill;
-		else if (*lbegin != '\n')
-			fill = " " + fill;
+void handle_error(const iterator &begin, const iterator &errpos, const iterator &end, const boost::spirit::info &expected) {
+	iterator::base_type l_start;
+	string mark;
+	for (
+			l_start = errpos.base() - 1;
+			*l_start != '\n' && *l_start != '\r' && l_start >= begin.base();
+			--l_start
+	) {
+		if (*l_start == '\t')
+			mark = '\t' + mark;
+		else
+			mark = " " + mark;
 	}
-	if (lbegin != errpos && *lbegin == '\n')
-		lbegin++;
+	mark += '^';
 
-	string::const_iterator lend = errpos;
-	while (lend < end && *lend != '\n')
-		++lend;
+	iterator::base_type l_end = errpos.base();
+	while (l_end < end.base() && *l_end != '\n' && *l_end != '\r')
+		++l_end;
 
-	string line(lbegin, lend);
-	string mark(fill + '^');
+	string line(l_start, l_end);
 
-	std::cout << "Syntax error: " << std::endl
-			<< line << std::endl
-			<< mark << std::endl
-			<< "Expected: " << expected << std::endl;
+	std::cout << "Syntax error at line " << get_line(errpos) << ":" << std::endl
+		<< line << std::endl
+		<< mark << std::endl
+		<< "Expected: " << expected << std::endl;
 }
 
 
