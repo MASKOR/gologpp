@@ -97,7 +97,7 @@ void test_parser()
 
 	global_scope().clear();
 
-	parser::parse_file("../blocksworld.gpp");
+	parser::parse_file(SOURCE_DIR "/blocksworld.gpp");
 	shared_ptr<NumericFluent> on = global_scope().lookup_global<NumericFluent>({"on", 1});
 	shared_ptr<Action> put = global_scope().lookup_global<Action>({"put", 2});
 	shared_ptr<BooleanFunction> goal = global_scope().lookup_global<BooleanFunction>({"goal", 0});

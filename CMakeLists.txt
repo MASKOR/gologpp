@@ -21,6 +21,7 @@ find_file(READYLOG_PL preprocessor.pl
         PATH_SUFFIXES /readylog/interpreter /kbsgolog/interpreters/readylog)
 add_definitions(-DREADYLOG_PATH=\"${READYLOG_PL}\")
 add_definitions(-DECLIPSE_DIR=\"${ECLIPSE_DIR}\")
+add_definitions(-DSOURCE_DIR=\"${CMAKE_SOURCE_DIR}\")
 
 set(EXTRA_COMPILER_MACROS "" CACHE STRING "Extra macro definitions to pass to the compiler with the -D option")
 add_definitions(-DUSES_NO_ENGINE_HANDLE)
