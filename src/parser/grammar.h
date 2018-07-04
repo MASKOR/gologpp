@@ -339,18 +339,24 @@ struct AssignmentParser<Variable<ExpressionT>> : grammar<Assignment<Variable<Exp
 struct StatementParser : grammar<Statement *(Scope &)> {
 	StatementParser() : StatementParser::base_type(statement, "statement")
 	{
-		statement = choose(_r1) | conditional(_r1) | pick(_r1) | search(_r1)
-			| test(_r1) | r_while(_r1) | block(_r1) | boolean_return(_r1) | numeric_return(_r1)
-			| numeric_var_assignment(_r1) | bool_var_assignment(_r1)
-			| numeric_fluent_assignment(_r1) | bool_fluent_assignment(_r1) | procedure_call(_r1);
+		statement = compound_statement(_r1) | (simple_statement(_r1) > ';');
 		statement.name("statement");
 
-		block = ('{' > (statement(_r1) % ';') > '}') [
+		simple_statement = test(_r1) | boolean_return(_r1) | numeric_return(_r1)
+			| numeric_var_assignment(_r1) | bool_var_assignment(_r1)
+			| numeric_fluent_assignment(_r1) | bool_fluent_assignment(_r1) | procedure_call(_r1);
+		simple_statement.name("simple statement");
+
+		compound_statement = block(_r1) | choose(_r1) | conditional(_r1)
+			| pick(_r1) | search(_r1) | r_while(_r1);
+		compound_statement.name("compound statement");
+
+		block = ('{' > *statement(_r1) > '}') [
 			_val = new_<Block>(_1, _r1)
 		];
 		block.name("block");
 
-		choose = (l("choose") > '{' > (statement(_r1) % ';') > '}') [
+		choose = (l("choose") > '{' > *statement(_r1) > '}') [
 			_val = new_<Choose>(_1, _r1)
 		];
 		choose.name("choose");
@@ -394,6 +400,8 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 	}
 
 	rule<Statement *(Scope &)> statement;
+	rule<Statement *(Scope &)> simple_statement;
+	rule<Statement *(Scope &)> compound_statement;
 	rule<Block *(Scope &)> block;
 	rule<Choose *(Scope &)> choose;
 	rule<Conditional *(Scope &)> conditional;
