@@ -72,8 +72,10 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(Block &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Choose &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Conditional &) override;
-	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<BooleanExpression> &) override;
-	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<NumericExpression> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<BooleanFluent> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<NumericFluent> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<BooleanVariable> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<NumericVariable> &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Pick &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Search &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Test &) override;

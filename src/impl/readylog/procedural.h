@@ -96,8 +96,8 @@ public:
 	virtual EC_word term() override
 	{
 		return ::term(EC_functor("=", 2),
-			assignment_.fluent().implementation().term(),
-			assignment_.expression().implementation().term()
+			assignment_.lhs().implementation().term(),
+			assignment_.rhs().implementation().term()
 		);
 	}
 

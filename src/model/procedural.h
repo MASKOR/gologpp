@@ -67,27 +67,28 @@ protected:
 };
 
 
-template<class ExpressionT>
-class Assignment : public Statement, public LanguageElement<Assignment<ExpressionT>> {
+template<class GologT>
+class Assignment : public Statement, public LanguageElement<Assignment<GologT>> {
 public:
-	Assignment(Reference<Fluent<ExpressionT>> *fluent, ExpressionT *expression, Scope &parent_scope)
+	static_assert(!std::is_base_of<Statement, GologT>::value, "Cannot assign to a Statement");
+
+	Assignment(Reference<GologT> *lhs, typename GologT::expression_t *rhs, Scope &parent_scope)
 	: Statement(parent_scope)
-	, fluent_(fluent)
-	, expression_(expression)
+	, lhs_(lhs)
+	, rhs_(rhs)
 	{}
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*fluent_, *expression_)
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 
-	const Reference<Fluent<ExpressionT>> &fluent() const
-	{ return *fluent_; }
+	const Reference<GologT> &lhs() const
+	{ return *lhs_; }
 
-	const ExpressionT &expression() const
-	{ return *expression_; }
-
+	const typename GologT::expression_t &rhs() const
+	{ return *rhs_; }
 
 private:
-    unique_ptr<Reference<Fluent<ExpressionT>>> fluent_;
-    unique_ptr<ExpressionT> expression_;
+    unique_ptr<Reference<GologT>> lhs_;
+    unique_ptr<typename GologT::expression_t> rhs_;
 };
 
 

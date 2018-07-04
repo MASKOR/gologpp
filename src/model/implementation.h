@@ -56,8 +56,10 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(Block &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Choose &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Conditional &) = 0;
-	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<BooleanExpression> &) = 0;
-	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<NumericExpression> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<BooleanFluent> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<NumericFluent> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<BooleanVariable> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<NumericVariable> &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Pick &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Search &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Test &) = 0;

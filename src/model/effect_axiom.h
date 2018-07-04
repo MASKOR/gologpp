@@ -58,14 +58,14 @@ public:
 	{}
 
 	const Reference<Fluent<ExpressionT>> &fluent() const
-	{ return assignment_.fluent(); }
+	{ return assignment_.lhs(); }
 	const ExpressionT &value() const
-	{ return assignment_.expression(); }
+	{ return assignment_.rhs(); }
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, assignment_)
 
 protected:
-	Assignment<ExpressionT> assignment_;
+	Assignment<Fluent<ExpressionT>> assignment_;
 };
 
 

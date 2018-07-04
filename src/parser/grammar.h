@@ -284,6 +284,56 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 	rule<ComparisonOperator()> num_cmp_op;
 };
 
+template<class ExpressionT>
+struct ExpressionParser;
+
+template<>
+struct ExpressionParser<BooleanExpression> : BooleanExpressionParser {
+	using BooleanExpressionParser::BooleanExpressionParser;
+};
+
+template<>
+struct ExpressionParser<NumericExpression> : NumericExpressionParser {
+	using NumericExpressionParser::NumericExpressionParser;
+};
+
+
+
+template<class LhsT>
+struct AssignmentParser;
+
+template<class ExpressionT>
+struct AssignmentParser<Fluent<ExpressionT>> : grammar<Assignment<Fluent<ExpressionT>> *(Scope &)> {
+	AssignmentParser()
+	: AssignmentParser<Fluent<ExpressionT>>::base_type(assignment, string("assignment to ") + type_descr<ExpressionT>() + " fluent")
+	{
+		assignment = (fluent_ref(_r1) >> "=" >> expression(_r1)) [
+			_val = new_<Assignment<Fluent<ExpressionT>>>(_1, _2, _r1)
+		];
+	}
+
+	rule<Assignment<Fluent<ExpressionT>> *(Scope &)> assignment;
+	UnboundReferenceParser<Fluent<ExpressionT>> fluent_ref;
+	ExpressionParser<ExpressionT> expression;
+};
+
+template<class ExpressionT>
+struct AssignmentParser<Variable<ExpressionT>> : grammar<Assignment<Variable<ExpressionT>> *(Scope &)> {
+	AssignmentParser()
+	: AssignmentParser<Variable<ExpressionT>>::base_type(assignment, string("assignment to ") + type_descr<ExpressionT>() + " variable")
+	{
+		assignment = (var_ref(_r1) >> "=" >> expression(_r1)) [
+			_val = new_<Assignment<Variable<ExpressionT>>>(_1, _2, _r1)
+		];
+
+		var_ref = var(_r1) [ _val = new_<Reference<Variable<ExpressionT>>>(_1, _r1) ];
+	}
+
+	rule<Assignment<Variable<ExpressionT>> *(Scope &)> assignment;
+	rule<Reference<Variable<ExpressionT>> *(Scope &)> var_ref;
+	ExpressionParser<ExpressionT> expression;
+	VariableParser<ExpressionT> var;
+};
 
 
 struct StatementParser : grammar<Statement *(Scope &)> {
@@ -291,7 +341,8 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 	{
 		statement = choose(_r1) | conditional(_r1) | pick(_r1) | search(_r1)
 			| test(_r1) | r_while(_r1) | block(_r1) | boolean_return(_r1) | numeric_return(_r1)
-			| numeric_assignment(_r1) | bool_assignment(_r1) | procedure_call(_r1);
+			| numeric_var_assignment(_r1) | bool_var_assignment(_r1)
+			| numeric_fluent_assignment(_r1) | bool_fluent_assignment(_r1) | procedure_call(_r1);
 		statement.name("statement");
 
 		block = ('{' > (statement(_r1) % ';') > '}') [
@@ -310,16 +361,6 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 			_val = new_<Conditional>(_1, _2, _3, _r1)
 		];
 		conditional.name("conditional");
-
-		bool_assignment = (bool_fluent_ref(_r1) >> '=' >> boolean_expression(_r1)) [
-			_val = new_<Assignment<BooleanExpression>>(_1, _2, _r1)
-		];
-		bool_assignment.name("boolean assignment");
-
-		numeric_assignment = (num_fluent_ref(_r1) >> '=' >> numeric_expression(_r1)) [
-			_val = new_<Assignment<NumericExpression>>(_1, _2, _r1)
-		];
-		numeric_assignment.name("numeric assignment");
 
 		pick = (l("pick") > '(' > abstract_var(_r1) > ')' > statement(_r1)) [
 			_val = new_<Pick>(_1, _2, _r1)
@@ -356,8 +397,10 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 	rule<Block *(Scope &)> block;
 	rule<Choose *(Scope &)> choose;
 	rule<Conditional *(Scope &)> conditional;
-	rule<Assignment<BooleanExpression> *(Scope &)> bool_assignment;
-	rule<Assignment<NumericExpression> *(Scope &)> numeric_assignment;
+	AssignmentParser<BooleanFluent> bool_fluent_assignment;
+	AssignmentParser<NumericFluent> numeric_fluent_assignment;
+	AssignmentParser<BooleanVariable> bool_var_assignment;
+	AssignmentParser<NumericVariable> numeric_var_assignment;
 	rule<Pick *(Scope &)> pick;
 	rule<Search *(Scope &)> search;
 	rule<Test *(Scope &)> test;
@@ -367,8 +410,6 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 	UnboundReferenceParser<Procedure> procedure_call;
 	BooleanExpressionParser boolean_expression;
 	NumericExpressionParser numeric_expression;
-	UnboundReferenceParser<BooleanFluent> bool_fluent_ref;
-	UnboundReferenceParser<NumericFluent> num_fluent_ref;
 };
 
 
