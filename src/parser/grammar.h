@@ -299,7 +299,7 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 		];
 		block.name("block");
 
-		choose = (l("choose") > '{' > (statement(_r1) % ',') > '}') [
+		choose = (l("choose") > '{' > (statement(_r1) % ';') > '}') [
 			_val = new_<Choose>(_1, _r1)
 		];
 		choose.name("choose");
