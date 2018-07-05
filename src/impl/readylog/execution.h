@@ -25,7 +25,6 @@ public:
 
 private:
 	EC_word readylog_history_;
-	size_t history_len_;
 };
 
 

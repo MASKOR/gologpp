@@ -13,7 +13,6 @@ namespace gologpp {
 
 Implementation<History>::Implementation(History &history)
 : HistoryImplementation(history)
-, history_len_(0)
 {
 	readylog_history_ = ::list(EC_atom("s0"), ::nil());
 }
@@ -44,7 +43,7 @@ EC_word operator && (const EC_word &lhs, const EC_word &rhs)
 EclipseContext::EclipseContext()
 : ExecutionContext()
 {
-	ec_set_option_ptr(EC_OPTION_ECLIPSEDIR, (void *)ECLIPSE_DIR);
+	ec_set_option_ptr(EC_OPTION_ECLIPSEDIR, const_cast<void *>(static_cast<const void *>(ECLIPSE_DIR)));
 	std::cout << "Using eclipse-clp in " << ECLIPSE_DIR << std::endl;
 
 	int rv;
