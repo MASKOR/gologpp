@@ -95,7 +95,7 @@ template<class> class Implementation;
 class Implementor;
 
 class AExecutionContext;
-template<class> class ExecutionContext;
+class ExecutionContext;
 
 
 #define DEFINE_IMPLEMENT_WITH_MEMBERS(...) \

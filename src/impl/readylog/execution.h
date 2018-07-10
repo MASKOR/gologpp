@@ -31,9 +31,10 @@ private:
 EC_word operator && (const EC_word &lhs, const EC_word &rhs);
 
 
-class EclipseContext : public ExecutionContext<ReadylogImplementor> {
+class EclipseContext : public ExecutionContext {
 public:
     virtual ~EclipseContext() override;
+    static void init(unique_ptr<AExecutionBackend> &&);
     static EclipseContext &instance();
 
 	virtual void compile(const Block &block) override;
@@ -76,7 +77,9 @@ private:
 	EC_ref *ec_start_;
 	int last_rv_;
 
-    EclipseContext();
+	static unique_ptr<EclipseContext> instance_;
+
+    EclipseContext(unique_ptr<AExecutionBackend> &&);
 };
 
 

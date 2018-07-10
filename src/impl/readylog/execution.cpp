@@ -40,8 +40,16 @@ EC_word operator && (const EC_word &lhs, const EC_word &rhs)
 { return ::term(EC_functor(",", 2), lhs, rhs); }
 
 
-EclipseContext::EclipseContext()
-: ExecutionContext()
+
+unique_ptr<EclipseContext> EclipseContext::instance_;
+
+
+void EclipseContext::init(unique_ptr<AExecutionBackend> &&exec_backend)
+{ instance_ = unique_ptr<EclipseContext>(new EclipseContext(std::move(exec_backend))); }
+
+
+EclipseContext::EclipseContext(unique_ptr<AExecutionBackend> &&exec_backend)
+: ExecutionContext(std::make_unique<ReadylogImplementor>(), std::move(exec_backend))
 {
 	ec_set_option_ptr(EC_OPTION_ECLIPSEDIR, const_cast<void *>(static_cast<const void *>(ECLIPSE_DIR)));
 	std::cout << "Using eclipse-clp in " << ECLIPSE_DIR << std::endl;
@@ -72,10 +80,7 @@ EclipseContext::~EclipseContext()
 
 
 EclipseContext &EclipseContext::instance()
-{
-	static EclipseContext ctx;
-	return ctx;
-}
+{ return *instance_; }
 
 
 void EclipseContext::compile(const Block &block)

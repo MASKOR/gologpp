@@ -30,6 +30,7 @@ using namespace gologpp;
 void test_objectmodel()
 {
 #ifdef GOLOGPP_TEST_OBJECTMODEL
+	EclipseContext::init(unique_ptr<AExecutionBackend>(nullptr));
 	EclipseContext &ctx = EclipseContext::instance();
 
 	Scope *on_scope = new Scope(nullptr);
@@ -90,6 +91,7 @@ void test_parser()
 {
 #ifdef GOLOGPP_TEST_PARSER
 	parser::parse_file(SOURCE_DIR "/blocksworld.gpp");
+
 	shared_ptr<NumericFluent> on = global_scope().lookup_global<NumericFluent>({"on", 1});
 	shared_ptr<Action> put = global_scope().lookup_global<Action>({"put", 2});
 	shared_ptr<BooleanFunction> goal = global_scope().lookup_global<BooleanFunction>({"goal", 0});

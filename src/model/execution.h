@@ -78,40 +78,26 @@ protected:
 
 
 
-template<class ImplementorT>
+class AExecutionBackend {
+public:
+	virtual ~AExecutionBackend();
+
+	virtual void execute_transition(const Transition &) = 0;
+};
+
+
+
 class ExecutionContext : public AExecutionContext {
 public:
-	ExecutionContext() = default;
-	virtual ~ExecutionContext() override = default;
+	ExecutionContext(unique_ptr<Implementor> &&implementor, unique_ptr<AExecutionBackend> &&exec_backend);
 
+	virtual ~ExecutionContext() override;
 
-	virtual History run(Block &&program) override
-	{
-		ImplementorT implementor;
+	virtual History run(Block &&program) override;
 
-		History history;
-		history.implement(implementor);
-
-		global_scope().implement_globals(implementor, *this);
-
-		program.implement(implementor);
-		compile(program);
-
-		while (!final(program, history)) {
-			while (!exog_queue_.empty()) {
-				ExogTransition exog = exog_queue_pop();
-				exog.implement(implementor);
-				history.abstract_impl().append_exog(std::move(exog));
-			}
-			if (!trans(program, history)) {
-				ExogTransition exog = exog_queue_poll();
-				exog.implement(implementor);
-				history.abstract_impl().append_exog(std::move(exog));
-			}
-		}
-		return history;
-	}
-
+private:
+	unique_ptr<Implementor> implementor_;
+	unique_ptr<AExecutionBackend> exec_backend_;
 };
 
 
