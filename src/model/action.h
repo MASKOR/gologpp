@@ -74,7 +74,7 @@ public:
 
 class AbstractTransition : public virtual AbstractLanguageElement {
 public:
-	AbstractTransition(shared_ptr<Action> action, vector<unique_ptr<AbstractConstant>> args);
+	AbstractTransition(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args);
 
 	const Action &action() const;
 	const vector<unique_ptr<AbstractConstant>> &args() const;
@@ -89,7 +89,7 @@ class Transition : public AbstractTransition, public LanguageElement<Transition>
 public:
 	using AbstractTransition::AbstractTransition;
 	Transition(const Transition &) = delete;
-	Transition(Transition &&) = delete;
+	Transition(Transition &&) = default;
 	virtual void implement(Implementor &) override;
 };
 

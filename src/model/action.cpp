@@ -65,6 +65,14 @@ const vector<unique_ptr<AbstractConstant>> &AbstractTransition::args() const
 { return args_; }
 
 
+
+AbstractTransition::AbstractTransition(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args)
+: action_(action)
+, args_(std::move(args))
+{}
+
+
+
 void Transition::implement(Implementor &implementor)
 {
 	if (!impl_) {
