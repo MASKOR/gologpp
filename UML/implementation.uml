@@ -103,35 +103,46 @@
   <packagedElement xmi:type="uml:Class" xmi:id="_UXQmsIBsEeis38EZJFZpcw" name="..."/>
   <packagedElement xmi:type="uml:Component" xmi:id="_c8uRUIEUEeicVNo5AIZ6Lg" name="ROS"/>
   <packagedElement xmi:type="uml:Component" xmi:id="_flsesIEUEeicVNo5AIZ6Lg" name="readylog interpreter"/>
-  <packagedElement xmi:type="uml:Component" xmi:id="_6VPGoIEYEeicVNo5AIZ6Lg" name="RosExecutionContext">
-    <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_C4nqsIOPEeihbfYhpkFXUA" client="_6VPGoIEYEeicVNo5AIZ6Lg" supplier="_5O-28IOOEeihbfYhpkFXUA" contract="_5O-28IOOEeihbfYhpkFXUA"/>
-    <packagedElement xmi:type="uml:Usage" xmi:id="_0WN7wIOPEeihbfYhpkFXUA" client="_6VPGoIEYEeicVNo5AIZ6Lg" supplier="_c8uRUIEUEeicVNo5AIZ6Lg"/>
-  </packagedElement>
-  <packagedElement xmi:type="uml:Package" xmi:id="_s9rIQIOMEeihbfYhpkFXUA" name="gologpp">
-    <packagedElement xmi:type="uml:Component" xmi:id="_kfN88IEVEeicVNo5AIZ6Lg" name="metamodel"/>
-    <packagedElement xmi:type="uml:Interface" xmi:id="_0xGdwIOLEeihbfYhpkFXUA" name="Implementor"/>
-    <packagedElement xmi:type="uml:Component" xmi:id="_hrmi0IE2EeicVNo5AIZ6Lg" name="execution loop">
-      <packagedElement xmi:type="uml:Dependency" xmi:id="_Z5EEUIOLEeihbfYhpkFXUA" client="_hrmi0IE2EeicVNo5AIZ6Lg" supplier="_kfN88IEVEeicVNo5AIZ6Lg"/>
-      <packagedElement xmi:type="uml:Usage" xmi:id="__kP3QIOLEeihbfYhpkFXUA" client="_hrmi0IE2EeicVNo5AIZ6Lg" supplier="_0xGdwIOLEeihbfYhpkFXUA"/>
-      <packagedElement xmi:type="uml:Usage" xmi:id="_Iqh0YIOOEeihbfYhpkFXUA" client="_hrmi0IE2EeicVNo5AIZ6Lg" supplier="_DnnUIIOOEeihbfYhpkFXUA"/>
-      <packagedElement xmi:type="uml:Usage" xmi:id="_kAPL0IOPEeihbfYhpkFXUA" client="_hrmi0IE2EeicVNo5AIZ6Lg" supplier="_5O-28IOOEeihbfYhpkFXUA"/>
+  <packagedElement xmi:type="uml:Package" xmi:id="_s9rIQIOMEeihbfYhpkFXUA" name="golog++">
+    <packagedElement xmi:type="uml:Component" xmi:id="_kfN88IEVEeicVNo5AIZ6Lg" name="metamodel">
+      <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_NRvaYIkQEeibl_EbeClCWQ" client="_kfN88IEVEeicVNo5AIZ6Lg" supplier="_nVNIAIRJEeiVUpa32JIpJQ" contract="_nVNIAIRJEeiVUpa32JIpJQ"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Interface" xmi:id="_0xGdwIOLEeihbfYhpkFXUA" name="Implementation"/>
+    <packagedElement xmi:type="uml:Component" xmi:id="_hrmi0IE2EeicVNo5AIZ6Lg" name="EclipseExecutionContext">
+      <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_RXSZoIjzEeibl_EbeClCWQ" client="_hrmi0IE2EeicVNo5AIZ6Lg" supplier="_wAWqIIjyEeibl_EbeClCWQ" contract="_wAWqIIjyEeibl_EbeClCWQ"/>
     </packagedElement>
     <packagedElement xmi:type="uml:Component" xmi:id="_jsQO8IEVEeicVNo5AIZ6Lg" name="parser">
-      <packagedElement xmi:type="uml:Dependency" xmi:id="_Yh4O8IOLEeihbfYhpkFXUA" client="_jsQO8IEVEeicVNo5AIZ6Lg" supplier="_kfN88IEVEeicVNo5AIZ6Lg"/>
+      <packagedElement xmi:type="uml:Usage" xmi:id="_aQsAQIQyEeiVUpa32JIpJQ" name="construct" client="_jsQO8IEVEeicVNo5AIZ6Lg" supplier="_kfN88IEVEeicVNo5AIZ6Lg"/>
     </packagedElement>
-    <packagedElement xmi:type="uml:Interface" xmi:id="_DnnUIIOOEeihbfYhpkFXUA" name="Transition"/>
-    <packagedElement xmi:type="uml:Interface" xmi:id="_5O-28IOOEeihbfYhpkFXUA" name="ExecutionContext">
-      <ownedOperation xmi:type="uml:Operation" xmi:id="_GJDrQIOQEeihbfYhpkFXUA" name="exec" concurrency="concurrent">
-        <ownedParameter xmi:type="uml:Parameter" xmi:id="_O7P5oIOQEeihbfYhpkFXUA" name="t" type="_DnnUIIOOEeihbfYhpkFXUA" effect="read"/>
-      </ownedOperation>
+    <packagedElement xmi:type="uml:Component" xmi:id="_6VPGoIEYEeicVNo5AIZ6Lg" name="RosPlatformBackend">
+      <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_-pAlsIRJEeiVUpa32JIpJQ" client="_6VPGoIEYEeicVNo5AIZ6Lg" supplier="_y_9e8IRJEeiVUpa32JIpJQ" contract="_y_9e8IRJEeiVUpa32JIpJQ"/>
+      <packagedElement xmi:type="uml:Usage" xmi:id="_0WN7wIOPEeihbfYhpkFXUA" client="_6VPGoIEYEeicVNo5AIZ6Lg" supplier="_c8uRUIEUEeicVNo5AIZ6Lg"/>
     </packagedElement>
-    <packagedElement xmi:type="uml:Dependency" xmi:id="_h9HdgIOPEeihbfYhpkFXUA" client="_DnnUIIOOEeihbfYhpkFXUA" supplier="_0xGdwIOLEeihbfYhpkFXUA"/>
-    <packagedElement xmi:type="uml:Dependency" xmi:id="_jK6GUIOPEeihbfYhpkFXUA" client="_DnnUIIOOEeihbfYhpkFXUA" supplier="_5O-28IOOEeihbfYhpkFXUA"/>
+    <packagedElement xmi:type="uml:Component" xmi:id="_3UO08IEyEeicVNo5AIZ6Lg" name="ReadylogImplementation">
+      <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_11sHQIOLEeihbfYhpkFXUA" client="_3UO08IEyEeicVNo5AIZ6Lg" supplier="_0xGdwIOLEeihbfYhpkFXUA" contract="_0xGdwIOLEeihbfYhpkFXUA"/>
+      <packagedElement xmi:type="uml:Usage" xmi:id="_zl3c4IOPEeihbfYhpkFXUA" client="_3UO08IEyEeicVNo5AIZ6Lg" supplier="_flsesIEUEeicVNo5AIZ6Lg"/>
+      <packagedElement xmi:type="uml:Dependency" xmi:id="_117lUIkREeibl_EbeClCWQ" client="_3UO08IEyEeicVNo5AIZ6Lg" supplier="_hrmi0IE2EeicVNo5AIZ6Lg"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_4P0GcIQyEeiVUpa32JIpJQ" client="_0xGdwIOLEeihbfYhpkFXUA" supplier="_nVNIAIRJEeiVUpa32JIpJQ _kfN88IEVEeicVNo5AIZ6Lg"/>
+    <packagedElement xmi:type="uml:Interface" xmi:id="_nVNIAIRJEeiVUpa32JIpJQ" name="Transition"/>
+    <packagedElement xmi:type="uml:Interface" xmi:id="_y_9e8IRJEeiVUpa32JIpJQ" name="PlatformBackend"/>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_Au57MIRKEeiVUpa32JIpJQ" client="_y_9e8IRJEeiVUpa32JIpJQ" supplier="_nVNIAIRJEeiVUpa32JIpJQ _kfN88IEVEeicVNo5AIZ6Lg"/>
+    <packagedElement xmi:type="uml:Interface" xmi:id="_wAWqIIjyEeibl_EbeClCWQ" name="ExecutionContext"/>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_p3HfYIkQEeibl_EbeClCWQ" client="_wAWqIIjyEeibl_EbeClCWQ" supplier="_0xGdwIOLEeihbfYhpkFXUA"/>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_rJQcsIkQEeibl_EbeClCWQ" client="_wAWqIIjyEeibl_EbeClCWQ" supplier="_y_9e8IRJEeiVUpa32JIpJQ"/>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_tfMZUIkQEeibl_EbeClCWQ" client="_wAWqIIjyEeibl_EbeClCWQ" supplier="_nVNIAIRJEeiVUpa32JIpJQ"/>
   </packagedElement>
-  <packagedElement xmi:type="uml:Component" xmi:id="_3UO08IEyEeicVNo5AIZ6Lg" name="ReadylogImplementor">
-    <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_11sHQIOLEeihbfYhpkFXUA" client="_3UO08IEyEeicVNo5AIZ6Lg" supplier="_0xGdwIOLEeihbfYhpkFXUA" contract="_0xGdwIOLEeihbfYhpkFXUA"/>
-    <packagedElement xmi:type="uml:Usage" xmi:id="_zl3c4IOPEeihbfYhpkFXUA" client="_3UO08IEyEeicVNo5AIZ6Lg" supplier="_flsesIEUEeicVNo5AIZ6Lg"/>
+  <packagedElement xmi:type="uml:Class" xmi:id="_BpLEkIXKEeiVUpa32JIpJQ" name="AbstractLanguageElement"/>
+  <packagedElement xmi:type="uml:Class" xmi:id="_W0FjIIXKEeiVUpa32JIpJQ" name="NumericExpression">
+    <generalization xmi:type="uml:Generalization" xmi:id="_0HnuoIXKEeiVUpa32JIpJQ" general="_xNSEcIXKEeiVUpa32JIpJQ"/>
   </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_ZV5YkIXKEeiVUpa32JIpJQ" name="BooleanExpression">
+    <generalization xmi:type="uml:Generalization" xmi:id="_zuNwIIXKEeiVUpa32JIpJQ" general="_xNSEcIXKEeiVUpa32JIpJQ"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_xNSEcIXKEeiVUpa32JIpJQ" name="Expression">
+    <generalization xmi:type="uml:Generalization" xmi:id="_6yz0QIXKEeiVUpa32JIpJQ" general="_BpLEkIXKEeiVUpa32JIpJQ"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_rJ_P0IXLEeiVUpa32JIpJQ" name="StringExpression"/>
   <profileApplication xmi:type="uml:ProfileApplication" xmi:id="_ze-T4AHsEeiE5sF1lHU_MQ">
     <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_zfAJEAHsEeiE5sF1lHU_MQ" source="http://www.eclipse.org/uml2/2.0.0/UML">
       <references xmi:type="ecore:EPackage" href="pathmap://PAPYRUS_ACTIONLANGUAGE_PROFILE/ActionLanguage-Profile.profile.uml#_Kv8EIKFXEeS_KNX0nfvIVQ"/>
