@@ -6,10 +6,11 @@
 #include <model/reference.h>
 
 #include <model/action.h>
+#include <model/effect_axiom.h>
 #include <model/fluent.h>
 #include <model/procedural.h>
 
-#ifdef GOLOGPP_TEST_OBJECTMODEL
+#ifdef GOLOGPP_TEST_READYLOG
 #include <impl/readylog/action.h>
 #include <impl/readylog/effect_axiom.h>
 #include <impl/readylog/formula.h>
@@ -25,20 +26,22 @@
 #endif
 
 
+#ifdef GOLOGPP_TEST_ECLIPSE
+#include <eclipseclass.h>
+#endif
+
+
 using namespace gologpp;
 
 void test_objectmodel()
 {
 #ifdef GOLOGPP_TEST_OBJECTMODEL
-	EclipseContext::init(unique_ptr<AExecutionBackend>(nullptr));
-	EclipseContext &ctx = EclipseContext::instance();
-
 	Scope *on_scope = new Scope(nullptr);
 	on_scope->variable<NumericExpression>("X");
 	NumericFluent *on = new NumericFluent(on_scope,
 		"on",
 		on_scope->variables({"X"}),
-		std::make_unique<NumericConstant>(0)
+		new NumericConstant(0)
 	);
 	global_scope().register_global(on);
 	shared_ptr<NumericFluent> on_shared = global_scope().lookup_global<NumericFluent>({"on", 1});
@@ -72,7 +75,12 @@ void test_objectmodel()
 		) );
 	}
 
+#ifdef GOLOGPP_TEST_READYLOG
+
 	{ vector<unique_ptr<Expression>> args;
+
+		EclipseContext::init(unique_ptr<AExecutionBackend>(nullptr));
+		EclipseContext &ctx = EclipseContext::instance();
 
 		args.emplace_back(new NumericConstant(1));
 		args.emplace_back(new NumericConstant(2));
@@ -81,6 +89,7 @@ void test_objectmodel()
 
 		ctx.run(Block(std::move(code), global_scope() ));
 	}
+#endif // TEST_READYLOG
 
 	global_scope().clear();
 #endif
@@ -98,6 +107,13 @@ void test_parser()
 
 	if (on && put && goal)
 		std::cout << on->name() << " " << put->name() << " " << goal->name() << std::endl;
+
+#ifdef GOLOGPP_TEST_READYLOG
+	EclipseContext::init(unique_ptr<AExecutionBackend>(nullptr));
+	EclipseContext &ctx = EclipseContext::instance();
+
+	ctx.run(Block( { mainproc.release() }, global_scope() ));
+#endif // TEST_READYLOG
 #endif
 }
 

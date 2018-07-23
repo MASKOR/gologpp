@@ -89,16 +89,18 @@ endif()
 
 
 option(BUILD_TESTS "Build tests" ON)
-CMAKE_DEPENDENT_OPTION(TEST_OBJECTMODEL "Enable test for object model" ON "BUILD_TESTS;BUILD_READYLOG_IMPL" OFF)
+
+CMAKE_DEPENDENT_OPTION(TEST_OBJECTMODEL "Enable test for object model" ON "BUILD_TESTS" OFF)
 CMAKE_DEPENDENT_OPTION(TEST_PARSER "Enable test for parser" ON "BUILD_TESTS;BUILD_PARSER" OFF)
 CMAKE_DEPENDENT_OPTION(TEST_ECLIPSE "Enable test for eclipse-clp" ON "BUILD_TESTS;ECLIPSE_FOUND" OFF)
+CMAKE_DEPENDENT_OPTION(TEST_READYLOG "Try running test programs in readylog" ON "BUILD_TESTS;ECLIPSE_FOUND;BUILD_READYLOG_IMPL" OFF)
+
 if (${BUILD_TESTS})
 	add_definitions(-DGOLOGPP_BUILD_TESTS)
-	set(TEST_LINK_LIBRARIES golog++)
 
 	if (${TEST_OBJECTMODEL})
 		add_definitions(-DGOLOGPP_TEST_OBJECTMODEL)
-		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} readylog++)
+		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} golog++)
 	endif()
 
 	if (${TEST_PARSER})
@@ -108,6 +110,12 @@ if (${BUILD_TESTS})
 
 	if (${TEST_ECLIPSE})
 		add_definitions(-DGOLOGPP_TEST_ECLIPSE)
+		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} ${ECLIPSE_LIBRARIES})
+	endif()
+
+	if (${TEST_READYLOG})
+		add_definitions(-DGOLOGPP_TEST_READYLOG)
+		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} readylog++)
 	endif()
 
 	set(TEST_SRC
@@ -117,3 +125,4 @@ if (${BUILD_TESTS})
 	target_link_libraries(readylog-test ${TEST_LINK_LIBRARIES})
 	set_property(TARGET readylog-test PROPERTY CXX_STANDARD 14)
 endif()
+
