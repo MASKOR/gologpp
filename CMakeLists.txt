@@ -1,4 +1,4 @@
-project(gologpp)
+project(golog++)
 cmake_minimum_required(VERSION 2.8)
 include(CMakeDependentOption)
 
@@ -51,9 +51,9 @@ set(INTERFACE_SRC
 		src/model/execution.cpp
 		src/model/reference.cpp
 )
-add_library(gologpp SHARED ${INTERFACE_SRC})
-target_compile_options(gologpp PUBLIC -fPIC)
-set_property(TARGET gologpp PROPERTY CXX_STANDARD 14)
+add_library(golog++ SHARED ${INTERFACE_SRC})
+target_compile_options(golog++ PUBLIC -fPIC)
+set_property(TARGET golog++ PROPERTY CXX_STANDARD 14)
 
 
 option(BUILD_PARSER "Build the parser library" ON)
@@ -61,9 +61,9 @@ if (${BUILD_PARSER})
 	set(PARSER_SRC
 		src/parser/parser.cpp
 	)
-	add_library(parsegologpp SHARED ${PARSER_SRC})
-	target_link_libraries(parsegologpp gologpp)
-	set_property(TARGET parsegologpp PROPERTY CXX_STANDARD 14)
+	add_library(parsegolog++ SHARED ${PARSER_SRC})
+	target_link_libraries(parsegolog++ golog++)
+	set_property(TARGET parsegolog++ PROPERTY CXX_STANDARD 14)
 	add_definitions(-DGOLOGPP_BUILD_PARSER)
 endif()
 
@@ -81,9 +81,9 @@ if (${BUILD_READYLOG_IMPL})
 		src/impl/readylog/scope.cpp
 		src/impl/readylog/implementation.cpp
 	)
-	add_library(readylogpp SHARED ${READYLOG_SRC})
-	target_link_libraries(readylogpp gologpp ${ECLIPSE_LIBRARIES})
-	set_property(TARGET readylogpp PROPERTY CXX_STANDARD 14)
+	add_library(readylog++ SHARED ${READYLOG_SRC})
+	target_link_libraries(readylog++ golog++ ${ECLIPSE_LIBRARIES})
+	set_property(TARGET readylog++ PROPERTY CXX_STANDARD 14)
 	add_definitions(-DGOLOGPP_BUILD_READYLOG_IMPL)
 endif()
 
@@ -94,16 +94,16 @@ CMAKE_DEPENDENT_OPTION(TEST_PARSER "Enable test for parser" ON "BUILD_TESTS;BUIL
 CMAKE_DEPENDENT_OPTION(TEST_ECLIPSE "Enable test for eclipse-clp" ON "BUILD_TESTS;ECLIPSE_FOUND" OFF)
 if (${BUILD_TESTS})
 	add_definitions(-DGOLOGPP_BUILD_TESTS)
-	set(TEST_LINK_LIBRARIES gologpp)
+	set(TEST_LINK_LIBRARIES golog++)
 
 	if (${TEST_OBJECTMODEL})
 		add_definitions(-DGOLOGPP_TEST_OBJECTMODEL)
-		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} readylogpp)
+		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} readylog++)
 	endif()
 
 	if (${TEST_PARSER})
 		add_definitions(-DGOLOGPP_TEST_PARSER)
-		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} parsegologpp)
+		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} parsegolog++)
 	endif()
 
 	if (${TEST_ECLIPSE})
