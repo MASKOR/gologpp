@@ -138,7 +138,7 @@ public:
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_, *statement_)
 
 	const BooleanExpression &expression() const;
-	const Block &block() const;
+	const Statement &statement() const;
 
 protected:
 	unique_ptr<BooleanExpression> expression_;
@@ -166,18 +166,20 @@ private:
 
 class AbstractFunction : public Global, public virtual AbstractLanguageElement {
 public:
-	AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *statement);
+	AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *definition);
 
 	virtual ~AbstractFunction() override;
 
 	const Scope &scope() const;
-	const Statement &statement() const;
+	const Statement &definition() const;
+
+	void define(boost::optional<Statement *> definition);
 
 	virtual void compile(AExecutionContext &ctx) override;
 
 protected:
     unique_ptr<Scope> scope_;
-    unique_ptr<Statement> statement_;
+    unique_ptr<Statement> definition_;
     vector<shared_ptr<AbstractVariable>> args_;
 };
 
@@ -189,13 +191,27 @@ class Function
 , public LanguageElement<Function<ExpressionT>>
 {
 public:
-    Function(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *statement)
+    Function(
+		Scope *own_scope,
+		const string &name,
+		const vector<shared_ptr<AbstractVariable>> &args,
+		boost::optional<Statement *> statement
+	)
     : ExpressionT(Scope::global_scope())
-    , AbstractFunction(own_scope, name, args, statement)
+    , AbstractFunction(own_scope, name, args, statement.get_value_or(nullptr))
     {}
 
+	Function(
+		Scope *own_scope,
+		const string &name,
+		const vector<shared_ptr<AbstractVariable>> &args
+	)
+    : Function(own_scope, name, args, boost::optional<Statement *>())
+    {}
+
+
     Function(Function &&) = default;
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*scope_, *statement_)
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*scope_, *definition_)
 };
 
 

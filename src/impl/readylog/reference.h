@@ -41,9 +41,6 @@ public:
 
 	EC_word term() override
 	{
-		if (!reference_.bound())
-			reference_.bind();
-
 		return ::term(EC_functor(reference_.name().c_str(), reference_.arity()),
 			translate_args(reference_.args())
 		);

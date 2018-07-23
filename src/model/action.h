@@ -54,6 +54,8 @@ public:
 
 	void set_precondition(BooleanExpression *);
 
+	void define();
+
 	virtual void implement(Implementor &) override;
 
 protected:

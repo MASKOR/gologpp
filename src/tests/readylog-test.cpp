@@ -99,7 +99,7 @@ void test_objectmodel()
 void test_parser()
 {
 #ifdef GOLOGPP_TEST_PARSER
-	parser::parse_file(SOURCE_DIR "/blocksworld.gpp");
+	unique_ptr<Statement> mainproc = parser::parse_file(SOURCE_DIR "/blocksworld.gpp");
 
 	shared_ptr<NumericFluent> on = global_scope().lookup_global<NumericFluent>({"on", 1});
 	shared_ptr<Action> put = global_scope().lookup_global<Action>({"put", 2});

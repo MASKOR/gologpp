@@ -5,6 +5,8 @@
 #include <memory>
 #include <algorithm>
 
+#include <boost/optional.hpp>
+
 #include "gologpp.h"
 #include "atoms.h"
 #include "utilities.h"
@@ -43,11 +45,23 @@ class Fluent
 , public LanguageElement<Fluent<ExpressionT>>
 {
 public:
-	Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, unique_ptr<ExpressionT> &&init)
+	Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, boost::optional<Constant<ExpressionT> *> init)
 	: ExpressionT(Scope::global_scope())
 	, AbstractFluent(own_scope, name, args)
-	, initial_value_(std::move(init))
+	, initial_value_(init.get_value_or(nullptr))
 	{}
+
+	Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
+	: Fluent(own_scope, name, args, boost::optional<Constant<ExpressionT> *>())
+	{}
+
+
+	const ExpressionT &initially()
+	{ return *initial_value_; }
+
+	void define(boost::optional<Constant<ExpressionT> *> initial_value)
+	{ initial_value_.reset(initial_value.value()); }
+
 
 	Fluent(Fluent &&) = default;
 
@@ -56,7 +70,7 @@ public:
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*scope_, *initial_value_)
 
 private:
-	unique_ptr<ExpressionT> initial_value_;
+	unique_ptr<Constant<ExpressionT>> initial_value_;
 };
 
 

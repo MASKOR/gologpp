@@ -128,12 +128,15 @@ While::While(BooleanExpression *expression, Statement *statement, Scope &parent_
 const BooleanExpression &While::expression() const
 { return *expression_; }
 
+const Statement &While::statement() const
+{ return *statement_; }
 
 
-AbstractFunction::AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *statement)
+
+AbstractFunction::AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *definition)
 : Global(name, args)
 , scope_(own_scope)
-, statement_(statement)
+, definition_(definition)
 {}
 
 AbstractFunction::~AbstractFunction()
@@ -142,8 +145,11 @@ AbstractFunction::~AbstractFunction()
 const Scope &AbstractFunction::scope() const
 { return *scope_; }
 
-const Statement &AbstractFunction::statement() const
-{ return *statement_; }
+const Statement &AbstractFunction::definition() const
+{ return *definition_; }
+
+void AbstractFunction::define(boost::optional<Statement *> definition)
+{ definition_.reset(definition.value()); }
 
 void AbstractFunction::compile(AExecutionContext &ctx)
 { ctx.compile(*this); }

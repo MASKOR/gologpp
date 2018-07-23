@@ -28,7 +28,12 @@ public:
     Identifier(const string &name, arity_t arity);
     Identifier(Identifier &&other);
     Identifier(const Identifier &other) = default;
-    
+
+	template<class ArgsT>
+    Identifier(const string &name, const vector<ArgsT> &args)
+    : Identifier(name, static_cast<arity_t>(args.size()))
+    {}
+
     virtual ~Identifier() override = default;
 
     arity_t arity() const;

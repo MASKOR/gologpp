@@ -15,7 +15,7 @@ EC_word Implementation<Procedure>::definition()
 	procedure_.scope().implementation().init_vars();
 	return ::term(EC_functor("proc", 2),
 		term(),
-		procedure_.statement().implementation().term()
+		procedure_.definition().implementation().term()
 	);
 }
 
@@ -47,7 +47,7 @@ EC_word Implementation<AbstractFunction>::definition()
 	return ::term(EC_functor("function", 3),
 		term(),
 		return_var_,
-		function_.statement().implementation().term()
+		function_.definition().implementation().term()
 	);
 }
 
@@ -135,7 +135,10 @@ Implementation<Search>::Implementation(const Search &search)
 
 EC_word Implementation<Search>::term()
 {
-	return EC_atom("fail");
+	return ::term(EC_functor("solve", 2),
+		search_.statement().implementation().term(),
+		EC_word(15)
+	);
 }
 
 
@@ -146,7 +149,7 @@ Implementation<Test>::Implementation(const Test &test)
 
 EC_word Implementation<Test>::term()
 {
-	return EC_atom("fail");
+	return test_.expression().implementation().term();
 }
 
 
@@ -157,7 +160,10 @@ Implementation<While>::Implementation(const While &w)
 
 EC_word Implementation<While>::term()
 {
-	return EC_atom("fail");
+	return ::term(EC_functor("while", 2),
+		while_.expression().implementation().term(),
+		while_.statement().implementation().term()
+	);
 }
 
 

@@ -70,6 +70,36 @@ public:
 	void implement_globals(Implementor &implementor, AExecutionContext &ctx);
 	void clear();
 
+
+	template<class GologT>
+	GologT *declare_global(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
+	{
+		Identifier id { name, static_cast<arity_t>(args.size()) };
+		shared_ptr<GologT> obj = lookup_global<GologT>(id);
+		if (!obj) {
+			obj.reset(new GologT(own_scope, name, args));
+			(*globals_)[id] = obj;
+		}
+		// else
+		// TODO: Warn on overwrite?
+
+		return obj.get();
+	}
+
+
+	template<class GologT, class... DefinitionTs>
+	GologT *define_global(
+		Scope *own_scope, const string &name,
+		const vector<shared_ptr<AbstractVariable>> &args,
+		DefinitionTs... definition_args
+	)
+	{
+		GologT *obj = declare_global<GologT>(own_scope, name, args);
+		obj->define(definition_args...);
+		return obj;
+	}
+
+
 private:
 	Scope();
 

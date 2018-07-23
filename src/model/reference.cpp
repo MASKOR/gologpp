@@ -2,7 +2,5 @@
 
 namespace gologpp {
 
-AbstractReference::~AbstractReference()
-{}
 
 }

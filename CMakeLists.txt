@@ -49,7 +49,6 @@ set(INTERFACE_SRC
 		src/model/error.cpp
 		src/model/user_error.cpp
 		src/model/execution.cpp
-		src/model/reference.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
