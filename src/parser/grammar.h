@@ -34,7 +34,6 @@ namespace gologpp {
 namespace parser {
 
 
-
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 namespace phoenix = boost::phoenix;
@@ -55,6 +54,11 @@ using rule = boost::spirit::qi::rule<iterator, ResultT, ascii::space_type>;
 template<typename ResultT>
 using grammar = boost::spirit::qi::grammar<iterator, ResultT, ascii::space_type>;
 
+
+
+/******************
+* Little helpers
+******************/
 
 template<class T>
 static inline auto l(T x)
@@ -93,6 +97,35 @@ string type_descr<NumericExpression>()
 static rule<string()> r_name(qi::lexeme [
 	qi::alpha >> *(qi::alnum | qi::char_('_'))
 ], "name");
+
+
+
+void handle_error(const iterator &begin, const iterator &errpos, const iterator &end, const boost::spirit::info &expected) {
+	iterator::base_type l_start;
+	string mark;
+	for (
+			l_start = errpos.base() - 1;
+			*l_start != '\n' && *l_start != '\r' && l_start >= begin.base();
+			--l_start
+	) {
+		if (*l_start == '\t')
+			mark = '\t' + mark;
+		else
+			mark = " " + mark;
+	}
+	mark += '^';
+
+	iterator::base_type l_end = errpos.base();
+	while (l_end < end.base() && *l_end != '\n' && *l_end != '\r')
+		++l_end;
+
+	string line(l_start, l_end);
+
+	std::cout << "Syntax error at line " << get_line(errpos) << ":" << std::endl
+		<< line << std::endl
+		<< mark << std::endl
+		<< "Expected: " << expected << std::endl;
+}
 
 
 
@@ -160,6 +193,7 @@ rule<Constant<BooleanExpression> *()> &constant<BooleanExpression>()
 static rule<AbstractConstant *()> abstract_constant(bool_constant | num_constant, "any constant");
 
 
+
 /******************
 * General atoms
 ******************/
@@ -191,6 +225,7 @@ struct ReferenceParser : grammar<Reference<ExpressionT> *(Scope &)> {
 
 	rule<Reference<ExpressionT> *(Scope &)> pred_ref;
 };
+
 
 
 /*********************
@@ -526,6 +561,9 @@ struct AbstractFunctionParser : grammar<AbstractFunction *(Scope &)> {
 
 
 
+/******************
+* Effect axioms
+******************/
 
 struct EffectParser : grammar<AbstractEffectAxiom *(AbstractAction *, Scope &)> {
 	EffectParser()
@@ -563,6 +601,10 @@ struct EffectParser : grammar<AbstractEffectAxiom *(AbstractAction *, Scope &)> 
 };
 
 
+
+/******************
+* Actions
+******************/
 
 struct ActionParser : grammar<Action *(Scope &)> {
 	ActionParser()
@@ -608,6 +650,10 @@ struct ActionParser : grammar<Action *(Scope &)> {
 
 
 
+/******************
+* Fluents
+******************/
+
 template<class ExprT>
 struct FluentParser : grammar<AbstractFluent *(Scope &)> {
 	FluentParser()
@@ -636,34 +682,9 @@ struct FluentParser : grammar<AbstractFluent *(Scope &)> {
 
 
 
-void handle_error(const iterator &begin, const iterator &errpos, const iterator &end, const boost::spirit::info &expected) {
-	iterator::base_type l_start;
-	string mark;
-	for (
-			l_start = errpos.base() - 1;
-			*l_start != '\n' && *l_start != '\r' && l_start >= begin.base();
-			--l_start
-	) {
-		if (*l_start == '\t')
-			mark = '\t' + mark;
-		else
-			mark = " " + mark;
-	}
-	mark += '^';
-
-	iterator::base_type l_end = errpos.base();
-	while (l_end < end.base() && *l_end != '\n' && *l_end != '\r')
-		++l_end;
-
-	string line(l_start, l_end);
-
-	std::cout << "Syntax error at line " << get_line(errpos) << ":" << std::endl
-		<< line << std::endl
-		<< mark << std::endl
-		<< "Expected: " << expected << std::endl;
-}
-
-
+/******************
+* Complete program
+******************/
 
 struct ProgramParser : grammar<Statement *(Scope &)> {
 	ProgramParser()
