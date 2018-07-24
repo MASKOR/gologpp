@@ -20,24 +20,26 @@ namespace gologpp {
 
 class Block : public Statement, public LanguageElement<Block> {
 public:
-	Block(const vector<Statement *> &elements, Scope &parent_scope);
+	Block(Scope *own_scope, const vector<Statement *> &elements, Scope &parent_scope);
 	virtual void implement(Implementor &) override;
 
 	const vector<unique_ptr<Statement>> &elements() const;
 
 private:
+	unique_ptr<Scope> scope_;
 	vector<unique_ptr<Statement>> elements_;
 };
 
 
 class Choose : public Statement, public LanguageElement<Choose> {
 public:
-	Choose(const vector<Statement *> &alternatives, Scope &parent_scope);
+	Choose(Scope *own_scope, const vector<Statement *> &alternatives, Scope &parent_scope);
 	void implement(Implementor &) override;
 
 	const vector<unique_ptr<Statement>> &alternatives() const;
 
 private:
+	unique_ptr<Scope> scope_;
 	vector<unique_ptr<Statement>> alternatives_;
 };
 

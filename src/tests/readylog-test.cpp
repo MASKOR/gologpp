@@ -112,7 +112,11 @@ void test_parser()
 	EclipseContext::init(unique_ptr<AExecutionBackend>(nullptr));
 	EclipseContext &ctx = EclipseContext::instance();
 
-	ctx.run(Block( { mainproc.release() }, global_scope() ));
+	ctx.run(Block(
+		new Scope(nullptr, global_scope()),
+		{ mainproc.release() },
+		global_scope()
+	));
 #endif // TEST_READYLOG
 #endif
 }

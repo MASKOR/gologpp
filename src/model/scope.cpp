@@ -16,7 +16,7 @@ Scope::Scope()
 {}
 
 
-Scope::Scope(Expression *owner, const vector<shared_ptr<AbstractVariable>> &variables, Scope &parent_scope)
+Scope::Scope(AbstractLanguageElement *owner, const vector<shared_ptr<AbstractVariable>> &variables, Scope &parent_scope)
 : parent_scope_(parent_scope)
 , owner_(owner)
 , globals_(parent_scope.globals_)
@@ -24,6 +24,11 @@ Scope::Scope(Expression *owner, const vector<shared_ptr<AbstractVariable>> &vari
 	for (const shared_ptr<AbstractVariable> &v : variables)
 		variables_.emplace(v->name(), v);
 }
+
+
+Scope::Scope(AbstractLanguageElement *owner, Scope &parent_scope)
+: Scope(owner, {}, parent_scope)
+{}
 
 
 Scope::Scope(Scope &&other)
@@ -62,10 +67,10 @@ void Scope::implement(Implementor &implementor)
 }
 
 
-void Scope::set_owner(Expression *owner)
+void Scope::set_owner(AbstractLanguageElement *owner)
 { owner_ = owner; }
 
-const Expression *Scope::owner() const
+const AbstractLanguageElement *Scope::owner() const
 { return owner_; }
 
 const Scope::VariablesMap &Scope::var_map() const

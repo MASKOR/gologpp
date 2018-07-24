@@ -27,7 +27,9 @@ public:
 	using VariablesMap = unordered_map<string, shared_ptr<AbstractVariable>>;
 	using GlobalsMap = unordered_map<Identifier, shared_ptr<Global>>;
 
-	Scope(Expression *owner, const vector<shared_ptr<AbstractVariable>> &variables = {}, Scope &parent_scope = global_scope());
+	Scope(AbstractLanguageElement *owner, const vector<shared_ptr<AbstractVariable>> &variables = {}, Scope &parent_scope = global_scope());
+	Scope(AbstractLanguageElement *owner, Scope &parent_scope);
+
 
 	Scope(Scope &&);
 
@@ -58,8 +60,8 @@ public:
 	static Scope &global_scope()
 	{ return global_scope_; }
 
-	void set_owner(Expression *owner);
-	const Expression *owner() const;
+	void set_owner(AbstractLanguageElement *owner);
+	const AbstractLanguageElement *owner() const;
 
 	template<class GologT = Global>
 	shared_ptr<GologT> lookup_global(const Identifier &id)
@@ -105,7 +107,7 @@ private:
 
 	static Scope global_scope_;
 	Scope &parent_scope_;
-	Expression *owner_;
+	AbstractLanguageElement *owner_;
 	VariablesMap variables_;
 
 	shared_ptr<GlobalsMap> globals_;

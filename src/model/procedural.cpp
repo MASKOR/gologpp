@@ -10,10 +10,11 @@
 namespace gologpp {
 
 
-Block::Block(const vector<Statement *> &elements, Scope &parent_scope)
+Block::Block(Scope *own_scope, const vector<Statement *> &elements, Scope &parent_scope)
 : Statement(parent_scope)
+, scope_(own_scope)
 , elements_(elements.begin(), elements.end())
-{}
+{ own_scope->set_owner(this); }
 
 void Block::implement(Implementor &implementor)
 {
@@ -29,10 +30,11 @@ const vector<unique_ptr<Statement>> &Block::elements() const
 
 
 
-Choose::Choose(const vector<Statement *> &alternatives, Scope &parent_scope)
+Choose::Choose(Scope *own_scope, const vector<Statement *> &alternatives, Scope &parent_scope)
 : Statement(parent_scope)
+, scope_(own_scope)
 , alternatives_(alternatives.begin(), alternatives.end())
-{}
+{ own_scope->set_owner(this); }
 
 const vector<unique_ptr<Statement>> &Choose::alternatives() const
 { return alternatives_; }
@@ -48,14 +50,16 @@ void Choose::implement(Implementor &implementor)
 
 
 
-Conditional::Conditional(unique_ptr<BooleanExpression> &&condition,
-                         unique_ptr<Statement> &&block_true,
-                         unique_ptr<Statement> &&block_false,
-                         Scope &parent_scope)
-    : Statement(parent_scope)
-    , condition_(std::move(condition))
-    , block_true_(std::move(block_true))
-    , block_false_(std::move(block_false))
+Conditional::Conditional(
+	unique_ptr<BooleanExpression> &&condition,
+	unique_ptr<Statement> &&block_true,
+	unique_ptr<Statement> &&block_false,
+	Scope &parent_scope
+)
+: Statement(parent_scope)
+, condition_(std::move(condition))
+, block_true_(std::move(block_true))
+, block_false_(std::move(block_false))
 {}
 
 
@@ -137,7 +141,7 @@ AbstractFunction::AbstractFunction(Scope *own_scope, const string &name, const v
 : Global(name, args)
 , scope_(own_scope)
 , definition_(definition)
-{}
+{ own_scope->set_owner(this); }
 
 AbstractFunction::~AbstractFunction()
 {}

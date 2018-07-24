@@ -451,15 +451,24 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 			| pick(_r1) | search(_r1) | r_while(_r1);
 		compound_statement.name("compound statement");
 
-		block = ('{' > *statement(_r1) > '}') [
-			_val = new_<Block>(_1, _r1)
+
+		block = (l('{') [
+			_r(scope) = new_<Scope>(nullptr, _r1)
+		] > +statement(_r1) > '}') [
+			_val = new_<Block>(_r(scope), _1, _r1)
 		];
 		block.name("block");
+		on_error<fail>(block, delete_(_r(scope)));
 
-		choose = (l("choose") > '{' > +statement(_r1) > '}') [
-			_val = new_<Choose>(_1, _r1)
+
+		choose = ((l("choose") > '{') [
+			_r(scope) = new_<Scope>(nullptr, _r1)
+		] > +statement(_r1) > '}') [
+			_val = new_<Choose>(_r(scope), _1, _r1)
 		];
 		choose.name("choose");
+		on_error<fail>(choose, delete_(_r(scope)));
+
 
 		conditional = (l("if") > '(' > boolean_expression(_r1) > ')'
 			> statement(_r1) > -("else" > statement(_r1))
@@ -467,6 +476,7 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 			_val = new_<Conditional>(_1, _2, _3, _r1)
 		];
 		conditional.name("conditional");
+
 
 		pick = (l("pick") > '(' > abstract_var(_r1) > ')' > statement(_r1)) [
 			_val = new_<Pick>(_1, _2, _r1)
@@ -498,6 +508,8 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 		];
 		numeric_return.name("numeric return");
 	}
+
+	Scope *scope;
 
 	rule<Statement *(Scope &)> statement;
 	rule<Statement *(Scope &)> simple_statement;
