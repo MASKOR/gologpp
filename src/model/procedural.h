@@ -21,6 +21,7 @@ namespace gologpp {
 class Block : public Statement, public LanguageElement<Block> {
 public:
 	Block(Scope *own_scope, const vector<Statement *> &elements, Scope &parent_scope);
+	Block(const vector<Statement *> &elements, Scope &parent_scope);
 	virtual void implement(Implementor &) override;
 
 	const vector<unique_ptr<Statement>> &elements() const;

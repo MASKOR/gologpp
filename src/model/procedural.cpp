@@ -16,6 +16,10 @@ Block::Block(Scope *own_scope, const vector<Statement *> &elements, Scope &paren
 , elements_(elements.begin(), elements.end())
 { own_scope->set_owner(this); }
 
+Block::Block(const vector<Statement *> &elements, Scope &parent_scope)
+: Block(new Scope(this, {}, parent_scope), elements, parent_scope)
+{}
+
 void Block::implement(Implementor &implementor)
 {
 	if (!impl_) {
