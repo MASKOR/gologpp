@@ -30,14 +30,18 @@ EC_word Implementation<Procedure>::term()
 
 Implementation<AbstractFunction>::Implementation(const AbstractFunction &function)
 : function_(function)
+, return_var_(::newvar())
 {}
 
 
 EC_word Implementation<AbstractFunction>::term()
 {
-	return ::term(EC_functor(function_.name().c_str(), function_.arity()),
-		translate_args(function_.args())
-	);
+	if (function_.arity() > 0)
+		return ::term(EC_functor(function_.name().c_str(), function_.arity()),
+			translate_args(function_.args())
+		);
+	else
+		return EC_word(function_.name().c_str());
 }
 
 

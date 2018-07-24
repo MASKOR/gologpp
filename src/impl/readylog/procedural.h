@@ -171,7 +171,7 @@ public:
 		}
 
 		try {
-			const Function<ExpressionT> &function = dynamic_cast<const Function<ExpressionT> &>(*root_parent);
+			auto &function = dynamic_cast<const Function<ExpressionT> &>(*root_parent);
 			return ::term(EC_functor("=", 2),
 				function.implementation().return_var(),
 				ret_.expression().implementation().term()
