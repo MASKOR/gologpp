@@ -336,8 +336,8 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 			| qi::string(">=") [ _val = val(ComparisonOperator::GE) ]
 			| qi::string("<=") [ _val = val(ComparisonOperator::LE) ]
 			| qi::string("<") [ _val = val(ComparisonOperator::LT) ]
-			| qi::string("==") [ _val = val(ComparisonOperator::NEQ) ]
-			| qi::string("!=") [ _val = val(ComparisonOperator::EQ) ]
+			| qi::string("==") [ _val = val(ComparisonOperator::EQ) ]
+			| qi::string("!=") [ _val = val(ComparisonOperator::NEQ) ]
 		;
 		num_cmp_op.name("numeric comparison operator");
 
