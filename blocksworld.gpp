@@ -1,16 +1,15 @@
-%fluent on(%x) = 0
+%fluent on(%x) = 0;
 
 action put(%x, %y) {
 precondition:
-	on(%x) != %y &
-	%x != 0 &
-	!(exists (%z) (
+	on(%x) != %y
+	& %x != 0
+	& !(exists (%z) (
 		on(%z) == %x |
 		on(%z) == %y
 	))
 
 effect:
-
 	on(%x) = %y
 }
 

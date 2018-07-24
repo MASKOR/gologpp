@@ -12,6 +12,8 @@
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/operator/logical.hpp>
+#include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
 
@@ -219,8 +221,14 @@ struct ReferenceParser : grammar<Reference<ExpressionT> *(Scope &)> {
 			attr_cast<Expression *>(pred_ref(_r1)) | atom(_r1)
 		) %  ",") > ")"
 		) [
-			_val = new_<Reference<ExpressionT>>(_1, _r1, _2)
+			_val = new_<Reference<ExpressionT>>(_1, _r1, _2),
+			if_(!phoenix::bind(&Reference<ExpressionT>::bound, _val)) [
+				// Target doesn't have the given ExpressionT, so fail this parser
+				_pass = false
+			]
 		];
+
+		on_error<fail>(pred_ref, delete_(_val));
 	}
 
 	rule<Reference<ExpressionT> *(Scope &)> pred_ref;
@@ -393,7 +401,7 @@ struct AssignmentParser<Fluent<ExpressionT>> : grammar<Assignment<Fluent<Express
 	AssignmentParser()
 	: AssignmentParser<Fluent<ExpressionT>>::base_type(assignment, string("assignment to ") + type_descr<ExpressionT>() + " fluent")
 	{
-		assignment = (fluent_ref(_r1) >> "=" >> expression(_r1)) [
+		assignment = (fluent_ref(_r1) >> "=" > expression(_r1)) [
 			_val = new_<Assignment<Fluent<ExpressionT>>>(_1, _2, _r1)
 		];
 	}
@@ -408,7 +416,7 @@ struct AssignmentParser<Variable<ExpressionT>> : grammar<Assignment<Variable<Exp
 	AssignmentParser()
 	: AssignmentParser<Variable<ExpressionT>>::base_type(assignment, string("assignment to ") + type_descr<ExpressionT>() + " variable")
 	{
-		assignment = (var_ref(_r1) >> "=" >> expression(_r1)) [
+		assignment = (var_ref(_r1) >> "=" > expression(_r1)) [
 			_val = new_<Assignment<Variable<ExpressionT>>>(_1, _2, _r1)
 		];
 
@@ -435,7 +443,8 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 
 		simple_statement = test(_r1) | boolean_return(_r1) | numeric_return(_r1)
 			| numeric_var_assignment(_r1) | bool_var_assignment(_r1)
-			| numeric_fluent_assignment(_r1) | bool_fluent_assignment(_r1) | procedure_call(_r1);
+			| numeric_fluent_assignment(_r1) | bool_fluent_assignment(_r1)
+			| action_call(_r1) | procedure_call(_r1);
 		simple_statement.name("simple statement");
 
 		compound_statement = block(_r1) | choose(_r1) | conditional(_r1)
@@ -447,7 +456,7 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 		];
 		block.name("block");
 
-		choose = (l("choose") > '{' > *statement(_r1) > '}') [
+		choose = (l("choose") > '{' > +statement(_r1) > '}') [
 			_val = new_<Choose>(_1, _r1)
 		];
 		choose.name("choose");
@@ -507,6 +516,7 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 	rule<Return<BooleanExpression> *(Scope &)> boolean_return;
 	rule<Return<NumericExpression> *(Scope &)> numeric_return;
 	ReferenceParser<Procedure> procedure_call;
+	ReferenceParser<Action> action_call;
 	BooleanExpressionParser boolean_expression;
 	NumericExpressionParser numeric_expression;
 };
