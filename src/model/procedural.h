@@ -20,8 +20,7 @@ namespace gologpp {
 
 class Block : public Statement, public LanguageElement<Block> {
 public:
-	Block(Scope *own_scope, const vector<Statement *> &elements, Scope &parent_scope);
-	Block(const vector<Statement *> &elements, Scope &parent_scope);
+	Block(Scope *own_scope, const vector<Statement *> &elements);
 	virtual void implement(Implementor &) override;
 
 	const vector<unique_ptr<Statement>> &elements() const;
@@ -34,7 +33,7 @@ private:
 
 class Choose : public Statement, public LanguageElement<Choose> {
 public:
-	Choose(Scope *own_scope, const vector<Statement *> &alternatives, Scope &parent_scope);
+	Choose(Scope *own_scope, const vector<Statement *> &alternatives);
 	void implement(Implementor &) override;
 
 	const vector<unique_ptr<Statement>> &alternatives() const;
@@ -97,17 +96,18 @@ private:
 
 class Pick : public Statement, public LanguageElement<Pick> {
 public:
-	Pick(const shared_ptr<AbstractVariable> &variable, Statement *stmt, Scope &parent_scope);
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *statement_)
+	Pick(Scope *own_scope, const shared_ptr<AbstractVariable> &variable, Statement *stmt);
+	Pick(const string &var_name, Statement *stmt, Scope &parent_scope);
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*scope_, *variable_, *statement_)
 
 	const AbstractVariable &variable() const;
 	const Statement &statement() const;
 	const Scope &scope() const;
 
 private:
+	unique_ptr<Scope> scope_;
 	shared_ptr<AbstractVariable> variable_;
 	unique_ptr<Statement> statement_;
-	Scope scope_;
 };
 
 
@@ -202,7 +202,7 @@ public:
 	)
     : ExpressionT(Scope::global_scope())
     , AbstractFunction(own_scope, name, args, statement.get_value_or(nullptr))
-    {}
+    { own_scope->set_owner(this); }
 
 	Function(
 		Scope *own_scope,

@@ -290,7 +290,9 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 *********************/
 
 struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
-	BooleanExpressionParser() : BooleanExpressionParser::base_type(expression, "boolean expression")
+	BooleanExpressionParser()
+	: BooleanExpressionParser::base_type(expression, "boolean expression")
+	, scope(nullptr)
 	{
 		expression = binary_expr(_r1) | unary_expr(_r1);
 		expression.name("boolean expression");
@@ -313,10 +315,13 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 		];
 		num_comparison.name("numeric comparison");
 
-		quantification = (quantification_op > '(' > abstract_var(_r1) > ')' > expression(_r1)) [
-			_val = new_<Quantification>(_1, _2, _3, _r1)
+		quantification = ( (quantification_op > '(') [
+			_r(scope) = new_<Scope>(nullptr, _r1)
+		] > abstract_var(*_r(scope)) > ')' > expression(_r1)) [
+			_val = new_<Quantification>(_r(scope), _1, _2, _3)
 		];
 		quantification.name("quantification");
+		on_error<fail>(quantification, delete_(_r(scope)));
 
 		quantification_op = qi::string("exists") [ _val = val(QuantificationOperator::EXISTS) ]
 			| qi::string("forall") [ _val = val(QuantificationOperator::FORALL) ];
@@ -353,6 +358,7 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 		bool_var_ref.name("reference to boolean variable");
 	}
 
+	Scope *scope;
 	rule<BooleanExpression *(Scope &)> expression;
 	rule<BooleanExpression *(Scope &)> unary_expr;
 	rule<BooleanExpression *(Scope &)> binary_expr;
@@ -454,8 +460,8 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 
 		block = (l('{') [
 			_r(scope) = new_<Scope>(nullptr, _r1)
-		] > +statement(_r1) > '}') [
-			_val = new_<Block>(_r(scope), _1, _r1)
+		] > +statement(*_r(scope)) > '}') [
+			_val = new_<Block>(_r(scope), _1)
 		];
 		block.name("block");
 		on_error<fail>(block, delete_(_r(scope)));
@@ -463,8 +469,8 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 
 		choose = ((l("choose") > '{') [
 			_r(scope) = new_<Scope>(nullptr, _r1)
-		] > +statement(_r1) > '}') [
-			_val = new_<Choose>(_r(scope), _1, _r1)
+		] > +statement(*_r(scope)) > '}') [
+			_val = new_<Choose>(_r(scope), _1)
 		];
 		choose.name("choose");
 		on_error<fail>(choose, delete_(_r(scope)));
@@ -478,10 +484,14 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 		conditional.name("conditional");
 
 
-		pick = (l("pick") > '(' > abstract_var(_r1) > ')' > statement(_r1)) [
-			_val = new_<Pick>(_1, _2, _r1)
+		pick = ((l("pick") > '(') [
+			_r(scope) = new_<Scope>(nullptr, _r1)
+		] > abstract_var(*_r(scope)) > ')' > statement(*_r(scope))) [
+			_val = new_<Pick>(_r(scope), _1, _2)
 		];
 		pick.name("pick");
+		on_error<fail>(pick, delete_(_r(scope)));
+
 
 		search = (l("search") > statement(_r1)) [
 			_val = new_<Search>(_1, _r1)
@@ -559,7 +569,6 @@ struct FunctionParser : grammar<Function<ExpressionT> *(Scope &)> {
 				_1, _2, _3
 			)
 		];
-
 	}
 
 	rule<Function<ExpressionT> *(Scope &)> function;

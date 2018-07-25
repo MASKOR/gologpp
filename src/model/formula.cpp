@@ -54,15 +54,18 @@ const BooleanExpression &BooleanOperation::rhs() const
 
 
 Quantification::Quantification(
-		QuantificationOperator op,
-        const shared_ptr<AbstractVariable> &variable,
-        BooleanExpression *expression,
-        Scope &parent_scope)
-: BooleanExpression(parent_scope)
+	Scope *own_scope,
+	QuantificationOperator op,
+	const shared_ptr<AbstractVariable> &variable,
+	BooleanExpression *expression
+)
+: BooleanExpression(own_scope->parent_scope())
+, scope_(own_scope)
 , op_(op)
-, variable_(variable),
-expression_(expression)
+, variable_(variable)
+, expression_(expression)
 {}
+
 
 QuantificationOperator Quantification::op() const
 { return op_; }

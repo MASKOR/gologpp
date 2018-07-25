@@ -79,15 +79,16 @@ void test_objectmodel()
 
 	{ vector<unique_ptr<Expression>> args;
 
-		EclipseContext::init(unique_ptr<AExecutionBackend>(nullptr));
-		EclipseContext &ctx = EclipseContext::instance();
-
+		Scope *main_scope = new Scope(nullptr);
 		args.emplace_back(new NumericConstant(1));
 		args.emplace_back(new NumericConstant(2));
 		vector<Statement *> code;
-		code.push_back(put->ref<Action>(global_scope(), std::move(args)));
+		code.push_back(put->ref<Action>(*main_scope, std::move(args)));
 
-		ctx.run(Block(std::move(code), global_scope() ));
+		EclipseContext::init(unique_ptr<AExecutionBackend>(nullptr));
+		EclipseContext &ctx = EclipseContext::instance();
+
+		ctx.run(Block(main_scope, std::move(code)));
 	}
 #endif // TEST_READYLOG
 
@@ -114,8 +115,7 @@ void test_parser()
 
 	ctx.run(Block(
 		new Scope(nullptr, global_scope()),
-		{ mainproc.release() },
-		global_scope()
+		{ mainproc.release() }
 	));
 #endif // TEST_READYLOG
 #endif

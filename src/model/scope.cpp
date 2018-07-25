@@ -67,6 +67,9 @@ void Scope::implement(Implementor &implementor)
 }
 
 
+Scope &Scope::parent_scope()
+{ return parent_scope_; }
+
 void Scope::set_owner(AbstractLanguageElement *owner)
 { owner_ = owner; }
 

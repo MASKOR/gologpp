@@ -10,15 +10,11 @@
 namespace gologpp {
 
 
-Block::Block(Scope *own_scope, const vector<Statement *> &elements, Scope &parent_scope)
-: Statement(parent_scope)
+Block::Block(Scope *own_scope, const vector<Statement *> &elements)
+: Statement(own_scope->parent_scope())
 , scope_(own_scope)
 , elements_(elements.begin(), elements.end())
 { own_scope->set_owner(this); }
-
-Block::Block(const vector<Statement *> &elements, Scope &parent_scope)
-: Block(new Scope(this, {}, parent_scope), elements, parent_scope)
-{}
 
 void Block::implement(Implementor &implementor)
 {
@@ -34,8 +30,8 @@ const vector<unique_ptr<Statement>> &Block::elements() const
 
 
 
-Choose::Choose(Scope *own_scope, const vector<Statement *> &alternatives, Scope &parent_scope)
-: Statement(parent_scope)
+Choose::Choose(Scope *own_scope, const vector<Statement *> &alternatives)
+: Statement(own_scope->parent_scope())
 , scope_(own_scope)
 , alternatives_(alternatives.begin(), alternatives.end())
 { own_scope->set_owner(this); }
@@ -47,6 +43,7 @@ void Choose::implement(Implementor &implementor)
 {
 	if (!impl_) {
 		impl_ = implementor.make_impl(*this);
+		scope_->implement(implementor);
 		for (unique_ptr<Statement> &stmt : alternatives_)
 			stmt->implement(implementor);
 	}
@@ -65,7 +62,6 @@ Conditional::Conditional(
 , block_true_(std::move(block_true))
 , block_false_(std::move(block_false))
 {}
-
 
 Conditional::Conditional(
 	BooleanExpression *condition,
@@ -92,11 +88,18 @@ const Statement &Conditional::block_true() const
 
 
 
-Pick::Pick(const shared_ptr<AbstractVariable> &variable, Statement *statement, Scope &parent_scope)
-: Statement(parent_scope)
+Pick::Pick(Scope *own_scope, const shared_ptr<AbstractVariable> &variable, Statement *statement)
+: Statement(own_scope->parent_scope())
+, scope_(own_scope)
 , variable_(std::move(variable))
 , statement_(statement)
-, scope_(this, {variable}, parent_scope)
+{ own_scope->set_owner(this); }
+
+Pick::Pick(const string &var_name, Statement *statement, Scope &parent_scope)
+: Statement(parent_scope)
+, scope_(new Scope(this, {}, parent_scope))
+, variable_(scope_->variable(var_name))
+, statement_(statement)
 {}
 
 const AbstractVariable &Pick::variable() const

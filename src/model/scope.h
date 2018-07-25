@@ -53,12 +53,13 @@ public:
 	shared_ptr<AbstractVariable> variable(const string &name) const;
 
 	vector<shared_ptr<AbstractVariable>> variables(const vector<string> &names) const;
-	shared_ptr<Scope> parent_scope();
 
 	void implement(Implementor &implementor);
 
 	static Scope &global_scope()
 	{ return global_scope_; }
+
+	Scope &parent_scope();
 
 	void set_owner(AbstractLanguageElement *owner);
 	const AbstractLanguageElement *owner() const;
