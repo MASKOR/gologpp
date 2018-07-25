@@ -1,4 +1,5 @@
 #include "formula.h"
+#include "atoms.h"
 #include <model/formula.h>
 #include <model/atoms.h>
 #include <model/error.h>
@@ -97,21 +98,24 @@ Implementation<Quantification>::Implementation(const Quantification &q)
 
 EC_word Implementation<Quantification>::term()
 {
-	switch (quantification_.op()) {
-	case QuantificationOperator::EXISTS:
-		return ::term(EC_functor("some", 2),
-			quantification_.variable().implementation().term(),
-			quantification_.expression().implementation().term()
-		);
-	case QuantificationOperator::FORALL:
-		return ::term(EC_functor("neg", 1),
-			::term(EC_functor("some", 2),
+	{ GologVarMutator guard(quantification_.variable().implementation<AbstractVariable>());
+
+		switch (quantification_.op()) {
+		case QuantificationOperator::EXISTS:
+			return ::term(EC_functor("some", 2),
 				quantification_.variable().implementation().term(),
-				::term(EC_functor("neg", 1),
-					quantification_.expression().implementation().term()
+				quantification_.expression().implementation().term()
+			);
+		case QuantificationOperator::FORALL:
+			return ::term(EC_functor("neg", 1),
+				::term(EC_functor("some", 2),
+					quantification_.variable().implementation().term(),
+					::term(EC_functor("neg", 1),
+						quantification_.expression().implementation().term()
+					)
 				)
-			)
-		);
+			);
+		}
 	}
 	throw Bug("Unknown QuantificationOperator");
 }

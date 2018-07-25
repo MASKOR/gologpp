@@ -1,4 +1,5 @@
 #include "procedural.h"
+#include "atoms.h"
 #include <model/procedural.h>
 
 #include "scope.h"
@@ -125,10 +126,13 @@ Implementation<Pick>::Implementation(const Pick &pick)
 
 EC_word Implementation<Pick>::term()
 {
-	return ::term(EC_functor("pick", 2),
-		pick_.variable().implementation().term(),
-		pick_.statement().implementation().term()
-	);
+	// Make sure the `pick'ed variable is a Golog variable
+	{ GologVarMutator guard(pick_.variable().implementation<AbstractVariable>());
+		return ::term(EC_functor("pick", 2),
+			pick_.variable().implementation().term(),
+			pick_.statement().implementation().term()
+		);
+	}
 }
 
 

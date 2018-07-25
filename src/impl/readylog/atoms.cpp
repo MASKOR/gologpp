@@ -2,7 +2,10 @@
 
 namespace gologpp {
 
-Implementation<AbstractVariable>::Implementation(const AbstractVariable &)
+Implementation<AbstractVariable>::Implementation(const AbstractVariable &var)
+: var_(var)
+, golog_var_(("gv_" + var.name()).c_str())
+, as_golog_var_(false)
 {}
 
 Implementation<AbstractVariable>::~Implementation()
@@ -12,7 +15,20 @@ void Implementation<AbstractVariable>::init()
 { ec_var_ = ::newvar(); }
 
 EC_word Implementation<AbstractVariable>::term()
-{ return ec_var_; }
+{
+	if (as_golog_var_)
+		return golog_var_;
+	else
+		return ec_var_;
+}
+
+
+GologVarMutator::GologVarMutator(Implementation<AbstractVariable> &var_impl)
+: var_impl_(var_impl)
+{ var_impl_.as_golog_var_ = true; }
+
+GologVarMutator::~GologVarMutator()
+{ var_impl_.as_golog_var_ = false; }
 
 
 template<>
