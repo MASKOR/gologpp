@@ -104,6 +104,11 @@ History ExecutionContext::run(Block &&program)
 			exog.attach_semantics(*implementor_);
 			history.abstract_impl().append_exog(std::move(exog));
 		}
+		else {
+			AExecutionBackend* back =exec_backend_.get();
+			Transition rtrans=history.abstract_impl().get_last_transition();
+			back->execute_transition(rtrans);
+		}
 
 		std::chrono::duration<double> d_trans = clock().now() - t_trans;
 		std::cout << std::fixed << std::setprecision(9) << "Transition time: "

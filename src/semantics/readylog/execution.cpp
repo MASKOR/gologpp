@@ -37,6 +37,54 @@ void Semantics<History>::set_current_history(EC_word h)
 }
 
 
+EC_word Semantics<History>::get_list_head(EC_word list)
+{
+    EC_word head, tail;
+    if (list.is_list(head, tail))
+        std::cout<<EC_fail<<std::endl;
+    return head;
+}
+
+
+char* Semantics<History>::get_head_name(EC_word head)
+{
+    EC_functor headfunctor;
+    head.functor(&headfunctor);
+    return headfunctor.name();
+}
+
+
+Transition Semantics<History>::get_last_transition()
+{
+    EC_word head;
+    char *headname;
+    head = get_list_head(readylog_history_);
+    headname = get_head_name(head);
+    double d;
+    long i;
+    EC_atom did;
+    char *s;
+    EC_word term;
+    vector<unique_ptr<AbstractConstant>> args;
+    for(int j = 1; j <= head.arity();j++){
+        head.arg(j,term);
+        if (EC_succeed == term.is_double(&d)){
+            args.emplace_back(new NumericConstant(d));
+        }
+        else if (EC_succeed == term.is_long(&i))
+            std::cout << i << "\n";
+        else if (EC_succeed == term.is_atom(&did))
+            std::cout << did.Name() << "\n";
+        else if (EC_succeed == term.is_string(&s))
+            std::cout << s << "\n";
+        else
+            std::cout << "not a simple type\n";
+    }
+    shared_ptr<Action> on_shared = global_scope().lookup_global<Action>(headname, (arity_t)head.arity());
+    Transition trans(on_shared,std::move(args));
+    return trans;
+}
+
 
 unique_ptr<ReadylogContext> ReadylogContext::instance_;
 
