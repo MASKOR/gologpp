@@ -6,6 +6,7 @@
 #include <boost/spirit/include/phoenix_fusion.hpp>
 #include <boost/spirit/include/qi_omit.hpp>
 #include <boost/spirit/home/qi/nonterminal/error_handler.hpp>
+#include <boost/spirit/home/qi/nonterminal/debug_handler.hpp>
 #include <boost/spirit/include/support_line_pos_iterator.hpp>
 
 #include <boost/phoenix/object/construct.hpp>
@@ -50,12 +51,11 @@ using namespace boost::phoenix;
 
 using iterator = boost::spirit::line_pos_iterator<string::const_iterator>;
 
-template<typename ResultT>
-using rule = boost::spirit::qi::rule<iterator, ResultT, ascii::space_type>;
+template<typename... SignatureTs>
+using rule = boost::spirit::qi::rule<iterator, ascii::space_type, SignatureTs...>;
 
-template<typename ResultT>
-using grammar = boost::spirit::qi::grammar<iterator, ResultT, ascii::space_type>;
-
+template<typename... SignatureTs>
+using grammar = boost::spirit::qi::grammar<iterator, ascii::space_type, SignatureTs...>;
 
 
 /******************
@@ -139,7 +139,7 @@ template<class ExpressionT>
 struct VariableParser : grammar<shared_ptr<Variable<ExpressionT>>(Scope &)> {
 	VariableParser() : VariableParser::base_type(variable, type_descr<ExpressionT>() + " variable") {
 		variable = type_mark<ExpressionT>() >> r_name [
-			_val = bind(&Scope::variable<ExpressionT>, _r1, _1)
+			_val = bind(&Scope::get_var<ExpressionT>, _r1, _1)
 		];
 	}
 
@@ -292,7 +292,6 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 	BooleanExpressionParser()
 	: BooleanExpressionParser::base_type(expression, "boolean expression")
-	, scope(nullptr)
 	{
 		expression = binary_expr(_r1) | unary_expr(_r1);
 		expression.name("boolean expression");
@@ -316,12 +315,12 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 		num_comparison.name("numeric comparison");
 
 		quantification = ( (quantification_op > '(') [
-			_r(scope) = new_<Scope>(nullptr, _r1)
-		] > abstract_var(*_r(scope)) > ')' > expression(_r1)) [
-			_val = new_<Quantification>(_r(scope), _1, _2, _3)
+			_a = new_<Scope>(nullptr, _r1)
+		] > abstract_var(*_a) > ')' > expression(*_a)) [
+			_val = new_<Quantification>(_a, _1, _2, _3)
 		];
 		quantification.name("quantification");
-		on_error<fail>(quantification, delete_(_r(scope)));
+		on_error<fail>(quantification, delete_(_a));
 
 		quantification_op = qi::string("exists") [ _val = val(QuantificationOperator::EXISTS) ]
 			| qi::string("forall") [ _val = val(QuantificationOperator::FORALL) ];
@@ -358,14 +357,13 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 		bool_var_ref.name("reference to boolean variable");
 	}
 
-	Scope *scope;
 	rule<BooleanExpression *(Scope &)> expression;
 	rule<BooleanExpression *(Scope &)> unary_expr;
 	rule<BooleanExpression *(Scope &)> binary_expr;
 	rule<BooleanExpression *(Scope &)> negation;
 	rule<BooleanExpression *(Scope &)> brace;
 	rule<BooleanExpression *(Scope &)> bool_var_ref;
-	rule<BooleanExpression *(Scope &)> quantification;
+	rule<BooleanExpression *(Scope &), locals<Scope *>> quantification;
 	rule<QuantificationOperator()> quantification_op;
 	ReferenceParser<BooleanExpression> bool_reference;
 	rule<BooleanOperator()> bool_op;
@@ -442,7 +440,8 @@ struct AssignmentParser<Variable<ExpressionT>> : grammar<Assignment<Variable<Exp
 ******************/
 
 struct StatementParser : grammar<Statement *(Scope &)> {
-	StatementParser() : StatementParser::base_type(statement, "statement")
+	StatementParser()
+	: StatementParser::base_type(statement, "statement")
 	{
 		statement = compound_statement(_r1) | (simple_statement(_r1) > ';');
 		statement.name("statement");
@@ -459,21 +458,21 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 
 
 		block = (l('{') [
-			_r(scope) = new_<Scope>(nullptr, _r1)
-		] > +statement(*_r(scope)) > '}') [
-			_val = new_<Block>(_r(scope), _1)
+			_a = new_<Scope>(nullptr, _r1)
+		] > +statement(*_a) > '}') [
+			_val = new_<Block>(_a, _1)
 		];
 		block.name("block");
-		on_error<fail>(block, delete_(_r(scope)));
+		on_error<fail>(block, delete_(_a));
 
 
 		choose = ((l("choose") > '{') [
-			_r(scope) = new_<Scope>(nullptr, _r1)
-		] > +statement(*_r(scope)) > '}') [
-			_val = new_<Choose>(_r(scope), _1)
+			_a = new_<Scope>(nullptr, _r1)
+		] > +statement(*_a) > '}') [
+			_val = new_<Choose>(_a, _1)
 		];
 		choose.name("choose");
-		on_error<fail>(choose, delete_(_r(scope)));
+		on_error<fail>(choose, delete_(_a));
 
 
 		conditional = (l("if") > '(' > boolean_expression(_r1) > ')'
@@ -485,12 +484,12 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 
 
 		pick = ((l("pick") > '(') [
-			_r(scope) = new_<Scope>(nullptr, _r1)
-		] > abstract_var(*_r(scope)) > ')' > statement(*_r(scope))) [
-			_val = new_<Pick>(_r(scope), _1, _2)
+			_a = new_<Scope>(nullptr, _r1)
+		] > abstract_var(*_a) > ')' > statement(*_a)) [
+			_val = new_<Pick>(_a, _1, _2)
 		];
 		pick.name("pick");
-		on_error<fail>(pick, delete_(_r(scope)));
+		on_error<fail>(pick, delete_(_a));
 
 
 		search = (l("search") > statement(_r1)) [
@@ -519,19 +518,17 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 		numeric_return.name("numeric return");
 	}
 
-	Scope *scope;
-
 	rule<Statement *(Scope &)> statement;
 	rule<Statement *(Scope &)> simple_statement;
 	rule<Statement *(Scope &)> compound_statement;
-	rule<Block *(Scope &)> block;
-	rule<Choose *(Scope &)> choose;
+	rule<Block *(Scope &), locals<Scope *>> block;
+	rule<Choose *(Scope &), locals<Scope *>> choose;
 	rule<Conditional *(Scope &)> conditional;
 	AssignmentParser<BooleanFluent> bool_fluent_assignment;
 	AssignmentParser<NumericFluent> numeric_fluent_assignment;
 	AssignmentParser<BooleanVariable> bool_var_assignment;
 	AssignmentParser<NumericVariable> numeric_var_assignment;
-	rule<Pick *(Scope &)> pick;
+	rule<Pick *(Scope &), locals<Scope *>> pick;
 	rule<Search *(Scope &)> search;
 	rule<Test *(Scope &)> test;
 	rule<While *(Scope &)> r_while;
@@ -550,29 +547,26 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 ******************/
 
 template<class ExpressionT>
-struct FunctionParser : grammar<Function<ExpressionT> *(Scope &)> {
+struct FunctionParser : grammar<Function<ExpressionT> *(Scope &), locals<Scope *>> {
 	FunctionParser()
 	: FunctionParser::base_type(function, type_descr<ExpressionT>() + " function definition")
-	, scope(nullptr)
 	{
 		function = (
 			((type_mark<ExpressionT>() >> "function") > r_name > '(') [
-				// TODO: cleanup on fail!
-				_r(scope) = new_<Scope>(nullptr)
+				_a = new_<Scope>(nullptr)
 			]
-			> *abstract_var(*_r(scope)) > ')' > -(statement(*_r(scope)))
+			> *abstract_var(*_a) > ')' > -(statement(*_a))
 		) [
 			_val = phoenix::bind(
 				&Scope::define_global<Function<ExpressionT>, boost::optional<Statement *>>,
 				_r1,
-				_r(scope),
-				_1, _2, _3
+				_a, _1, _2, _3
 			)
 		];
+		on_error<fail>(function, delete_(_a));
 	}
 
-	rule<Function<ExpressionT> *(Scope &)> function;
-	Scope *scope;
+	rule<Function<ExpressionT> *(Scope &), locals<Scope *>> function;
 	StatementParser statement;
 };
 
@@ -637,31 +631,32 @@ struct EffectParser : grammar<AbstractEffectAxiom *(AbstractAction *, Scope &)> 
 * Actions
 ******************/
 
-struct ActionParser : grammar<Action *(Scope &)> {
+struct ActionParser : grammar<Action *(Scope &), locals<Scope *>> {
 	ActionParser()
 	: ActionParser::base_type(action, "action definition")
-	, scope(nullptr)
 	{
 		action = (
-			(("action" > r_name > '(') [ delete_(_r(scope)), _r(scope) = new_<Scope>(nullptr) ])
+			(("action" > r_name > '(') [
+				_a = new_<Scope>(nullptr)
+			])
 			// CRUCIAL detail: use lazy dereference, i.e. *_r(scope), not _r(*scope).
 			// Otherwise, we create a reference to the contents of an uninitialized pointer.
-			> abstract_var(*_r(scope)) % ',' > ')'
+			> abstract_var(*_a) % ',' > ')'
 		) [
 			_val = phoenix::bind(
 				&Scope::declare_global<Action>,
-				_r1, _r(scope), _1, _2
+				_r1, _a, _1, _2
 			)
 		]
 		> -( '{'
-			> -( "precondition:" > formula_parser(*_r(scope)) [
+			> -( "precondition:" > formula_parser(*_a) [
 				phoenix::bind(
 					&Action::set_precondition,
 					*_val,
 					_1
 				)
 			] )
-			> -( "effect:" > (effect_parser(_val, *_r(scope)) [
+			> -( "effect:" > (effect_parser(_val, *_a) [
 				phoenix::bind(
 					&Action::add_effect,
 					*_val,
@@ -669,14 +664,13 @@ struct ActionParser : grammar<Action *(Scope &)> {
 				)
 			] % ';') )
 		//>> "signal:" //*/
-		> '}' )
-		;
+		> '}' );
+		on_error<fail>(action, delete_(_a));
 	}
 
 	BooleanExpressionParser formula_parser;
 	EffectParser effect_parser;
-	Scope *scope;
-	rule<Action *(Scope &)> action;
+	rule<Action *(Scope &), locals<Scope *>> action;
 };
 
 
@@ -686,14 +680,15 @@ struct ActionParser : grammar<Action *(Scope &)> {
 ******************/
 
 template<class ExprT>
-struct FluentParser : grammar<AbstractFluent *(Scope &)> {
+struct FluentParser : grammar<AbstractFluent *(Scope &), locals<Scope *>> {
 	FluentParser()
 	: FluentParser::base_type(fluent, "fluent definition")
-	, scope(nullptr)
 	{
 		fluent = (
-			(((type_mark<ExprT>() >> "fluent") > r_name > '(') [ delete_(_r(scope)), _r(scope) = new_<Scope>(nullptr) ])
-			> (abstract_var(*_r(scope)) % ',') > ')' > -('=' > constant<ExprT>()) > ';'
+			(((type_mark<ExprT>() >> "fluent") > r_name > '(') [
+				_a = new_<Scope>(nullptr)
+			] )
+			> (abstract_var(*_a) % ',') > ')' > -('=' > constant<ExprT>()) > ';'
 		) [
 			_val = phoenix::bind(
 				&Scope::define_global<
@@ -701,14 +696,13 @@ struct FluentParser : grammar<AbstractFluent *(Scope &)> {
 					boost::optional<Constant<ExprT> *>
 				>,
 				_r1,
-				_r(scope),
-				_1, _2, _3
+				_a, _1, _2, _3
 			)
 		];
+		on_error<fail>(fluent, delete_(_a));
 	}
 
-	rule<AbstractFluent *(Scope &)> fluent;
-	Scope *scope;
+	rule<AbstractFluent *(Scope &), locals<Scope *>> fluent;
 };
 
 

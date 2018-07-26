@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <boost/variant.hpp>
 #include <boost/variant/polymorphic_get.hpp>
+#include <cassert>
 
 #include "utilities.h"
 #include "language.h"
@@ -20,6 +21,8 @@ Scope &global_scope();
 
 class Scope : public LanguageElement<Scope> {
 private:
+	Scope();
+
 	template<class K, class V>
 	using unordered_map = std::unordered_map<K, V>;
 
@@ -27,32 +30,34 @@ public:
 	using VariablesMap = unordered_map<string, shared_ptr<AbstractVariable>>;
 	using GlobalsMap = unordered_map<Identifier, shared_ptr<Global>>;
 
-	Scope(AbstractLanguageElement *owner, const vector<shared_ptr<AbstractVariable>> &variables = {}, Scope &parent_scope = global_scope());
-	Scope(AbstractLanguageElement *owner, Scope &parent_scope);
-
+	Scope(ScopeOwner *owner, const vector<shared_ptr<AbstractVariable>> &lookup_vars = {}, Scope &parent_scope = global_scope());
+	Scope(ScopeOwner *owner, Scope &parent_scope);
 
 	Scope(Scope &&);
 
 	Scope(const Scope &) = delete;
 	Scope &operator = (const Scope &) = delete;
 
+	~Scope();
+
 	template<class ExpressionT>
-	shared_ptr<Variable<ExpressionT>> variable(const string &name)
+	shared_ptr<Variable<ExpressionT>> get_var(const string &name)
 	{
-		auto it = variables_.find(name);
 		shared_ptr<Variable<ExpressionT>> rv;
-		if (it != variables_.end())
-			rv = std::dynamic_pointer_cast<Variable<ExpressionT>>(it->second);
-		else {
+		rv = std::dynamic_pointer_cast<Variable<ExpressionT>>(lookup_var(name));
+		if (!rv)
 			rv.reset(new Variable<ExpressionT>(name, *this));
+		if (!has_var(name))
 			variables_.emplace(name, rv);
-		}
+		AbstractVariable *in_map = variables_.find(name)->second.get();
+		assert(in_map == rv.get());
 		return rv;
 	}
 
-	shared_ptr<AbstractVariable> variable(const string &name) const;
+	shared_ptr<AbstractVariable> lookup_var(const string &name) const;
+	bool has_var(const string &name) const;
 
-	vector<shared_ptr<AbstractVariable>> variables(const vector<string> &names) const;
+	vector<shared_ptr<AbstractVariable>> lookup_vars(const vector<string> &names);
 
 	void implement(Implementor &implementor);
 
@@ -60,9 +65,10 @@ public:
 	{ return global_scope_; }
 
 	Scope &parent_scope();
+	const Scope &parent_scope() const;
 
-	void set_owner(AbstractLanguageElement *owner);
-	const AbstractLanguageElement *owner() const;
+	void set_owner(ScopeOwner *owner);
+	const ScopeOwner *owner() const;
 
 	template<class GologT = Global>
 	shared_ptr<GologT> lookup_global(const Identifier &id)
@@ -104,15 +110,31 @@ public:
 
 
 private:
-	Scope();
-
 	static Scope global_scope_;
 	Scope &parent_scope_;
-	AbstractLanguageElement *owner_;
+	ScopeOwner *owner_;
 	VariablesMap variables_;
 
 	shared_ptr<GlobalsMap> globals_;
 };
+
+
+
+class ScopeOwner {
+public:
+	ScopeOwner(Scope *owned_scope);
+
+	virtual ~ScopeOwner() = default;
+
+	const Scope &scope() const;
+	Scope &scope();
+	const Scope &parent_scope() const;
+	Scope &parent_scope();
+
+protected:
+	unique_ptr<Scope> scope_;
+};
+
 
 
 } // namespace gologpp

@@ -12,14 +12,15 @@ namespace gologpp {
 
 Block::Block(Scope *own_scope, const vector<Statement *> &elements)
 : Statement(own_scope->parent_scope())
-, scope_(own_scope)
+, ScopeOwner(own_scope)
 , elements_(elements.begin(), elements.end())
-{ own_scope->set_owner(this); }
+{}
 
 void Block::implement(Implementor &implementor)
 {
 	if (!impl_) {
 		impl_ = implementor.make_impl(*this);
+		scope().implement(implementor);
 		for (auto &stmt : elements_)
 			stmt->implement(implementor);
 	}
@@ -32,9 +33,9 @@ const vector<unique_ptr<Statement>> &Block::elements() const
 
 Choose::Choose(Scope *own_scope, const vector<Statement *> &alternatives)
 : Statement(own_scope->parent_scope())
-, scope_(own_scope)
+, ScopeOwner(own_scope)
 , alternatives_(alternatives.begin(), alternatives.end())
-{ own_scope->set_owner(this); }
+{}
 
 const vector<unique_ptr<Statement>> &Choose::alternatives() const
 { return alternatives_; }
@@ -43,7 +44,7 @@ void Choose::implement(Implementor &implementor)
 {
 	if (!impl_) {
 		impl_ = implementor.make_impl(*this);
-		scope_->implement(implementor);
+		scope().implement(implementor);
 		for (unique_ptr<Statement> &stmt : alternatives_)
 			stmt->implement(implementor);
 	}
@@ -90,15 +91,15 @@ const Statement &Conditional::block_true() const
 
 Pick::Pick(Scope *own_scope, const shared_ptr<AbstractVariable> &variable, Statement *statement)
 : Statement(own_scope->parent_scope())
-, scope_(own_scope)
+, ScopeOwner(own_scope)
 , variable_(std::move(variable))
 , statement_(statement)
-{ own_scope->set_owner(this); }
+{}
 
 Pick::Pick(const string &var_name, Statement *statement, Scope &parent_scope)
 : Statement(parent_scope)
-, scope_(new Scope(this, {}, parent_scope))
-, variable_(scope_->variable(var_name))
+, ScopeOwner(new Scope(this, {}, parent_scope))
+, variable_(scope().lookup_var(var_name))
 , statement_(statement)
 {}
 
@@ -146,15 +147,12 @@ const Statement &While::statement() const
 
 AbstractFunction::AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *definition)
 : Global(name, args)
-, scope_(own_scope)
+, ScopeOwner(own_scope)
 , definition_(definition)
-{ own_scope->set_owner(this); }
+{}
 
 AbstractFunction::~AbstractFunction()
 {}
-
-const Scope &AbstractFunction::scope() const
-{ return *scope_; }
 
 const Statement &AbstractFunction::definition() const
 { return *definition_; }

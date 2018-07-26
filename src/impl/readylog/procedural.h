@@ -2,10 +2,12 @@
 #define READYLOG_PROCEDURE_H_
 
 #include "implementation.h"
+#include "scope.h"
 
 #include <model/implementation.h>
 #include <model/expressions.h>
 #include <model/procedural.h>
+#include <model/scope.h>
 
 #include <model/user_error.h>
 
@@ -15,39 +17,100 @@
 
 namespace gologpp {
 
-template<>
-class Implementation<Procedure> : public ReadylogImplementation {
-public:
-	Implementation(const Procedure &proc);
 
-	virtual EC_word term() override;
-	EC_word definition();
-
-private:
-	const Procedure &procedure_;
-};
+/*
+ * The implementations of the different function types that follow show how
+ * different implementations can be used depending on the Expression type argument.
+ */
 
 
+/*
+ * 1. Define the abstract superclass that is used by the ExecutionContext
+ *    It can produce a term that references a function since that always looks the same.
+ *    The definition is however pure virtual since that will look different in readylog
+ *    functions and procedures.
+ */
 template<>
 class Implementation<AbstractFunction> : public ReadylogImplementation {
 public:
-	Implementation(const AbstractFunction &function);
+	Implementation(const AbstractFunction &function)
+	: function_(function)
+	{}
 
 	virtual EC_word term() override;
-	EC_word definition();
-	EC_word return_var();
+	virtual EC_word definition() = 0;
 
-private:
+protected:
 	const AbstractFunction &function_;
-	EC_word return_var_;
 };
 
 
+/*
+ * 2. Implementation for all Function types that get translated into readylog procedures.
+ *    This class is only used indirectly (see below)
+ */
+template<class ExprT>
+class ReadylogProcedure : public Implementation<AbstractFunction> {
+public:
+	using Implementation<AbstractFunction>::Implementation;
+
+	virtual EC_word definition() override
+	{
+		function_.scope().implementation().init_vars();
+		return ::term(EC_functor("proc", 2),
+			term(),
+			function_.definition().implementation().term()
+		);
+	}
+};
+
+
+/*
+ * 3. Map ReadylogProcedure class to to Function types that should use it.
+ */
+template<>
+class Implementation<Function<Statement>> : public ReadylogProcedure<Statement> {
+public:
+	using ReadylogProcedure<Statement>::ReadylogProcedure;
+};
+
+
+template<>
+class Implementation<Function<BooleanExpression>> : public ReadylogProcedure<BooleanExpression> {
+public:
+	using ReadylogProcedure<BooleanExpression>::ReadylogProcedure;
+};
+
+
+
+/*
+ * 4. Implement all remaining types as readylog functions.
+ */
 template<class ExprT>
 class Implementation<Function<ExprT>> : public Implementation<AbstractFunction> {
 public:
 	using Implementation<AbstractFunction>::Implementation;
+
+	virtual EC_word definition() override
+	{
+		function_.scope().implementation().init_vars();
+		return_var_ = ::newvar();
+
+		return ::term(EC_functor("function", 3),
+			term(),
+			return_var_,
+			function_.definition().implementation().term()
+		);
+	}
+
+
+	EC_word return_var()
+	{ return return_var_; }
+
+protected:
+	EC_word return_var_;
 };
+
 
 
 template<>
@@ -158,16 +221,12 @@ public:
 	{}
 
 	virtual EC_word term() override {
-		const Expression *root_parent = dynamic_cast<const Expression *>(
-			ret_.parent_scope().owner()
-		);
+		const ScopeOwner *root_parent = ret_.parent_scope().owner();
 		while (
 			root_parent->parent_scope().owner()
 			&& (&root_parent->parent_scope() != &global_scope())
 		) {
-			root_parent = dynamic_cast<const Expression *>(
-				root_parent->parent_scope().owner()
-			);
+			root_parent = root_parent->parent_scope().owner();
 		}
 
 		try {
@@ -184,6 +243,11 @@ public:
 private:
 	const Return<ExpressionT> &ret_;
 };
+
+
+template<>
+EC_word Implementation<Return<BooleanExpression>>::term();
+
 
 
 } // namespace gologpp

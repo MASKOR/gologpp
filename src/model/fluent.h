@@ -20,6 +20,7 @@ namespace gologpp {
 
 class AbstractFluent
 : public Global
+, public ScopeOwner
 , public virtual AbstractLanguageElement
 {
 public:
@@ -28,13 +29,7 @@ public:
 
 	virtual ~AbstractFluent() override = default;
 
-	Scope &scope();
-	const Scope &scope() const;
-
 	virtual void compile(AExecutionContext &ctx) override;
-
-protected:
-	unique_ptr<Scope> scope_;
 };
 
 

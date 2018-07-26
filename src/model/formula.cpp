@@ -60,7 +60,7 @@ Quantification::Quantification(
 	BooleanExpression *expression
 )
 : BooleanExpression(own_scope->parent_scope())
-, scope_(own_scope)
+, ScopeOwner(own_scope)
 , op_(op)
 , variable_(variable)
 , expression_(expression)

@@ -85,7 +85,7 @@ enum QuantificationOperator {
 };
 
 
-class Quantification : public BooleanExpression {
+class Quantification : public BooleanExpression, public ScopeOwner {
 public:
 	Quantification(
 		Scope *own_scope,
@@ -101,9 +101,10 @@ public:
 		BooleanExpression *expression,
 		Scope &parent_scope
 	)
-	: scope_(new Scope(this, {}, parent_scope))
+	: BooleanExpression(parent_scope)
+	, ScopeOwner(new Scope(this, {}, parent_scope))
 	, op_(op)
-	, variable_(scope_->variable(var_name))
+	, variable_(scope().lookup_var(var_name))
 	, expression_(expression)
 	{}
 
@@ -113,7 +114,6 @@ public:
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *expression_)
 protected:
-	unique_ptr<Scope> scope_;
 	QuantificationOperator op_;
 	shared_ptr<AbstractVariable> variable_;
 	unique_ptr<BooleanExpression> expression_;

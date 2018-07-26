@@ -9,8 +9,8 @@ namespace gologpp {
 AbstractAction::AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
 : Statement(Scope::global_scope())
 , Global(name, args)
-, scope_(own_scope)
-{ scope_->set_owner(this); }
+, ScopeOwner(own_scope)
+{}
 
 
 const vector<unique_ptr<AbstractEffectAxiom>> &AbstractAction::effects() const
@@ -18,12 +18,6 @@ const vector<unique_ptr<AbstractEffectAxiom>> &AbstractAction::effects() const
 
 void AbstractAction::add_effect(AbstractEffectAxiom *effect)
 { effects_.emplace_back(effect); }
-
-Scope &AbstractAction::scope()
-{ return *scope_; }
-
-const Scope &AbstractAction::scope() const
-{ return *scope_; }
 
 void AbstractAction::compile(AExecutionContext &ctx)
 { ctx.compile(*this); }

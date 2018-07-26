@@ -16,7 +16,7 @@ Scope::Scope()
 {}
 
 
-Scope::Scope(AbstractLanguageElement *owner, const vector<shared_ptr<AbstractVariable>> &variables, Scope &parent_scope)
+Scope::Scope(ScopeOwner *owner, const vector<shared_ptr<AbstractVariable>> &variables, Scope &parent_scope)
 : parent_scope_(parent_scope)
 , owner_(owner)
 , globals_(parent_scope.globals_)
@@ -26,7 +26,7 @@ Scope::Scope(AbstractLanguageElement *owner, const vector<shared_ptr<AbstractVar
 }
 
 
-Scope::Scope(AbstractLanguageElement *owner, Scope &parent_scope)
+Scope::Scope(ScopeOwner *owner, Scope &parent_scope)
 : Scope(owner, {}, parent_scope)
 {}
 
@@ -38,21 +38,33 @@ Scope::Scope(Scope &&other)
 {}
 
 
-shared_ptr<AbstractVariable> Scope::variable(const string &name) const
+Scope::~Scope()
+{}
+
+
+bool Scope::has_var(const string &name) const
+{ return variables_.find(name) != variables_.end(); }
+
+
+shared_ptr<AbstractVariable> Scope::lookup_var(const string &name) const
 {
 	auto it = variables_.find(name);
 	shared_ptr<AbstractVariable> rv;
 	if (it != variables_.end())
 		rv = it->second;
+	else if (&parent_scope_ != this) {
+		// This is not the root scope, so search upwards recursively
+		rv = parent_scope_.lookup_var(name);
+	}
 	return rv;
 }
 
 
-vector<shared_ptr<AbstractVariable>> Scope::variables(const vector<string> &names) const
+vector<shared_ptr<AbstractVariable>> Scope::lookup_vars(const vector<string> &names)
 {
 	vector<shared_ptr<AbstractVariable>> rv;
 	for (const string &name : names)
-		rv.push_back(variable(name));
+		rv.push_back(lookup_var(name));
 	return rv;
 }
 
@@ -70,10 +82,13 @@ void Scope::implement(Implementor &implementor)
 Scope &Scope::parent_scope()
 { return parent_scope_; }
 
-void Scope::set_owner(AbstractLanguageElement *owner)
+const Scope &Scope::parent_scope() const
+{ return parent_scope_; }
+
+void Scope::set_owner(ScopeOwner *owner)
 { owner_ = owner; }
 
-const AbstractLanguageElement *Scope::owner() const
+const ScopeOwner *Scope::owner() const
 { return owner_; }
 
 const Scope::VariablesMap &Scope::var_map() const
@@ -106,6 +121,25 @@ void Scope::clear()
 
 Scope &global_scope()
 { return Scope::global_scope(); }
+
+
+
+ScopeOwner::ScopeOwner(Scope *owned_scope)
+: scope_(owned_scope)
+{ scope_->set_owner(this); }
+
+const Scope &ScopeOwner::scope() const
+{ return *scope_; }
+
+Scope &ScopeOwner::scope()
+{ return *scope_; }
+
+const Scope &ScopeOwner::parent_scope() const
+{ return scope().parent_scope(); }
+
+Scope &ScopeOwner::parent_scope()
+{ return scope().parent_scope(); }
+
 
 
 } // namespace gologpp
