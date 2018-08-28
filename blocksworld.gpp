@@ -21,6 +21,7 @@ effect:
 
 {
 	search while (!goal()) {
+		%y = 0;
 		choose {
 			%y = 1;
 			%y = 2;
