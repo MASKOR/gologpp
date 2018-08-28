@@ -41,12 +41,12 @@ public:
 
 	EC_word term() override
 	{
-		if (!reference_.bound())
-			reference_.bind();
-
-		return ::term(EC_functor(reference_.name().c_str(), reference_.arity()),
-			translate_args(reference_.args())
-		);
+		if (reference_.arity() > 0)
+			return ::term(EC_functor(reference_.name().c_str(), reference_.arity()),
+				translate_args(reference_.args())
+			);
+		else
+			return EC_atom(reference_.name().c_str());
 	}
 
 private:

@@ -18,9 +18,9 @@
 namespace gologpp {
 
 
-class Block : public Statement, public LanguageElement<Block> {
+class Block : public Statement, public ScopeOwner, public LanguageElement<Block> {
 public:
-	Block(const vector<Statement *> &elements, Scope &parent_scope);
+	Block(Scope *own_scope, const vector<Statement *> &elements);
 	virtual void implement(Implementor &) override;
 
 	const vector<unique_ptr<Statement>> &elements() const;
@@ -30,9 +30,9 @@ private:
 };
 
 
-class Choose : public Statement, public LanguageElement<Choose> {
+class Choose : public Statement, public ScopeOwner, public LanguageElement<Choose> {
 public:
-	Choose(const vector<Statement *> &alternatives, Scope &parent_scope);
+	Choose(Scope *own_scope, const vector<Statement *> &alternatives);
 	void implement(Implementor &) override;
 
 	const vector<unique_ptr<Statement>> &alternatives() const;
@@ -92,19 +92,18 @@ private:
 };
 
 
-class Pick : public Statement, public LanguageElement<Pick> {
+class Pick : public Statement, public ScopeOwner, public LanguageElement<Pick> {
 public:
-	Pick(const shared_ptr<AbstractVariable> &variable, Statement *stmt, Scope &parent_scope);
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *statement_)
+	Pick(Scope *own_scope, const shared_ptr<AbstractVariable> &variable, Statement *stmt);
+	Pick(const string &var_name, Statement *stmt, Scope &parent_scope);
+	DEFINE_IMPLEMENT_WITH_MEMBERS(scope(), *variable_, *statement_)
 
 	const AbstractVariable &variable() const;
 	const Statement &statement() const;
-	const Scope &scope() const;
 
 private:
 	shared_ptr<AbstractVariable> variable_;
 	unique_ptr<Statement> statement_;
-	Scope scope_;
 };
 
 
@@ -122,7 +121,7 @@ private:
 
 class Test : public Statement, public LanguageElement<Test> {
 public:
-    Test(BooleanExpression *expression, Scope &parent_scope);
+	Test(BooleanExpression *expression, Scope &parent_scope);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_)
 
 	const BooleanExpression &expression() const;
@@ -138,7 +137,7 @@ public:
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_, *statement_)
 
 	const BooleanExpression &expression() const;
-	const Block &block() const;
+	const Statement &statement() const;
 
 protected:
 	unique_ptr<BooleanExpression> expression_;
@@ -164,21 +163,23 @@ private:
 };
 
 
-class AbstractFunction : public Global, public virtual AbstractLanguageElement {
+class AbstractFunction
+: public Global
+, public ScopeOwner
+, public virtual AbstractLanguageElement
+{
 public:
-	AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *statement);
+	AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *definition);
 
 	virtual ~AbstractFunction() override;
 
-	const Scope &scope() const;
-	const Statement &statement() const;
-
+	const Statement &definition() const;
+	void define(boost::optional<Statement *> definition);
 	virtual void compile(AExecutionContext &ctx) override;
 
 protected:
-    unique_ptr<Scope> scope_;
-    unique_ptr<Statement> statement_;
-    vector<shared_ptr<AbstractVariable>> args_;
+	unique_ptr<Statement> definition_;
+	vector<shared_ptr<AbstractVariable>> args_;
 };
 
 
@@ -189,13 +190,27 @@ class Function
 , public LanguageElement<Function<ExpressionT>>
 {
 public:
-    Function(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *statement)
-    : ExpressionT(Scope::global_scope())
-    , AbstractFunction(own_scope, name, args, statement)
-    {}
+	Function(
+		Scope *own_scope,
+		const string &name,
+		const vector<shared_ptr<AbstractVariable>> &args,
+		boost::optional<Statement *> statement
+	)
+	: ExpressionT(Scope::global_scope())
+	, AbstractFunction(own_scope, name, args, statement.get_value_or(nullptr))
+	{}
 
-    Function(Function &&) = default;
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*scope_, *statement_)
+	Function(
+		Scope *own_scope,
+		const string &name,
+		const vector<shared_ptr<AbstractVariable>> &args
+	)
+	: Function(own_scope, name, args, boost::optional<Statement *>())
+	{}
+
+
+	Function(Function &&) = default;
+	DEFINE_IMPLEMENT_WITH_MEMBERS(scope(), *definition_)
 };
 
 

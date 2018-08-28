@@ -44,11 +44,14 @@ EC_word Implementation<Action>::prolog_poss()
 
 	action_.scope().implementation().init_vars();
 
-	if ( ! EclipseContext::instance().ec_query(::term(EC_functor("process_condition", 3),
+	if ( ! EclipseContext::instance().ec_query(
+		::term(
+			EC_functor("process_condition", 3),
 			action_.precondition().implementation().term(),
 			S,
 			NewCondBody
-	)))
+		)
+	))
 		throw new std::runtime_error("process_condition failed for " + action_.name());
 
 	return ::term(EC_functor(":-", 2),

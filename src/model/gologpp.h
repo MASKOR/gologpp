@@ -41,6 +41,7 @@ class AbstractEffectAxiom;
 template<class> class EffectAxiom;
 
 class Scope;
+class ScopeOwner;
 Scope &global_scope();
 
 class AbstractFluent;

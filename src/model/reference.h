@@ -16,50 +16,28 @@
 namespace gologpp {
 
 
-class AbstractReference {
-public:
-	AbstractReference(const Identifier &target_id)
-	: target_id_(target_id)
-	{}
-
-	virtual ~AbstractReference();
-
-	virtual void bind() = 0;
-	virtual bool bound() = 0;
-
-	const Identifier &target_id() const
-	{ return target_id_; }
-
-private:
-	const Identifier target_id_;
-};
-
-
 template<class TargetT>
 class Reference
 : public TargetT::expression_t
-, public AbstractReference
 , public virtual AbstractLanguageElement
 , public LanguageElement<Reference<TargetT>>
 {
 public:
 	Reference(const shared_ptr<TargetT> &target, Scope &parent_scope, vector<unique_ptr<Expression>> &&args = {})
 	: TargetT::expression_t(parent_scope)
-	, AbstractReference(*target)
 	, target_(target)
 	, args_(std::move(args))
 	{}
 
 	Reference(Reference<TargetT> &&other)
 	: TargetT::expression_t(other.parent_scope())
-	, AbstractReference(other.target_id())
 	, target_(std::move(other.target_))
 	, args_(std::move(other.args_))
 	{}
 
 	Reference(const string &target_name, Scope &parent_scope, const vector<Expression *> &args)
 	: TargetT::expression_t(parent_scope)
-	, AbstractReference({target_name, static_cast<arity_t>(args.size())})
+	, target_(parent_scope.lookup_global<TargetT>( { target_name, static_cast<arity_t>(args.size()) } ))
 	, args_(args.begin(), args.end())
 	{}
 
@@ -80,21 +58,16 @@ public:
 	{ return args_; }
 
 	const string &name() const
-	{ return target_id().name(); }
+	{ return std::dynamic_pointer_cast<Identifier>(target_.lock())->name(); }
 
 	arity_t arity() const
-	{ return target_id().arity(); }
+	{ return std::dynamic_pointer_cast<Identifier>(target_.lock())->arity(); }
 
-	virtual bool bound() override
+	virtual bool bound()
 	{ return !target_.expired(); }
 
-
 	shared_ptr<TargetT> target()
-	{
-		if (!bound())
-			bind();
-		return target_.lock();
-	}
+	{ return target_.lock(); }
 
 
 	virtual void implement(Implementor &implementor) override
@@ -107,16 +80,6 @@ public:
 			expr->implement(implementor);
 	}
 
-
-	virtual void bind() override {
-		for (unique_ptr<Expression> &arg : args_) {
-			AbstractReference *uref = dynamic_cast<AbstractReference *>(arg.get());
-			if (uref && !uref->bound())
-				uref->bind();
-		}
-
-		target_ = global_scope().lookup_global<TargetT>(target_id());
-	}
 
 private:
 	weak_ptr<TargetT> target_;

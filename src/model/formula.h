@@ -3,6 +3,7 @@
 
 #include "expressions.h"
 #include "atoms.h"
+#include "scope.h"
 
 #include <vector>
 #include <memory>
@@ -84,13 +85,28 @@ enum QuantificationOperator {
 };
 
 
-class Quantification : public BooleanExpression {
+class Quantification : public BooleanExpression, public ScopeOwner {
 public:
 	Quantification(
-			QuantificationOperator op,
-	        const shared_ptr<AbstractVariable> &variable,
-	        BooleanExpression *expression,
-	        Scope &parent_scope);
+		Scope *own_scope,
+		QuantificationOperator op,
+		const shared_ptr<AbstractVariable> &variable,
+		BooleanExpression *expression
+	);
+
+	template<class ExprT>
+	Quantification(
+		QuantificationOperator op,
+		const string &var_name,
+		BooleanExpression *expression,
+		Scope &parent_scope
+	)
+	: BooleanExpression(parent_scope)
+	, ScopeOwner(new Scope(this, {}, parent_scope))
+	, op_(op)
+	, variable_(scope().lookup_var(var_name))
+	, expression_(expression)
+	{}
 
 	QuantificationOperator op() const;
 	const AbstractVariable &variable() const;

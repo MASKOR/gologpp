@@ -10,8 +10,9 @@
 namespace gologpp {
 
 
-Block::Block(const vector<Statement *> &elements, Scope &parent_scope)
-: Statement(parent_scope)
+Block::Block(Scope *own_scope, const vector<Statement *> &elements)
+: Statement(own_scope->parent_scope())
+, ScopeOwner(own_scope)
 , elements_(elements.begin(), elements.end())
 {}
 
@@ -19,6 +20,7 @@ void Block::implement(Implementor &implementor)
 {
 	if (!impl_) {
 		impl_ = implementor.make_impl(*this);
+		scope().implement(implementor);
 		for (auto &stmt : elements_)
 			stmt->implement(implementor);
 	}
@@ -29,8 +31,9 @@ const vector<unique_ptr<Statement>> &Block::elements() const
 
 
 
-Choose::Choose(const vector<Statement *> &alternatives, Scope &parent_scope)
-: Statement(parent_scope)
+Choose::Choose(Scope *own_scope, const vector<Statement *> &alternatives)
+: Statement(own_scope->parent_scope())
+, ScopeOwner(own_scope)
 , alternatives_(alternatives.begin(), alternatives.end())
 {}
 
@@ -41,6 +44,7 @@ void Choose::implement(Implementor &implementor)
 {
 	if (!impl_) {
 		impl_ = implementor.make_impl(*this);
+		scope().implement(implementor);
 		for (unique_ptr<Statement> &stmt : alternatives_)
 			stmt->implement(implementor);
 	}
@@ -48,16 +52,17 @@ void Choose::implement(Implementor &implementor)
 
 
 
-Conditional::Conditional(unique_ptr<BooleanExpression> &&condition,
-                         unique_ptr<Statement> &&block_true,
-                         unique_ptr<Statement> &&block_false,
-                         Scope &parent_scope)
-    : Statement(parent_scope)
-    , condition_(std::move(condition))
-    , block_true_(std::move(block_true))
-    , block_false_(std::move(block_false))
+Conditional::Conditional(
+	unique_ptr<BooleanExpression> &&condition,
+	unique_ptr<Statement> &&block_true,
+	unique_ptr<Statement> &&block_false,
+	Scope &parent_scope
+)
+: Statement(parent_scope)
+, condition_(std::move(condition))
+, block_true_(std::move(block_true))
+, block_false_(std::move(block_false))
 {}
-
 
 Conditional::Conditional(
 	BooleanExpression *condition,
@@ -84,11 +89,18 @@ const Statement &Conditional::block_true() const
 
 
 
-Pick::Pick(const shared_ptr<AbstractVariable> &variable, Statement *statement, Scope &parent_scope)
-: Statement(parent_scope)
+Pick::Pick(Scope *own_scope, const shared_ptr<AbstractVariable> &variable, Statement *statement)
+: Statement(own_scope->parent_scope())
+, ScopeOwner(own_scope)
 , variable_(std::move(variable))
 , statement_(statement)
-, scope_(this, {variable}, parent_scope)
+{}
+
+Pick::Pick(const string &var_name, Statement *statement, Scope &parent_scope)
+: Statement(parent_scope)
+, ScopeOwner(new Scope(this, {}, parent_scope))
+, variable_(scope().lookup_var(var_name))
+, statement_(statement)
 {}
 
 const AbstractVariable &Pick::variable() const
@@ -128,22 +140,25 @@ While::While(BooleanExpression *expression, Statement *statement, Scope &parent_
 const BooleanExpression &While::expression() const
 { return *expression_; }
 
+const Statement &While::statement() const
+{ return *statement_; }
 
 
-AbstractFunction::AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *statement)
+
+AbstractFunction::AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *definition)
 : Global(name, args)
-, scope_(own_scope)
-, statement_(statement)
+, ScopeOwner(own_scope)
+, definition_(definition)
 {}
 
 AbstractFunction::~AbstractFunction()
 {}
 
-const Scope &AbstractFunction::scope() const
-{ return *scope_; }
+const Statement &AbstractFunction::definition() const
+{ return *definition_; }
 
-const Statement &AbstractFunction::statement() const
-{ return *statement_; }
+void AbstractFunction::define(boost::optional<Statement *> definition)
+{ definition_.reset(definition.value()); }
 
 void AbstractFunction::compile(AExecutionContext &ctx)
 { ctx.compile(*this); }

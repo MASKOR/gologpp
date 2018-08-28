@@ -20,7 +20,11 @@ namespace gologpp {
 class AbstractEffectAxiom;
 
 
-class AbstractAction : public Statement, public Global, public virtual AbstractLanguageElement {
+class AbstractAction
+: public Statement
+, public Global
+, public ScopeOwner
+, public virtual AbstractLanguageElement {
 public:
 	AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 
@@ -32,14 +36,9 @@ public:
 	const vector<unique_ptr<AbstractEffectAxiom>> &effects() const;
 	void add_effect(AbstractEffectAxiom *effect);
 
-	Scope &scope();
-	const Scope &scope() const;
-
 	virtual void compile(AExecutionContext &ctx) override;
 
 protected:
-	unique_ptr<Scope> scope_;
-
 	vector<unique_ptr<AbstractEffectAxiom>> effects_;
 };
 
@@ -53,6 +52,8 @@ public:
 	const BooleanExpression &precondition() const;
 
 	void set_precondition(BooleanExpression *);
+
+	void define();
 
 	virtual void implement(Implementor &) override;
 
