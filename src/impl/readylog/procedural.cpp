@@ -27,12 +27,18 @@ Implementation<Block>::Implementation(const Block &b)
 
 EC_word Implementation<Block>::term()
 {
+	EC_word rv;
 	block_.scope().implementation().init_vars();
-	EC_word tail = ::nil();
-	for (const unique_ptr<Statement> &stmt : block_.elements())
-		tail = ::list(tail, stmt->implementation().term());
-	current_program_ = tail;
-	return tail;
+
+	if (block_.elements().size() == 1)
+		rv = block_.elements()[0]->implementation().term();
+	else {
+		rv = ::nil();
+		for (const unique_ptr<Statement> &stmt : block_.elements())
+			rv = ::list(rv, stmt->implementation().term());
+	}
+	current_program_ = rv;
+	return rv;
 }
 
 
