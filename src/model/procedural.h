@@ -67,12 +67,12 @@ protected:
 };
 
 
-template<class GologT>
-class Assignment : public Statement, public LanguageElement<Assignment<GologT>> {
+template<class LhsT>
+class Assignment : public Statement, public LanguageElement<Assignment<LhsT>> {
 public:
-	static_assert(!std::is_base_of<Statement, GologT>::value, "Cannot assign to a Statement");
+	static_assert(!std::is_base_of<Statement, LhsT>::value, "Cannot assign to a Statement");
 
-	Assignment(Reference<GologT> *lhs, typename GologT::expression_t *rhs, Scope &parent_scope)
+	Assignment(Reference<LhsT> *lhs, typename LhsT::expression_t *rhs, Scope &parent_scope)
 	: Statement(parent_scope)
 	, lhs_(lhs)
 	, rhs_(rhs)
@@ -80,15 +80,15 @@ public:
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 
-	const Reference<GologT> &lhs() const
+	const Reference<LhsT> &lhs() const
 	{ return *lhs_; }
 
-	const typename GologT::expression_t &rhs() const
+	const typename LhsT::expression_t &rhs() const
 	{ return *rhs_; }
 
 private:
-    unique_ptr<Reference<GologT>> lhs_;
-    unique_ptr<typename GologT::expression_t> rhs_;
+    unique_ptr<Reference<LhsT>> lhs_;
+    unique_ptr<typename LhsT::expression_t> rhs_;
 };
 
 

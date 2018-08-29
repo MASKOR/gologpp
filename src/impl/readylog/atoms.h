@@ -20,10 +20,9 @@ public:
 
 	void init();
 	virtual EC_word term() override;
+	void translate_as_golog_var(bool as_gv);
 
 private:
-	friend class GologVarMutator;
-
 	const AbstractVariable &var_;
 	EC_word ec_var_;
 	EC_word golog_var_;
@@ -38,6 +37,12 @@ private:
 class GologVarMutator {
 public:
 	GologVarMutator(Implementation<AbstractVariable> &var_impl);
+
+	template<class ExpressionT>
+	GologVarMutator(const Reference<Variable<ExpressionT>> &var_ref)
+	: GologVarMutator(var_ref.target()->template implementation<AbstractVariable>())
+	{}
+
 	~GologVarMutator();
 private:
 	Implementation<AbstractVariable> &var_impl_;

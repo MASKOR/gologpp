@@ -23,12 +23,18 @@ EC_word Implementation<AbstractVariable>::term()
 }
 
 
+void Implementation<AbstractVariable>::translate_as_golog_var(bool gv)
+{ as_golog_var_ = gv; }
+
+
+
 GologVarMutator::GologVarMutator(Implementation<AbstractVariable> &var_impl)
 : var_impl_(var_impl)
-{ var_impl_.as_golog_var_ = true; }
+{ var_impl_.translate_as_golog_var(true); }
 
 GologVarMutator::~GologVarMutator()
-{ var_impl_.as_golog_var_ = false; }
+{ var_impl_.translate_as_golog_var(false); }
+
 
 
 template<>

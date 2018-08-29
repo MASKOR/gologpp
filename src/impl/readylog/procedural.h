@@ -3,6 +3,7 @@
 
 #include "implementation.h"
 #include "scope.h"
+#include "atoms.h"
 
 #include <model/implementation.h>
 #include <model/expressions.h>
@@ -149,10 +150,11 @@ private:
 };
 
 
-template<class ExpressionT>
-class Implementation<Assignment<ExpressionT>> : public ReadylogImplementation {
+
+template<class LhsT>
+class Implementation<Assignment<LhsT>> : public ReadylogImplementation {
 public:
-	Implementation(const Assignment<ExpressionT> &ass)
+	Implementation(const Assignment<LhsT> &ass)
 	: assignment_(ass)
 	{}
 
@@ -165,7 +167,30 @@ public:
 	}
 
 private:
-	const Assignment<ExpressionT> &assignment_;
+	const Assignment<LhsT> &assignment_;
+};
+
+
+
+template<class ExpressionT>
+class Implementation<Assignment<Variable<ExpressionT>>> : public ReadylogImplementation {
+public:
+	Implementation(const Assignment<Variable<ExpressionT>> &ass)
+	: assignment_(ass)
+	{
+		assignment_.lhs().target()->implementation().translate_as_golog_var(true);
+	}
+
+	virtual EC_word term() override
+	{
+		return ::term(EC_functor("=", 2),
+			assignment_.lhs().implementation().term(),
+			assignment_.rhs().implementation().term()
+		);
+	}
+
+private:
+	const Assignment<Variable<ExpressionT>> &assignment_;
 };
 
 

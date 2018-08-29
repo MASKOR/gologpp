@@ -16,6 +16,7 @@
 namespace gologpp {
 
 
+
 template<class TargetT>
 class Reference
 : public TargetT::expression_t
