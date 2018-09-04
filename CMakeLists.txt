@@ -14,7 +14,7 @@ include_directories(${ECLIPSE_INCLUDE_DIRS} ${Boost_INCLUDE_DIR} src)
 link_directories(${ECLIPSE_LIBRARY_DIRS})
 
 add_compile_options(-Wall)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -fno-omit-frame-pointer")
 
 find_file(READYLOG_PL preprocessor.pl
         PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../
@@ -30,6 +30,11 @@ foreach(def ${EXTRA_COMPILER_MACROS})
 	message(${def})
 	add_definitions(-D${def})
 endforeach()
+
+option(USE_LIBASAN "Enable the AddressSanitizer to detect MM bugs" OFF)
+if (${USE_LIBASAN})
+	add_compile_options(-fsanitize=address)
+endif()
 
 #add_definitions(-DHAVE_PTHREAD_H)
 
@@ -121,6 +126,9 @@ if (${BUILD_TESTS})
 		src/tests/readylog-test.cpp)
 
 	add_executable(readylog-test ${TEST_SRC})
+	if (USE_LIBASAN)
+		target_link_libraries(readylog-test asan)
+	endif()
 	target_link_libraries(readylog-test ${TEST_LINK_LIBRARIES})
 	set_property(TARGET readylog-test PROPERTY CXX_STANDARD 14)
 endif()
