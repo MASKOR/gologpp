@@ -33,6 +33,7 @@ public:
 
 	Scope &parent_scope();
 	const Scope &parent_scope() const;
+	virtual bool is_ref() const;
 	virtual string to_string(const string &pfx) const = 0;
 
 	virtual ExpressionTypeTag expression_type_tag() const = 0;

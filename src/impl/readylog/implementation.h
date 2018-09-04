@@ -47,8 +47,12 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(EffectAxiom<BooleanExpression> &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(EffectAxiom<NumericExpression> &) override;
 
+	virtual unique_ptr<AbstractImplementation> make_impl(InitialValue<BooleanExpression> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(InitialValue<NumericExpression> &) override;
+
 	virtual unique_ptr<AbstractImplementation> make_impl(Fluent<BooleanExpression> &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Fluent<NumericExpression> &) override;
+
 	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Fluent<BooleanExpression>> &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Fluent<NumericExpression>> &) override;
 

@@ -90,8 +90,8 @@ public:
 			obj.reset(new GologT(own_scope, name, args));
 			(*globals_)[id] = obj;
 		}
-		// else
-		// TODO: Warn on overwrite?
+		else
+			delete own_scope;
 
 		return obj.get();
 	}
@@ -104,9 +104,15 @@ public:
 		DefinitionTs... definition_args
 	)
 	{
-		GologT *obj = declare_global<GologT>(own_scope, name, args);
+		Identifier id { name, static_cast<arity_t>(args.size()) };
+		shared_ptr<GologT> obj = lookup_global<GologT>(id);
+		if (!obj)
+			obj.reset(declare_global<GologT>(own_scope, name, args));
+		else
+			delete own_scope;
+		// TODO: Warn on redefinition?
 		obj->define(definition_args...);
-		return obj;
+		return obj.get();
 	}
 
 

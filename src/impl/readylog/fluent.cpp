@@ -20,6 +20,7 @@ EC_word Implementation<AbstractFluent>::term()
 }
 
 
+
 EC_word Implementation<AbstractFluent>::prim_fluent()
 {
 	fluent_.scope().implementation().init_vars();

@@ -10,6 +10,8 @@
 #include <memory>
 #include <type_traits>
 
+#include <boost/variant.hpp>
+
 namespace gologpp {
 
 
@@ -87,6 +89,16 @@ public:
 
 	const string &representation() const;
 
+	template<class ExpressionT>
+	operator Constant<ExpressionT> *() {
+		return dynamic_cast<Constant<ExpressionT> *>(this);
+	}
+
+	template<class ExpressionT>
+	operator ExpressionT *() {
+		return static_cast<ExpressionT *>(dynamic_cast<Constant<ExpressionT> *>(this));
+	}
+
 protected:
 	const string representation_;
 };
@@ -111,6 +123,19 @@ public:
 	: ExpressionT(global_scope())
 	, AbstractConstant(repr)
 	{}
+
+
+	template<class... Ts>
+	Constant(const boost::variant<Ts...> v)
+	: ExpressionT(global_scope())
+	, AbstractConstant(
+		boost::apply_visitor(
+			[] (auto val) { return std::to_string(val); },
+			v
+		)
+	)
+	{}
+
 
 	Constant(Constant<ExpressionT> &&) = default;
 	Constant(const Constant<ExpressionT> &) = delete;

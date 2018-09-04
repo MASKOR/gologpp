@@ -18,6 +18,60 @@
 namespace gologpp {
 
 
+template<class ExpressionT>
+class InitialValue
+: public virtual AbstractLanguageElement
+, public LanguageElement<InitialValue<ExpressionT>> {
+public:
+	InitialValue(vector<AbstractConstant *> args, Constant<ExpressionT> *value)
+	: args_(args.begin(), args.end())
+	, value_(value)
+	{}
+
+	const vector<unique_ptr<AbstractConstant>> &args() const
+	{ return args_; }
+
+	const Constant<ExpressionT> &value() const
+	{ return *value_; }
+
+	vector<unique_ptr<AbstractConstant>> &args()
+	{ return args_; }
+
+	Constant<ExpressionT> &value()
+	{ return *value_; }
+
+
+	virtual void implement(Implementor &implementor) override
+	{
+		if (impl_)
+			return;
+		value().implement(implementor);
+		for (unique_ptr<AbstractConstant> &arg : args())
+			arg->implement(implementor);
+
+		impl_ = implementor.make_impl(*this);
+	}
+
+
+	virtual string to_string(const string &pfx) const override
+	{ return '(' + concat_list(args(), ", ", pfx) + ") = " + value().to_string(pfx); }
+
+	void set_fluent(Fluent<ExpressionT> *f)
+	{ fluent_ = f; }
+
+	Fluent<ExpressionT> *fluent()
+	{ return fluent_; }
+
+	const Fluent<ExpressionT> *fluent() const
+	{ return fluent_; }
+
+private:
+	vector<unique_ptr<AbstractConstant>> args_;
+	unique_ptr<Constant<ExpressionT>> value_;
+	Fluent<ExpressionT> *fluent_;
+};
+
+
 class AbstractFluent
 : public Global
 , public ScopeOwner
@@ -45,32 +99,50 @@ class Fluent
 public:
 	typedef ExpressionT expression_t;
 
-	Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, boost::optional<Constant<ExpressionT> *> init)
+	Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
 	: ExpressionT(Scope::global_scope())
 	, AbstractFluent(own_scope, name, args)
-	, initial_value_(init.get_value_or(nullptr))
 	{}
-
-	Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
-	: Fluent(own_scope, name, args, boost::optional<Constant<ExpressionT> *>())
-	{}
-
-
-	const ExpressionT &initially()
-	{ return *initial_value_; }
-
-	virtual ExpressionTypeTag expression_type_tag() const override
-	{ return ExpressionT::static_type_tag(); }
-
-	void define(boost::optional<Constant<ExpressionT> *> initial_value)
-	{ initial_value_.reset(initial_value.value()); }
-
 
 	Fluent(Fluent &&) = default;
 
 	virtual ~Fluent() override = default;
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*scope_, *initial_value_)
+	virtual ExpressionTypeTag expression_type_tag() const override
+	{ return ExpressionT::static_type_tag(); }
+
+	const vector<unique_ptr<InitialValue<ExpressionT>>> &initially() const
+	{ return initial_values_; }
+
+
+	void define(const vector<InitialValue<ExpressionT> *> &initial_values)
+	{
+		// TODO: fail if already defined
+		for (InitialValue<ExpressionT> *ival : initial_values) {
+			for (arity_t arg_idx = 0; arg_idx < arity(); ++arg_idx)
+				if (ival->args()[arg_idx]->expression_type_tag() != args()[arg_idx]->expression_type_tag())
+					throw ExpressionTypeMismatch(
+						dynamic_cast<const Expression &>(*args()[arg_idx]),
+						dynamic_cast<const Expression &>(*ival->args()[arg_idx])
+					);
+
+			initial_values_.push_back(unique_ptr<InitialValue<ExpressionT>>(ival));
+			ival->set_fluent(this);
+		}
+	}
+
+
+	virtual void implement(Implementor &implementor) override
+	{
+		if (impl_)
+			return;
+
+		for (unique_ptr<InitialValue<ExpressionT>> &ival : initial_values_)
+			ival->implement(implementor);
+		scope_->implement(implementor);
+		impl_ = implementor.make_impl(*this);
+	}
+
 
 	virtual string to_string(const string &pfx) const override
 	{
@@ -82,7 +154,7 @@ public:
 	}
 
 private:
-	unique_ptr<Constant<ExpressionT>> initial_value_;
+	vector<unique_ptr<InitialValue<ExpressionT>>> initial_values_;
 };
 
 

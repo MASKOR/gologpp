@@ -32,6 +32,10 @@ const Scope &Expression::parent_scope() const
 { return parent_scope_; }
 
 
+bool Expression::is_ref() const
+{ return false; }
+
+
 BooleanExpression::BooleanExpression(Scope &parent_scope)
 :Expression (parent_scope)
 {}

@@ -46,6 +46,7 @@ Scope &global_scope();
 
 class AbstractFluent;
 template<class> class Fluent;
+template<class> class InitialValue;
 
 typedef Fluent<BooleanExpression> BooleanFluent;
 typedef Fluent<NumericExpression> NumericFluent;

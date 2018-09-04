@@ -70,6 +70,12 @@ public:
 	shared_ptr<TargetT> target()
 	{ return target_.lock(); }
 
+	shared_ptr<const TargetT> target() const
+	{ return std::dynamic_pointer_cast<const TargetT>(target_.lock()); }
+
+	virtual bool is_ref() const override
+	{ return true; }
+
 
 	virtual void implement(Implementor &implementor) override
 	{

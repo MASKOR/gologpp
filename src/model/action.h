@@ -6,6 +6,8 @@
 #include <memory>
 #include <algorithm>
 
+#include <boost/optional.hpp>
+
 #include "gologpp.h"
 
 #include "error.h"
@@ -56,7 +58,10 @@ public:
 
 	void set_precondition(BooleanExpression *);
 
-	void define();
+	void define(
+		boost::optional<BooleanExpression *> precondition,
+		boost::optional<vector<AbstractEffectAxiom *>> effects
+	);
 
 	virtual void implement(Implementor &) override;
 	virtual string to_string(const string &pfx) const override;

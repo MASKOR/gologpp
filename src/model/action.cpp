@@ -46,6 +46,18 @@ void Action::implement(Implementor &implementor)
 }
 
 
+void Action::define(
+	boost::optional<BooleanExpression *> precondition,
+	boost::optional<vector<AbstractEffectAxiom *>> effects
+) {
+	set_precondition(precondition.get_value_or(Constant<BooleanExpression>(true)));
+	if (effects)
+		effects_ = vector<unique_ptr<AbstractEffectAxiom>> {
+			effects.value().begin(), effects.value().end()
+		};
+}
+
+
 string Action::to_string(const string &pfx) const
 {
 	return linesep + pfx + "action " + AbstractAction::to_string(pfx) + " {"

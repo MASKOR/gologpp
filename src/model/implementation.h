@@ -30,6 +30,9 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(EffectAxiom<BooleanExpression> &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(EffectAxiom<NumericExpression> &) = 0;
 
+	virtual unique_ptr<AbstractImplementation> make_impl(InitialValue<BooleanExpression> &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(InitialValue<NumericExpression> &) = 0;
+
 	virtual unique_ptr<AbstractImplementation> make_impl(Fluent<BooleanExpression> &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Fluent<NumericExpression> &) = 0;
 

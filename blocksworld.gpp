@@ -1,4 +1,9 @@
-%fluent on(%x) = 0;
+%fluent on(%x) {
+initially:
+	(1) = 0;
+	(2) = 0;
+	(3) = 0;
+}
 
 action put(%x, %y) {
 precondition:
@@ -10,7 +15,7 @@ precondition:
 	))
 
 effect:
-	on(%x) = %y
+	on(%x) = %y;
 }
 
 

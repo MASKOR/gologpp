@@ -17,6 +17,7 @@
 #include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
+#include <boost/phoenix/stl/container.hpp>
 
 #include <boost/variant.hpp>
 
@@ -631,46 +632,62 @@ struct EffectParser : grammar<AbstractEffectAxiom *(AbstractAction *, Scope &)> 
 * Actions
 ******************/
 
-struct ActionParser : grammar<Action *(Scope &), locals<Scope *>> {
+struct ActionParser : grammar<Action *(Scope &)> {
 	ActionParser()
 	: ActionParser::base_type(action, "action definition")
 	{
-		action = (
-			(("action" > r_name > '(') [
-				_a = new_<Scope>(nullptr)
+		action = action_forward(_r1) | action_def(_r1);
+
+		action_forward = ( eps [ _a = nullptr ] >> (
+			(("action" >> r_name >> '(') [
+				_a = new_<Scope>(nullptr, _r1)
 			])
-			// CRUCIAL detail: use lazy dereference, i.e. *_r(scope), not _r(*scope).
-			// Otherwise, we create a reference to the contents of an uninitialized pointer.
-			> abstract_var(*_a) % ',' > ')'
+			>> abstract_var(*_a) % ',' >> ')'
+		) >> l(';') ) [
+			_val = phoenix::bind(
+				&Scope::declare_global<Action>,
+				_r1, _a, _1, _2
+			)
+		];
+		on_error<rethrow>(action_forward, delete_(_a));
+		debug(action_forward);
+
+		action_def = ( eps [ _a = nullptr ] >> (
+			(("action" >> r_name >> '(') [
+				_a = new_<Scope>(nullptr, _r1)
+			])
+			>> abstract_var(*_a) % ',' >> ')'
 		) [
 			_val = phoenix::bind(
 				&Scope::declare_global<Action>,
 				_r1, _a, _1, _2
 			)
 		]
-		> -( '{'
-			> -( "precondition:" > formula_parser(*_a) [
-				phoenix::bind(
-					&Action::set_precondition,
-					*_val,
-					_1
-				)
-			] )
-			> -( "effect:" > (effect_parser(_val, *_a) [
-				phoenix::bind(
-					&Action::add_effect,
-					*_val,
-					_1
-				)
-			] % ';') )
-		//>> "signal:" //*/
-		> '}' );
-		on_error<fail>(action, delete_(_a));
+		>> ( '{'
+			> -( "precondition:" > formula_parser(*_a) )
+			> -( "effect:" > +(effect_parser(_val, *_a) > ';') )
+			//> "signal:" //*/
+		> '}' ) ) [
+			_val = phoenix::bind(
+				&Scope::define_global<
+					Action,
+					boost::optional<BooleanExpression *>,
+					boost::optional<vector<AbstractEffectAxiom *>>
+				>,
+				_r1,
+				_a, at_c<0>(_1), at_c<1>(_1), at_c<0>(_2), at_c<1>(_2)
+			)
+		];
+		on_error<rethrow>(action_def, delete_(_a));
+		debug(action_def);
+
 	}
 
 	BooleanExpressionParser formula_parser;
 	EffectParser effect_parser;
-	rule<Action *(Scope &), locals<Scope *>> action;
+	rule<Action *(Scope &)> action;
+	rule<Action *(Scope &), locals<Scope *>> action_forward;
+	rule<Action *(Scope &), locals<Scope *>> action_def;
 };
 
 
@@ -684,25 +701,54 @@ struct FluentParser : grammar<AbstractFluent *(Scope &), locals<Scope *>> {
 	FluentParser()
 	: FluentParser::base_type(fluent, "fluent definition")
 	{
-		fluent = (
-			(((type_mark<ExprT>() >> "fluent") > r_name > '(') [
+		fluent = fluent_forward(_r1) | fluent_def(_r1);
+
+		fluent_forward = (
+			(((type_mark<ExprT>() >> "fluent") >> r_name >> '(') [
 				_a = new_<Scope>(nullptr)
 			] )
-			> (abstract_var(*_a) % ',') > ')' > -('=' > constant<ExprT>()) > ';'
+			>> (abstract_var(*_a) % ',') >> l(')') >> ';'
+		) [ // forward declaration
+			_val = phoenix::bind(
+				&Scope::declare_global<Fluent<ExprT>>,
+				_r1,
+				_a, _1, _2
+			)
+		];
+		on_error<fail>(fluent_forward, delete_(_a));
+
+		fluent_def = (
+			(((type_mark<ExprT>() >> "fluent") >> r_name >> '(') [
+				_a = new_<Scope>(nullptr)
+			] )
+			>> (abstract_var(*_a) % ',') >> ')'
+			>> ( l('{') // definition
+				> "initially:"
+				> initially
+			> '}' )
 		) [
 			_val = phoenix::bind(
 				&Scope::define_global<
 					Fluent<ExprT>,
-					boost::optional<Constant<ExprT> *>
+					const vector<InitialValue<ExprT> *> &
 				>,
 				_r1,
 				_a, _1, _2, _3
 			)
 		];
-		on_error<fail>(fluent, delete_(_a));
+		on_error<fail>(fluent_def, delete_(_a));
+
+		initially = +(
+			(l('(') > (abstract_constant % ',') > ')' > '=' > constant<ExprT>() > ';') [
+				push_back(_val, new_<InitialValue<ExprT>>(_1, _2))
+			]
+		);
 	}
 
 	rule<AbstractFluent *(Scope &), locals<Scope *>> fluent;
+	rule<AbstractFluent *(Scope &), locals<Scope *>> fluent_forward;
+	rule<AbstractFluent *(Scope &), locals<Scope *>> fluent_def;
+	rule<vector<InitialValue<ExprT> *>> initially;
 };
 
 
@@ -722,7 +768,7 @@ struct ProgramParser : grammar<Statement *(Scope &)> {
 			| function(_r1)
 		] ) > statement(_r1);
 
-		on_error<fail>(program,
+		on_error<rethrow>(program,
 			phoenix::bind(&handle_error, _1, _3, _2, _4)
 		);
 	}

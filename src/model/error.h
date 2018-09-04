@@ -29,12 +29,13 @@ private:
 class UserError : public std::exception {
 };
 
-class InvalidExpressionType : public UserError {
+class ExpressionTypeMismatch : public UserError {
 public:
-	InvalidExpressionType(const Expression &expr);
+	ExpressionTypeMismatch(const Expression &expr1_, const Expression &expr2_);
 
 private:
-	const Expression &expression;
+	const Expression &expr1_;
+	const Expression &expr2_;
 };
 
 }

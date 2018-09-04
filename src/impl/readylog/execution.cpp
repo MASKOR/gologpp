@@ -110,7 +110,11 @@ void EclipseContext::compile(const AbstractAction &action)
 
 
 void EclipseContext::compile(const AbstractFluent &fluent)
-{ compile_term(fluent.implementation<AbstractFluent>().prim_fluent()); }
+{
+	compile_term(fluent.implementation<AbstractFluent>().prim_fluent());
+	for (EC_word &initially : fluent.implementation<AbstractFluent>().initially())
+		compile_term(initially);
+}
 
 
 void EclipseContext::compile(const AbstractFunction &function)
