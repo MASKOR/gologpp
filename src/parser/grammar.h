@@ -152,18 +152,6 @@ static VariableParser<NumericExpression> num_var;
 
 
 
-static rule<BooleanConstant *()> bool_constant( (
-	qi::string("true") | qi::string("false")
-) [
-	_val = new_<BooleanConstant>(_1)
-], "boolean constant");
-
-
-static rule<NumericConstant *()> num_constant(float_ [
-	_val = new_<NumericConstant>(_1)
-], "numeric constant");
-
-
 static rule<shared_ptr<AbstractVariable> (Scope &)> abstract_var(
 	bool_var(_r1) [ _val = phoenix::bind(
 		&std::dynamic_pointer_cast<AbstractVariable, BooleanVariable>,
@@ -180,6 +168,18 @@ static rule<shared_ptr<AbstractVariable> (Scope &)> abstract_var(
 /******************
 * Constants
 ******************/
+
+static rule<BooleanConstant *()> bool_constant( (
+	qi::string("true") | qi::string("false")
+) [
+	_val = new_<BooleanConstant>(_1)
+], "boolean constant");
+
+
+static rule<NumericConstant *()> num_constant((int_ | float_) [
+	_val = new_<NumericConstant>(_1)
+], "numeric constant");
+
 
 template<class ExprT>
 static rule<Constant<ExprT> *()> &constant();
