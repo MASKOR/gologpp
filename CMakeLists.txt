@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake PATH)
 
 find_package(PkgConfig)
 find_package(Boost REQUIRED)
-find_package(Eclipse)
+find_package(EclipseClp)
 
 #pkg_check_modules(SWIPL REQUIRED "swipl")
 
