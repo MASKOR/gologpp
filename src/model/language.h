@@ -31,6 +31,10 @@ public:
 	{ impl_ = std::move(impl); }
 
 	virtual void implement(Implementor &implementor) = 0;
+	virtual string to_string(const string &pfx) const = 0;
+
+	string str() const
+	{ return to_string(""); }
 
 protected:
 	unique_ptr<AbstractImplementation> impl_;
@@ -53,7 +57,6 @@ public:
 	template<class = GologT>
 	Implementation<GologT> &implementation() const
 	{ return static_cast<Implementation<GologT> &>(*impl_); }
-
 };
 
 

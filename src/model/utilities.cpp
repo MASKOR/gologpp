@@ -42,5 +42,7 @@ size_t Identifier::hash() const
 { return Name::hash() ^ (std::hash<gologpp::arity_t>{}(arity()) << 1); }
 
 
+const string indent("  ");
+
 
 } // namespace gologpp

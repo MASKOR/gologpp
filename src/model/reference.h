@@ -81,6 +81,9 @@ public:
 			expr->implement(implementor);
 	}
 
+	virtual string to_string(const string &pfx) const override
+	{ return pfx + name() + '(' + concat_list(args(), ", ", "") + ')'; }
+
 
 private:
 	weak_ptr<TargetT> target_;

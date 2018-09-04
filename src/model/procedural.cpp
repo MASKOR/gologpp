@@ -30,6 +30,20 @@ const vector<unique_ptr<Statement>> &Block::elements() const
 { return elements_; }
 
 
+string Block::to_string(const string &pfx) const
+{
+	if (elements().size() == 0)
+		return "{}";
+	else if (elements().size() == 1)
+		return elements()[0]->to_string(pfx);
+	else {
+		return pfx + "{" + linesep
+			+ concat_list(elements(), ";" linesep + pfx + indent, pfx + indent) + ";" linesep
+			+ pfx + "}" + linesep;
+	}
+}
+
+
 
 Choose::Choose(Scope *own_scope, const vector<Statement *> &alternatives)
 : Statement(own_scope->parent_scope())
@@ -40,6 +54,7 @@ Choose::Choose(Scope *own_scope, const vector<Statement *> &alternatives)
 const vector<unique_ptr<Statement>> &Choose::alternatives() const
 { return alternatives_; }
 
+
 void Choose::implement(Implementor &implementor)
 {
 	if (!impl_) {
@@ -48,6 +63,14 @@ void Choose::implement(Implementor &implementor)
 		for (unique_ptr<Statement> &stmt : alternatives_)
 			stmt->implement(implementor);
 	}
+}
+
+
+string Choose::to_string(const string &pfx) const
+{
+	return linesep + pfx + "choose {" + linesep
+		+ concat_list(alternatives(), ";" linesep + pfx + indent, pfx + indent) + ";" linesep
+		+ pfx + "}" linesep;
 }
 
 
@@ -88,6 +111,13 @@ const Statement &Conditional::block_true() const
 { return *block_true_; }
 
 
+string Conditional::to_string(const string &pfx) const
+{
+	return linesep + pfx + "if (" + condition().to_string("") + ") " + block_true().to_string(pfx)
+		+ (block_false_ ? pfx + linesep + "else" + block_false().to_string(pfx) : "");
+}
+
+
 
 Pick::Pick(Scope *own_scope, const shared_ptr<AbstractVariable> &variable, Statement *statement)
 : Statement(own_scope->parent_scope())
@@ -109,6 +139,9 @@ const AbstractVariable &Pick::variable() const
 const Statement &Pick::statement() const
 { return *statement_; }
 
+string Pick::to_string(const string &pfx) const
+{ return linesep + pfx + "pick (" + variable().to_string("") + "): " + statement().to_string(pfx); }
+
 
 
 Search::Search(Statement *statement, Scope &parent_scope)
@@ -119,6 +152,9 @@ Search::Search(Statement *statement, Scope &parent_scope)
 const Statement &Search::statement() const
 { return *statement_; }
 
+string Search::to_string(const string &pfx) const
+{ return linesep + pfx + "search " + statement().to_string(pfx); }
+
 
 
 Test::Test(BooleanExpression *expression, Scope &parent_scope)
@@ -128,6 +164,9 @@ Test::Test(BooleanExpression *expression, Scope &parent_scope)
 
 const BooleanExpression &Test::expression() const
 { return *expression_; }
+
+string Test::to_string(const string &pfx) const
+{ return linesep + pfx + "test (" + expression().to_string("") + ')'; }
 
 
 
@@ -142,6 +181,11 @@ const BooleanExpression &While::expression() const
 
 const Statement &While::statement() const
 { return *statement_; }
+
+string While::to_string(const string &pfx) const
+{ return linesep + pfx + "while (" + expression().to_string("") + ") " + statement().to_string(pfx); }
+
+
 
 
 
@@ -162,6 +206,7 @@ void AbstractFunction::define(boost::optional<Statement *> definition)
 
 void AbstractFunction::compile(AExecutionContext &ctx)
 { ctx.compile(*this); }
+
 
 
 } // namespace gologpp

@@ -16,6 +16,7 @@ namespace gologpp {
 Scope &global_scope();
 
 
+
 class AbstractVariable : public Identifier, public virtual AbstractLanguageElement {
 public:
 	AbstractVariable(const string &name);
@@ -32,6 +33,7 @@ public:
 		return static_cast<ExpressionT *>(dynamic_cast<Variable<ExpressionT> *>(this));
 	}
 };
+
 
 
 template<class ExpressionT>
@@ -70,18 +72,25 @@ public:
 
 	virtual ~Variable() override = default;
 	DEFINE_IMPLEMENT
+
+	virtual string to_string(const string &pfx) const override
+	{ return gologpp::to_string(expression_type_tag()) + name(); }
 };
+
 
 
 class AbstractConstant : public virtual AbstractLanguageElement {
 public:
 	AbstractConstant(const string &representation);
 
+	virtual ExpressionTypeTag expression_type_tag() const = 0;
+
 	const string &representation() const;
 
 protected:
 	const string representation_;
 };
+
 
 
 template<class ExpressionT>
@@ -114,15 +123,21 @@ public:
 	{ return ExpressionT::expression_type_tag(); }
 
 	DEFINE_IMPLEMENT
+
+	virtual string to_string(const string &pfx) const override
+	{ return representation(); }
 };
+
 
 template<>
 template<>
 Constant<BooleanExpression>::Constant(bool);
 
+
 template<>
 template<>
 Constant<NumericExpression>::Constant(const string &);
+
 
 
 } // namespace gologpp

@@ -5,6 +5,7 @@
 #include "action.h"
 #include "reference.h"
 #include "language.h"
+#include "expressions.h"
 
 #include <boost/optional.hpp>
 
@@ -38,6 +39,7 @@ public:
 	, assignment_(fluent, value, action->scope())
 	{}
 
+
 	EffectAxiom(
 		AbstractAction *action,
 		boost::optional<BooleanExpression *> condition,
@@ -52,6 +54,7 @@ public:
 	)
 	{}
 
+
 	EffectAxiom(EffectAxiom<ExpressionT> &&o) = default;
 
 	virtual ~EffectAxiom() override
@@ -59,8 +62,17 @@ public:
 
 	const Reference<Fluent<ExpressionT>> &fluent() const
 	{ return assignment_.lhs(); }
+
 	const ExpressionT &value() const
 	{ return assignment_.rhs(); }
+
+
+	virtual string to_string(const string &pfx) const override
+	{
+		return linesep + pfx + condition().to_string(pfx) + "?" + linesep
+			+ pfx + indent + assignment_.to_string("") + ";";
+	}
+
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, assignment_)
 

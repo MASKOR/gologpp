@@ -25,11 +25,9 @@ Scope::Scope(ScopeOwner *owner, const vector<shared_ptr<AbstractVariable>> &vari
 		variables_.emplace(v->name(), v);
 }
 
-
 Scope::Scope(ScopeOwner *owner, Scope &parent_scope)
 : Scope(owner, {}, parent_scope)
 {}
-
 
 Scope::Scope(Scope &&other)
 : parent_scope_(other.parent_scope_)
@@ -37,10 +35,8 @@ Scope::Scope(Scope &&other)
 , globals_(std::move(other.globals_))
 {}
 
-
 Scope::~Scope()
 {}
-
 
 bool Scope::has_var(const string &name) const
 { return variables_.find(name) != variables_.end(); }
@@ -69,6 +65,15 @@ vector<shared_ptr<AbstractVariable>> Scope::lookup_vars(const vector<string> &na
 }
 
 
+vector<shared_ptr<AbstractVariable>> Scope::vars() const
+{
+	vector<shared_ptr<AbstractVariable>> rv;
+	for (auto &entry : variables_)
+		rv.push_back(entry.second);
+	return rv;
+}
+
+
 void Scope::implement(Implementor &implementor)
 {
 	if (!impl_) {
@@ -77,7 +82,6 @@ void Scope::implement(Implementor &implementor)
 			entry.second->implement(implementor);
 	}
 }
-
 
 Scope &Scope::parent_scope()
 { return parent_scope_; }
@@ -121,6 +125,11 @@ void Scope::clear()
 
 Scope &global_scope()
 { return Scope::global_scope(); }
+
+
+string Scope::to_string(const string &) const
+{ return "[" + concat_list(vars(), ", ") + "]"; }
+
 
 
 

@@ -24,10 +24,13 @@ class AbstractFluent
 , public virtual AbstractLanguageElement
 {
 public:
+	typedef Expression expression_t;
+
 	AbstractFluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 	AbstractFluent(AbstractFluent &&) = default;
 
 	virtual ~AbstractFluent() override = default;
+	virtual ExpressionTypeTag expression_type_tag() const = 0;
 
 	virtual void compile(AExecutionContext &ctx) override;
 };
@@ -40,6 +43,8 @@ class Fluent
 , public LanguageElement<Fluent<ExpressionT>>
 {
 public:
+	typedef ExpressionT expression_t;
+
 	Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, boost::optional<Constant<ExpressionT> *> init)
 	: ExpressionT(Scope::global_scope())
 	, AbstractFluent(own_scope, name, args)
@@ -54,6 +59,9 @@ public:
 	const ExpressionT &initially()
 	{ return *initial_value_; }
 
+	virtual ExpressionTypeTag expression_type_tag() const override
+	{ return ExpressionT::static_type_tag(); }
+
 	void define(boost::optional<Constant<ExpressionT> *> initial_value)
 	{ initial_value_.reset(initial_value.value()); }
 
@@ -63,6 +71,15 @@ public:
 	virtual ~Fluent() override = default;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*scope_, *initial_value_)
+
+	virtual string to_string(const string &pfx) const override
+	{
+		return linesep + pfx + gologpp::to_string(expression_type_tag()) + "fluent " + name() + '('
+			+ concat_list(args(), ", ", "") + ") {" + linesep
+			+ pfx + "initially:" + linesep
+			+ pfx + concat_list(initially(), ";" linesep + pfx, pfx) + linesep
+			+ pfx + '}';
+	}
 
 private:
 	unique_ptr<Constant<ExpressionT>> initial_value_;

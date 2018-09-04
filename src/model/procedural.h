@@ -25,6 +25,8 @@ public:
 
 	const vector<unique_ptr<Statement>> &elements() const;
 
+	virtual string to_string(const string &pfx) const override;
+
 private:
 	vector<unique_ptr<Statement>> elements_;
 };
@@ -36,6 +38,8 @@ public:
 	void implement(Implementor &) override;
 
 	const vector<unique_ptr<Statement>> &alternatives() const;
+
+	virtual string to_string(const string &pfx) const override;
 
 private:
 	vector<unique_ptr<Statement>> alternatives_;
@@ -59,6 +63,8 @@ public:
 	const BooleanExpression &condition() const;
 	const Statement &block_true() const;
 	const Statement &block_false() const;
+
+	virtual string to_string(const string &pfx) const override;
 
 protected:
 	unique_ptr<BooleanExpression> condition_;
@@ -86,6 +92,9 @@ public:
 	const typename LhsT::expression_t &rhs() const
 	{ return *rhs_; }
 
+	virtual string to_string(const string &pfx) const override
+	{ return lhs().to_string(pfx) + " = " + rhs().to_string(""); }
+
 private:
     unique_ptr<Reference<LhsT>> lhs_;
     unique_ptr<typename LhsT::expression_t> rhs_;
@@ -101,6 +110,8 @@ public:
 	const AbstractVariable &variable() const;
 	const Statement &statement() const;
 
+	virtual string to_string(const string &pfx) const override;
+
 private:
 	shared_ptr<AbstractVariable> variable_;
 	unique_ptr<Statement> statement_;
@@ -114,6 +125,8 @@ public:
 
 	const Statement &statement() const;
 
+	virtual string to_string(const string &pfx) const override;
+
 private:
 	unique_ptr<Statement> statement_;
 };
@@ -125,6 +138,8 @@ public:
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_)
 
 	const BooleanExpression &expression() const;
+
+	virtual string to_string(const string &pfx) const override;
 
 protected:
 	unique_ptr<BooleanExpression> expression_;
@@ -138,6 +153,8 @@ public:
 
 	const BooleanExpression &expression() const;
 	const Statement &statement() const;
+
+	virtual string to_string(const string &pfx) const override;
 
 protected:
 	unique_ptr<BooleanExpression> expression_;
@@ -158,6 +175,9 @@ public:
 	const ExpressionT &expression() const
 	{ return *expr_; }
 
+	virtual string to_string(const string &pfx) const override
+	{ return linesep + pfx + "return " + expression().to_string(""); }
+
 private:
 	unique_ptr<ExpressionT> expr_;
 };
@@ -169,9 +189,12 @@ class AbstractFunction
 , public virtual AbstractLanguageElement
 {
 public:
+	typedef Expression expression_t;
+
 	AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *definition);
 
 	virtual ~AbstractFunction() override;
+	virtual ExpressionTypeTag expression_type_tag() const = 0;
 
 	const Statement &definition() const;
 	void define(boost::optional<Statement *> definition);
@@ -190,6 +213,8 @@ class Function
 , public LanguageElement<Function<ExpressionT>>
 {
 public:
+	typedef ExpressionT expression_t;
+
 	Function(
 		Scope *own_scope,
 		const string &name,
@@ -211,6 +236,21 @@ public:
 
 	Function(Function &&) = default;
 	DEFINE_IMPLEMENT_WITH_MEMBERS(scope(), *definition_)
+
+	virtual ExpressionTypeTag expression_type_tag() const override
+	{ return ExpressionT::static_type_tag(); }
+
+
+	virtual string to_string(const string &pfx) const override
+	{
+		string fn;
+		if (expression_type_tag() == ExpressionTypeTag::STATEMENT)
+			fn = "procedure ";
+		else
+			fn = gologpp::to_string(expression_type_tag()) + "function ";
+
+		return linesep + pfx + fn + name() + '(' + concat_list(args(), ", ") + ") " + definition().to_string(pfx);
+	}
 };
 
 

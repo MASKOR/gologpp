@@ -116,7 +116,6 @@ class ExecutionContext;
 	}
 
 
-
 } // namespace gologpp
 
 #endif // GOLOGPP_H_

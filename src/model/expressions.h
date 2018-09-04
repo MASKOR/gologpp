@@ -10,11 +10,15 @@ namespace gologpp {
 
 
 enum ExpressionTypeTag {
-	UNKNOWN,
 	BOOLEAN_EXPRESSION,
 	VALUE_EXPRESSION,
 	STATEMENT,
 };
+
+
+
+string to_string(ExpressionTypeTag t);
+
 
 
 class Expression : public virtual AbstractLanguageElement {
@@ -29,6 +33,7 @@ public:
 
 	Scope &parent_scope();
 	const Scope &parent_scope() const;
+	virtual string to_string(const string &pfx) const = 0;
 
 	virtual ExpressionTypeTag expression_type_tag() const = 0;
 
@@ -73,6 +78,7 @@ protected:
 public:
 	typedef BooleanExpression expression_t;
 	virtual ExpressionTypeTag expression_type_tag() const override;
+	static ExpressionTypeTag static_type_tag();
 };
 
 
@@ -84,6 +90,7 @@ protected:
 public:
 	typedef NumericExpression expression_t;
 	virtual ExpressionTypeTag expression_type_tag() const override;
+	static ExpressionTypeTag static_type_tag();
 };
 
 
@@ -95,6 +102,7 @@ protected:
 public:
 	typedef Statement expression_t;
 	virtual ExpressionTypeTag expression_type_tag() const override;
+	static ExpressionTypeTag static_type_tag();
 };
 
 

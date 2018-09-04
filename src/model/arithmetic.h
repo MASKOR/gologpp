@@ -4,6 +4,8 @@
 #include "expressions.h"
 #include "language.h"
 
+#include <iostream>
+
 namespace gologpp {
 
 
@@ -20,12 +22,40 @@ public:
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 
+	static std::string to_string(ArithmeticOperation::Operator op)
+	{
+		switch (op) {
+		case ADDITION:
+			return "+";
+		case SUBTRACTION:
+			return "-";
+		case MULTIPLICATION:
+			return "*";
+		case DIVISION:
+			return "/";
+		case POWER:
+			return "^";
+		case MODULO:
+			return "%";
+		}
+
+		return "[Unknown ArithmeticOperation]";
+	}
+
+	virtual string to_string(const string &pfx) const override;
+
+
 private:
 	unique_ptr<NumericExpression> lhs_, rhs_;
 	Operator operator_;
 };
 
 
+
+
+
+
 }
+
 
 #endif // GOLOGPP_ARITHMETIC_H_

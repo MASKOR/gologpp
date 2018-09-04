@@ -22,6 +22,11 @@ void AbstractAction::add_effect(AbstractEffectAxiom *effect)
 void AbstractAction::compile(AExecutionContext &ctx)
 { ctx.compile(*this); }
 
+string AbstractAction::to_string(const string &) const
+{ return name() + '(' + concat_list(args(), ", ", "") + ")"; }
+
+
+
 const BooleanExpression &Action::precondition() const
 { return *precondition_; }
 
@@ -41,6 +46,15 @@ void Action::implement(Implementor &implementor)
 }
 
 
+string Action::to_string(const string &pfx) const
+{
+	return linesep + pfx + "action " + AbstractAction::to_string(pfx) + " {"
+		+ linesep + pfx + "precondition:" + linesep + precondition().to_string(pfx + indent)
+		+ linesep + pfx + "effect:" + linesep + concat_list(effects(), ";" linesep, pfx) + linesep "}";
+}
+
+
+
 void ExogAction::implement(Implementor &implementor)
 {
 	if (!impl_) {
@@ -49,6 +63,13 @@ void ExogAction::implement(Implementor &implementor)
 		for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
 			effect->implement(implementor);
 	}
+}
+
+
+string ExogAction::to_string(const string &pfx) const
+{
+	return linesep + pfx + "event" + AbstractAction::to_string(pfx) + " {"
+		+ linesep + pfx + "effect:" + linesep + concat_list(effects(), ";" linesep, pfx) + linesep "}";
 }
 
 
@@ -65,6 +86,9 @@ AbstractTransition::AbstractTransition(const shared_ptr<Action> &action, vector<
 , args_(std::move(args))
 {}
 
+string AbstractTransition::to_string(const string &) const
+{ return action().name() + '(' + concat_list(args(), ", ") + ')'; }
+
 
 
 void Transition::implement(Implementor &implementor)
@@ -77,6 +101,7 @@ void Transition::implement(Implementor &implementor)
 }
 
 
+
 void ExogTransition::implement(Implementor &implementor)
 {
 	if (!impl_) {
@@ -85,6 +110,7 @@ void ExogTransition::implement(Implementor &implementor)
 			c->implement(implementor);
 	}
 }
+
 
 
 } // namespace gologpp

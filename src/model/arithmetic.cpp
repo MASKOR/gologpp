@@ -25,4 +25,8 @@ ArithmeticOperation::Operator ArithmeticOperation::op() const
 { return operator_; }
 
 
+string ArithmeticOperation::to_string(const string &pfx) const
+{ return lhs().to_string(pfx) + " " + to_string(op()) + " " + rhs().to_string(pfx); }
+
+
 }

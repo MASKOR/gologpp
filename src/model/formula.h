@@ -19,7 +19,10 @@ public:
 	virtual ~Negation() override = default;
 
 	const BooleanExpression &expression() const;
+
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_)
+
+	virtual string to_string(const string &pfx) const override;
 
 protected:
 	unique_ptr<BooleanExpression> expression_;
@@ -31,6 +34,9 @@ enum ComparisonOperator {
 };
 
 
+string to_string(ComparisonOperator op);
+
+
 class Comparison : public BooleanExpression, public LanguageElement<Comparison> {
 public:
 	Comparison(NumericExpression *lhs, ComparisonOperator op, NumericExpression *rhs, Scope &parent_scope);
@@ -39,6 +45,8 @@ public:
 	const NumericExpression &rhs() const;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
+
+	virtual string to_string(const string &pfx) const override;
 
 protected:
 	unique_ptr<NumericExpression> lhs_;
@@ -56,6 +64,8 @@ enum BooleanOperator {
 	AND = 1, OR, XOR, IMPLIES, IFF
 };
 
+string to_string(BooleanOperator op);
+
 
 class BooleanOperation : public BooleanExpression {
 public:
@@ -65,6 +75,9 @@ public:
 	const BooleanExpression &rhs() const;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
+
+	virtual string to_string(const string &pfx) const override;
+
 protected:
 	unique_ptr<BooleanExpression> lhs_;
 	BooleanOperator op_;
@@ -83,6 +96,8 @@ class AbstractVariable;
 enum QuantificationOperator {
 	EXISTS = 1, FORALL
 };
+
+string to_string(QuantificationOperator op);
 
 
 class Quantification : public BooleanExpression, public ScopeOwner {
@@ -113,6 +128,9 @@ public:
 	const BooleanExpression &expression() const;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *expression_)
+
+	virtual string to_string(const string &pfx) const override;
+
 protected:
 	QuantificationOperator op_;
 	shared_ptr<AbstractVariable> variable_;

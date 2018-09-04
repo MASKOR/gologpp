@@ -44,6 +44,7 @@ public:
 	HistoryImplementation &abstract_impl()
 	{ return static_cast<HistoryImplementation &>(*impl_); }
 
+	virtual string to_string(const string &pfx) const override;
 };
 
 

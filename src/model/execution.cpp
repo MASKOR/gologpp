@@ -18,6 +18,10 @@ History::History()
 {}
 
 
+string History::to_string(const string &pfx) const
+{ return pfx + linesep + "history: no representation" + linesep; }
+
+
 ExogTransition AExecutionContext::exog_queue_pop()
 {
 	std::lock_guard<std::mutex> { exog_mutex_ };

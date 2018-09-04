@@ -26,6 +26,8 @@ class AbstractAction
 , public ScopeOwner
 , public virtual AbstractLanguageElement {
 public:
+	typedef Statement expression_t;
+
 	AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 
 	AbstractAction(const AbstractAction &) = delete;
@@ -37,6 +39,7 @@ public:
 	void add_effect(AbstractEffectAxiom *effect);
 
 	virtual void compile(AExecutionContext &ctx) override;
+	virtual string to_string(const string &pfx) const override;
 
 protected:
 	vector<unique_ptr<AbstractEffectAxiom>> effects_;
@@ -56,11 +59,11 @@ public:
 	void define();
 
 	virtual void implement(Implementor &) override;
+	virtual string to_string(const string &pfx) const override;
 
 protected:
 	unique_ptr<BooleanExpression> precondition_;
 };
-
 
 
 
@@ -70,7 +73,9 @@ public:
 	ExogAction(const Action &) = delete;
 	ExogAction(ExogAction &&) = default;
 	virtual void implement(Implementor &) override;
+	virtual string to_string(const string &pfx) const override;
 };
+
 
 
 class AbstractTransition : public virtual AbstractLanguageElement {
@@ -79,11 +84,13 @@ public:
 
 	const Action &action() const;
 	const vector<unique_ptr<AbstractConstant>> &args() const;
+	virtual string to_string(const string &pfx) const override;
 
 protected:
 	shared_ptr<Action> action_;
 	vector<unique_ptr<AbstractConstant>> args_;
 };
+
 
 
 class Transition : public AbstractTransition, public LanguageElement<Transition> {
@@ -93,6 +100,7 @@ public:
 	Transition(Transition &&) = default;
 	virtual void implement(Implementor &) override;
 };
+
 
 
 class ExogTransition : public AbstractTransition, public LanguageElement<ExogTransition> {

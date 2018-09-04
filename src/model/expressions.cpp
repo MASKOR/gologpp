@@ -5,6 +5,20 @@
 namespace gologpp {
 
 
+string to_string(ExpressionTypeTag t)
+{
+	switch (t) {
+	case BOOLEAN_EXPRESSION:
+		return "?";
+	case VALUE_EXPRESSION:
+		return "%";
+	case STATEMENT:
+		return "";
+	}
+	return "[Unknown ExpressionTypeTag]";
+}
+
+
 Expression::Expression(Scope &parent_scope)
 : parent_scope_(parent_scope)
 {}
@@ -25,6 +39,10 @@ BooleanExpression::BooleanExpression(Scope &parent_scope)
 ExpressionTypeTag BooleanExpression::expression_type_tag() const
 { return BOOLEAN_EXPRESSION; }
 
+ExpressionTypeTag BooleanExpression::static_type_tag()
+{ return BOOLEAN_EXPRESSION; }
+
+
 
 NumericExpression::NumericExpression(Scope &parent_scope)
 :Expression (parent_scope)
@@ -33,6 +51,10 @@ NumericExpression::NumericExpression(Scope &parent_scope)
 ExpressionTypeTag NumericExpression::expression_type_tag() const
 { return VALUE_EXPRESSION; }
 
+ExpressionTypeTag NumericExpression::static_type_tag()
+{ return VALUE_EXPRESSION; }
+
+
 
 Statement::Statement(Scope &parent_scope)
 :Expression (parent_scope)
@@ -40,6 +62,10 @@ Statement::Statement(Scope &parent_scope)
 
 ExpressionTypeTag Statement::expression_type_tag() const
 { return STATEMENT; }
+
+ExpressionTypeTag Statement::static_type_tag()
+{ return STATEMENT; }
+
 
 
 Global::Global(const string &name, const vector<shared_ptr<AbstractVariable>> &args)

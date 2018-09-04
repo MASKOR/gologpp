@@ -38,7 +38,7 @@ public:
 	Scope(const Scope &) = delete;
 	Scope &operator = (const Scope &) = delete;
 
-	~Scope();
+	~Scope() override;
 
 	template<class ExpressionT>
 	shared_ptr<Variable<ExpressionT>> get_var(const string &name)
@@ -58,8 +58,9 @@ public:
 	bool has_var(const string &name) const;
 
 	vector<shared_ptr<AbstractVariable>> lookup_vars(const vector<string> &names);
+	vector<shared_ptr<AbstractVariable>> vars() const;
 
-	void implement(Implementor &implementor);
+	void implement(Implementor &implementor) override;
 
 	static Scope &global_scope()
 	{ return global_scope_; }
@@ -107,6 +108,9 @@ public:
 		obj->define(definition_args...);
 		return obj;
 	}
+
+
+	virtual string to_string(const string &pfx) const override;
 
 
 private:
