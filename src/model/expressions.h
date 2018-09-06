@@ -47,16 +47,11 @@ class Global : public Identifier, public std::enable_shared_from_this<Global> {
 protected:
 	Global(const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 
-public:
-	vector<shared_ptr<AbstractVariable>> &args();
-	const vector<shared_ptr<AbstractVariable>> &args() const;
-	shared_ptr<AbstractVariable> argument(arity_t idx) const;
-
 	template<class GologT>
-	Reference<GologT> *ref(Scope &parent_scope, vector<unique_ptr<Expression>> &&args = {})
+	Reference<GologT> *make_reference(Scope &parent_scope, const vector<Expression *> &args = {})
 	{
 		static_assert(std::is_base_of<Identifier, GologT>::value,
-			"Cannot reference a type is not derived from Identifier");
+			"Cannot reference a type that is not derived from Identifier");
 		return new Reference<GologT>(
 			std::dynamic_pointer_cast<GologT>(this->shared_from_this()),
 			parent_scope,
@@ -64,7 +59,16 @@ public:
 		);
 	}
 
+
+public:
+	virtual ~Global() = default;
+
+	vector<shared_ptr<AbstractVariable>> &args();
+	const vector<shared_ptr<AbstractVariable>> &args() const;
+	shared_ptr<AbstractVariable> argument(arity_t idx) const;
+
 	virtual void compile(AExecutionContext &ctx) = 0;
+	virtual Expression *ref(Scope &parent_scope, const vector<Expression *> &args) = 0;
 
 private:
 	vector<shared_ptr<AbstractVariable>> args_;

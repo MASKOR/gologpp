@@ -12,7 +12,7 @@ Scope Scope::global_scope_;
 
 Scope::Scope()
 : parent_scope_(*this)
-, globals_(new unordered_map<Identifier, shared_ptr<Global>>())
+, globals_(new GlobalsMap())
 {}
 
 
@@ -99,6 +99,15 @@ const Scope::VariablesMap &Scope::var_map() const
 { return variables_; }
 
 
+Expression *Scope::ref_to_global(
+	const string &name,
+	const boost::optional<vector<Expression *>> &args
+) {
+	return (*globals_)[ { name, static_cast<arity_t>(args.get_value_or({}).size()) } ]
+		->ref(*this, args.get_value_or({}));
+}
+
+
 void Scope::implement_globals(Implementor &implementor, AExecutionContext &ctx)
 {
 	// Two loops since we want everything implemented before we attempt to compile anything.
@@ -111,11 +120,6 @@ void Scope::implement_globals(Implementor &implementor, AExecutionContext &ctx)
 }
 
 
-
-void Scope::register_global(Global *g)
-{ (*globals_)[static_cast<Identifier>(*g)] = shared_ptr<Global>(g); }
-
-
 void Scope::clear()
 {
 	variables_.clear();
@@ -126,6 +130,8 @@ void Scope::clear()
 Scope &global_scope()
 { return Scope::global_scope(); }
 
+bool Scope::exists_global(const string &name, arity_t arity) const
+{ return globals_->find( { name, arity } ) != globals_->end(); }
 
 string Scope::to_string(const string &) const
 { return "[" + concat_list(vars(), ", ") + "]"; }

@@ -15,6 +15,7 @@
 #include "atoms.h"
 #include "language.h"
 #include "scope.h"
+#include "reference.h"
 
 namespace gologpp {
 
@@ -23,8 +24,7 @@ class AbstractEffectAxiom;
 
 
 class AbstractAction
-: public Statement
-, public Global
+: public Global
 , public ScopeOwner
 , public virtual AbstractLanguageElement {
 public:
@@ -50,7 +50,10 @@ protected:
 
 class Action : public AbstractAction, public LanguageElement<Action> {
 public:
+	typedef AbstractAction abstract_t;
+
 	using AbstractAction::AbstractAction;
+
 	Action(const Action &) = delete;
 	Action(Action &&) = default;
 
@@ -65,6 +68,7 @@ public:
 
 	virtual void implement(Implementor &) override;
 	virtual string to_string(const string &pfx) const override;
+	virtual Expression *ref(Scope &parent_scope, const vector<Expression *> &args) override;
 
 protected:
 	unique_ptr<BooleanExpression> precondition_;

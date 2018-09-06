@@ -3,4 +3,11 @@
 namespace gologpp {
 
 
+AbstractReference::AbstractReference()
+{}
+
+AbstractReference::~AbstractReference()
+{}
+
+
 }

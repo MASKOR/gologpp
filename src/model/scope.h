@@ -3,8 +3,7 @@
 
 #include <vector>
 #include <unordered_map>
-#include <boost/variant.hpp>
-#include <boost/variant/polymorphic_get.hpp>
+#include <boost/optional.hpp>
 #include <cassert>
 
 #include "utilities.h"
@@ -71,29 +70,54 @@ public:
 	void set_owner(ScopeOwner *owner);
 	const ScopeOwner *owner() const;
 
-	template<class GologT = Global>
-	shared_ptr<GologT> lookup_global(const Identifier &id)
-	{ return std::dynamic_pointer_cast<GologT>((*globals_)[id]); }
 
-	void register_global(Global *g);
+	template<class GologT = Global>
+	shared_ptr<GologT> lookup_global(const string &name, arity_t arity)
+	{
+		if (exists_global(name, arity))
+			return std::dynamic_pointer_cast<GologT>(
+				(*globals_) [{ name, arity }]
+			);
+		else
+			return shared_ptr<GologT>();
+	}
+
+
+	Expression *ref_to_global(
+		const string &name,
+		const boost::optional<vector<Expression *>> &args
+	);
+
 	const VariablesMap &var_map() const;
 	void implement_globals(Implementor &implementor, AExecutionContext &ctx);
 	void clear();
 
 
+	bool exists_global(const string &name, arity_t arity) const;
+
+
 	template<class GologT>
-	GologT *declare_global(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
-	{
-		Identifier id { name, static_cast<arity_t>(args.size()) };
-		shared_ptr<GologT> obj = lookup_global<GologT>(id);
-		if (!obj) {
-			obj.reset(new GologT(own_scope, name, args));
-			(*globals_)[id] = obj;
+	GologT *declare_global(
+		Scope *own_scope,
+		const string &name,
+		const vector<shared_ptr<AbstractVariable>> &args
+	) {
+		GologT *rv = nullptr;
+		if (exists_global(name, arity_t(args.size()))) {
+			rv = lookup_global<GologT>(name, arity_t(args.size())).get();
+
+			// Here be dragons:
+			// own_scope is constructed by the parser, and it may or may not
+			// be the one that is already in use by the existing Global.
+			// If it's not, we have to delete it since it won't be used.
+			if (&(rv->scope()) != own_scope)
+				delete own_scope;
 		}
 		else
-			delete own_scope;
+			(*globals_) [ { name, arity_t(args.size()) } ]
+				.reset(new GologT(own_scope, name, args));
 
-		return obj.get();
+		return lookup_global<GologT>(name, arity_t(args.size())).get();
 	}
 
 
@@ -102,17 +126,24 @@ public:
 		Scope *own_scope, const string &name,
 		const vector<shared_ptr<AbstractVariable>> &args,
 		DefinitionTs... definition_args
-	)
-	{
-		Identifier id { name, static_cast<arity_t>(args.size()) };
-		shared_ptr<GologT> obj = lookup_global<GologT>(id);
-		if (!obj)
-			obj.reset(declare_global<GologT>(own_scope, name, args));
+	) {
+		GologT *rv = nullptr;
+		if (exists_global(name, arity_t(args.size()))) {
+			rv = lookup_global<GologT>(name, arity_t(args.size())).get();
+
+			// Here be dragons:
+			// own_scope is constructed by the parser, and it may or may not
+			// be the one that is already in use by the existing Global.
+			// If it's not, we have to delete it since it won't be used.
+			if (&(rv->scope()) != own_scope)
+				delete own_scope;
+
+			// TODO: if (rv->defined()): Warn on redefinition
+		}
 		else
-			delete own_scope;
-		// TODO: Warn on redefinition?
-		obj->define(definition_args...);
-		return obj.get();
+			rv = declare_global<GologT>(own_scope, name, args);
+		rv->define(definition_args...);
+		return rv;
 	}
 
 

@@ -208,11 +208,11 @@ protected:
 
 template<class ExpressionT>
 class Function
-: public ExpressionT
-, public AbstractFunction
+: public AbstractFunction
 , public LanguageElement<Function<ExpressionT>>
 {
 public:
+	typedef AbstractFunction abstract_t;
 	typedef ExpressionT expression_t;
 
 	Function(
@@ -221,8 +221,7 @@ public:
 		const vector<shared_ptr<AbstractVariable>> &args,
 		boost::optional<Statement *> statement
 	)
-	: ExpressionT(Scope::global_scope())
-	, AbstractFunction(own_scope, name, args, statement.get_value_or(nullptr))
+	: AbstractFunction(own_scope, name, args, statement.get_value_or(nullptr))
 	{}
 
 	Function(
@@ -236,6 +235,9 @@ public:
 
 	Function(Function &&) = default;
 	DEFINE_IMPLEMENT_WITH_MEMBERS(scope(), *definition_)
+
+	virtual Expression *ref(Scope &parent_scope, const vector<Expression *> &args) override
+	{ return make_reference<Function<ExpressionT>>(parent_scope, args); }
 
 	virtual ExpressionTypeTag expression_type_tag() const override
 	{ return ExpressionT::static_type_tag(); }

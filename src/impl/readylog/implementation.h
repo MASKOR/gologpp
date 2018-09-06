@@ -93,10 +93,6 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<BooleanExpression>> &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<NumericExpression>> &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<Statement>> &) override;
-
-	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Statement> &) override;
-	virtual unique_ptr<AbstractImplementation> make_impl(Reference<BooleanExpression> &) override;
-	virtual unique_ptr<AbstractImplementation> make_impl(Reference<NumericExpression> &) override;
 };
 
 

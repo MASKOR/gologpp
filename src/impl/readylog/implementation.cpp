@@ -72,8 +72,4 @@ DEFINE_MAKE_IMPL(Function<NumericExpression>)
 DEFINE_MAKE_IMPL(Reference<Function<BooleanExpression>>)
 DEFINE_MAKE_IMPL(Reference<Function<NumericExpression>>)
 
-DEFINE_MAKE_IMPL(Reference<Statement>)
-DEFINE_MAKE_IMPL(Reference<BooleanExpression>)
-DEFINE_MAKE_IMPL(Reference<NumericExpression>)
-
 }

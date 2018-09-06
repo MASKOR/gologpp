@@ -92,16 +92,15 @@ public:
 
 template<class ExpressionT>
 class Fluent
-: public ExpressionT
-, public AbstractFluent
+: public AbstractFluent
 , public LanguageElement<Fluent<ExpressionT>>
 {
 public:
 	typedef ExpressionT expression_t;
+	typedef AbstractFluent abstract_t;
 
 	Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
-	: ExpressionT(Scope::global_scope())
-	, AbstractFluent(own_scope, name, args)
+	: AbstractFluent(own_scope, name, args)
 	{}
 
 	Fluent(Fluent &&) = default;
@@ -152,6 +151,9 @@ public:
 			+ pfx + concat_list(initially(), ";" linesep + pfx, pfx) + linesep
 			+ pfx + '}';
 	}
+
+	virtual Expression *ref(Scope &parent_scope, const vector<Expression *> &args) override
+	{ return make_reference<Fluent<ExpressionT>>(parent_scope, args); }
 
 private:
 	vector<unique_ptr<InitialValue<ExpressionT>>> initial_values_;

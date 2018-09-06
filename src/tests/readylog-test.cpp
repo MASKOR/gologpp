@@ -102,9 +102,9 @@ void test_parser()
 #ifdef GOLOGPP_TEST_PARSER
 	unique_ptr<Statement> mainproc = parser::parse_file(SOURCE_DIR "/blocksworld.gpp");
 
-	shared_ptr<NumericFluent> on = global_scope().lookup_global<NumericFluent>({"on", 1});
-	shared_ptr<Action> put = global_scope().lookup_global<Action>({"put", 2});
-	shared_ptr<BooleanFunction> goal = global_scope().lookup_global<BooleanFunction>({"goal", 0});
+	shared_ptr<NumericFluent> on = global_scope().lookup_global<NumericFluent>("on", 1);
+	shared_ptr<Action> put = global_scope().lookup_global<Action>("put", 2);
+	shared_ptr<BooleanFunction> goal = global_scope().lookup_global<BooleanFunction>("goal", 0);
 
 	if (on && put && goal)
 		std::cout << on->name() << " " << put->name() << " " << goal->name() << std::endl;

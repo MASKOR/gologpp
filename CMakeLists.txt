@@ -54,6 +54,7 @@ set(INTERFACE_SRC
 		src/model/error.cpp
 		src/model/user_error.cpp
 		src/model/execution.cpp
+		src/model/reference.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -61,6 +62,7 @@ set_property(TARGET golog++ PROPERTY CXX_STANDARD 14)
 
 
 option(BUILD_PARSER "Build the parser library" ON)
+CMAKE_DEPENDENT_OPTION(DEBUG_PARSER "Enable debug output for the parser" OFF "BUILD_PARSER" OFF)
 if (${BUILD_PARSER})
 	set(PARSER_SRC
 		src/parser/parser.cpp
@@ -69,7 +71,11 @@ if (${BUILD_PARSER})
 	target_link_libraries(parsegolog++ golog++)
 	set_property(TARGET parsegolog++ PROPERTY CXX_STANDARD 14)
 	add_definitions(-DGOLOGPP_BUILD_PARSER)
+	if (${DEBUG_PARSER})
+		add_definitions(-DDEBUG_PARSER)
+	endif()
 endif()
+
 
 
 option(BUILD_READYLOG_IMPL "Build the readylog implementation" ON)

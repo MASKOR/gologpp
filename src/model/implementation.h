@@ -78,10 +78,6 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Function<Statement>> &) = 0;
 
 	virtual unique_ptr<AbstractImplementation> make_impl(History &) = 0;
-
-	virtual unique_ptr<AbstractImplementation> make_impl(Reference<Statement> &) = 0;
-	virtual unique_ptr<AbstractImplementation> make_impl(Reference<BooleanExpression> &) = 0;
-	virtual unique_ptr<AbstractImplementation> make_impl(Reference<NumericExpression> &) = 0;
 };
 
 

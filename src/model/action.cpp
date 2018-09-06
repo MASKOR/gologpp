@@ -7,8 +7,7 @@ namespace gologpp {
 
 
 AbstractAction::AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
-: Statement(Scope::global_scope())
-, Global(name, args)
+: Global(name, args)
 , ScopeOwner(own_scope)
 {}
 
@@ -64,6 +63,10 @@ string Action::to_string(const string &pfx) const
 		+ linesep + pfx + "precondition:" + linesep + precondition().to_string(pfx + indent)
 		+ linesep + pfx + "effect:" + linesep + concat_list(effects(), ";" linesep, pfx) + linesep "}";
 }
+
+
+Expression *Action::ref(Scope &parent_scope, const vector<Expression *> &args)
+{ return make_reference<Action>(parent_scope, args); }
 
 
 
