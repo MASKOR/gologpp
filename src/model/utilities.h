@@ -79,10 +79,26 @@ const GologT &obj
 ) { return stream << obj.to_string(""); }
 
 
+template<class CharT, class TraitsT, class GologT>
+typename std::enable_if<
+	std::is_base_of<AbstractLanguageElement, GologT>::value
+	|| std::is_base_of<Expression, GologT>::value,
+	std::basic_ostream<CharT, TraitsT>
+>::type
+&operator << (
+std::basic_ostream<CharT, TraitsT> &stream,
+const GologT *obj
+) { return stream << (obj ? obj->to_string("") : "nullptr"); }
+
+
 
 extern const string indent;
 
+#ifdef DEBUG_PARSER
+#define linesep " "
+#else
 #define linesep "\n"
+#endif
 
 
 

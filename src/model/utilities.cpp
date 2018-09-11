@@ -42,7 +42,11 @@ size_t Identifier::hash() const
 { return Name::hash() ^ (std::hash<gologpp::arity_t>{}(arity()) << 1); }
 
 
+#ifdef DEBUG_PARSER
+const string indent("");
+#else
 const string indent("  ");
+#endif
 
 
 } // namespace gologpp

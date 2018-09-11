@@ -271,7 +271,9 @@ public:
 		else
 			fn = gologpp::to_string(expression_type_tag()) + "function ";
 
-		return linesep + pfx + fn + name() + '(' + concat_list(args(), ", ") + ") " + definition().to_string(pfx);
+		return linesep + pfx + fn + name() + '('
+			+ concat_list(args(), ", ")
+			+ ") " + definition().to_string(pfx);
 	}
 };
 
