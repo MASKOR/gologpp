@@ -109,8 +109,12 @@ void test_parser()
 	if (on && put && goal)
 		std::cout << on->name() << " " << put->name() << " " << goal->name() << std::endl;
 
+	eclipse_opts options;
+	options.trace = false;
+	options.guitrace = false;
+
 #ifdef GOLOGPP_TEST_READYLOG
-	EclipseContext::init(unique_ptr<AExecutionBackend>(nullptr));
+	EclipseContext::init(unique_ptr<AExecutionBackend>(nullptr), options);
 	EclipseContext &ctx = EclipseContext::instance();
 
 	ctx.run(Block(

@@ -31,10 +31,16 @@ private:
 EC_word operator && (const EC_word &lhs, const EC_word &rhs);
 
 
+struct eclipse_opts {
+	bool trace;
+	bool guitrace;
+};
+
+
 class EclipseContext : public ExecutionContext {
 public:
     virtual ~EclipseContext() override;
-    static void init(unique_ptr<AExecutionBackend> &&);
+    static void init(unique_ptr<AExecutionBackend> &&, const eclipse_opts &options);
     static EclipseContext &instance();
 
 	virtual void compile(const Block &block) override;
@@ -76,10 +82,11 @@ public:
 private:
 	EC_ref *ec_start_;
 	int last_rv_;
+	eclipse_opts options_;
 
 	static unique_ptr<EclipseContext> instance_;
 
-    EclipseContext(unique_ptr<AExecutionBackend> &&);
+    EclipseContext(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options);
 };
 
 

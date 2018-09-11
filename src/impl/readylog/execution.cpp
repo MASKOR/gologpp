@@ -44,12 +44,13 @@ EC_word operator && (const EC_word &lhs, const EC_word &rhs)
 unique_ptr<EclipseContext> EclipseContext::instance_;
 
 
-void EclipseContext::init(unique_ptr<AExecutionBackend> &&exec_backend)
-{ instance_ = unique_ptr<EclipseContext>(new EclipseContext(std::move(exec_backend))); }
+void EclipseContext::init(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options)
+{ instance_ = std::make_unique<EclipseContext>(std::move(exec_backend), options); }
 
 
-EclipseContext::EclipseContext(unique_ptr<AExecutionBackend> &&exec_backend)
+EclipseContext::EclipseContext(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options)
 : ExecutionContext(std::make_unique<ReadylogImplementor>(), std::move(exec_backend))
+, options_(options)
 {
 	ec_set_option_ptr(EC_OPTION_ECLIPSEDIR, const_cast<void *>(static_cast<const void *>(ECLIPSE_DIR)));
 	std::cout << "Using eclipse-clp in " << ECLIPSE_DIR << std::endl;
@@ -62,8 +63,15 @@ EclipseContext::EclipseContext(unique_ptr<AExecutionBackend> &&exec_backend)
 
 	std::cout << "Loading readylog from " << READYLOG_PATH " ..." << std::endl;
 
-	post_goal("lib(tracer_tty)");
-	//post_goal("set_flag(gc, verbose)");
+	if (options.trace) {
+		if (options.guitrace) {
+			post_goal("lib(remote_tools)");
+			post_goal("attach_tools");
+		}
+		else
+			post_goal("lib(tracer_tty)");
+	}
+
 	post_goal(::term(EC_functor("compile", 1), EC_atom(READYLOG_PATH)));
 
 	if ((last_rv_ = EC_resume(*ec_start_)) == EC_status::EC_succeed)
@@ -159,13 +167,19 @@ bool EclipseContext::trans(Block &block, History &history)
 {
 	EC_ref h1, e1;
 
-	if (ec_query(
-		::term(EC_functor("trans", 4),
-			block.implementation().current_program(),
-			history.implementation().current_history(),
-			e1, h1
-		)
-	)) {
+	EC_word trans = ::term(EC_functor("trans", 4),
+		block.implementation().current_program(),
+		history.implementation().current_history(),
+		e1, h1
+	);
+
+	EC_word q;
+	if (options_.guitrace)
+		q = ::term(EC_functor("trace", 1), trans);
+	else
+		q = trans;
+
+	if (ec_query(q)) {
 		block.implementation().set_current_program(e1);
 		history.implementation().set_current_history(h1);
 		return true;
