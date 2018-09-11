@@ -52,7 +52,7 @@ class Action : public AbstractAction, public LanguageElement<Action> {
 public:
 	typedef AbstractAction abstract_t;
 
-	using AbstractAction::AbstractAction;
+	Action(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 
 	Action(const Action &) = delete;
 	Action(Action &&) = default;

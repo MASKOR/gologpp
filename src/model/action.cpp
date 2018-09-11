@@ -26,6 +26,11 @@ string AbstractAction::to_string(const string &) const
 
 
 
+Action::Action(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
+: AbstractAction(own_scope, name, args)
+, precondition_(new BooleanConstant(true))
+{}
+
 const BooleanExpression &Action::precondition() const
 { return *precondition_; }
 
