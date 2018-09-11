@@ -1,8 +1,9 @@
+#include "scope.h"
 #include "procedural.h"
 #include "atoms.h"
+#include "reference.h"
 #include <model/procedural.h>
 
-#include "scope.h"
 
 namespace gologpp {
 
@@ -113,9 +114,24 @@ Implementation<Search>::Implementation(const Search &search)
 
 EC_word Implementation<Search>::term()
 {
-	return ::term(EC_functor("solve", 2),
-		search_.statement().implementation().term(),
-		EC_word(15)
+	return ::term(EC_functor("search", 1),
+		search_.statement().implementation().term()
+	);
+}
+
+
+
+Implementation<Solve>::Implementation(const Solve &solve)
+: solve_(solve)
+{}
+
+
+EC_word Implementation<Solve>::term()
+{
+	return ::term(EC_functor("solve", 3),
+		solve_.statement().implementation().term(),
+		solve_.horizon().implementation().term(),
+		solve_.reward().implementation().term()
 	);
 }
 

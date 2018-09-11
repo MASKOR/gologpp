@@ -217,6 +217,17 @@ private:
 
 
 template<>
+class Implementation<Solve> : public ReadylogImplementation {
+public:
+	Implementation(const Solve &);
+	virtual EC_word term() override;
+
+private:
+	const Solve &solve_;
+};
+
+
+template<>
 class Implementation<Test> : public ReadylogImplementation {
 public:
 	Implementation(const Test &);

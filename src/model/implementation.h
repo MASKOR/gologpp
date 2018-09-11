@@ -65,6 +65,7 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<NumericVariable> &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Pick &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Search &) = 0;
+	virtual unique_ptr<AbstractImplementation> make_impl(Solve &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Test &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(While &) = 0;
 	virtual unique_ptr<AbstractImplementation> make_impl(Return<BooleanExpression> &) = 0;

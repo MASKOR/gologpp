@@ -82,6 +82,7 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<NumericVariable> &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Pick &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Search &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Solve &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Test &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(While &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Return<BooleanExpression> &) override;

@@ -480,8 +480,8 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 		simple_statement.name("simple statement");
 
 		compound_statement = block(_r1) | choose(_r1) | conditional(_r1)
-			| pick(_r1) | search(_r1) | r_while(_r1);
-		compound_statement.name("compound statement");
+			| pick(_r1) | solve(_r1) | search(_r1) | r_while(_r1);
+		compound_statement.name("compound_statement");
 
 
 		block = (l('{') [
@@ -524,6 +524,12 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 		];
 		search.name("search");
 
+		solve = (l("solve") > '('
+			> numeric_expression(_r1) > ',' > reward_fn(_r1)
+		> ')' > statement(_r1)) [
+			_val = new_<Solve>(_1, _2, _3, _r1)
+		];
+
 		test = (l("test") > '(' > boolean_expression(_r1) > ')') [
 			_val = new_<Test>(_1, _r1)
 		];
@@ -559,6 +565,8 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 	AssignmentParser<NumericVariable> numeric_var_assignment;
 	rule<Pick *(Scope &), locals<Scope *>> pick;
 	rule<Search *(Scope &)> search;
+	rule<Solve *(Scope &)> solve;
+	ReferenceParser<NumericFunction> reward_fn;
 	rule<Test *(Scope &)> test;
 	rule<While *(Scope &)> r_while;
 	rule<Return<BooleanExpression> *(Scope &)> boolean_return;

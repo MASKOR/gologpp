@@ -77,6 +77,7 @@ template<class> class Assignment;
 class Pick;
 class Call;
 class Search;
+class Solve;
 class Test;
 class While;
 template<class> class Return;

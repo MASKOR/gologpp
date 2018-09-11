@@ -4,6 +4,7 @@
 #include "procedural.h"
 #include "formula.h"
 #include "execution.h"
+#include "reference.h"
 
 #include "user_error.h"
 
@@ -154,6 +155,45 @@ const Statement &Search::statement() const
 
 string Search::to_string(const string &pfx) const
 { return linesep + pfx + "search " + statement().to_string(pfx); }
+
+
+
+Solve::Solve(
+	NumericExpression *horizon,
+	Reference<NumericFunction> *reward,
+	Statement *statement,
+	Scope &parent_scope
+)
+: Search(statement, parent_scope)
+, horizon_(horizon)
+, reward_(reward)
+{}
+
+const NumericExpression &Solve::horizon() const
+{ return *horizon_; }
+
+const Reference<NumericFunction> &Solve::reward() const
+{ return *reward_; }
+
+
+void Solve::implement(Implementor &implementor)
+{
+	if (impl_)
+		return;
+	horizon_->implement(implementor);
+	reward_->implement(implementor);
+	statement_->implement(implementor);
+	impl_ = implementor.make_impl(*this);
+}
+
+
+string Solve::to_string(const string &pfx) const
+{
+	return linesep + pfx + "solve ("
+		+ horizon().to_string(pfx) + ", "
+		+ reward().to_string(pfx) + ")"
+		+ statement().to_string(pfx + indent);
+}
 
 
 

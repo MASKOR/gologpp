@@ -127,8 +127,28 @@ public:
 
 	virtual string to_string(const string &pfx) const override;
 
-private:
+protected:
 	unique_ptr<Statement> statement_;
+};
+
+
+class Solve : public Search, public LanguageElement<Solve> {
+public:
+	Solve(
+		NumericExpression *horizon,
+		Reference<NumericFunction> *reward,
+		Statement *statement,
+		Scope &parent_scope
+	);
+
+	const NumericExpression &horizon() const;
+	const Reference<NumericFunction> &reward() const;
+	virtual void implement(Implementor &implementor) override;
+	virtual string to_string(const string &pfx) const override;
+
+private:
+	unique_ptr<NumericExpression> horizon_;
+	unique_ptr<Reference<NumericFunction>> reward_;
 };
 
 
