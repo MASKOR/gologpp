@@ -542,12 +542,12 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 		];
 		r_while.name("while");
 
-		boolean_return = (l("return") > boolean_expression(_r1)) [
+		boolean_return = (l("return") >> boolean_expression(_r1)) [
 			_val = new_<Return<BooleanExpression>>(_1, _r1)
 		];
 		boolean_return.name("boolean_return");
 
-		numeric_return = (l("return") > numeric_expression(_r1)) [
+		numeric_return = (l("return") >> numeric_expression(_r1)) [
 			_val = new_<Return<NumericExpression>>(_1, _r1)
 		];
 		numeric_return.name("numeric_return");
@@ -639,9 +639,6 @@ struct EffectParser : grammar<AbstractEffectAxiom *(AbstractAction *, Scope &)> 
 	: EffectParser::base_type(effect, "effect_axiom")
 	{
 		effect = boolean_effect(_r1, _r2) | numeric_effect(_r1, _r2);
-
-		//FIXME: disambiguate cases like fluent(a1) = func(a1)!
-		//Requires forward declarations!
 
 		boolean_effect = (
 			-(boolean_expression(_r2) >> "->")
@@ -819,7 +816,7 @@ struct ProgramParser : grammar<Statement *(Scope &)> {
 			| bool_fluent(_r1)
 			| action(_r1)
 			| function(_r1)
-		] ) > statement(_r1);
+		] ) >> statement(_r1);
 
 		on_error<rethrow>(program,
 			phoenix::bind(&handle_error, _1, _3, _2, _4)
