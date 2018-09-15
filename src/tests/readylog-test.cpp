@@ -36,59 +36,67 @@ using namespace gologpp;
 void test_objectmodel()
 {
 #ifdef GOLOGPP_TEST_OBJECTMODEL
-	Scope *on_scope = new Scope(nullptr);
-	on_scope->variable<NumericExpression>("X");
-	NumericFluent *on = new NumericFluent(on_scope,
-		"on",
-		on_scope->variables({"X"}),
-		std::make_unique<NumericConstant>(0)
-	);
-	global_scope().register_global(on);
-	shared_ptr<NumericFluent> on_shared = global_scope().lookup_global<NumericFluent>({"on", 1});
+	{
+		Scope *on_scope = new Scope(global_scope());
+		on_scope->get_var<NumericExpression>("X");
+		NumericFluent *on = new NumericFluent(
+			on_scope,
+			"on",
+			on_scope->lookup_vars({"X"})
+		);
+		InitialValue<NumericExpression> *iv1 = new InitialValue<NumericExpression> {
+			{ new NumericConstant(1) },
+			new NumericConstant(0)
+		};
+		on->define({iv1});
+		global_scope().register_global(on);
+	}
+	shared_ptr<NumericFluent> on = global_scope().lookup_global<NumericFluent>("on", 1);
 
-	Scope *put_scope = new Scope(nullptr);
-	put_scope->variable<NumericExpression>("X");
-	put_scope->variable<NumericExpression>("Y");
-	Action *put = new Action(put_scope, "put", put_scope->variables({"X", "Y"}));
-	global_scope().register_global(put);
+	{
+		Action *put = new Action(global_scope(), "put");
+		put->set_args( {
+			put->scope().get_var<NumericExpression>("X"),
+			put->scope().get_var<NumericExpression>("Y")
+		});
+		global_scope().register_global(put);
 
-	put->set_precondition(new Comparison(
-		new Reference<NumericFluent>("on", *put_scope, vector<Expression *>{ put_scope->variable<NumericExpression>("X")->ref(*put_scope) }
-		),
-		ComparisonOperator::NEQ,
-		new Reference<NumericVariable>(put_scope->variable<NumericExpression>("Y"), *put_scope),
-		*put_scope
-	));
+		put->set_precondition(new Comparison(
+			on->make_ref({ put->arg_ref<NumericExpression>("X") }),
+			ComparisonOperator::NEQ,
+			put->arg_ref<NumericExpression>("Y")
+		));
+	}
+	shared_ptr<Action> put = global_scope().lookup_global<Action>("put", 2);
 
 	{ vector<unique_ptr<Expression>> arg;
-		arg.emplace_back(put_scope->variable<NumericExpression>("X")->ref(*put_scope));
-
-		Reference<NumericFluent> *on_ref = on->ref<NumericFluent>(
-			*put_scope,
-			std::move(arg)
-		);
-		put->add_effect(new EffectAxiom<NumericExpression>(
-			put,
+		EffectAxiom<NumericExpression> *effect = new EffectAxiom<NumericExpression>();
+		effect->define(
 			new BooleanConstant(true),
-			on_ref,
-			put_scope->variable<NumericExpression>("Y")->ref(*put_scope)
-		) );
+			on->make_ref({
+				put->arg_ref<NumericExpression>("X")
+			} ),
+			put->arg_ref<NumericExpression>("Y")
+		);
+
+		put->add_effect(effect);
 	}
 
 #ifdef GOLOGPP_TEST_READYLOG
 
-	{ vector<unique_ptr<Expression>> args;
+	{
+		eclipse_opts options;
+		options.trace = false;
+		options.guitrace = false;
 
-		Scope *main_scope = new Scope(nullptr);
-		args.emplace_back(new NumericConstant(1));
-		args.emplace_back(new NumericConstant(2));
-		vector<Statement *> code;
-		code.push_back(put->ref<Action>(*main_scope, std::move(args)));
+		Block main(new Scope(global_scope()), {
+			put->make_ref({new NumericConstant(1), new NumericConstant(2)})
+		});
 
-		EclipseContext::init(unique_ptr<AExecutionBackend>(nullptr));
+		EclipseContext::init(unique_ptr<AExecutionBackend>(nullptr), options);
 		EclipseContext &ctx = EclipseContext::instance();
 
-		ctx.run(Block(main_scope, std::move(code)));
+		ctx.run(std::move(main));
 	}
 #endif // TEST_READYLOG
 
@@ -109,16 +117,16 @@ void test_parser()
 	if (on && put && goal)
 		std::cout << on->name() << " " << put->name() << " " << goal->name() << std::endl;
 
+#ifdef GOLOGPP_TEST_READYLOG
 	eclipse_opts options;
 	options.trace = false;
 	options.guitrace = false;
 
-#ifdef GOLOGPP_TEST_READYLOG
 	EclipseContext::init(unique_ptr<AExecutionBackend>(nullptr), options);
 	EclipseContext &ctx = EclipseContext::instance();
 
 	ctx.run(Block(
-		new Scope(nullptr, global_scope()),
+		new Scope(global_scope()),
 		{ mainproc.release() }
 	));
 #endif // TEST_READYLOG

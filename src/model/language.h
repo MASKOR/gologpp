@@ -15,7 +15,8 @@ class AbstractLanguageElement {
 public:
 	AbstractLanguageElement() = default;
 
-	// Only movable, not copyable
+	// No language element is ever copyable, since it is part of a graph
+	// that may even contain cycles.
 	AbstractLanguageElement(const AbstractLanguageElement &) = delete;
 	AbstractLanguageElement(AbstractLanguageElement &&) = default;
 	AbstractLanguageElement &operator = (const AbstractLanguageElement &) = delete;
@@ -32,6 +33,14 @@ public:
 
 	virtual void implement(Implementor &implementor) = 0;
 	virtual string to_string(const string &pfx) const = 0;
+	virtual Scope &scope() = 0;
+	virtual const Scope &scope() const = 0;
+	virtual Scope &parent_scope() = 0;
+	virtual const Scope &parent_scope() const = 0;
+
+	// Unambiguous alias name to simplify type resolution for phoenix::bind in the parser
+	Scope &m_scope()
+	{ return scope(); }
 
 	string str() const
 	{ return to_string(""); }

@@ -40,12 +40,13 @@ public:
     virtual ~Identifier() override = default;
 
     arity_t arity() const;
+    void set_arity(arity_t);
 
     virtual bool operator == (const Identifier &other) const;
     virtual size_t hash() const override;
 
 private:
-    const arity_t arity_;
+    arity_t arity_;
 };
 
 

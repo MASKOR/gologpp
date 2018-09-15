@@ -6,6 +6,7 @@
 #include "utilities.h"
 #include "expressions.h"
 #include "language.h"
+#include "scope.h"
 
 #include <memory>
 #include <type_traits>
@@ -43,12 +44,12 @@ class Variable
 : public ExpressionT
 , public LanguageElement<Variable<ExpressionT>>
 , public AbstractVariable
+, public NoScopeOwner
 , public std::enable_shared_from_this<Variable<ExpressionT>>
 {
 protected:
-	Variable(const string &name, Scope &parent_scope)
-	: ExpressionT(parent_scope)
-	, AbstractVariable(name)
+	Variable(const string &name)
+	: AbstractVariable(name)
 	{}
 
 public:
@@ -62,12 +63,10 @@ public:
 	virtual ExpressionTypeTag expression_type_tag() const override
 	{ return ExpressionT::expression_type_tag(); }
 
-	Reference<Variable<ExpressionT>> *ref(Scope &parent_scope)
+	Reference<Variable<ExpressionT>> *ref()
 	{
 		return new Reference<Variable<ExpressionT>>(
-			this->shared_from_this(),
-			parent_scope,
-			{}
+			this->shared_from_this()
 		);
 	}
 
@@ -75,7 +74,7 @@ public:
 	virtual ~Variable() override = default;
 	DEFINE_IMPLEMENT
 
-	virtual string to_string(const string &pfx) const override
+	virtual string to_string(const string &) const override
 	{ return gologpp::to_string(expression_type_tag()) + name(); }
 };
 
@@ -109,26 +108,23 @@ template<class ExpressionT>
 class Constant
 : public ExpressionT
 , public AbstractConstant
+, public NoScopeOwner
 , public LanguageElement<Constant<ExpressionT>>
 {
 public:
 	template<class T>
 	Constant(T n)
-	: ExpressionT(global_scope())
-	, AbstractConstant(std::to_string(n))
+	: AbstractConstant(std::to_string(n))
 	{}
 
-
 	Constant(const string &repr)
-	: ExpressionT(global_scope())
-	, AbstractConstant(repr)
+	: AbstractConstant(repr)
 	{}
 
 
 	template<class... Ts>
 	Constant(const boost::variant<Ts...> v)
-	: ExpressionT(global_scope())
-	, AbstractConstant(
+	: AbstractConstant(
 		boost::apply_visitor(
 			[] (auto val) { return std::to_string(val); },
 			v
@@ -149,7 +145,7 @@ public:
 
 	DEFINE_IMPLEMENT
 
-	virtual string to_string(const string &pfx) const override
+	virtual string to_string(const string &) const override
 	{ return representation(); }
 };
 
@@ -158,11 +154,9 @@ template<>
 template<>
 Constant<BooleanExpression>::Constant(bool);
 
-
 template<>
 template<>
 Constant<NumericExpression>::Constant(const string &);
-
 
 
 } // namespace gologpp
@@ -173,8 +167,8 @@ namespace std {
 
 template<>
 struct hash<shared_ptr<gologpp::AbstractVariable>> {
-    size_t operator () (const shared_ptr<gologpp::AbstractVariable> &o) const
-    { return o->hash(); }
+	size_t operator () (const shared_ptr<gologpp::AbstractVariable> &o) const
+	{ return o->hash(); }
 };
 
 } // namespace std

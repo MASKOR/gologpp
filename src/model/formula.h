@@ -12,9 +12,9 @@
 namespace gologpp {
 
 
-class Negation : public BooleanExpression, public LanguageElement<Negation> {
+class Negation : public BooleanExpression, public NoScopeOwner, public LanguageElement<Negation> {
 public:
-	Negation(unique_ptr<BooleanExpression> &&expression, Scope &parent_scope);
+	Negation(BooleanExpression *expression);
 	Negation(Negation &&) = default;
 	virtual ~Negation() override = default;
 
@@ -37,9 +37,13 @@ enum ComparisonOperator {
 string to_string(ComparisonOperator op);
 
 
-class Comparison : public BooleanExpression, public LanguageElement<Comparison> {
+class Comparison : public BooleanExpression, public NoScopeOwner, public LanguageElement<Comparison> {
 public:
-	Comparison(NumericExpression *lhs, ComparisonOperator op, NumericExpression *rhs, Scope &parent_scope);
+	Comparison(
+		NumericExpression *lhs,
+		ComparisonOperator op,
+		NumericExpression *rhs
+	);
 	ComparisonOperator op() const;
 	const NumericExpression &lhs() const;
 	const NumericExpression &rhs() const;
@@ -67,9 +71,13 @@ enum BooleanOperator {
 string to_string(BooleanOperator op);
 
 
-class BooleanOperation : public BooleanExpression {
+class BooleanOperation : public BooleanExpression, public NoScopeOwner, public LanguageElement<BooleanOperation> {
 public:
-	BooleanOperation(BooleanExpression *lhs, BooleanOperator op, BooleanExpression *rhs, Scope &parent_scope);
+	BooleanOperation(
+		BooleanExpression *lhs,
+		BooleanOperator op,
+		BooleanExpression *rhs
+	);
 	BooleanOperator op() const;
 	const BooleanExpression &lhs() const;
 	const BooleanExpression &rhs() const;
@@ -100,7 +108,7 @@ enum QuantificationOperator {
 string to_string(QuantificationOperator op);
 
 
-class Quantification : public BooleanExpression, public ScopeOwner {
+class Quantification : public BooleanExpression, public ScopeOwner, public LanguageElement<Quantification> {
 public:
 	Quantification(
 		Scope *own_scope,
@@ -108,20 +116,6 @@ public:
 		const shared_ptr<AbstractVariable> &variable,
 		BooleanExpression *expression
 	);
-
-	template<class ExprT>
-	Quantification(
-		QuantificationOperator op,
-		const string &var_name,
-		BooleanExpression *expression,
-		Scope &parent_scope
-	)
-	: BooleanExpression(parent_scope)
-	, ScopeOwner(new Scope(this, {}, parent_scope))
-	, op_(op)
-	, variable_(scope().lookup_var(var_name))
-	, expression_(expression)
-	{}
 
 	QuantificationOperator op() const;
 	const AbstractVariable &variable() const;

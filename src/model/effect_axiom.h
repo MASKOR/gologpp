@@ -17,43 +17,28 @@ class AbstractFluent;
 
 class AbstractEffectAxiom : public virtual AbstractLanguageElement {
 public:
-	AbstractEffectAxiom(const AbstractAction *action, BooleanExpression *condition);
+	AbstractEffectAxiom();
 	AbstractEffectAxiom(AbstractEffectAxiom &&) = default;
 	virtual ~AbstractEffectAxiom();
 
 	const AbstractAction &action() const;
+	AbstractAction &action();
+	void set_action(AbstractAction &action);
 	const BooleanExpression &condition() const;
+	BooleanExpression &condition();
+	void set_condition(BooleanExpression *condition);
 
 protected:
-	const AbstractAction *action_;
+	AbstractAction *action_;
 	unique_ptr<BooleanExpression> condition_;
 };
 
 
 template<class ExpressionT>
-class EffectAxiom : public AbstractEffectAxiom, public LanguageElement<EffectAxiom<ExpressionT>> {
+class EffectAxiom : public AbstractEffectAxiom, public NoScopeOwner, public LanguageElement<EffectAxiom<ExpressionT>> {
 public:
-	EffectAxiom(AbstractAction *action, BooleanExpression *condition,
-	            Reference<Fluent<ExpressionT>> *fluent, ExpressionT *value)
-	: AbstractEffectAxiom(action, condition)
-	, assignment_(fluent, value, action->scope())
+	EffectAxiom()
 	{}
-
-
-	EffectAxiom(
-		AbstractAction *action,
-		boost::optional<BooleanExpression *> condition,
-	    Reference<Fluent<ExpressionT>> *fluent,
-		ExpressionT *value
-	)
-	: EffectAxiom(
-		action,
-		condition.get_value_or(new BooleanConstant(true)),
-		fluent,
-		value
-	)
-	{}
-
 
 	EffectAxiom(EffectAxiom<ExpressionT> &&o) = default;
 
@@ -61,23 +46,38 @@ public:
 	{}
 
 	const Reference<Fluent<ExpressionT>> &fluent() const
-	{ return assignment_.lhs(); }
+	{ return assignment_->lhs(); }
 
 	const ExpressionT &value() const
-	{ return assignment_.rhs(); }
+	{ return assignment_->rhs(); }
 
 
 	virtual string to_string(const string &pfx) const override
 	{
 		return linesep + pfx + condition().to_string(pfx) + "?" + linesep
-			+ pfx + indent + assignment_.to_string("") + ";";
+			+ pfx + indent + assignment_->to_string("") + ";";
 	}
 
+	void define(boost::optional<BooleanExpression *> condition, Reference<Fluent<ExpressionT>> *fluent, ExpressionT *value)
+	{
+		if (condition)
+			set_condition(*condition);
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, assignment_)
+		assignment_ = std::make_unique<Assignment<Fluent<ExpressionT>>>(fluent, value);
+		assignment_->set_parent(this);
+	}
+
+	virtual Scope &parent_scope() override
+	{ return action().scope(); }
+
+	virtual const Scope &parent_scope() const override
+	{ return action().scope(); }
+
+
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, *assignment_)
 
 protected:
-	Assignment<Fluent<ExpressionT>> assignment_;
+	unique_ptr<Assignment<Fluent<ExpressionT>>> assignment_;
 };
 
 

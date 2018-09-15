@@ -33,29 +33,28 @@ template<class TargetT>
 class Reference
 : public TargetT::expression_t
 , public AbstractReference
+, public NoScopeOwner
 , public LanguageElement<Reference<TargetT>>
 {
 public:
-	Reference(const shared_ptr<TargetT> &target, Scope &parent_scope, const vector<Expression *> &args = {})
-	: TargetT::expression_t(parent_scope)
-	, args_(args.begin(), args.end())
+	Reference(const shared_ptr<TargetT> &target, const vector<Expression *> &args = {})
+	: args_(args.begin(), args.end())
 	, target_(target)
+	{}
+
+	Reference(const string &target_name, const vector<Expression *> &args)
+	: args_(args.begin(), args.end())
+	, target_(global_scope().lookup_global<TargetT>(target_name, arity_t(args.size())))
+	{}
+
+	Reference(const string &target_name, const boost::optional<vector<Expression *>> &args)
+	: Reference(target_name, args.get_value_or({}))
 	{}
 
 	Reference(Reference<TargetT> &&other)
 	: TargetT::expression_t(other.parent_scope())
 	, args_(std::move(other.args_))
 	, target_(std::move(other.target_))
-	{}
-
-	Reference(const string &target_name, Scope &parent_scope, const vector<Expression *> &args)
-	: TargetT::expression_t(parent_scope)
-	, args_(args.begin(), args.end())
-	, target_(parent_scope.lookup_global<TargetT>(target_name, args.size()))
-	{}
-
-	Reference(const string &target_name, Scope &parent_scope, const boost::optional<vector<Expression *>> &args)
-	: Reference(target_name, parent_scope, args.get_value_or({}))
 	{}
 
 
@@ -134,23 +133,21 @@ template<class ExprT>
 class Reference<Variable<ExprT>>
 : public ExprT
 , public AbstractReference
+, public NoScopeOwner
 , public LanguageElement<Reference<Variable<ExprT>>>
 {
 public:
-	Reference(const shared_ptr<Variable<ExprT>> &target, Scope &from_scope)
-	: ExprT(from_scope)
-	, target_(target)
+	Reference(const shared_ptr<Variable<ExprT>> &target)
+	: target_(target)
 	{}
 
 	Reference(Reference<Variable<ExprT>> &&other)
-	: ExprT(other.parent_scope())
-	, AbstractReference(std::move(other.args_))
+	: AbstractReference(std::move(other.args_))
 	, target_(std::move(other.target_))
 	{}
 
-	Reference(const string &var_name, Scope &from_scope)
-	: ExprT(from_scope)
-	, target_(from_scope.get_var<ExprT>(var_name))
+	Reference(const string &var_name)
+	: target_(global_scope().get_var<ExprT>(var_name))
 	{}
 
 	virtual ~Reference() override = default;
@@ -191,7 +188,6 @@ public:
 
 	virtual string to_string(const string &pfx) const override
 	{ return target()->to_string(pfx); }
-
 
 
 private:

@@ -12,10 +12,13 @@ namespace gologpp {
 
 
 Block::Block(Scope *own_scope, const vector<Statement *> &elements)
-: Statement(own_scope->parent_scope())
-, ScopeOwner(own_scope)
-, elements_(elements.begin(), elements.end())
-{}
+: ScopeOwner(own_scope)
+{
+	for (Statement *stmt : elements) {
+		stmt->set_parent(this);
+		elements_.emplace_back(stmt);
+	}
+}
 
 void Block::implement(Implementor &implementor)
 {
@@ -29,7 +32,6 @@ void Block::implement(Implementor &implementor)
 
 const vector<unique_ptr<Statement>> &Block::elements() const
 { return elements_; }
-
 
 string Block::to_string(const string &pfx) const
 {
@@ -47,10 +49,13 @@ string Block::to_string(const string &pfx) const
 
 
 Choose::Choose(Scope *own_scope, const vector<Statement *> &alternatives)
-: Statement(own_scope->parent_scope())
-, ScopeOwner(own_scope)
-, alternatives_(alternatives.begin(), alternatives.end())
-{}
+: ScopeOwner(own_scope)
+{
+	for (Statement *stmt : alternatives) {
+		stmt->set_parent(this);
+		alternatives_.emplace_back(stmt);
+	}
+}
 
 const vector<unique_ptr<Statement>> &Choose::alternatives() const
 { return alternatives_; }
@@ -77,30 +82,18 @@ string Choose::to_string(const string &pfx) const
 
 
 Conditional::Conditional(
-	unique_ptr<BooleanExpression> &&condition,
-	unique_ptr<Statement> &&block_true,
-	unique_ptr<Statement> &&block_false,
-	Scope &parent_scope
-)
-: Statement(parent_scope)
-, condition_(std::move(condition))
-, block_true_(std::move(block_true))
-, block_false_(std::move(block_false))
-{}
-
-Conditional::Conditional(
 	BooleanExpression *condition,
 	Statement *block_true,
-	const boost::optional<Statement *> &block_false,
-	Scope &parent_expr
+	const boost::optional<Statement *> &block_false
 )
-: Conditional(
-	unique_ptr<BooleanExpression>(condition),
-	unique_ptr<Statement>(block_true),
-	unique_ptr<Statement>(block_false.value_or(nullptr)),
-	parent_expr
-)
-{}
+: condition_(condition)
+, block_true_(block_true)
+, block_false_(block_false.value_or(nullptr))
+{
+	condition_->set_parent(this);
+	block_true_->set_parent(this);
+	block_false_->set_parent(this);
+}
 
 const BooleanExpression &Conditional::condition() const
 { return *condition_; }
@@ -121,18 +114,13 @@ string Conditional::to_string(const string &pfx) const
 
 
 Pick::Pick(Scope *own_scope, const shared_ptr<AbstractVariable> &variable, Statement *statement)
-: Statement(own_scope->parent_scope())
-, ScopeOwner(own_scope)
+: ScopeOwner(own_scope)
 , variable_(std::move(variable))
 , statement_(statement)
-{}
-
-Pick::Pick(const string &var_name, Statement *statement, Scope &parent_scope)
-: Statement(parent_scope)
-, ScopeOwner(new Scope(this, {}, parent_scope))
-, variable_(scope().lookup_var(var_name))
-, statement_(statement)
-{}
+{
+	dynamic_cast<Expression *>(variable_.get())->set_parent(this);
+	statement_->set_parent(this);
+}
 
 const AbstractVariable &Pick::variable() const
 { return *variable_; }
@@ -145,10 +133,11 @@ string Pick::to_string(const string &pfx) const
 
 
 
-Search::Search(Statement *statement, Scope &parent_scope)
-: Statement(parent_scope)
-, statement_(statement)
-{}
+Search::Search(Statement *statement)
+: statement_(statement)
+{
+	statement_->set_parent(this);
+}
 
 const Statement &Search::statement() const
 { return *statement_; }
@@ -161,13 +150,15 @@ string Search::to_string(const string &pfx) const
 Solve::Solve(
 	NumericExpression *horizon,
 	Reference<NumericFunction> *reward,
-	Statement *statement,
-	Scope &parent_scope
+	Statement *statement
 )
-: Search(statement, parent_scope)
+: Search(statement)
 , horizon_(horizon)
 , reward_(reward)
-{}
+{
+	horizon_->set_parent(this);
+	reward_->set_parent(this);
+}
 
 const NumericExpression &Solve::horizon() const
 { return *horizon_; }
@@ -197,10 +188,11 @@ string Solve::to_string(const string &pfx) const
 
 
 
-Test::Test(BooleanExpression *expression, Scope &parent_scope)
-: Statement(parent_scope)
-, expression_(expression)
-{}
+Test::Test(BooleanExpression *expression)
+: expression_(expression)
+{
+	expression_->set_parent(this);
+}
 
 const BooleanExpression &Test::expression() const
 { return *expression_; }
@@ -210,11 +202,13 @@ string Test::to_string(const string &pfx) const
 
 
 
-While::While(BooleanExpression *expression, Statement *statement, Scope &parent_scope)
-: Statement(parent_scope)
-, expression_(expression)
+While::While(BooleanExpression *expression, Statement *statement)
+: expression_(expression)
 , statement_(statement)
-{}
+{
+	expression_->set_parent(this);
+	statement_->set_parent(this);
+}
 
 const BooleanExpression &While::expression() const
 { return *expression_; }
@@ -229,10 +223,9 @@ string While::to_string(const string &pfx) const
 
 
 
-AbstractFunction::AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *definition)
+AbstractFunction::AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
 : Global(name, args)
 , ScopeOwner(own_scope)
-, definition_(definition)
 {}
 
 AbstractFunction::~AbstractFunction()
@@ -241,8 +234,11 @@ AbstractFunction::~AbstractFunction()
 const Statement &AbstractFunction::definition() const
 { return *definition_; }
 
-void AbstractFunction::define(boost::optional<Statement *> definition)
-{ definition_.reset(definition.value()); }
+void AbstractFunction::define(Statement *definition)
+{
+	definition_.reset(definition);
+	definition_->set_parent(this);
+}
 
 void AbstractFunction::compile(AExecutionContext &ctx)
 { ctx.compile(*this); }

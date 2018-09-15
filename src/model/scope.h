@@ -18,6 +18,37 @@ namespace gologpp {
 Scope &global_scope();
 
 
+
+Expression *ref_to_global(
+	const string &name,
+	const boost::optional<vector<Expression *>> &args
+);
+
+
+
+class NoScopeOwner : public virtual AbstractLanguageElement {
+public:
+	virtual const Scope &scope() const override;
+	virtual Scope &scope() override;
+};
+
+
+
+class ScopeOwner : public virtual AbstractLanguageElement {
+public:
+	ScopeOwner(Scope *owned_scope);
+
+	virtual ~ScopeOwner() override = default;
+
+	virtual const Scope &scope() const override;
+	virtual Scope &scope() override;
+
+protected:
+	unique_ptr<Scope> scope_;
+};
+
+
+
 class Scope : public LanguageElement<Scope> {
 private:
 	Scope();
@@ -29,11 +60,10 @@ public:
 	using VariablesMap = unordered_map<string, shared_ptr<AbstractVariable>>;
 	using GlobalsMap = unordered_map<Identifier, shared_ptr<Global>>;
 
-	Scope(ScopeOwner *owner, const vector<shared_ptr<AbstractVariable>> &lookup_vars = {}, Scope &parent_scope = global_scope());
-	Scope(ScopeOwner *owner, Scope &parent_scope);
+	Scope(AbstractLanguageElement &owner, const vector<shared_ptr<AbstractVariable>> &lookup_vars = {});
+	Scope(Scope &parent_scope);
 
 	Scope(Scope &&);
-
 	Scope(const Scope &) = delete;
 	Scope &operator = (const Scope &) = delete;
 
@@ -45,7 +75,7 @@ public:
 		shared_ptr<Variable<ExpressionT>> rv;
 		rv = std::dynamic_pointer_cast<Variable<ExpressionT>>(lookup_var(name));
 		if (!rv)
-			rv.reset(new Variable<ExpressionT>(name, *this));
+			rv.reset(new Variable<ExpressionT>(name));
 		if (!has_var(name))
 			variables_.emplace(name, rv);
 		AbstractVariable *in_map = variables_.find(name)->second.get();
@@ -64,12 +94,15 @@ public:
 	static Scope &global_scope()
 	{ return global_scope_; }
 
-	Scope &parent_scope();
-	const Scope &parent_scope() const;
+	virtual Scope &scope() override;
+	const Scope &scope() const override;
 
-	void set_owner(ScopeOwner *owner);
-	const ScopeOwner *owner() const;
+	virtual Scope &parent_scope() override;
+	const Scope &parent_scope() const override;
 
+	void set_owner(AbstractLanguageElement *owner);
+	const AbstractLanguageElement *owner() const;
+	AbstractLanguageElement *owner();
 
 	template<class GologT = Global>
 	shared_ptr<GologT> lookup_global(const string &name, arity_t arity)
@@ -83,11 +116,6 @@ public:
 	}
 
 
-	Expression *ref_to_global(
-		const string &name,
-		const boost::optional<vector<Expression *>> &args
-	);
-
 	const VariablesMap &var_map() const;
 	void implement_globals(Implementor &implementor, AExecutionContext &ctx);
 	void clear();
@@ -100,11 +128,12 @@ public:
 	GologT *declare_global(
 		Scope *own_scope,
 		const string &name,
-		const vector<shared_ptr<AbstractVariable>> &args
+		const boost::optional<vector<shared_ptr<AbstractVariable>>> &args
 	) {
 		GologT *rv = nullptr;
-		if (exists_global(name, arity_t(args.size()))) {
-			rv = lookup_global<GologT>(name, arity_t(args.size())).get();
+		arity_t arity = static_cast<arity_t>(args.get_value_or({}).size());
+		if (exists_global(name, arity)) {
+			rv = lookup_global<GologT>(name, arity).get();
 
 			// Here be dragons:
 			// own_scope is constructed by the parser, and it may or may not
@@ -114,22 +143,23 @@ public:
 				delete own_scope;
 		}
 		else
-			(*globals_) [ { name, arity_t(args.size()) } ]
-				.reset(new GologT(own_scope, name, args));
+			(*globals_) [ { name, arity } ]
+				.reset(new GologT(own_scope, name, args.get_value_or({})));
 
-		return lookup_global<GologT>(name, arity_t(args.size())).get();
+		return lookup_global<GologT>(name, arity).get();
 	}
 
 
 	template<class GologT, class... DefinitionTs>
 	GologT *define_global(
 		Scope *own_scope, const string &name,
-		const vector<shared_ptr<AbstractVariable>> &args,
+		const boost::optional<vector<shared_ptr<AbstractVariable>>> &args,
 		DefinitionTs... definition_args
 	) {
 		GologT *rv = nullptr;
-		if (exists_global(name, arity_t(args.size()))) {
-			rv = lookup_global<GologT>(name, arity_t(args.size())).get();
+		arity_t arity = static_cast<arity_t>(args.get_value_or({}).size());
+		if (exists_global(name, arity)) {
+			rv = lookup_global<GologT>(name, arity).get();
 
 			// Here be dragons:
 			// own_scope is constructed by the parser, and it may or may not
@@ -147,33 +177,19 @@ public:
 	}
 
 
+	void register_global(Global *g);
+
+
 	virtual string to_string(const string &pfx) const override;
 
 
 private:
 	static Scope global_scope_;
 	Scope &parent_scope_;
-	ScopeOwner *owner_;
+	AbstractLanguageElement *owner_;
 	VariablesMap variables_;
 
 	shared_ptr<GlobalsMap> globals_;
-};
-
-
-
-class ScopeOwner {
-public:
-	ScopeOwner(Scope *owned_scope);
-
-	virtual ~ScopeOwner() = default;
-
-	const Scope &scope() const;
-	Scope &scope();
-	const Scope &parent_scope() const;
-	Scope &parent_scope();
-
-protected:
-	unique_ptr<Scope> scope_;
 };
 
 

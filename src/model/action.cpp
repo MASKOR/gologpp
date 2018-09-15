@@ -16,7 +16,10 @@ const vector<unique_ptr<AbstractEffectAxiom>> &AbstractAction::effects() const
 { return effects_; }
 
 void AbstractAction::add_effect(AbstractEffectAxiom *effect)
-{ effects_.emplace_back(effect); }
+{
+	effect->set_action(*this);
+	effects_.emplace_back(effect);
+}
 
 void AbstractAction::compile(AExecutionContext &ctx)
 { ctx.compile(*this); }
@@ -28,14 +31,20 @@ string AbstractAction::to_string(const string &) const
 
 Action::Action(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
 : AbstractAction(own_scope, name, args)
-, precondition_(new BooleanConstant(true))
+{ set_precondition(new BooleanConstant(true)); }
+
+Action::Action(Scope &parent_scope, const string &name)
+: Action(new Scope(parent_scope), name, {})
 {}
 
 const BooleanExpression &Action::precondition() const
 { return *precondition_; }
 
 void Action::set_precondition(BooleanExpression *cond)
-{ precondition_.reset(cond); }
+{
+	precondition_.reset(cond);
+	precondition_->set_parent(this);
+}
 
 
 void Action::implement(Implementor &implementor)
@@ -54,11 +63,11 @@ void Action::define(
 	boost::optional<BooleanExpression *> precondition,
 	boost::optional<vector<AbstractEffectAxiom *>> effects
 ) {
-	set_precondition(precondition.get_value_or(Constant<BooleanExpression>(true)));
+	if (precondition)
+		set_precondition(precondition.value());
 	if (effects)
-		effects_ = vector<unique_ptr<AbstractEffectAxiom>> {
-			effects.value().begin(), effects.value().end()
-		};
+		for (AbstractEffectAxiom *e : *effects)
+			add_effect(e);
 }
 
 
@@ -70,9 +79,11 @@ string Action::to_string(const string &pfx) const
 }
 
 
-Expression *Action::ref(Scope &parent_scope, const vector<Expression *> &args)
-{ return make_reference<Action>(parent_scope, args); }
+Reference<Action> *Action::make_ref(const vector<Expression *> &args)
+{ return make_ref_<Action>(args); }
 
+Expression *Action::ref(const vector<Expression *> &args)
+{ return make_ref(args); }
 
 
 void ExogAction::implement(Implementor &implementor)
@@ -104,10 +115,19 @@ const vector<unique_ptr<AbstractConstant>> &AbstractTransition::args() const
 AbstractTransition::AbstractTransition(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args)
 : action_(action)
 , args_(std::move(args))
-{}
+{
+	for (unique_ptr<AbstractConstant> &c : args_)
+		dynamic_cast<Expression *>(c.get())->set_parent(this);
+}
 
 string AbstractTransition::to_string(const string &) const
 { return action().name() + '(' + concat_list(args(), ", ") + ')'; }
+
+Scope &AbstractTransition::parent_scope()
+{ return global_scope(); }
+
+const Scope &AbstractTransition::parent_scope() const
+{ return global_scope(); }
 
 
 

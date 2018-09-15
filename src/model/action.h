@@ -2,7 +2,6 @@
 #define GOLOGPP_ACTION_H_
 
 #include <vector>
-#include <set>
 #include <memory>
 #include <algorithm>
 
@@ -10,12 +9,9 @@
 
 #include "gologpp.h"
 
-#include "error.h"
-#include "formula.h"
-#include "atoms.h"
 #include "language.h"
 #include "scope.h"
-#include "reference.h"
+#include "global.h"
 
 namespace gologpp {
 
@@ -48,11 +44,13 @@ protected:
 };
 
 
+
 class Action : public AbstractAction, public LanguageElement<Action> {
 public:
 	typedef AbstractAction abstract_t;
 
 	Action(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
+	Action(Scope &parent_scope, const string &name);
 
 	Action(const Action &) = delete;
 	Action(Action &&) = default;
@@ -68,9 +66,10 @@ public:
 
 	virtual void implement(Implementor &) override;
 	virtual string to_string(const string &pfx) const override;
-	virtual Expression *ref(Scope &parent_scope, const vector<Expression *> &args) override;
+	virtual Expression *ref(const vector<Expression *> &args) override;
+	Reference<Action> *make_ref(const vector<Expression *> &args);
 
-protected:
+private:
 	unique_ptr<BooleanExpression> precondition_;
 };
 
@@ -87,13 +86,18 @@ public:
 
 
 
-class AbstractTransition : public virtual AbstractLanguageElement {
+class AbstractTransition
+: public NoScopeOwner
+, public virtual AbstractLanguageElement {
 public:
 	AbstractTransition(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args);
 
 	const Action &action() const;
 	const vector<unique_ptr<AbstractConstant>> &args() const;
 	virtual string to_string(const string &pfx) const override;
+
+	virtual Scope &parent_scope() override;
+	virtual const Scope &parent_scope() const override;
 
 protected:
 	shared_ptr<Action> action_;

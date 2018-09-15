@@ -4,14 +4,20 @@
 namespace gologpp {
 
 
-ArithmeticOperation::ArithmeticOperation(NumericExpression *lhs, Operator op, NumericExpression *rhs)
-: NumericExpression(lhs->parent_scope())
-, lhs_(lhs)
+ArithmeticOperation::ArithmeticOperation(
+	NumericExpression *lhs,
+	Operator op,
+	NumericExpression *rhs
+)
+: lhs_(lhs)
 , rhs_(rhs)
 , operator_(op)
 {
 	if (&lhs->parent_scope() != &rhs->parent_scope())
 		throw Bug("ArithmeticOperation scope mismatch");
+
+	lhs_->set_parent(this);
+	rhs_->set_parent(this);
 }
 
 

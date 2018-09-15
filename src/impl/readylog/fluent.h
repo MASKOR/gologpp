@@ -22,9 +22,9 @@ public:
 	virtual EC_word term() override
 	{
 		return ::term(
-			EC_functor("initially", 2),
+			EC_functor("initial_val", 2),
 				::term(
-					EC_functor(ival_.fluent()->name().c_str(), ival_.fluent()->arity()),
+					EC_functor(ival_.fluent().name().c_str(), ival_.fluent().arity()),
 					translate_args(ival_.args())
 				),
 			ival_.value().implementation().term()

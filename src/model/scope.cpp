@@ -10,27 +10,53 @@ namespace gologpp {
 Scope Scope::global_scope_;
 
 
+Expression *ref_to_global(
+	const string &name,
+	const boost::optional<vector<Expression *>> &args
+) {
+	return global_scope().lookup_global(
+		name,
+		arity_t(args ? args->size() : 0)
+	)->ref(args.get_value_or({}));
+}
+
+
+
+Scope &NoScopeOwner::scope()
+{ return parent_scope(); }
+
+const Scope &NoScopeOwner::scope() const
+{ return parent_scope(); }
+
+
+
 Scope::Scope()
 : parent_scope_(*this)
+, owner_(nullptr)
 , globals_(new GlobalsMap())
 {}
 
 
-Scope::Scope(ScopeOwner *owner, const vector<shared_ptr<AbstractVariable>> &variables, Scope &parent_scope)
-: parent_scope_(parent_scope)
-, owner_(owner)
-, globals_(parent_scope.globals_)
+Scope::Scope(AbstractLanguageElement &owner, const vector<shared_ptr<AbstractVariable>> &variables)
+: parent_scope_(owner.scope())
+, owner_(&owner)
+, globals_(owner.scope().globals_)
 {
 	for (const shared_ptr<AbstractVariable> &v : variables)
 		variables_.emplace(v->name(), v);
 }
 
-Scope::Scope(ScopeOwner *owner, Scope &parent_scope)
-: Scope(owner, {}, parent_scope)
+
+Scope::Scope(Scope &parent_scope)
+: parent_scope_(parent_scope)
+, owner_(nullptr)
+, globals_(parent_scope.globals_)
 {}
+
 
 Scope::Scope(Scope &&other)
 : parent_scope_(other.parent_scope_)
+, owner_(other.owner_)
 , variables_(std::move(other.variables_))
 , globals_(std::move(other.globals_))
 {}
@@ -48,9 +74,9 @@ shared_ptr<AbstractVariable> Scope::lookup_var(const string &name) const
 	shared_ptr<AbstractVariable> rv;
 	if (it != variables_.end())
 		rv = it->second;
-	else if (&parent_scope_ != this) {
+	else if (&parent_scope() != this) {
 		// This is not the root scope, so search upwards recursively
-		rv = parent_scope_.lookup_var(name);
+		rv = parent_scope().lookup_var(name);
 	}
 	return rv;
 }
@@ -83,29 +109,34 @@ void Scope::implement(Implementor &implementor)
 	}
 }
 
+Scope &Scope::scope()
+{ return *this; }
+
+const Scope &Scope::scope() const
+{ return *this; }
+
 Scope &Scope::parent_scope()
 { return parent_scope_; }
 
 const Scope &Scope::parent_scope() const
 { return parent_scope_; }
 
-void Scope::set_owner(ScopeOwner *owner)
-{ owner_ = owner; }
+void Scope::set_owner(AbstractLanguageElement *owner)
+{
+	if (owner) {
+		owner_ = owner;
+		globals_ = owner->scope().globals_;
+	}
+}
 
-const ScopeOwner *Scope::owner() const
+const AbstractLanguageElement *Scope::owner() const
+{ return owner_; }
+
+AbstractLanguageElement *Scope::owner()
 { return owner_; }
 
 const Scope::VariablesMap &Scope::var_map() const
 { return variables_; }
-
-
-Expression *Scope::ref_to_global(
-	const string &name,
-	const boost::optional<vector<Expression *>> &args
-) {
-	return (*globals_)[ { name, static_cast<arity_t>(args.get_value_or({}).size()) } ]
-		->ref(*this, args.get_value_or({}));
-}
 
 
 void Scope::implement_globals(Implementor &implementor, AExecutionContext &ctx)
@@ -137,6 +168,10 @@ string Scope::to_string(const string &) const
 { return "[" + concat_list(vars(), ", ") + "]"; }
 
 
+void Scope::register_global(Global *g)
+{ (*globals_)[*g].reset(g); }
+
+
 
 
 ScopeOwner::ScopeOwner(Scope *owned_scope)
@@ -148,12 +183,6 @@ const Scope &ScopeOwner::scope() const
 
 Scope &ScopeOwner::scope()
 { return *scope_; }
-
-const Scope &ScopeOwner::parent_scope() const
-{ return scope().parent_scope(); }
-
-Scope &ScopeOwner::parent_scope()
-{ return scope().parent_scope(); }
 
 
 

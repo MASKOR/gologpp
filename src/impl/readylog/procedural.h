@@ -257,22 +257,20 @@ public:
 	{}
 
 	virtual EC_word term() override {
-		const ScopeOwner *root_parent = ret_.parent_scope().owner();
-		while (
-			root_parent->parent_scope().owner()
-			&& (&root_parent->parent_scope() != &global_scope())
-		) {
-			root_parent = root_parent->parent_scope().owner();
+		const AbstractLanguageElement *root_parent = ret_.parent();
+		const Expression *parent_expr = nullptr;
+		while ((parent_expr = dynamic_cast<const Expression *>(root_parent))) {
+			root_parent = parent_expr->parent();
 		}
 
 		try {
-			auto &function = dynamic_cast<const Function<ExpressionT> &>(*root_parent);
+			const Function<ExpressionT> &function = dynamic_cast<const Function<ExpressionT> &>(*root_parent);
 			return ::term(EC_functor("=", 2),
 				function.implementation().return_var(),
 				ret_.expression().implementation().term()
 			);
 		} catch (std::bad_cast &) {
-			throw SemanticError(string(typeid(ret_).name()) + ": Return type mismatch");
+			throw Bug(ret_.str() + ": Wrong type");
 		}
 	}
 

@@ -19,26 +19,30 @@ string to_string(ExpressionTypeTag t)
 }
 
 
-Expression::Expression(Scope &parent_scope)
-: parent_scope_(parent_scope)
+Expression::Expression()
+: parent_(nullptr)
 {}
 
-
 Scope &Expression::parent_scope()
-{ return parent_scope_; }
-
+{ return parent_->scope(); }
 
 const Scope &Expression::parent_scope() const
-{ return parent_scope_; }
+{ return parent_->scope(); }
 
 
 bool Expression::is_ref() const
 { return false; }
 
+AbstractLanguageElement *Expression::parent()
+{ return parent_; }
 
-BooleanExpression::BooleanExpression(Scope &parent_scope)
-:Expression (parent_scope)
-{}
+const AbstractLanguageElement *Expression::parent() const
+{ return parent_; }
+
+void Expression::set_parent(AbstractLanguageElement *parent)
+{ parent_ = parent; }
+
+
 
 ExpressionTypeTag BooleanExpression::expression_type_tag() const
 { return BOOLEAN_EXPRESSION; }
@@ -48,10 +52,6 @@ ExpressionTypeTag BooleanExpression::static_type_tag()
 
 
 
-NumericExpression::NumericExpression(Scope &parent_scope)
-:Expression (parent_scope)
-{}
-
 ExpressionTypeTag NumericExpression::expression_type_tag() const
 { return VALUE_EXPRESSION; }
 
@@ -60,32 +60,11 @@ ExpressionTypeTag NumericExpression::static_type_tag()
 
 
 
-Statement::Statement(Scope &parent_scope)
-:Expression (parent_scope)
-{}
-
 ExpressionTypeTag Statement::expression_type_tag() const
 { return STATEMENT; }
 
 ExpressionTypeTag Statement::static_type_tag()
 { return STATEMENT; }
-
-
-
-Global::Global(const string &name, const vector<shared_ptr<AbstractVariable>> &args)
-: Identifier (name, static_cast<arity_t>(args.size()))
-, args_(args)
-{}
-
-
-const vector<shared_ptr<AbstractVariable>> &Global::args() const
-{ return args_; }
-
-vector<shared_ptr<AbstractVariable>> &Global::args()
-{ return args_; }
-
-shared_ptr<AbstractVariable> Global::argument(arity_t idx) const
-{ return args_[idx]; }
 
 
 

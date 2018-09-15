@@ -1,19 +1,10 @@
 #ifndef GOLOGPP_FLUENT_H_
 #define GOLOGPP_FLUENT_H_
 
-#include <string>
-#include <memory>
-#include <algorithm>
-
-#include <boost/optional.hpp>
-
 #include "gologpp.h"
-#include "atoms.h"
 #include "utilities.h"
-#include "reference.h"
-#include "scope.h"
-#include "arithmetic.h"
 #include "error.h"
+#include "global.h"
 
 namespace gologpp {
 
@@ -21,24 +12,45 @@ namespace gologpp {
 template<class ExpressionT>
 class InitialValue
 : public virtual AbstractLanguageElement
+, public NoScopeOwner
 , public LanguageElement<InitialValue<ExpressionT>> {
 public:
-	InitialValue(vector<AbstractConstant *> args, Constant<ExpressionT> *value)
-	: args_(args.begin(), args.end())
-	, value_(value)
+	InitialValue(const vector<AbstractConstant *> &args, Constant<ExpressionT> *value)
+	{
+		set_args(args);
+		set_value(value);
+	}
+
+
+	InitialValue(const boost::optional<vector<AbstractConstant *>> &args, Constant<ExpressionT> *value)
+	: InitialValue(args.get_value_or({}), value)
 	{}
 
 	const vector<unique_ptr<AbstractConstant>> &args() const
 	{ return args_; }
 
-	const Constant<ExpressionT> &value() const
-	{ return *value_; }
-
 	vector<unique_ptr<AbstractConstant>> &args()
 	{ return args_; }
 
+	void set_args(const vector<AbstractConstant *> &args)
+	{
+		for (AbstractConstant *c : args) {
+			dynamic_cast<Expression *>(c)->set_parent(this);
+			args_.emplace_back(c);
+		}
+	}
+
+	const Constant<ExpressionT> &value() const
+	{ return *value_; }
+
 	Constant<ExpressionT> &value()
 	{ return *value_; }
+
+	void set_value(Constant<ExpressionT> *value)
+	{
+		value->set_parent(this);
+		value_.reset(value);
+	}
 
 
 	virtual void implement(Implementor &implementor) override
@@ -56,14 +68,20 @@ public:
 	virtual string to_string(const string &pfx) const override
 	{ return '(' + concat_list(args(), ", ", pfx) + ") = " + value().to_string(pfx); }
 
-	void set_fluent(Fluent<ExpressionT> *f)
-	{ fluent_ = f; }
+	Fluent<ExpressionT> &fluent()
+	{ return *fluent_; }
 
-	Fluent<ExpressionT> *fluent()
-	{ return fluent_; }
+	const Fluent<ExpressionT> &fluent() const
+	{ return *fluent_; }
 
-	const Fluent<ExpressionT> *fluent() const
-	{ return fluent_; }
+	void set_fluent(Fluent<ExpressionT> &f)
+	{ fluent_ = &f; }
+
+	virtual Scope &parent_scope() override
+	{ return fluent().scope(); }
+
+	virtual const Scope &parent_scope() const override
+	{ return fluent().scope(); }
 
 private:
 	vector<unique_ptr<AbstractConstant>> args_;
@@ -103,6 +121,10 @@ public:
 	: AbstractFluent(own_scope, name, args)
 	{}
 
+	Fluent(Scope &parent_scope, const string &name)
+	: AbstractFluent(new Scope(parent_scope), name, {})
+	{}
+
 	Fluent(Fluent &&) = default;
 
 	virtual ~Fluent() override = default;
@@ -112,7 +134,6 @@ public:
 
 	const vector<unique_ptr<InitialValue<ExpressionT>>> &initially() const
 	{ return initial_values_; }
-
 
 	void define(const vector<InitialValue<ExpressionT> *> &initial_values)
 	{
@@ -124,9 +145,8 @@ public:
 						dynamic_cast<const Expression &>(*args()[arg_idx]),
 						dynamic_cast<const Expression &>(*ival->args()[arg_idx])
 					);
-
+			ival->set_fluent(*this);
 			initial_values_.push_back(unique_ptr<InitialValue<ExpressionT>>(ival));
-			ival->set_fluent(this);
 		}
 	}
 
@@ -152,8 +172,11 @@ public:
 			+ pfx + '}';
 	}
 
-	virtual Expression *ref(Scope &parent_scope, const vector<Expression *> &args) override
-	{ return make_reference<Fluent<ExpressionT>>(parent_scope, args); }
+	Reference<Fluent<ExpressionT>> *make_ref(const vector<Expression *> &args)
+	{ return make_ref_<Fluent<ExpressionT>>(args); }
+
+	virtual Expression *ref(const vector<Expression *> &args) override
+	{ return make_ref(args); }
 
 private:
 	vector<unique_ptr<InitialValue<ExpressionT>>> initial_values_;

@@ -20,15 +20,13 @@ const string &AbstractConstant::representation() const
 template<>
 template<>
 Constant<BooleanExpression>::Constant(bool v)
-: BooleanExpression(global_scope())
-, AbstractConstant(v ? "true" : "false")
+: AbstractConstant(v ? "true" : "false")
 {}
 
 template<>
 template<>
 Constant<NumericExpression>::Constant(const string &representation)
-: NumericExpression(global_scope())
-, AbstractConstant(representation)
+: AbstractConstant(representation)
 {}
 
 

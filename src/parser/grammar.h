@@ -40,6 +40,9 @@
 #include <model/procedural.h>
 #include <model/reference.h>
 #include <model/atoms.h>
+#include <model/global.h>
+#include <model/arithmetic.h>
+#include <model/formula.h>
 
 namespace gologpp {
 namespace parser {
@@ -146,7 +149,9 @@ template<class ExpressionT>
 struct VariableParser : grammar<shared_ptr<Variable<ExpressionT>>(Scope &)> {
 	VariableParser() : VariableParser::base_type(variable, type_descr<ExpressionT>() + "_variable") {
 		variable = type_mark<ExpressionT>() >> r_name [
-			_val = bind(&Scope::get_var<ExpressionT>, _r1, _1)
+			_val = phoenix::bind(
+				&Scope::get_var<ExpressionT>, _r1, _1
+			)
 		];
 	}
 
@@ -175,31 +180,33 @@ static rule<shared_ptr<AbstractVariable> (Scope &)> abstract_var(
 * Constants
 ******************/
 
-static rule<BooleanConstant *()> bool_constant( (
+static rule<Constant<BooleanExpression> *> bool_constant( (
 	qi::string("true") | qi::string("false")
 ) [
-	_val = new_<BooleanConstant>(_1)
+	_val = new_<Constant<BooleanExpression>>(_1)
 ], "boolean_constant");
 
 
-static rule<NumericConstant *()> num_constant((int_ | float_) [
-	_val = new_<NumericConstant>(_1)
+static rule<Constant<NumericExpression> *> num_constant((int_ | float_) [
+	_val = new_<Constant<NumericExpression>>(_1)
 ], "numeric_constant");
 
 
 template<class ExprT>
-static rule<Constant<ExprT> *()> &constant();
+static rule<Constant<ExprT> *> &constant();
 
 template<>
-rule<Constant<NumericExpression> *()> &constant<NumericExpression>()
+rule<Constant<NumericExpression> *> &constant<NumericExpression>()
 { return num_constant; }
 
 template<>
-rule<Constant<BooleanExpression> *()> &constant<BooleanExpression>()
+rule<Constant<BooleanExpression> *> &constant<BooleanExpression>()
 { return bool_constant; }
 
 
-static rule<AbstractConstant *()> abstract_constant(bool_constant | num_constant, "any_constant");
+static rule<AbstractConstant *> abstract_constant(
+	bool_constant | num_constant, "any_constant"
+);
 
 
 
@@ -208,8 +215,8 @@ static rule<AbstractConstant *()> abstract_constant(bool_constant | num_constant
 ******************/
 
 static rule<Expression *(Scope &)> atom(
-	bool_var(_r1) [ _val = new_<Reference<BooleanVariable>>(_1, _r1) ]
-	| num_var(_r1) [ _val = new_<Reference<NumericVariable>>(_1, _r1) ]
+	bool_var(_r1) [ _val = new_<Reference<BooleanVariable>>(_1) ]
+	| num_var(_r1) [ _val = new_<Reference<NumericVariable>>(_1) ]
 	| bool_constant [ _val = _1 ]
 	| num_constant [ _val = _1 ]
 , "any_atom");
@@ -227,7 +234,7 @@ struct ReferenceParser : grammar<Reference<GologT> *(Scope &)> {
 		pred_ref = ((r_name > "(" > -(
 			(atom(_r1) | any_pred_ref(_r1)) %  ","
 		) ) > ")") [
-			_val = new_<Reference<GologT>>(_1, _r1, _2),
+			_val = new_<Reference<GologT>>(_1, _2),
 			if_(!phoenix::bind(&Reference<GologT>::consistent, *_val)) [
 				_pass = false
 			]
@@ -237,7 +244,7 @@ struct ReferenceParser : grammar<Reference<GologT> *(Scope &)> {
 		any_pred_ref = ((r_name > "(" > -(
 			(atom(_r1) | any_pred_ref(_r1)) % ","
 		) ) > ")") [
-			_val = phoenix::bind(&Scope::ref_to_global, _r1, _1, _2),
+			_val = phoenix::bind(&ref_to_global, _1, _2),
 			if_(!phoenix::bind(&AbstractReference::consistent, dynamic_cast_<AbstractReference &>(*_val))) [
 				_pass = false
 			]
@@ -252,13 +259,24 @@ struct ReferenceParser : grammar<Reference<GologT> *(Scope &)> {
 
 
 
+/****************************
+* General expressions:
+* Just an undefined template
+****************************/
+
+template<class ExprT>
+struct ExpressionParser;
+
+
 
 /*********************
 * Numeric expressions
 *********************/
 
-struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
-	NumericExpressionParser() : NumericExpressionParser::base_type(expression, "numeric_expression")
+template<>
+struct ExpressionParser<NumericExpression> : grammar<NumericExpression *(Scope &)> {
+	ExpressionParser()
+	: ExpressionParser::base_type(expression, "numeric_expression")
 	{
 		expression = binary_expr(_r1) | unary_expr(_r1);
 		expression.name("numeric_expression");
@@ -286,7 +304,9 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 		;
 		arith_operator.name("arithmetic_operator");
 
-		num_var_ref = num_var(_r1) [ _val = new_<Reference<NumericVariable>>(_1, _r1) ];
+		num_var_ref = num_var(_r1) [
+			_val = new_<Reference<NumericVariable>>(_1)
+		];
 		num_var_ref.name("reference_to_numeric_variable");
 
 		BOOST_SPIRIT_DEBUG_NODES((expression)(binary_expr)(unary_expr)
@@ -304,15 +324,18 @@ struct NumericExpressionParser : grammar<NumericExpression *(Scope &)> {
 	ReferenceParser<NumericFunction> num_function_ref;
 };
 
+typedef ExpressionParser<NumericExpression> NumericExpressionParser;
+
 
 
 /*********************
 * Boolean expressions
 *********************/
 
-struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
-	BooleanExpressionParser()
-	: BooleanExpressionParser::base_type(expression, "boolean_expression")
+template<>
+struct ExpressionParser<BooleanExpression> : grammar<BooleanExpression *(Scope &)> {
+	ExpressionParser()
+	: ExpressionParser::base_type(expression, "boolean_expression")
 	{
 		expression = binary_expr(_r1) | unary_expr(_r1);
 		expression.name("boolean_expression");
@@ -324,19 +347,19 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 		binary_expr = (
 			(unary_expr(_r1) >> bool_op) > expression(_r1)
 		) [
-			_val = new_<BooleanOperation>(at_c<0>(_1), at_c<1>(_1), _2, _r1)
+			_val = new_<BooleanOperation>(at_c<0>(_1), at_c<1>(_1), _2)
 		];
 		binary_expr.name("binary_boolean_expression");
 
 		num_comparison = (
 			(num_expression(_r1) >> num_cmp_op) > num_expression(_r1)
 		) [
-			_val = new_<Comparison>(at_c<0>(_1), at_c<1>(_1), _2, _r1)
+			_val = new_<Comparison>(at_c<0>(_1), at_c<1>(_1), _2)
 		];
 		num_comparison.name("numeric_comparison");
 
 		quantification = ( (quantification_op > '(') [
-			_a = new_<Scope>(nullptr, _r1)
+			_a = new_<Scope>(_r1)
 		] > abstract_var(*_a) > ')' > expression(*_a)) [
 			_val = new_<Quantification>(_a, _1, _2, _3)
 		];
@@ -367,14 +390,14 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 		num_cmp_op.name("numeric_comparison_operator");
 
 		negation = '!' > unary_expr(_r1) [
-			_val = new_<Negation>(construct<unique_ptr<BooleanExpression>>(_1), _r1)
+			_val = new_<Negation>(_1)
 		];
 		negation.name("negation");
 
 		brace = '(' >> expression(_r1) >> ')';
 		brace.name("braced_boolean_expression");
 
-		bool_var_ref = bool_var(_r1) [ _val = new_<Reference<BooleanVariable>>(_1, _r1) ];
+		bool_var_ref = bool_var(_r1) [ _val = new_<Reference<BooleanVariable>>(_1) ];
 		bool_var_ref.name("reference_to_boolean_variable");
 
 		BOOST_SPIRIT_DEBUG_NODES((expression)(unary_expr)(binary_expr)
@@ -398,24 +421,7 @@ struct BooleanExpressionParser : grammar<BooleanExpression *(Scope &)> {
 	rule<ComparisonOperator()> num_cmp_op;
 };
 
-
-
-/*********************
-* General expressions
-*********************/
-
-template<class ExpressionT>
-struct ExpressionParser;
-
-template<>
-struct ExpressionParser<BooleanExpression> : BooleanExpressionParser {
-	using BooleanExpressionParser::BooleanExpressionParser;
-};
-
-template<>
-struct ExpressionParser<NumericExpression> : NumericExpressionParser {
-	using NumericExpressionParser::NumericExpressionParser;
-};
+typedef ExpressionParser<BooleanExpression> BooleanExpressionParser;
 
 
 
@@ -433,7 +439,7 @@ struct AssignmentParser<Fluent<ExpressionT>> : grammar<Assignment<Fluent<Express
 	: AssignmentParser<Fluent<ExpressionT>>::base_type(assignment, string("assignment_to_") + type_descr<ExpressionT>() + "_fluent")
 	{
 		assignment = (fluent_ref(_r1) >> "=" > expression(_r1)) [
-			_val = new_<Assignment<Fluent<ExpressionT>>>(_1, _2, _r1)
+			_val = new_<Assignment<Fluent<ExpressionT>>>(_1, _2)
 		];
 	}
 
@@ -449,10 +455,10 @@ struct AssignmentParser<Variable<ExpressionT>> : grammar<Assignment<Variable<Exp
 	: AssignmentParser<Variable<ExpressionT>>::base_type(assignment, string("assignment_to_") + type_descr<ExpressionT>() + "_variable")
 	{
 		assignment = (var_ref(_r1) >> "=" > expression(_r1)) [
-			_val = new_<Assignment<Variable<ExpressionT>>>(_1, _2, _r1)
+			_val = new_<Assignment<Variable<ExpressionT>>>(_1, _2)
 		];
 
-		var_ref = var(_r1) [ _val = new_<Reference<Variable<ExpressionT>>>(_1, _r1) ];
+		var_ref = var(_r1) [ _val = new_<Reference<Variable<ExpressionT>>>(_1) ];
 		var_ref.name("reference_to_" + type_descr<ExpressionT>() + "_variable");
 	}
 
@@ -487,7 +493,7 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 
 
 		block = (l('{') [
-			_a = new_<Scope>(nullptr, _r1)
+			_a = new_<Scope>(_r1)
 		] > +statement(*_a) > '}') [
 			_val = new_<Block>(_a, _1)
 		];
@@ -496,7 +502,7 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 
 
 		choose = ((l("choose") > '{') [
-			_a = new_<Scope>(nullptr, _r1)
+			_a = new_<Scope>(_r1)
 		] > +statement(*_a) > '}') [
 			_val = new_<Choose>(_a, _1)
 		];
@@ -507,13 +513,13 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 		conditional = (l("if") > '(' > boolean_expression(_r1) > ')'
 			> statement(_r1) > -("else" > statement(_r1))
 		) [
-			_val = new_<Conditional>(_1, _2, _3, _r1)
+			_val = new_<Conditional>(_1, _2, _3)
 		];
 		conditional.name("conditional");
 
 
 		pick = ((l("pick") > '(') [
-			_a = new_<Scope>(nullptr, _r1)
+			_a = new_<Scope>(_r1)
 		] > abstract_var(*_a) > ')' > statement(*_a)) [
 			_val = new_<Pick>(_a, _1, _2)
 		];
@@ -522,33 +528,33 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 
 
 		search = (l("search") > statement(_r1)) [
-			_val = new_<Search>(_1, _r1)
+			_val = new_<Search>(_1)
 		];
 		search.name("search");
 
 		solve = (l("solve") > '('
 			> numeric_expression(_r1) > ',' > reward_fn(_r1)
 		> ')' > statement(_r1)) [
-			_val = new_<Solve>(_1, _2, _3, _r1)
+			_val = new_<Solve>(_1, _2, _3)
 		];
 
 		test = (l("test") > '(' > boolean_expression(_r1) > ')') [
-			_val = new_<Test>(_1, _r1)
+			_val = new_<Test>(_1)
 		];
 		test.name("test");
 
 		r_while = (l("while") > '(' > boolean_expression(_r1) > ')' > statement(_r1)) [
-			_val = new_<While>(_1, _2, _r1)
+			_val = new_<While>(_1, _2)
 		];
 		r_while.name("while");
 
 		boolean_return = (l("return") >> boolean_expression(_r1)) [
-			_val = new_<Return<BooleanExpression>>(_1, _r1)
+			_val = new_<Return<BooleanExpression>>(_1)
 		];
 		boolean_return.name("boolean_return");
 
 		numeric_return = (l("return") >> numeric_expression(_r1)) [
-			_val = new_<Return<NumericExpression>>(_1, _r1)
+			_val = new_<Return<NumericExpression>>(_1)
 		];
 		numeric_return.name("numeric_return");
 
@@ -593,21 +599,44 @@ struct FunctionParser : grammar<Function<ExpressionT> *(Scope &), locals<Scope *
 	FunctionParser()
 	: FunctionParser::base_type(function, type_descr<ExpressionT>() + "_function_definition")
 	{
-		function = (
-			((type_mark<ExpressionT>() >> "function") > r_name > '(') [
-				_a = new_<Scope>(nullptr)
+		function = function_forward(_r1) | function_def(_r1);
+		function.name(type_descr<ExpressionT>() + "_function_definition");
+
+		function_forward = (
+			((type_mark<ExpressionT>() >> "function") >> r_name >> '(') [
+				_a = new_<Scope>(_r1)
 			]
-			> *abstract_var(*_a) > ')' > -(statement(*_a))
+			>> -(abstract_var(*_a) % ',') >> ')' >> ';'
 		) [
 			_val = phoenix::bind(
-				&Scope::define_global<Function<ExpressionT>, boost::optional<Statement *>>,
-				_r1,
+				&Scope::declare_global<Function<ExpressionT>>,
+				phoenix::bind(&global_scope),
+				_a, _1, _2
+			)
+		];
+		function_forward.name(type_descr<ExpressionT>() + "_function_forward_declaration");
+
+		function_def = (
+			((type_mark<ExpressionT>() >> "function") >> r_name >> '(') [
+				_a = new_<Scope>(phoenix::bind(&AbstractLanguageElement::m_scope, _r1))
+			]
+			>> -(abstract_var(*_a) % ',') >> ')' >> statement(_r1)
+		) [
+			_val = phoenix::bind(
+				&Scope::define_global<Function<ExpressionT>, Statement *>,
+				phoenix::bind(&global_scope),
 				_a, _1, _2, _3
 			)
 		];
+		function_def.name(type_descr<ExpressionT>() + "_function_definition");
+
+
 		on_error<fail>(function, delete_(_a));
+		BOOST_SPIRIT_DEBUG_NODE(function);
 	}
 
+	rule<Function<ExpressionT> *(Scope &), locals<Scope *>> function_forward;
+	rule<Function<ExpressionT> *(Scope &), locals<Scope *>> function_def;
 	rule<Function<ExpressionT> *(Scope &), locals<Scope *>> function;
 	StatementParser statement;
 };
@@ -634,40 +663,28 @@ struct AbstractFunctionParser : grammar<AbstractFunction *(Scope &)> {
 * Effect axioms
 ******************/
 
-struct EffectParser : grammar<AbstractEffectAxiom *(AbstractAction *, Scope &)> {
+template<class ExprT>
+struct EffectParser : grammar<EffectAxiom<ExprT> *(Scope &)> {
 	EffectParser()
 	: EffectParser::base_type(effect, "effect_axiom")
 	{
-		effect = boolean_effect(_r1, _r2) | numeric_effect(_r1, _r2);
-
-		boolean_effect = (
-			-(boolean_expression(_r2) >> "->")
-			>> bool_fluent_ref(_r2)
-			>> '=' >> boolean_expression(_r2)
-		) [
-			_val = new_<EffectAxiom<BooleanExpression>>(_r1, _1, _2, _3)
+		effect = ( eps [ _val = new_<EffectAxiom<ExprT>>() ] >> (
+			-(condition(_r1) >> "->")
+			>> fluent_ref(_r1)
+			>> '=' >> expression(_r1)
+		)) [
+			phoenix::bind(&EffectAxiom<ExprT>::define, *_val, _1, _2, _3)
 		];
-		boolean_effect.name("boolean_effect_axiom");
+		effect.name("boolean_effect_axiom");
+		on_error<rethrow>(effect, delete_(_val));
 
-		numeric_effect = (
-			-(boolean_expression(_r2) >> "->")
-			>> num_fluent_ref(_r2)
-			>> '=' >> numeric_expression(_r2)
-		) [
-			_val = new_<EffectAxiom<NumericExpression>>(_r1, _1, _2, _3)
-		];
-		numeric_effect.name("numeric_effect_axiom");
-
-		BOOST_SPIRIT_DEBUG_NODES((effect)(boolean_effect)(numeric_effect));
+		BOOST_SPIRIT_DEBUG_NODE(effect);
 	}
 
-	rule<AbstractEffectAxiom *(AbstractAction *, Scope &)> effect;
-	BooleanExpressionParser boolean_expression;
-	NumericExpressionParser numeric_expression;
-	ReferenceParser<BooleanFluent> bool_fluent_ref;
-	ReferenceParser<NumericFluent> num_fluent_ref;
-	rule<EffectAxiom<BooleanExpression> *(AbstractAction *, Scope &)> boolean_effect;
-	rule<EffectAxiom<NumericExpression> *(AbstractAction *, Scope &)> numeric_effect;
+	BooleanExpressionParser condition;
+	ExpressionParser<ExprT> expression;
+	ReferenceParser<Fluent<ExprT>> fluent_ref;
+	rule<EffectAxiom<ExprT> *(Scope &)> effect;
 };
 
 
@@ -682,54 +699,50 @@ struct ActionParser : grammar<Action *(Scope &)> {
 	{
 		action = action_forward(_r1) | action_def(_r1);
 
-		action_forward = ( eps [ _a = nullptr ] >> (
+		action_forward = ( (
 			(("action" >> r_name >> '(') [
-				_a = new_<Scope>(nullptr, _r1)
+				_a = new_<Scope>(_r1)
 			])
-			>> abstract_var(*_a) % ',' >> ')'
+			>> -(abstract_var(*_a) % ',') >> ')'
 		) >> l(';') ) [
-			_val = phoenix::bind(
-				&Scope::declare_global<Action>,
-				_r1, _a, _1, _2
-			)
+			phoenix::bind(&Scope::declare_global<Action>, _r1, _a, _1, _2)
 		];
 		action_forward.name("action_forward_declaration");
 		//on_error<rethrow>(action_forward, delete_(_a));
 
-		action_def = ( eps [ _a = nullptr ] >> (
+		action_def = (
 			(("action" >> r_name >> '(') [
-				_a = new_<Scope>(nullptr, _r1)
+				_a = new_<Scope>(_r1)
 			])
-			>> abstract_var(*_a) % ',' >> ')'
+			>> -(abstract_var(*_a) % ',') >> ')'
+			>> ( '{'
+				> -( "precondition:" > formula_parser(*_a) )
+				> -( "effect:" > +(effect(*_a) > ';') )
+				//> "signal:" //*/
+			> '}' )
 		) [
-			_val = phoenix::bind(
-				&Scope::declare_global<Action>,
-				_r1, _a, _1, _2
-			)
-		]
-		>> ( '{'
-			> -( "precondition:" > formula_parser(*_a) )
-			> -( "effect:" > +(effect_parser(_val, *_a) > ';') )
-			//> "signal:" //*/
-		> '}' ) ) [
-			_val = phoenix::bind(
+			phoenix::bind(
 				&Scope::define_global<
 					Action,
 					boost::optional<BooleanExpression *>,
 					boost::optional<vector<AbstractEffectAxiom *>>
 				>,
 				_r1,
-				_a, at_c<0>(_1), at_c<1>(_1), at_c<0>(_2), at_c<1>(_2)
+				_a, _1, _2, at_c<0>(_3), at_c<1>(_3)
 			)
 		];
 		action_def.name("action_definition");
 		//on_error<rethrow>(action_def, delete_(_a));
 
+		effect = boolean_effect(_r1) | numeric_effect(_r1);
+
 		BOOST_SPIRIT_DEBUG_NODES((action)(action_forward)(action_def));
 	}
 
 	BooleanExpressionParser formula_parser;
-	EffectParser effect_parser;
+	rule<AbstractEffectAxiom *(Scope &)> effect;
+	EffectParser<BooleanExpression> boolean_effect;
+	EffectParser<NumericExpression> numeric_effect;
 	rule<Action *(Scope &)> action;
 	rule<Action *(Scope &), locals<Scope *>> action_forward;
 	rule<Action *(Scope &), locals<Scope *>> action_def;
@@ -742,7 +755,7 @@ struct ActionParser : grammar<Action *(Scope &)> {
 ******************/
 
 template<class ExprT>
-struct FluentParser : grammar<AbstractFluent *(Scope &), locals<Scope *>> {
+struct FluentParser : grammar<Fluent<ExprT> *(Scope &), locals<Scope *>> {
 	FluentParser()
 	: FluentParser::base_type(fluent)
 	{
@@ -751,7 +764,7 @@ struct FluentParser : grammar<AbstractFluent *(Scope &), locals<Scope *>> {
 
 		fluent_forward = (
 			(((type_mark<ExprT>() >> "fluent") >> r_name >> '(') [
-				_a = new_<Scope>(nullptr)
+				_a = new_<Scope>(_r1)
 			] )
 			>> (abstract_var(*_a) % ',') >> l(')') >> ';'
 		) [ // forward declaration
@@ -766,12 +779,12 @@ struct FluentParser : grammar<AbstractFluent *(Scope &), locals<Scope *>> {
 
 		fluent_def = (
 			(((type_mark<ExprT>() >> "fluent") >> r_name >> '(') [
-				_a = new_<Scope>(nullptr)
+				_a = new_<Scope>(_r1)
 			] )
 			>> (abstract_var(*_a) % ',') >> ')'
 			>> ( l('{') // definition
 				> "initially:"
-				> initially
+				> +initially
 			> '}' )
 		) [
 			_val = phoenix::bind(
@@ -786,19 +799,21 @@ struct FluentParser : grammar<AbstractFluent *(Scope &), locals<Scope *>> {
 		fluent_def.name(type_descr<ExprT>() + "fluent_definition");
 		on_error<fail>(fluent_def, delete_(_a));
 
-		initially = +(
-			(l('(') > (abstract_constant % ',') > ')' > '=' > constant<ExprT>() > ';') [
-				push_back(_val, new_<InitialValue<ExprT>>(_1, _2))
-			]
-		);
+		initially = (l('(') > -(abstract_constant % ',') > ')' > '=' > r_constant > ';') [
+			_val = new_<InitialValue<ExprT>>(_1, _2)
+		];
+		initially.name("initial_value_mapping");
+
+		r_constant = constant<ExprT>();
 
 		BOOST_SPIRIT_DEBUG_NODES((fluent)(fluent_forward)(fluent_def)(initially));
 	}
 
-	rule<AbstractFluent *(Scope &), locals<Scope *>> fluent;
-	rule<AbstractFluent *(Scope &), locals<Scope *>> fluent_forward;
-	rule<AbstractFluent *(Scope &), locals<Scope *>> fluent_def;
-	rule<vector<InitialValue<ExprT> *>> initially;
+	rule<Fluent<ExprT> *(Scope &), locals<Scope *>> fluent;
+	rule<Fluent<ExprT> *(Scope &), locals<Scope *>> fluent_forward;
+	rule<Fluent<ExprT> *(Scope &), locals<Scope *>> fluent_def;
+	rule<InitialValue<ExprT> *> initially;
+	rule<Constant<ExprT> *> r_constant;
 };
 
 

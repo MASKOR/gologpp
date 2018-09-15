@@ -9,13 +9,17 @@ HistoryImplementation::HistoryImplementation(History &h)
 : history_(h)
 {}
 
-
 HistoryImplementation::~HistoryImplementation()
 {}
 
-
 History::History()
 {}
+
+Scope &History::parent_scope()
+{ return global_scope(); }
+
+const Scope &History::parent_scope() const
+{ return global_scope(); }
 
 
 string History::to_string(const string &pfx) const

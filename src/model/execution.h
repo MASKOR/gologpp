@@ -35,9 +35,12 @@ protected:
 
 
 
-class History : public LanguageElement<History> {
+class History : public LanguageElement<History>, public NoScopeOwner {
 public:
 	History();
+
+	virtual Scope &parent_scope() override;
+	virtual const Scope &parent_scope() const override;
 
 	DEFINE_IMPLEMENT
 

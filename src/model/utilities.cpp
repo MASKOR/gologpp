@@ -35,6 +35,9 @@ Identifier::Identifier(Identifier &&other)
 arity_t Identifier::arity() const
 { return arity_; }
 
+void Identifier::set_arity(arity_t a)
+{ arity_ = a; }
+
 bool Identifier::operator == (const Identifier &other) const
 { return name() == other.name() && arity() == other.arity(); }
 

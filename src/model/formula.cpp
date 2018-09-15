@@ -8,10 +8,9 @@
 namespace gologpp {
 
 
-Negation::Negation(unique_ptr<BooleanExpression> &&expression, Scope &parent_scope)
-: BooleanExpression(parent_scope)
-, expression_(std::move(expression))
-{}
+Negation::Negation(BooleanExpression *expression)
+: expression_(expression)
+{ expression_->set_parent(this); }
 
 
 const BooleanExpression &Negation::expression() const
@@ -44,12 +43,14 @@ string to_string(ComparisonOperator op)
 
 
 
-Comparison::Comparison(NumericExpression *lhs, ComparisonOperator op, NumericExpression *rhs, Scope &parent_scope)
-: BooleanExpression(parent_scope)
-, lhs_(lhs)
+Comparison::Comparison(NumericExpression *lhs, ComparisonOperator op, NumericExpression *rhs)
+: lhs_(lhs)
 , op_(op)
 , rhs_(rhs)
-{}
+{
+	lhs_->set_parent(this);
+	rhs_->set_parent(this);
+}
 
 
 ComparisonOperator Comparison::op() const
@@ -87,12 +88,18 @@ string to_string(BooleanOperator op)
 
 
 
-BooleanOperation::BooleanOperation(BooleanExpression *lhs, BooleanOperator op, BooleanExpression *rhs, Scope &parent_scope)
-: BooleanExpression(parent_scope)
-, lhs_(lhs)
+BooleanOperation::BooleanOperation(
+	BooleanExpression *lhs,
+	BooleanOperator op,
+	BooleanExpression *rhs
+)
+: lhs_(lhs)
 , op_(op)
 , rhs_(rhs)
-{}
+{
+	lhs_->set_parent(this);
+	rhs_->set_parent(this);
+}
 
 BooleanOperator BooleanOperation::op() const
 { return op_; }
@@ -126,12 +133,14 @@ Quantification::Quantification(
 	const shared_ptr<AbstractVariable> &variable,
 	BooleanExpression *expression
 )
-: BooleanExpression(own_scope->parent_scope())
-, ScopeOwner(own_scope)
+:  ScopeOwner(own_scope)
 , op_(op)
 , variable_(variable)
 , expression_(expression)
-{}
+{
+	std::dynamic_pointer_cast<Expression>(variable_)->set_parent(this);
+	expression_->set_parent(this);
+}
 
 
 QuantificationOperator Quantification::op() const

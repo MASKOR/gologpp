@@ -5,17 +5,15 @@
 #include <memory>
 #include <algorithm>
 
-#include <boost/optional.hpp>
-
 #include "gologpp.h"
 
-#include "reference.h"
 #include "language.h"
-#include "scope.h"
 #include "expressions.h"
 #include "error.h"
+#include "global.h"
 
 namespace gologpp {
+
 
 
 class Block : public Statement, public ScopeOwner, public LanguageElement<Block> {
@@ -32,6 +30,7 @@ private:
 };
 
 
+
 class Choose : public Statement, public ScopeOwner, public LanguageElement<Choose> {
 public:
 	Choose(Scope *own_scope, const vector<Statement *> &alternatives);
@@ -46,17 +45,14 @@ private:
 };
 
 
-class Conditional : public Statement, public LanguageElement<Conditional> {
-public:
-	Conditional(unique_ptr<BooleanExpression> &&condition,
-	            unique_ptr<Statement> &&block_true,
-	            unique_ptr<Statement> &&block_false,
-	            Scope &parent_expr);
 
-	Conditional(BooleanExpression *condition,
-	            Statement *block_true,
-	            const boost::optional<Statement *> &block_false,
-	            Scope &parent_expr);
+class Conditional : public Statement, public NoScopeOwner, public LanguageElement<Conditional> {
+public:
+	Conditional(
+		BooleanExpression *condition,
+		Statement *block_true,
+		const boost::optional<Statement *> &block_false
+	);
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, *block_true_, *block_false_)
 
@@ -73,16 +69,18 @@ protected:
 };
 
 
+
 template<class LhsT>
-class Assignment : public Statement, public LanguageElement<Assignment<LhsT>> {
+class Assignment : public Statement, public NoScopeOwner, public LanguageElement<Assignment<LhsT>> {
 public:
 	static_assert(!std::is_base_of<Statement, LhsT>::value, "Cannot assign to a Statement");
 
-	Assignment(Reference<LhsT> *lhs, typename LhsT::expression_t *rhs, Scope &parent_scope)
-	: Statement(parent_scope)
-	, lhs_(lhs)
-	, rhs_(rhs)
-	{}
+	Assignment(Reference<LhsT> *lhs, typename LhsT::expression_t *rhs)
+	: lhs_(lhs), rhs_(rhs)
+	{
+		lhs_->set_parent(this);
+		rhs_->set_parent(this);
+	}
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 
@@ -101,10 +99,14 @@ private:
 };
 
 
+
 class Pick : public Statement, public ScopeOwner, public LanguageElement<Pick> {
 public:
-	Pick(Scope *own_scope, const shared_ptr<AbstractVariable> &variable, Statement *stmt);
-	Pick(const string &var_name, Statement *stmt, Scope &parent_scope);
+	Pick(
+		Scope *own_scope,
+		const shared_ptr<AbstractVariable> &variable,
+		Statement *stmt
+	);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(scope(), *variable_, *statement_)
 
 	const AbstractVariable &variable() const;
@@ -118,9 +120,10 @@ private:
 };
 
 
-class Search : public Statement, public LanguageElement<Search> {
+
+class Search : public Statement, public NoScopeOwner, public LanguageElement<Search> {
 public:
-	Search(Statement *statement, Scope &parent_scope);
+	Search(Statement *statement);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*statement_)
 
 	const Statement &statement() const;
@@ -137,8 +140,7 @@ public:
 	Solve(
 		NumericExpression *horizon,
 		Reference<NumericFunction> *reward,
-		Statement *statement,
-		Scope &parent_scope
+		Statement *statement
 	);
 
 	const NumericExpression &horizon() const;
@@ -152,9 +154,9 @@ private:
 };
 
 
-class Test : public Statement, public LanguageElement<Test> {
+class Test : public Statement, public NoScopeOwner, public LanguageElement<Test> {
 public:
-	Test(BooleanExpression *expression, Scope &parent_scope);
+	Test(BooleanExpression *expression);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_)
 
 	const BooleanExpression &expression() const;
@@ -166,9 +168,9 @@ protected:
 };
 
 
-class While : public Statement, public LanguageElement<While> {
+class While : public Statement, public NoScopeOwner, public LanguageElement<While> {
 public:
-	While(BooleanExpression *expression, Statement *stmt, Scope &parent_scope);
+	While(BooleanExpression *expression, Statement *stmt);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_, *statement_)
 
 	const BooleanExpression &expression() const;
@@ -183,12 +185,11 @@ protected:
 
 
 template<class ExpressionT>
-class Return : public Statement, public LanguageElement<Return<ExpressionT>> {
+class Return : public Statement, public NoScopeOwner, public LanguageElement<Return<ExpressionT>> {
 public:
-	Return(ExpressionT *expr, Scope &parent_scope)
-	: Statement(parent_scope)
-	, expr_(expr)
-	{}
+	Return(ExpressionT *expr)
+	: expr_(expr)
+	{ expr_->set_parent(this); }
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expr_)
 
@@ -211,13 +212,13 @@ class AbstractFunction
 public:
 	typedef Expression expression_t;
 
-	AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args, Statement *definition);
+	AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 
 	virtual ~AbstractFunction() override;
 	virtual ExpressionTypeTag expression_type_tag() const = 0;
 
 	const Statement &definition() const;
-	void define(boost::optional<Statement *> definition);
+	void define(Statement *definition);
 	virtual void compile(AExecutionContext &ctx) override;
 
 protected:
@@ -238,26 +239,27 @@ public:
 	Function(
 		Scope *own_scope,
 		const string &name,
-		const vector<shared_ptr<AbstractVariable>> &args,
-		boost::optional<Statement *> statement
+		const vector<shared_ptr<AbstractVariable>> &args
 	)
-	: AbstractFunction(own_scope, name, args, statement.get_value_or(nullptr))
+	: AbstractFunction(own_scope, name, args)
 	{}
 
 	Function(
 		Scope *own_scope,
 		const string &name,
-		const vector<shared_ptr<AbstractVariable>> &args
+		const boost::optional<vector<shared_ptr<AbstractVariable>>> &args
 	)
-	: Function(own_scope, name, args, boost::optional<Statement *>())
+	: AbstractFunction(own_scope, name, args.get_value_or({}))
 	{}
-
 
 	Function(Function &&) = default;
 	DEFINE_IMPLEMENT_WITH_MEMBERS(scope(), *definition_)
 
-	virtual Expression *ref(Scope &parent_scope, const vector<Expression *> &args) override
-	{ return make_reference<Function<ExpressionT>>(parent_scope, args); }
+	Reference<Function<ExpressionT>> *make_ref(const vector<Expression *> &args)
+	{ return make_ref_<Function<ExpressionT>>(args); }
+
+	virtual Expression *ref(const vector<Expression *> &args) override
+	{ return make_ref(args); }
 
 	virtual ExpressionTypeTag expression_type_tag() const override
 	{ return ExpressionT::static_type_tag(); }

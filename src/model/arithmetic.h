@@ -3,13 +3,14 @@
 
 #include "expressions.h"
 #include "language.h"
+#include "scope.h"
 
 #include <iostream>
 
 namespace gologpp {
 
 
-class ArithmeticOperation : public NumericExpression, public LanguageElement<ArithmeticOperation> {
+class ArithmeticOperation : public NumericExpression, public NoScopeOwner, public LanguageElement<ArithmeticOperation> {
 public:
 	enum Operator {
 		ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, POWER, MODULO
