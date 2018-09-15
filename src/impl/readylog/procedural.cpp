@@ -79,7 +79,7 @@ Implementation<Conditional>::Implementation(const Conditional &c)
 
 EC_word Implementation<Conditional>::term()
 {
-	return ::term(EC_functor("if", 3),
+	return ::term(EC_functor("lif", 3),
 		conditional_.condition().implementation().term(),
 		conditional_.block_true().implementation().term(),
 		conditional_.block_false().implementation().term()
