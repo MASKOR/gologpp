@@ -17,7 +17,7 @@ unique_ptr<Statement> parse_string(const std::string &code)
 		iterator(code.cbegin()),
 		iterator(code.cend()),
 		program_parser(boost::phoenix::ref(global_scope())),
-		boost::spirit::ascii::space_type(),
+		gologpp_skipper(),
 		rv
 	);
 	return unique_ptr<Statement>(rv);

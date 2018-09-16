@@ -60,13 +60,6 @@ using namespace boost::spirit::qi;
 using namespace boost::spirit::qi::labels;
 using namespace boost::phoenix;
 
-using iterator = boost::spirit::line_pos_iterator<string::const_iterator>;
-
-template<typename... SignatureTs>
-using rule = boost::spirit::qi::rule<iterator, ascii::space_type, SignatureTs...>;
-
-template<typename... SignatureTs>
-using grammar = boost::spirit::qi::grammar<iterator, ascii::space_type, SignatureTs...>;
 
 
 /******************
@@ -76,11 +69,6 @@ using grammar = boost::spirit::qi::grammar<iterator, ascii::space_type, Signatur
 template<class T>
 static inline auto l(T x)
 { return qi::lit(x); }
-
-template<class T>
-static inline auto _r(T &&x)
-{ return boost::phoenix::ref(std::forward<T>(x)); }
-
 
 template<class ExpressionT>
 static auto type_mark();
@@ -104,6 +92,41 @@ string type_descr<BooleanExpression>()
 template<>
 string type_descr<NumericExpression>()
 { return "numeric"; }
+
+
+using iterator = boost::spirit::line_pos_iterator<string::const_iterator>;
+
+
+static qi::rule<iterator> comment_multiline {
+	omit [ l("/*") > *((!l("*/")) > (char_ | eol)) > "*/" ],
+	"comment_multiline"
+};
+
+static qi::rule<iterator> comment_oneline {
+	omit [ l("//") > *char_ ],
+	"comment_oneline"
+};
+
+
+struct gologpp_skipper : public qi::grammar<iterator> {
+	gologpp_skipper()
+	: gologpp_skipper::base_type(skip, "skipper")
+	{
+		skip = spc | comment_oneline | comment_multiline;
+		spc = space;
+		spc.name("space");
+		BOOST_SPIRIT_DEBUG_NODES((skip)(spc)(comment_oneline)(comment_multiline))
+	}
+	qi::rule<iterator> skip;
+	qi::rule<iterator> spc;
+};
+
+
+template<typename... SignatureTs>
+using rule = boost::spirit::qi::rule<iterator, gologpp_skipper, SignatureTs...>;
+
+template<typename... SignatureTs>
+using grammar = boost::spirit::qi::grammar<iterator, gologpp_skipper, SignatureTs...>;
 
 
 
