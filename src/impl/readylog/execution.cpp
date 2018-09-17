@@ -66,14 +66,8 @@ EclipseContext::EclipseContext(unique_ptr<AExecutionBackend> &&exec_backend, con
 
 	std::cout << "Loading readylog from " << READYLOG_PATH " ..." << std::endl;
 
-	if (options.trace) {
-		if (options.guitrace) {
-			post_goal("lib(remote_tools)");
-			post_goal("attach_tools");
-		}
-		else
-			post_goal("lib(tracer_tty)");
-	}
+	if (options.trace)
+		post_goal("set_flag(debug_compile, on)");
 
 	post_goal(::term(EC_functor("compile", 1), EC_atom(READYLOG_PATH)));
 
@@ -81,6 +75,21 @@ EclipseContext::EclipseContext(unique_ptr<AExecutionBackend> &&exec_backend, con
 		std::cout << "... done." << std::endl;
 	else
 		throw std::runtime_error("Error " + std::to_string(rv) + " loading readylog interpreter");
+
+	if (options.trace) {
+		std::cout << "Enabling ECLiPSe debugging." << std::endl;
+		if (options.guitrace) {
+			post_goal("lib(remote_tools)");
+			post_goal("attach_tools");
+		}
+		else {
+			post_goal("lib(tracer_tty)");
+			post_goal("lib(toplevel)");
+			post_goal("toplevel_init(tty)");
+		}
+	}
+
+	ec_query(EC_atom("toggle_dtdebug"));
 }
 
 
@@ -135,7 +144,7 @@ void EclipseContext::compile(const AbstractFunction &function)
 void EclipseContext::compile_term(const EC_word &term)
 {
 	if (! ec_query (
-		::term(EC_functor("assert", 1), term)
+		::term(EC_functor("compile_term", 1), term)
 	) )
 		throw EclipseError();
 }
@@ -170,6 +179,11 @@ bool EclipseContext::trans(Block &block, History &history)
 {
 	EC_ref h1, e1;
 
+	if (options_.trace && !options_.guitrace) {
+		post_goal("toplevel");
+		EC_resume();
+	}
+
 	EC_word trans = ::term(EC_functor("trans", 4),
 		block.implementation().current_program(),
 		history.implementation().current_history(),
@@ -177,7 +191,7 @@ bool EclipseContext::trans(Block &block, History &history)
 	);
 
 	EC_word q;
-	if (options_.guitrace)
+	if (options_.trace)
 		q = ::term(EC_functor("trace", 1), trans);
 	else
 		q = trans;
