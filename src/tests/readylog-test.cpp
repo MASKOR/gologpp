@@ -97,6 +97,8 @@ void test_objectmodel()
 		EclipseContext &ctx = EclipseContext::instance();
 
 		ctx.run(std::move(main));
+
+		EclipseContext::shutdown();
 	}
 #endif // TEST_READYLOG
 
@@ -129,6 +131,8 @@ void test_parser()
 		new Scope(global_scope()),
 		{ mainproc.release() }
 	));
+
+	EclipseContext::shutdown();
 #endif // TEST_READYLOG
 #endif
 }

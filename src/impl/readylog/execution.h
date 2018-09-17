@@ -41,6 +41,7 @@ class EclipseContext : public ExecutionContext {
 public:
     virtual ~EclipseContext() override;
     static void init(unique_ptr<AExecutionBackend> &&, const eclipse_opts &options);
+    static void shutdown();
     static EclipseContext &instance();
 
 	virtual void compile(const Block &block) override;

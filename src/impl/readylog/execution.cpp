@@ -47,6 +47,9 @@ unique_ptr<EclipseContext> EclipseContext::instance_;
 void EclipseContext::init(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options)
 { instance_ = unique_ptr<EclipseContext>(new EclipseContext(std::move(exec_backend), options)); }
 
+void EclipseContext::shutdown()
+{ instance_.reset(); }
+
 
 EclipseContext::EclipseContext(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options)
 : ExecutionContext(std::make_unique<ReadylogImplementor>(), std::move(exec_backend))
