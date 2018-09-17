@@ -23,20 +23,17 @@ effect:
 	return on(1) == 0 & on(2) == 1 & on(3) == 2;
 }
 
+%function reward() {
+	if (goal())
+		return 100;
+	else
+		return 0;
+}
+
 
 {
-	search while (!goal()) {
-		%y = 0;
-		choose {
-			%y = 1;
-			%y = 2;
-			%y = 3;
-			%y = 0;
-		}
-		choose {
-			put(1, %y);
-			put(2, %y);
-			put(3, %y);
-		}
-	}
+	solve(15, reward())
+		while (!goal())
+			pick(%x) pick(%y)
+				put(%x, %y)
 }
