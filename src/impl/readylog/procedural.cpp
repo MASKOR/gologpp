@@ -17,7 +17,7 @@ EC_word Implementation<AbstractFunction>::term()
 			translate_args(function_.args())
 		);
 	else
-		return EC_word(function_.name().c_str());
+		return EC_atom(function_.name().c_str());
 }
 
 
