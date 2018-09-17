@@ -2,6 +2,7 @@
 #include "procedural.h"
 #include "atoms.h"
 #include "reference.h"
+#include "execution.h"
 #include <model/procedural.h>
 
 
@@ -34,9 +35,19 @@ EC_word Implementation<Block>::term()
 	if (block_.elements().size() == 1)
 		rv = block_.elements()[0]->implementation().term();
 	else {
-		rv = ::nil();
+		EC_word list;
+		list = ::nil();
 		for (const unique_ptr<Statement> &stmt : block_.elements())
-			rv = ::list(rv, stmt->implementation().term());
+			list = ::list(list, stmt->implementation().term());
+
+		EC_ref L;
+		EclipseContext::instance().ec_query(
+			::term(EC_functor("flatten", 2),
+				list, L
+			)
+		);
+		rv = ::newvar();
+		rv.unify(L);
 	}
 	current_program_ = rv;
 	return rv;
