@@ -262,7 +262,7 @@ struct ReferenceParser : grammar<Reference<GologT> *(Scope &)> {
 				_pass = false
 			]
 		];
-		on_error<fail>(pred_ref, delete_(_val));
+		on_error<rethrow>(pred_ref, delete_(_val));
 
 		any_pred_ref = ((r_name > "(" > -(
 			(atom(_r1) | any_pred_ref(_r1)) % ","
@@ -387,7 +387,7 @@ struct ExpressionParser<BooleanExpression> : grammar<BooleanExpression *(Scope &
 			_val = new_<Quantification>(_a, _1, _2, _3)
 		];
 		quantification.name("quantification");
-		on_error<fail>(quantification, delete_(_a));
+		on_error<rethrow>(quantification, delete_(_a));
 
 		quantification_op = qi::string("exists") [ _val = val(QuantificationOperator::EXISTS) ]
 			| qi::string("forall") [ _val = val(QuantificationOperator::FORALL) ];
@@ -521,7 +521,7 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 			_val = new_<Block>(_a, _1)
 		];
 		block.name("block");
-		on_error<fail>(block, delete_(_a));
+		on_error<rethrow>(block, delete_(_a));
 
 
 		choose = ((l("choose") > '{') [
@@ -530,7 +530,7 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 			_val = new_<Choose>(_a, _1)
 		];
 		choose.name("choose");
-		on_error<fail>(choose, delete_(_a));
+		on_error<rethrow>(choose, delete_(_a));
 
 
 		conditional = (l("if") > '(' > boolean_expression(_r1) > ')'
@@ -547,7 +547,7 @@ struct StatementParser : grammar<Statement *(Scope &)> {
 			_val = new_<Pick>(_a, _1, _2)
 		];
 		pick.name("pick");
-		on_error<fail>(pick, delete_(_a));
+		on_error<rethrow>(pick, delete_(_a));
 
 
 		search = (l("search") > statement(_r1)) [
@@ -654,7 +654,7 @@ struct FunctionParser : grammar<Function<ExpressionT> *(Scope &), locals<Scope *
 		function_def.name(type_descr<ExpressionT>() + "_function_definition");
 
 
-		on_error<fail>(function, delete_(_a));
+		on_error<rethrow>(function, delete_(_a));
 		BOOST_SPIRIT_DEBUG_NODE(function);
 	}
 
@@ -798,7 +798,7 @@ struct FluentParser : grammar<Fluent<ExprT> *(Scope &), locals<Scope *>> {
 			)
 		];
 		fluent_forward.name(type_descr<ExprT>() + "fluent_forward_declaration");
-		on_error<fail>(fluent_forward, delete_(_a));
+		on_error<rethrow>(fluent_forward, delete_(_a));
 
 		fluent_def = (
 			(((type_mark<ExprT>() >> "fluent") >> r_name >> '(') [
@@ -820,7 +820,7 @@ struct FluentParser : grammar<Fluent<ExprT> *(Scope &), locals<Scope *>> {
 			)
 		];
 		fluent_def.name(type_descr<ExprT>() + "fluent_definition");
-		on_error<fail>(fluent_def, delete_(_a));
+		on_error<rethrow>(fluent_def, delete_(_a));
 
 		initially = (l('(') > -(abstract_constant % ',') > ')' > '=' > r_constant > ';') [
 			_val = new_<InitialValue<ExprT>>(_1, _2)
