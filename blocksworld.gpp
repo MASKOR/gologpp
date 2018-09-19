@@ -5,7 +5,7 @@ initially:
 	(3) = 0;
 }
 
-action put(%x, %y) {
+action stack(%x, %y) {
 precondition:
 	on(%x) != %y
 	& %x != 0
@@ -34,6 +34,7 @@ effect:
 {
 	solve(15, reward())
 		while (!goal())
-			pick(%x) pick(%y)
-				put(%x, %y)
+			pick(%x in {1, 2, 3})
+				pick(%y in {0, 1, 2, 3})
+					stack(%x, %y);
 }
