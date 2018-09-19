@@ -74,7 +74,7 @@ class Block;
 class Choose;
 class Conditional;
 template<class> class Assignment;
-class Pick;
+template<class> class Pick;
 class Call;
 class Search;
 class Solve;

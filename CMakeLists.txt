@@ -31,7 +31,7 @@ foreach(def ${EXTRA_COMPILER_MACROS})
 	add_definitions(-D${def})
 endforeach()
 
-option(USE_LIBASAN "Enable the AddressSanitizer to detect MM bugs" OFF)
+option(USE_LIBASAN "Enable the AddressSanitizer to detect memory management bugs" OFF)
 if (${USE_LIBASAN})
 	add_compile_options(-fsanitize=address)
 endif()
@@ -55,6 +55,7 @@ set(INTERFACE_SRC
 		src/model/user_error.cpp
 		src/model/execution.cpp
 		src/model/reference.cpp
+		src/model/global.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -65,7 +66,16 @@ option(BUILD_PARSER "Build the parser library" ON)
 CMAKE_DEPENDENT_OPTION(DEBUG_PARSER "Enable debug output for the parser" OFF "BUILD_PARSER" OFF)
 if (${BUILD_PARSER})
 	set(PARSER_SRC
+		src/parser/atoms.cpp
+		src/parser/action.cpp
+		src/parser/arithmetic.cpp
+		src/parser/formula.cpp
+		src/parser/functions.cpp
+		src/parser/utilities.cpp
+		src/parser/statements.cpp
 		src/parser/parser.cpp
+		src/parser/assignment.cpp
+		src/parser/fluent.cpp
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)

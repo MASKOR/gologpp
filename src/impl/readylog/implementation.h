@@ -20,13 +20,23 @@ using ReadylogImplementation = Implementation<AbstractLanguageElement>;
 
 
 template<class ListT>
-EC_word *translate_args(const ListT &args)
+EC_word *to_ec_words(const ListT &args)
 {
 	EC_word *rv = new EC_word[args.size()];
 	arity_t i = 0;
 	for (const auto &arg : args)
 		rv[i++] = arg->implementation().term();
 	return rv;
+}
+
+
+template<class ListT>
+EC_word to_ec_list(const ListT &vec, typename ListT::const_iterator begin)
+{
+	if (begin == vec.cend())
+		return ::nil();
+	else
+		return ::list((*begin)->implementation().term(), to_ec_list(vec, begin + 1));
 }
 
 
@@ -80,7 +90,8 @@ public:
 	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<NumericFluent> &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<BooleanVariable> &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Assignment<NumericVariable> &) override;
-	virtual unique_ptr<AbstractImplementation> make_impl(Pick &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Pick<BooleanExpression> &) override;
+	virtual unique_ptr<AbstractImplementation> make_impl(Pick<NumericExpression> &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Search &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Solve &) override;
 	virtual unique_ptr<AbstractImplementation> make_impl(Test &) override;

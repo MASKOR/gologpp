@@ -6,6 +6,8 @@
 #include "reference.h"
 #include "language.h"
 #include "expressions.h"
+#include "fluent.h"
+#include "procedural.h"
 
 #include <boost/optional.hpp>
 

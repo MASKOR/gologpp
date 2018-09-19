@@ -194,14 +194,32 @@ private:
 };
 
 
-template<>
-class Implementation<Pick> : public ReadylogImplementation {
+template<class ExprT>
+class Implementation<Pick<ExprT>> : public ReadylogImplementation {
 public:
-	Implementation(const Pick &);
-	virtual EC_word term() override;
+	Implementation(const Pick<ExprT> &pick)
+	: pick_(pick)
+	{
+		if (pick_.domain().empty())
+			throw std::runtime_error("ReadyLog requires a domain for pick()!");
+	}
+
+	virtual EC_word term() override
+	{
+		// Make sure the `pick'ed variable is a Golog variable
+		// No init_vars() is needed in this case.
+		{ GologVarMutator guard(pick_.variable().implementation());
+			return ::term(EC_functor("pickBest", 3),
+				pick_.variable().implementation().term(),
+				to_ec_list(pick_.domain(), pick_.domain().begin()),
+				pick_.statement().implementation().term()
+			);
+		}
+	}
+
 
 private:
-	const Pick &pick_;
+	const Pick<ExprT> &pick_;
 };
 
 

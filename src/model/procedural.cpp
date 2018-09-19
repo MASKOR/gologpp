@@ -113,26 +113,6 @@ string Conditional::to_string(const string &pfx) const
 
 
 
-Pick::Pick(Scope *own_scope, const shared_ptr<AbstractVariable> &variable, Statement *statement)
-: ScopeOwner(own_scope)
-, variable_(std::move(variable))
-, statement_(statement)
-{
-	dynamic_cast<Expression *>(variable_.get())->set_parent(this);
-	statement_->set_parent(this);
-}
-
-const AbstractVariable &Pick::variable() const
-{ return *variable_; }
-
-const Statement &Pick::statement() const
-{ return *statement_; }
-
-string Pick::to_string(const string &pfx) const
-{ return linesep + pfx + "pick (" + variable().to_string("") + "): " + statement().to_string(pfx); }
-
-
-
 Search::Search(Statement *statement)
 : statement_(statement)
 {

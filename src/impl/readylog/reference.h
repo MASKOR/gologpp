@@ -43,7 +43,7 @@ public:
 	{
 		if (reference_.arity() > 0)
 			return ::term(EC_functor(reference_.name().c_str(), reference_.arity()),
-				translate_args(reference_.args())
+				to_ec_words(reference_.args())
 			);
 		else
 			return EC_atom(reference_.name().c_str());

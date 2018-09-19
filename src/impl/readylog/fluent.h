@@ -25,7 +25,7 @@ public:
 			EC_functor("initial_val", 2),
 				::term(
 					EC_functor(ival_.fluent().name().c_str(), ival_.fluent().arity()),
-					translate_args(ival_.args())
+					to_ec_words(ival_.args())
 				),
 			ival_.value().implementation().term()
 		);

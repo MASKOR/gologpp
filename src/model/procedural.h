@@ -100,22 +100,59 @@ private:
 
 
 
-class Pick : public Statement, public ScopeOwner, public LanguageElement<Pick> {
+template<class ExprT>
+class Pick : public Statement, public ScopeOwner, public LanguageElement<Pick<ExprT>> {
 public:
 	Pick(
 		Scope *own_scope,
-		const shared_ptr<AbstractVariable> &variable,
-		Statement *stmt
-	);
-	DEFINE_IMPLEMENT_WITH_MEMBERS(scope(), *variable_, *statement_)
+		const shared_ptr<Variable<ExprT>> &variable,
+		const boost::optional<std::vector<Constant<ExprT> *>> &domain,
+		Statement *statement
+	)
+	: ScopeOwner(own_scope)
+	, variable_(variable)
+	, statement_(statement)
+	{
+		if (domain)
+			for (Constant<ExprT> *c : *domain) {
+				c->set_parent(this);
+				domain_.emplace_back(c);
+			}
+		dynamic_cast<Expression *>(variable_.get())->set_parent(this);
+		statement_->set_parent(this);
+	}
 
-	const AbstractVariable &variable() const;
-	const Statement &statement() const;
 
-	virtual string to_string(const string &pfx) const override;
+	const vector<unique_ptr<Constant<ExprT>>> &domain() const
+	{ return domain_; }
+
+	const Variable<ExprT> &variable() const
+	{ return *variable_; }
+
+	const Statement &statement() const
+	{ return *statement_; }
+
+
+	virtual void implement(Implementor &implementor) override
+	{
+		if (impl_)
+			return;
+
+		for (unique_ptr<Constant<ExprT>> & c : domain_)
+			c->implement(implementor);
+		variable_->implement(implementor);
+		statement_->implement(implementor);
+
+		set_implementation(implementor.make_impl(*this));
+	}
+
+
+	virtual string to_string(const string &pfx) const override
+	{ return linesep + pfx + "pick (" + variable().to_string("") + "): " + statement().to_string(pfx); }
 
 private:
-	shared_ptr<AbstractVariable> variable_;
+	vector<unique_ptr<Constant<ExprT>>> domain_;
+	shared_ptr<Variable<ExprT>> variable_;
 	unique_ptr<Statement> statement_;
 };
 

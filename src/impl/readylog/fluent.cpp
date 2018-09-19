@@ -15,7 +15,7 @@ EC_word Implementation<AbstractFluent>::term()
 {
 	return ::term(
 		EC_functor(fluent_.name().c_str(), fluent_.arity()),
-		translate_args(fluent_.args())
+		to_ec_words(fluent_.args())
 	);
 }
 

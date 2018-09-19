@@ -89,7 +89,7 @@ EclipseContext::EclipseContext(unique_ptr<AExecutionBackend> &&exec_backend, con
 		}
 	}
 
-	ec_query(EC_atom("toggle_dtdebug"));
+	//ec_query(EC_atom("toggle_dtdebug"));
 }
 
 
@@ -108,6 +108,10 @@ void EclipseContext::compile(const Block &block)
 	// Discard result since this is only called for the toplevel program,
 	// which only needs to initialize its internal state.
 	block.implementation().term();
+
+	// Boilerplate bullshit
+	compile_term(::term(EC_functor("events_list", 1), ::nil()));
+	compile_term(::term(EC_functor("param_cycletime", 1), EC_word(99999999)));
 }
 
 

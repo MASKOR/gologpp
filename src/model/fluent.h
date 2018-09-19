@@ -5,6 +5,7 @@
 #include "utilities.h"
 #include "error.h"
 #include "global.h"
+#include "reference.h"
 
 namespace gologpp {
 

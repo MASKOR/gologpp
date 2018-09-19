@@ -30,6 +30,23 @@ private:
 };
 
 
+template<>
+class Implementation<Variable<BooleanExpression>> : public Implementation<AbstractVariable>
+{
+public:
+	using Implementation<AbstractVariable>::Implementation;
+};
+
+
+template<>
+class Implementation<Variable<NumericExpression>> : public Implementation<AbstractVariable>
+{
+public:
+	using Implementation<AbstractVariable>::Implementation;
+};
+
+
+
 /**
  * Scope guard that changes a variable implementation to render itself as a
  * Golog variable instead of a Prolog variable
@@ -48,21 +65,6 @@ private:
 	Implementation<AbstractVariable> &var_impl_;
 };
 
-
-template<>
-class Implementation<Variable<BooleanExpression>> : public Implementation<AbstractVariable>
-{
-public:
-	using Implementation<AbstractVariable>::Implementation;
-};
-
-
-template<>
-class Implementation<Variable<NumericExpression>> : public Implementation<AbstractVariable>
-{
-public:
-	using Implementation<AbstractVariable>::Implementation;
-};
 
 
 template<class ExpressionT>

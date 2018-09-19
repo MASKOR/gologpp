@@ -9,6 +9,7 @@ namespace gologpp {
 namespace parser {
 
 
+
 unique_ptr<Statement> parse_string(const std::string &code)
 {
 	Statement *rv = nullptr;

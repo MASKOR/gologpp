@@ -14,7 +14,7 @@ EC_word Implementation<AbstractFunction>::term()
 {
 	if (function_.arity() > 0)
 		return ::term(EC_functor(function_.name().c_str(), function_.arity()),
-			translate_args(function_.args())
+			to_ec_words(function_.args())
 		);
 	else
 		return EC_atom(function_.name().c_str());
@@ -29,28 +29,10 @@ Implementation<Block>::Implementation(const Block &b)
 
 EC_word Implementation<Block>::term()
 {
-	EC_word rv;
 	block_.scope().implementation().init_vars();
 
-	if (block_.elements().size() == 1)
-		rv = block_.elements()[0]->implementation().term();
-	else {
-		EC_word list;
-		list = ::nil();
-		for (const unique_ptr<Statement> &stmt : block_.elements())
-			list = ::list(list, stmt->implementation().term());
-
-		EC_ref L;
-		EclipseContext::instance().ec_query(
-			::term(EC_functor("flatten", 2),
-				list, L
-			)
-		);
-		rv = ::newvar();
-		rv.unify(L);
-	}
-	current_program_ = rv;
-	return rv;
+	current_program_ = to_ec_list(block_.elements(), block_.elements().begin());
+	return current_program_;
 }
 
 
@@ -95,25 +77,6 @@ EC_word Implementation<Conditional>::term()
 		conditional_.block_true().implementation().term(),
 		conditional_.block_false().implementation().term()
 	);
-}
-
-
-
-Implementation<Pick>::Implementation(const Pick &pick)
-: pick_(pick)
-{}
-
-
-EC_word Implementation<Pick>::term()
-{
-	// Make sure the `pick'ed variable is a Golog variable
-	// No init_vars() is needed in this case.
-	{ GologVarMutator guard(pick_.variable().implementation<AbstractVariable>());
-		return ::term(EC_functor("pick", 2),
-			pick_.variable().implementation().term(),
-			pick_.statement().implementation().term()
-		);
-	}
 }
 
 

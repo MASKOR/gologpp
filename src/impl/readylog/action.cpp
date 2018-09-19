@@ -24,7 +24,7 @@ EC_word Implementation<Action>::term()
 {
 	return ::term(
 		EC_functor(action_.name().c_str(), action_.arity()),
-		translate_args(action_.args())
+		to_ec_words(action_.args())
 	);
 }
 
@@ -90,7 +90,7 @@ EC_word Implementation<ExogAction>::term()
 {
 	return ::term(
 		EC_functor(exog_.name().c_str(), exog_.arity()),
-		translate_args(exog_.args())
+		to_ec_words(exog_.args())
 	);
 }
 
