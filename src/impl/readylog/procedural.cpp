@@ -31,7 +31,15 @@ EC_word Implementation<Block>::term()
 {
 	block_.scope().implementation().init_vars();
 
-	current_program_ = to_ec_list(block_.elements(), block_.elements().begin());
+	if (dynamic_cast<const AbstractFunction *>(block_.parent())) {
+		if (block_.elements().size() == 1)
+			current_program_ = block_.elements()[0]->implementation().term();
+		else
+			throw std::runtime_error("Functions must contain exactly one return statement and nothing else.");
+	}
+	else
+		current_program_ = to_ec_list(block_.elements(), block_.elements().begin());
+
 	return current_program_;
 }
 
@@ -139,9 +147,8 @@ EC_word Implementation<While>::term()
 
 
 template<>
-EC_word Implementation<Return<BooleanExpression>>::term() {
-	return ret_.expression().implementation().term();
-}
+EC_word Implementation<Return<BooleanExpression>>::term()
+{ return ret_.expression().implementation().term(); }
 
 
 
