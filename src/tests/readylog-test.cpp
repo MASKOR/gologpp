@@ -11,7 +11,7 @@
 #include <model/procedural.h>
 
 #ifdef GOLOGPP_TEST_READYLOG
-#include <impl/readylog/execution.h>
+#include <semantics/readylog/execution.h>
 #endif
 
 #ifdef GOLOGPP_TEST_PARSER

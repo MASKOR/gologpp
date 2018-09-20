@@ -91,15 +91,15 @@ endif()
 option(BUILD_READYLOG_IMPL "Build the readylog implementation" ON)
 if (${BUILD_READYLOG_IMPL})
 	set(READYLOG_SRC
-		src/impl/readylog/action.cpp
-		src/impl/readylog/atoms.cpp
-		src/impl/readylog/arithmetic.cpp
-		src/impl/readylog/execution.cpp
-		src/impl/readylog/fluent.cpp
-		src/impl/readylog/formula.cpp
-		src/impl/readylog/procedural.cpp
-		src/impl/readylog/scope.cpp
-		src/impl/readylog/semantics.cpp
+		src/semantics/readylog/action.cpp
+		src/semantics/readylog/atoms.cpp
+		src/semantics/readylog/arithmetic.cpp
+		src/semantics/readylog/execution.cpp
+		src/semantics/readylog/fluent.cpp
+		src/semantics/readylog/formula.cpp
+		src/semantics/readylog/procedural.cpp
+		src/semantics/readylog/scope.cpp
+		src/semantics/readylog/semantics.cpp
 	)
 	add_library(readylog++ SHARED ${READYLOG_SRC})
 	target_link_libraries(readylog++ golog++ ${ECLIPSE_LIBRARIES})
