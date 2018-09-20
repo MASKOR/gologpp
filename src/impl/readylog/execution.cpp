@@ -41,17 +41,17 @@ EC_word operator && (const EC_word &lhs, const EC_word &rhs)
 
 
 
-unique_ptr<EclipseContext> EclipseContext::instance_;
+unique_ptr<ReadylogContext> ReadylogContext::instance_;
 
 
-void EclipseContext::init(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options)
-{ instance_ = unique_ptr<EclipseContext>(new EclipseContext(std::move(exec_backend), options)); }
+void ReadylogContext::init(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options)
+{ instance_ = unique_ptr<ReadylogContext>(new ReadylogContext(std::move(exec_backend), options)); }
 
-void EclipseContext::shutdown()
+void ReadylogContext::shutdown()
 { instance_.reset(); }
 
 
-EclipseContext::EclipseContext(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options)
+ReadylogContext::ReadylogContext(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options)
 : ExecutionContext(std::make_unique<ReadylogSemanticsFactory>(), std::move(exec_backend))
 , options_(options)
 {
@@ -93,29 +93,29 @@ EclipseContext::EclipseContext(unique_ptr<AExecutionBackend> &&exec_backend, con
 }
 
 
-EclipseContext::~EclipseContext()
+ReadylogContext::~ReadylogContext()
 {
 	ec_cleanup();
 }
 
 
-EclipseContext &EclipseContext::instance()
+ReadylogContext &ReadylogContext::instance()
 { return *instance_; }
 
 
-void EclipseContext::compile(const Block &block)
+void ReadylogContext::compile(const Block &block)
 {
 	// Discard result since this is only called for the toplevel program,
 	// which only needs to initialize its internal state.
 	block.semantics().plterm();
 
-	// Boilerplate bullshit
+	// Boilerplate stuff
 	compile_term(::term(EC_functor("events_list", 1), ::nil()));
 	compile_term(::term(EC_functor("param_cycletime", 1), EC_word(99999999)));
 }
 
 
-void EclipseContext::compile(const AbstractAction &action)
+void ReadylogContext::compile(const AbstractAction &action)
 {
 	try {
 		Semantics<Action> action_impl = action.semantics<Action>();
@@ -133,7 +133,7 @@ void EclipseContext::compile(const AbstractAction &action)
 }
 
 
-void EclipseContext::compile(const AbstractFluent &fluent)
+void ReadylogContext::compile(const AbstractFluent &fluent)
 {
 	compile_term(fluent.semantics<AbstractFluent>().prim_fluent());
 	for (EC_word &initially : fluent.semantics<AbstractFluent>().initially())
@@ -141,11 +141,11 @@ void EclipseContext::compile(const AbstractFluent &fluent)
 }
 
 
-void EclipseContext::compile(const AbstractFunction &function)
+void ReadylogContext::compile(const AbstractFunction &function)
 { compile_term(function.semantics<AbstractFunction>().definition()); }
 
 
-void EclipseContext::compile_term(const EC_word &term)
+void ReadylogContext::compile_term(const EC_word &term)
 {
 	if (! ec_query (
 		::term(EC_functor("compile_term", 1), term)
@@ -154,13 +154,13 @@ void EclipseContext::compile_term(const EC_word &term)
 }
 
 
-void EclipseContext::ec_write(EC_word t)
+void ReadylogContext::ec_write(EC_word t)
 {
 	//ec_query(::term(EC_functor("writeln", 1), t));
 }
 
 
-void EclipseContext::ec_cut()
+void ReadylogContext::ec_cut()
 {
 	EC_resume();
 	if (last_rv_ == EC_status::EC_succeed)
@@ -168,7 +168,7 @@ void EclipseContext::ec_cut()
 }
 
 
-bool EclipseContext::final(Block &program, History &history)
+bool ReadylogContext::final(Block &program, History &history)
 {
 	EC_word final = ::term(EC_functor("final", 2),
 		program.semantics().current_program(),
@@ -179,7 +179,7 @@ bool EclipseContext::final(Block &program, History &history)
 }
 
 
-bool EclipseContext::trans(Block &block, History &history)
+bool ReadylogContext::trans(Block &block, History &history)
 {
 	EC_ref h1, e1;
 

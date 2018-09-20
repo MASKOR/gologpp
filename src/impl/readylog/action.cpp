@@ -44,7 +44,7 @@ EC_word Semantics<Action>::prolog_poss()
 
 	action_.scope().semantics().init_vars();
 
-	if ( ! EclipseContext::instance().ec_query(
+	if ( ! ReadylogContext::instance().ec_query(
 		::term(
 			EC_functor("process_condition", 3),
 			action_.precondition().semantics().plterm(),

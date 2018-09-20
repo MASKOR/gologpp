@@ -86,12 +86,12 @@ void test_objectmodel()
 			put->make_ref({new NumericConstant(1), new NumericConstant(2)})
 		});
 
-		EclipseContext::init(unique_ptr<AExecutionBackend>(nullptr), options);
-		EclipseContext &ctx = EclipseContext::instance();
+		ReadylogContext::init(unique_ptr<AExecutionBackend>(nullptr), options);
+		ReadylogContext &ctx = ReadylogContext::instance();
 
 		ctx.run(std::move(main));
 
-		EclipseContext::shutdown();
+		ReadylogContext::shutdown();
 	}
 #endif // TEST_READYLOG
 
@@ -117,15 +117,15 @@ void test_parser()
 	options.trace = false;
 	options.guitrace = false;
 
-	EclipseContext::init(unique_ptr<AExecutionBackend>(nullptr), options);
-	EclipseContext &ctx = EclipseContext::instance();
+	ReadylogContext::init(unique_ptr<AExecutionBackend>(nullptr), options);
+	ReadylogContext &ctx = ReadylogContext::instance();
 
 	ctx.run(Block(
 		new Scope(global_scope()),
 		{ mainproc.release() }
 	));
 
-	EclipseContext::shutdown();
+	ReadylogContext::shutdown();
 #endif // TEST_READYLOG
 #endif
 }

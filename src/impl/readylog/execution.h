@@ -37,12 +37,12 @@ struct eclipse_opts {
 };
 
 
-class EclipseContext : public ExecutionContext {
+class ReadylogContext : public ExecutionContext {
 public:
-    virtual ~EclipseContext() override;
+    virtual ~ReadylogContext() override;
     static void init(unique_ptr<AExecutionBackend> &&, const eclipse_opts &options);
     static void shutdown();
-    static EclipseContext &instance();
+    static ReadylogContext &instance();
 
 	virtual void compile(const Block &block) override;
 	virtual void compile(const AbstractAction &action) override;
@@ -85,9 +85,9 @@ private:
 	int last_rv_;
 	eclipse_opts options_;
 
-	static unique_ptr<EclipseContext> instance_;
+	static unique_ptr<ReadylogContext> instance_;
 
-    EclipseContext(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options);
+    ReadylogContext(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options);
 };
 
 

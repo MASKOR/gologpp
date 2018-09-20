@@ -31,7 +31,7 @@ public:
 
 		EC_ref Srest, Body_cond, Eval_val, Body_subf, New_body;
 
-		if ( ! EclipseContext::instance().ec_query(
+		if ( ! ReadylogContext::instance().ec_query(
 			::term(EC_functor("process_condition", 3),
 				effect_.condition().semantics().plterm(),
 				Srest,
