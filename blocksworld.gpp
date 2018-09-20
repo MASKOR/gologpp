@@ -7,8 +7,9 @@ initially:
 
 action stack(%x, %y) {
 precondition:
-	on(%x) != %y
+	%x != %y
 	& %x != 0
+	& on(%x) != %y
 	& !(exists (%z) (
 		on(%z) == %x |
 		on(%z) == %y
@@ -32,9 +33,9 @@ effect:
 
 
 {
-	solve(15, reward())
+	solve(2, reward())
 		while (!goal())
-			pick(%x in {1, 2, 3})
-				pick(%y in {0, 1, 2, 3})
+			pick(%x in {2, 3})
+				pick(%y in {1, 2})
 					stack(%x, %y);
 }
