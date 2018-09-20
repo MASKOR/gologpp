@@ -6,26 +6,26 @@
 
 namespace gologpp {
 
-Implementation<Negation>::Implementation(const Negation &neg)
+Semantics<Negation>::Semantics(const Negation &neg)
 : negation_(neg)
 {}
 
 
-EC_word Implementation<Negation>::term()
+EC_word Semantics<Negation>::plterm()
 {
 	return ::term(EC_functor("neg", 1),
-		dynamic_cast<ReadylogImplementation &>(
-			negation_.expression().implementation()
-		).term()
+		dynamic_cast<ReadylogSemantics &>(
+			negation_.expression().semantics()
+		).plterm()
 	);
 }
 
 
-Implementation<Comparison>::~Implementation()
+Semantics<Comparison>::~Semantics()
 {}
 
 
-Implementation<Comparison>::Implementation(const Comparison &cmp)
+Semantics<Comparison>::Semantics(const Comparison &cmp)
 : comparison_(cmp)
 {
 	switch(comparison_.op()) {
@@ -50,16 +50,16 @@ Implementation<Comparison>::Implementation(const Comparison &cmp)
 }
 
 
-EC_word Implementation<Comparison>::term()
+EC_word Semantics<Comparison>::plterm()
 {
 	return ::term(EC_functor(functor_, 2),
-		comparison_.lhs().implementation().term(),
-		comparison_.rhs().implementation().term()
+		comparison_.lhs().semantics().plterm(),
+		comparison_.rhs().semantics().plterm()
 	);
 }
 
 
-Implementation<BooleanOperation>::Implementation(const BooleanOperation &c)
+Semantics<BooleanOperation>::Semantics(const BooleanOperation &c)
 : conjunction_(c)
 {
 	switch(c.op()) {
@@ -82,36 +82,36 @@ Implementation<BooleanOperation>::Implementation(const BooleanOperation &c)
 }
 
 
-EC_word Implementation<BooleanOperation>::term()
+EC_word Semantics<BooleanOperation>::plterm()
 {
 	return ::term(EC_functor(functor_, 2),
-		conjunction_.lhs().implementation().term(),
-		conjunction_.rhs().implementation().term()
+		conjunction_.lhs().semantics().plterm(),
+		conjunction_.rhs().semantics().plterm()
 	);
 }
 
 
-Implementation<Quantification>::Implementation(const Quantification &q)
+Semantics<Quantification>::Semantics(const Quantification &q)
 : quantification_(q)
 {}
 
 
-EC_word Implementation<Quantification>::term()
+EC_word Semantics<Quantification>::plterm()
 {
-	{ GologVarMutator guard(quantification_.variable().implementation<AbstractVariable>());
+	{ GologVarMutator guard(quantification_.variable().semantics<AbstractVariable>());
 
 		switch (quantification_.op()) {
 		case QuantificationOperator::EXISTS:
 			return ::term(EC_functor("some", 2),
-				quantification_.variable().implementation().term(),
-				quantification_.expression().implementation().term()
+				quantification_.variable().semantics().plterm(),
+				quantification_.expression().semantics().plterm()
 			);
 		case QuantificationOperator::FORALL:
 			return ::term(EC_functor("neg", 1),
 				::term(EC_functor("some", 2),
-					quantification_.variable().implementation().term(),
+					quantification_.variable().semantics().plterm(),
 					::term(EC_functor("neg", 1),
-						quantification_.expression().implementation().term()
+						quantification_.expression().semantics().plterm()
 					)
 				)
 			);

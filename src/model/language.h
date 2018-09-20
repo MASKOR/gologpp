@@ -3,10 +3,7 @@
 
 #include "gologpp.h"
 #include <memory>
-#include "implementation.h"
-
-#include <boost/fusion/include/std_tuple.hpp>
-#include <boost/fusion/include/for_each.hpp>
+#include "semantics.h"
 
 namespace gologpp {
 
@@ -25,13 +22,13 @@ public:
 	virtual ~AbstractLanguageElement() = default;
 
 	template<class GologT = AbstractLanguageElement>
-	Implementation<GologT> &implementation() const
-	{ return static_cast<Implementation<GologT> &>(*impl_); }
+	Semantics<GologT> &semantics() const
+	{ return static_cast<Semantics<GologT> &>(*semantics_); }
 
-	void set_implementation(unique_ptr<AbstractImplementation> &&impl)
-	{ impl_ = std::move(impl); }
+	void set_implementation(unique_ptr<AbstractSemantics> &&impl)
+	{ semantics_ = std::move(impl); }
 
-	virtual void implement(Implementor &implementor) = 0;
+	virtual void attach_semantics(SemanticsFactory &implementor) = 0;
 	virtual string to_string(const string &pfx) const = 0;
 	virtual Scope &scope() = 0;
 	virtual const Scope &scope() const = 0;
@@ -46,7 +43,7 @@ public:
 	{ return to_string(""); }
 
 protected:
-	unique_ptr<AbstractImplementation> impl_;
+	unique_ptr<AbstractSemantics> semantics_;
 };
 
 
@@ -64,8 +61,8 @@ public:
 	LanguageElement &operator = (const LanguageElement &) = delete;
 
 	template<class = GologT>
-	Implementation<GologT> &implementation() const
-	{ return static_cast<Implementation<GologT> &>(*impl_); }
+	Semantics<GologT> &semantics() const
+	{ return static_cast<Semantics<GologT> &>(*semantics_); }
 };
 
 

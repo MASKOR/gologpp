@@ -4,7 +4,7 @@
 namespace gologpp {
 
 
-Implementation<ArithmeticOperation>::Implementation(const ArithmeticOperation &op)
+Semantics<ArithmeticOperation>::Semantics(const ArithmeticOperation &op)
 : operation_(op)
 {
 	switch (operation_.op()) {
@@ -30,11 +30,11 @@ Implementation<ArithmeticOperation>::Implementation(const ArithmeticOperation &o
 }
 
 
-EC_word Implementation<ArithmeticOperation>::term()
+EC_word Semantics<ArithmeticOperation>::plterm()
 {
 	return ::term(EC_functor(functor_, 2),
-		operation_.lhs().implementation().term(),
-		operation_.rhs().implementation().term()
+		operation_.lhs().semantics().plterm(),
+		operation_.rhs().semantics().plterm()
 	);
 }
 

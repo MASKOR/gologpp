@@ -8,7 +8,7 @@ namespace gologpp {
 
 
 template<class GologT>
-class Implementation;
+class Semantics;
 
 
 

@@ -1,7 +1,7 @@
 #ifndef READYLOG_ACTION_H_
 #define READYLOG_ACTION_H_
 
-#include "implementation.h"
+#include "semantics.h"
 
 #include <model/action.h>
 
@@ -13,10 +13,10 @@ class Action;
 
 
 template<>
-class Implementation<Action> : public ReadylogImplementation {
+class Semantics<Action> : public ReadylogSemantics {
 public:
-	Implementation(const Action &a);
-	virtual ~Implementation() override = default;
+	Semantics(const Action &a);
+	virtual ~Semantics() override = default;
 
 	EC_word prim_action();
 
@@ -25,22 +25,22 @@ public:
 	EC_word prolog_poss_decl();
 	EC_word prolog_poss();
 
-	virtual EC_word term() override;
+	virtual EC_word plterm() override;
 private:
 	const Action &action_;
 };
 
 
 template<>
-class Implementation<ExogAction> : public Implementation<AbstractLanguageElement> {
+class Semantics<ExogAction> : public Semantics<AbstractLanguageElement> {
 public:
-	Implementation(const ExogAction &a);
-	virtual ~Implementation() override = default;
+	Semantics(const ExogAction &a);
+	virtual ~Semantics() override = default;
 
 	EC_word exog_action();
 	vector<EC_word> SSAs();
 
-	virtual EC_word term() override;
+	virtual EC_word plterm() override;
 
 private:
 	const ExogAction &exog_;
@@ -48,24 +48,24 @@ private:
 
 
 template<>
-class Implementation<Transition> : public Implementation<AbstractLanguageElement> {
+class Semantics<Transition> : public Semantics<AbstractLanguageElement> {
 public:
-	Implementation(const Transition &trans);
-	virtual ~Implementation() override = default;
+	Semantics(const Transition &trans);
+	virtual ~Semantics() override = default;
 
-	virtual EC_word term() override;
+	virtual EC_word plterm() override;
 private:
 	const Transition &trans_;
 };
 
 
 template<>
-class Implementation<ExogTransition> : public Implementation<AbstractLanguageElement> {
+class Semantics<ExogTransition> : public Semantics<AbstractLanguageElement> {
 public:
-	Implementation(const ExogTransition &trans);
-	virtual ~Implementation() override = default;
+	Semantics(const ExogTransition &trans);
+	virtual ~Semantics() override = default;
 
-	virtual EC_word term() override;
+	virtual EC_word plterm() override;
 private:
 	const ExogTransition &trans_;
 };

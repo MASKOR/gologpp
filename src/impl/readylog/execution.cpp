@@ -11,20 +11,20 @@
 namespace gologpp {
 
 
-Implementation<History>::Implementation(History &history)
-: HistoryImplementation(history)
+Semantics<History>::Semantics(History &history)
+: HistorySemantics(history)
 {
 	readylog_history_ = ::list(EC_atom("s0"), ::nil());
 }
 
 
-void Implementation<History>::append_exog(ExogTransition &&trans)
+void Semantics<History>::append_exog(ExogTransition &&trans)
 {
-	readylog_history_ = ::list(trans.implementation().term(), readylog_history_);
+	readylog_history_ = ::list(trans.semantics().plterm(), readylog_history_);
 }
 
 
-EC_word Implementation<History>::current_history()
+EC_word Semantics<History>::current_history()
 {
 	EC_word rv = ::newvar();
 	rv.unify(readylog_history_);
@@ -32,7 +32,7 @@ EC_word Implementation<History>::current_history()
 }
 
 
-void Implementation<History>::set_current_history(EC_word h)
+void Semantics<History>::set_current_history(EC_word h)
 { readylog_history_ = h; }
 
 
@@ -52,7 +52,7 @@ void EclipseContext::shutdown()
 
 
 EclipseContext::EclipseContext(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options)
-: ExecutionContext(std::make_unique<ReadylogImplementor>(), std::move(exec_backend))
+: ExecutionContext(std::make_unique<ReadylogSemanticsFactory>(), std::move(exec_backend))
 , options_(options)
 {
 	ec_set_option_ptr(EC_OPTION_ECLIPSEDIR, const_cast<void *>(static_cast<const void *>(ECLIPSE_DIR)));
@@ -107,7 +107,7 @@ void EclipseContext::compile(const Block &block)
 {
 	// Discard result since this is only called for the toplevel program,
 	// which only needs to initialize its internal state.
-	block.implementation().term();
+	block.semantics().plterm();
 
 	// Boilerplate bullshit
 	compile_term(::term(EC_functor("events_list", 1), ::nil()));
@@ -118,14 +118,14 @@ void EclipseContext::compile(const Block &block)
 void EclipseContext::compile(const AbstractAction &action)
 {
 	try {
-		Implementation<Action> action_impl = action.implementation<Action>();
+		Semantics<Action> action_impl = action.semantics<Action>();
 		compile_term(action_impl.prim_action());
 		compile_term(action_impl.prolog_poss_decl());
 		compile_term(action_impl.prolog_poss());
 		for (EC_word &ssa : action_impl.SSAs())
 			compile_term(ssa);
 	} catch (std::bad_cast &) {
-		Implementation<ExogAction> action_impl = action.implementation<ExogAction>();
+		Semantics<ExogAction> action_impl = action.semantics<ExogAction>();
 		compile_term(action_impl.exog_action());
 		for (EC_word &ssa : action_impl.SSAs())
 			compile_term(ssa);
@@ -135,14 +135,14 @@ void EclipseContext::compile(const AbstractAction &action)
 
 void EclipseContext::compile(const AbstractFluent &fluent)
 {
-	compile_term(fluent.implementation<AbstractFluent>().prim_fluent());
-	for (EC_word &initially : fluent.implementation<AbstractFluent>().initially())
+	compile_term(fluent.semantics<AbstractFluent>().prim_fluent());
+	for (EC_word &initially : fluent.semantics<AbstractFluent>().initially())
 		compile_term(initially);
 }
 
 
 void EclipseContext::compile(const AbstractFunction &function)
-{ compile_term(function.implementation<AbstractFunction>().definition()); }
+{ compile_term(function.semantics<AbstractFunction>().definition()); }
 
 
 void EclipseContext::compile_term(const EC_word &term)
@@ -171,8 +171,8 @@ void EclipseContext::ec_cut()
 bool EclipseContext::final(Block &program, History &history)
 {
 	EC_word final = ::term(EC_functor("final", 2),
-		program.implementation().current_program(),
-		history.implementation().current_history()
+		program.semantics().current_program(),
+		history.semantics().current_history()
 	);
 	bool rv = ec_query(final);
 	return rv;
@@ -189,8 +189,8 @@ bool EclipseContext::trans(Block &block, History &history)
 	}
 
 	EC_word trans = ::term(EC_functor("trans", 4),
-		block.implementation().current_program(),
-		history.implementation().current_history(),
+		block.semantics().current_program(),
+		history.semantics().current_history(),
 		e1, h1
 	);
 
@@ -201,8 +201,8 @@ bool EclipseContext::trans(Block &block, History &history)
 		q = trans;
 
 	if (ec_query(q)) {
-		block.implementation().set_current_program(e1);
-		history.implementation().set_current_history(h1);
+		block.semantics().set_current_program(e1);
+		history.semantics().set_current_history(h1);
 		return true;
 	}
 	return false;

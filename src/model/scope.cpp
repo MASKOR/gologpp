@@ -100,12 +100,12 @@ vector<shared_ptr<AbstractVariable>> Scope::vars() const
 }
 
 
-void Scope::implement(Implementor &implementor)
+void Scope::attach_semantics(SemanticsFactory &implementor)
 {
-	if (!impl_) {
-		impl_ = implementor.make_impl(*this);
+	if (!semantics_) {
+		semantics_ = implementor.make_semantics(*this);
 		for (auto &entry : variables_)
-			entry.second->implement(implementor);
+			entry.second->attach_semantics(implementor);
 	}
 }
 
@@ -139,13 +139,13 @@ const Scope::VariablesMap &Scope::var_map() const
 { return variables_; }
 
 
-void Scope::implement_globals(Implementor &implementor, AExecutionContext &ctx)
+void Scope::implement_globals(SemanticsFactory &implementor, AExecutionContext &ctx)
 {
 	// Two loops since we want everything implemented before we attempt to compile anything.
 	// It's all connected, you know...
 	for (GlobalsMap::value_type &entry : *globals_)
 		std::dynamic_pointer_cast<AbstractLanguageElement>(entry.second)
-			->implement(implementor);
+			->attach_semantics(implementor);
 	for (GlobalsMap::value_type &entry : *globals_)
 		entry.second->compile(ctx);
 }

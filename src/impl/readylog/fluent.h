@@ -1,7 +1,7 @@
 #ifndef READYLOG_FLUENT_H_
 #define READYLOG_FLUENT_H_
 
-#include "implementation.h"
+#include "semantics.h"
 #include <model/fluent.h>
 
 #include <eclipseclass.h>
@@ -11,15 +11,15 @@ namespace gologpp {
 
 
 template<class ExprT>
-class Implementation<InitialValue<ExprT>> : public ReadylogImplementation {
+class Semantics<InitialValue<ExprT>> : public ReadylogSemantics {
 public:
-	Implementation(const InitialValue<ExprT> &v)
+	Semantics(const InitialValue<ExprT> &v)
 	: ival_(v)
 	{}
 
-	virtual ~Implementation() override = default;
+	virtual ~Semantics() override = default;
 
-	virtual EC_word term() override
+	virtual EC_word plterm() override
 	{
 		return ::term(
 			EC_functor("initial_val", 2),
@@ -27,7 +27,7 @@ public:
 					EC_functor(ival_.fluent().name().c_str(), ival_.fluent().arity()),
 					to_ec_words(ival_.args())
 				),
-			ival_.value().implementation().term()
+			ival_.value().semantics().plterm()
 		);
 	}
 
@@ -37,13 +37,13 @@ protected:
 
 
 template<>
-class Implementation<AbstractFluent> : public ReadylogImplementation {
+class Semantics<AbstractFluent> : public ReadylogSemantics {
 public:
-	Implementation(const AbstractFluent &f);
-	virtual ~Implementation() override = default;
+	Semantics(const AbstractFluent &f);
+	virtual ~Semantics() override = default;
 
 	EC_word prim_fluent();
-	virtual EC_word term() override;
+	virtual EC_word plterm() override;
 	virtual vector<EC_word> initially() = 0;
 
 protected:
@@ -52,15 +52,15 @@ protected:
 
 
 template<class ExprT>
-class Implementation<Fluent<ExprT>> : public Implementation<AbstractFluent> {
+class Semantics<Fluent<ExprT>> : public Semantics<AbstractFluent> {
 public:
-	using Implementation<AbstractFluent>::Implementation;
+	using Semantics<AbstractFluent>::Semantics;
 
 	virtual vector<EC_word> initially() override
 	{
 		vector<EC_word> rv;
 		for (const unique_ptr<InitialValue<ExprT>> &ival : static_cast<const Fluent<ExprT> &>(fluent_).initially())
-			rv.push_back(ival->implementation().term());
+			rv.push_back(ival->semantics().plterm());
 
 		return rv;
 	}

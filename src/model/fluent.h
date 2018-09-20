@@ -54,15 +54,15 @@ public:
 	}
 
 
-	virtual void implement(Implementor &implementor) override
+	virtual void attach_semantics(SemanticsFactory &implementor) override
 	{
-		if (impl_)
+		if (semantics_)
 			return;
-		value().implement(implementor);
+		value().attach_semantics(implementor);
 		for (unique_ptr<AbstractConstant> &arg : args())
-			arg->implement(implementor);
+			arg->attach_semantics(implementor);
 
-		impl_ = implementor.make_impl(*this);
+		semantics_ = implementor.make_semantics(*this);
 	}
 
 
@@ -152,15 +152,15 @@ public:
 	}
 
 
-	virtual void implement(Implementor &implementor) override
+	virtual void attach_semantics(SemanticsFactory &implementor) override
 	{
-		if (impl_)
+		if (semantics_)
 			return;
 
 		for (unique_ptr<InitialValue<ExpressionT>> &ival : initial_values_)
-			ival->implement(implementor);
-		scope_->implement(implementor);
-		impl_ = implementor.make_impl(*this);
+			ival->attach_semantics(implementor);
+		scope_->attach_semantics(implementor);
+		semantics_ = implementor.make_semantics(*this);
 	}
 
 

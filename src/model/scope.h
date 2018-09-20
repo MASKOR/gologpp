@@ -89,7 +89,7 @@ public:
 	vector<shared_ptr<AbstractVariable>> lookup_vars(const vector<string> &names);
 	vector<shared_ptr<AbstractVariable>> vars() const;
 
-	void implement(Implementor &implementor) override;
+	void attach_semantics(SemanticsFactory &implementor) override;
 
 	static Scope &global_scope()
 	{ return global_scope_; }
@@ -117,7 +117,7 @@ public:
 
 
 	const VariablesMap &var_map() const;
-	void implement_globals(Implementor &implementor, AExecutionContext &ctx);
+	void implement_globals(SemanticsFactory &implementor, AExecutionContext &ctx);
 	void clear();
 
 

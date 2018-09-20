@@ -6,7 +6,7 @@
 #include <model/execution.h>
 #include "config.h"
 #include <eclipseclass.h>
-#include "implementation.h"
+#include "semantics.h"
 
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp>
@@ -14,10 +14,10 @@
 namespace gologpp {
 
 template<>
-class Implementation<History> : public HistoryImplementation {
+class Semantics<History> : public HistorySemantics {
 public:
-	Implementation(History &);
-	virtual ~Implementation() override = default;
+	Semantics(History &);
+	virtual ~Semantics() override = default;
 
 	virtual void append_exog(ExogTransition &&exog) override;
 	EC_word current_history();

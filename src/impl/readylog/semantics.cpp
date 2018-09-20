@@ -1,4 +1,4 @@
-#include "implementation.h"
+#include "semantics.h"
 #include "effect_axiom.h"
 #include "action.h"
 #include "fluent.h"
@@ -14,8 +14,8 @@ namespace gologpp {
 
 
 #define DEFINE_MAKE_IMPL(GologT) \
-unique_ptr<AbstractImplementation> ReadylogImplementor::make_impl(GologT &obj) \
-{ return unique_ptr<AbstractImplementation>(new Implementation<GologT>(obj)); }
+unique_ptr<AbstractSemantics> ReadylogSemanticsFactory::make_semantics(GologT &obj) \
+{ return unique_ptr<AbstractSemantics>(new Semantics<GologT>(obj)); }
 
 DEFINE_MAKE_IMPL(Action)
 DEFINE_MAKE_IMPL(ExogAction)

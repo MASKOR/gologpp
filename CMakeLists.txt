@@ -99,7 +99,7 @@ if (${BUILD_READYLOG_IMPL})
 		src/impl/readylog/formula.cpp
 		src/impl/readylog/procedural.cpp
 		src/impl/readylog/scope.cpp
-		src/impl/readylog/implementation.cpp
+		src/impl/readylog/semantics.cpp
 	)
 	add_library(readylog++ SHARED ${READYLOG_SRC})
 	target_link_libraries(readylog++ golog++ ${ECLIPSE_LIBRARIES})

@@ -10,7 +10,7 @@ namespace gologpp {
 
 
 
-EC_word Implementation<AbstractFunction>::term()
+EC_word Semantics<AbstractFunction>::plterm()
 {
 	if (function_.arity() > 0)
 		return ::term(EC_functor(function_.name().c_str(), function_.arity()),
@@ -22,18 +22,18 @@ EC_word Implementation<AbstractFunction>::term()
 
 
 
-Implementation<Block>::Implementation(const Block &b)
+Semantics<Block>::Semantics(const Block &b)
 : block_(b)
 {}
 
 
-EC_word Implementation<Block>::term()
+EC_word Semantics<Block>::plterm()
 {
-	block_.scope().implementation().init_vars();
+	block_.scope().semantics().init_vars();
 
 	if (dynamic_cast<const AbstractFunction *>(block_.parent())) {
 		if (block_.elements().size() == 1)
-			current_program_ = block_.elements()[0]->implementation().term();
+			current_program_ = block_.elements()[0]->semantics().plterm();
 		else
 			throw std::runtime_error("Functions must contain exactly one return statement and nothing else.");
 	}
@@ -44,7 +44,7 @@ EC_word Implementation<Block>::term()
 }
 
 
-EC_word Implementation<Block>::current_program()
+EC_word Semantics<Block>::current_program()
 {
 	EC_word rv = ::newvar();
 	rv.unify(current_program_);
@@ -52,103 +52,103 @@ EC_word Implementation<Block>::current_program()
 }
 
 
-void Implementation<Block>::set_current_program(EC_word e)
+void Semantics<Block>::set_current_program(EC_word e)
 { current_program_ = e; }
 
 
 
-Implementation<Choose>::Implementation(const Choose &c)
+Semantics<Choose>::Semantics(const Choose &c)
 : choose_(c)
 {}
 
 
-EC_word Implementation<Choose>::term()
+EC_word Semantics<Choose>::plterm()
 {
-	choose_.scope().implementation().init_vars();
+	choose_.scope().semantics().init_vars();
 	EC_word tail = ::nil();
 	for (const unique_ptr<Statement> &stmt : choose_.alternatives())
-		tail = ::list(stmt->implementation().term(), tail);
+		tail = ::list(stmt->semantics().plterm(), tail);
 	return ::term(EC_functor("nondet", 1), tail);
 }
 
 
 
-Implementation<Conditional>::Implementation(const Conditional &c)
+Semantics<Conditional>::Semantics(const Conditional &c)
 : conditional_(c)
 {}
 
 
-EC_word Implementation<Conditional>::term()
+EC_word Semantics<Conditional>::plterm()
 {
 	return ::term(EC_functor("lif", 3),
-		conditional_.condition().implementation().term(),
-		conditional_.block_true().implementation().term(),
-		conditional_.block_false().implementation().term()
+		conditional_.condition().semantics().plterm(),
+		conditional_.block_true().semantics().plterm(),
+		conditional_.block_false().semantics().plterm()
 	);
 }
 
 
 
-Implementation<Search>::Implementation(const Search &search)
+Semantics<Search>::Semantics(const Search &search)
 : search_(search)
 {}
 
 
-EC_word Implementation<Search>::term()
+EC_word Semantics<Search>::plterm()
 {
 	return ::term(EC_functor("search", 1),
-		search_.statement().implementation().term()
+		search_.statement().semantics().plterm()
 	);
 }
 
 
 
-Implementation<Solve>::Implementation(const Solve &solve)
+Semantics<Solve>::Semantics(const Solve &solve)
 : solve_(solve)
 {}
 
 
-EC_word Implementation<Solve>::term()
+EC_word Semantics<Solve>::plterm()
 {
 	return ::term(EC_functor("solve", 3),
-		solve_.statement().implementation().term(),
-		solve_.horizon().implementation().term(),
-		solve_.reward().implementation().term()
+		solve_.statement().semantics().plterm(),
+		solve_.horizon().semantics().plterm(),
+		solve_.reward().semantics().plterm()
 	);
 }
 
 
 
-Implementation<Test>::Implementation(const Test &test)
+Semantics<Test>::Semantics(const Test &test)
 : test_(test)
 {}
 
 
-EC_word Implementation<Test>::term()
+EC_word Semantics<Test>::plterm()
 {
-	return test_.expression().implementation().term();
+	return test_.expression().semantics().plterm();
 }
 
 
 
-Implementation<While>::Implementation(const While &w)
+Semantics<While>::Semantics(const While &w)
 : while_(w)
 {}
 
 
-EC_word Implementation<While>::term()
+EC_word Semantics<While>::plterm()
 {
 	return ::term(EC_functor("while", 2),
-		while_.expression().implementation().term(),
-		while_.statement().implementation().term()
+		while_.expression().semantics().plterm(),
+		while_.statement().semantics().plterm()
 	);
 }
 
 
 
 template<>
-EC_word Implementation<Return<BooleanExpression>>::term()
-{ return ret_.expression().implementation().term(); }
+EC_word Semantics<Return<BooleanExpression>>::plterm()
+{ return ret_.expression().semantics().plterm(); }
 
 
 

@@ -20,13 +20,13 @@ Block::Block(Scope *own_scope, const vector<Statement *> &elements)
 	}
 }
 
-void Block::implement(Implementor &implementor)
+void Block::attach_semantics(SemanticsFactory &f)
 {
-	if (!impl_) {
-		impl_ = implementor.make_impl(*this);
-		scope().implement(implementor);
+	if (!semantics_) {
+		semantics_ = f.make_semantics(*this);
+		scope().attach_semantics(f);
 		for (auto &stmt : elements_)
-			stmt->implement(implementor);
+			stmt->attach_semantics(f);
 	}
 }
 
@@ -61,13 +61,13 @@ const vector<unique_ptr<Statement>> &Choose::alternatives() const
 { return alternatives_; }
 
 
-void Choose::implement(Implementor &implementor)
+void Choose::attach_semantics(SemanticsFactory &f)
 {
-	if (!impl_) {
-		impl_ = implementor.make_impl(*this);
-		scope().implement(implementor);
+	if (!semantics_) {
+		semantics_ = f.make_semantics(*this);
+		scope().attach_semantics(f);
 		for (unique_ptr<Statement> &stmt : alternatives_)
-			stmt->implement(implementor);
+			stmt->attach_semantics(f);
 	}
 }
 
@@ -147,14 +147,14 @@ const Reference<NumericFunction> &Solve::reward() const
 { return *reward_; }
 
 
-void Solve::implement(Implementor &implementor)
+void Solve::attach_semantics(SemanticsFactory &f)
 {
-	if (impl_)
+	if (semantics_)
 		return;
-	horizon_->implement(implementor);
-	reward_->implement(implementor);
-	statement_->implement(implementor);
-	impl_ = implementor.make_impl(*this);
+	horizon_->attach_semantics(f);
+	reward_->attach_semantics(f);
+	statement_->attach_semantics(f);
+	semantics_ = f.make_semantics(*this);
 }
 
 

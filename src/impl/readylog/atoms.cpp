@@ -2,19 +2,19 @@
 
 namespace gologpp {
 
-Implementation<AbstractVariable>::Implementation(const AbstractVariable &var)
+Semantics<AbstractVariable>::Semantics(const AbstractVariable &var)
 : var_(var)
 , golog_var_(("gv_" + var.name()).c_str())
 , as_golog_var_(false)
 {}
 
-Implementation<AbstractVariable>::~Implementation()
+Semantics<AbstractVariable>::~Semantics()
 {}
 
-void Implementation<AbstractVariable>::init()
+void Semantics<AbstractVariable>::init()
 { ec_var_ = ::newvar(); }
 
-EC_word Implementation<AbstractVariable>::term()
+EC_word Semantics<AbstractVariable>::plterm()
 {
 	if (as_golog_var_)
 		return golog_var_;
@@ -23,12 +23,12 @@ EC_word Implementation<AbstractVariable>::term()
 }
 
 
-void Implementation<AbstractVariable>::translate_as_golog_var(bool gv)
+void Semantics<AbstractVariable>::translate_as_golog_var(bool gv)
 { as_golog_var_ = gv; }
 
 
 
-GologVarMutator::GologVarMutator(Implementation<AbstractVariable> &var_impl)
+GologVarMutator::GologVarMutator(Semantics<AbstractVariable> &var_impl)
 : var_impl_(var_impl)
 { var_impl_.translate_as_golog_var(true); }
 
@@ -38,7 +38,7 @@ GologVarMutator::~GologVarMutator()
 
 
 template<>
-EC_word Implementation<Constant<BooleanExpression>>::term()
+EC_word Semantics<Constant<BooleanExpression>>::plterm()
 {
 	if (value_.representation() == "true")
 		return EC_atom("true");
@@ -50,7 +50,7 @@ EC_word Implementation<Constant<BooleanExpression>>::term()
 
 
 template<>
-EC_word Implementation<Constant<NumericExpression>>::term()
+EC_word Semantics<Constant<NumericExpression>>::plterm()
 {
 	if (value_.representation().find('.') != string::npos)
 		return EC_word(std::stod(value_.representation()));

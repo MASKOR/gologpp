@@ -1,7 +1,7 @@
 #ifndef READYLOG_REFERENCE_H_
 #define READYLOG_REFERENCE_H_
 
-#include "implementation.h"
+#include "semantics.h"
 #include <model/reference.h>
 
 // Include headers for everything we might have a reference to (see term() method)
@@ -18,14 +18,14 @@ template<class GologT> class Reference;
 
 
 template<class ExpressionT>
-class Implementation<Reference<Variable<ExpressionT>>> : public ReadylogImplementation {
+class Semantics<Reference<Variable<ExpressionT>>> : public ReadylogSemantics {
 public:
-	Implementation(Reference<Variable<ExpressionT>> &ref)
+	Semantics(Reference<Variable<ExpressionT>> &ref)
 	: reference_(ref)
 	{}
 
-	EC_word term() override
-	{ return reference_.target()->implementation().term(); }
+	EC_word plterm() override
+	{ return reference_.target()->semantics().plterm(); }
 
 private:
 	Reference<Variable<ExpressionT>> &reference_;
@@ -33,13 +33,13 @@ private:
 
 
 template<class GologT>
-class Implementation<Reference<GologT>> : public ReadylogImplementation {
+class Semantics<Reference<GologT>> : public ReadylogSemantics {
 public:
-	Implementation(Reference<GologT> &ref)
+	Semantics(Reference<GologT> &ref)
 	: reference_(ref)
 	{}
 
-	EC_word term() override
+	EC_word plterm() override
 	{
 		if (reference_.arity() > 0)
 			return ::term(EC_functor(reference_.name().c_str(), reference_.arity()),

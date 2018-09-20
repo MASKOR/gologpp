@@ -1,7 +1,7 @@
 #ifndef READYLOG_FORMULA_H_
 #define READYLOG_FORMULA_H_
 
-#include "implementation.h"
+#include "semantics.h"
 #include <model/gologpp.h>
 
 #include <eclipseclass.h>
@@ -10,17 +10,17 @@ namespace gologpp {
 
 
 template<>
-class Implementation<BooleanExpression> : public ReadylogImplementation {
+class Semantics<BooleanExpression> : public ReadylogSemantics {
 };
 
 
 template<>
-class Implementation<Negation> : public Implementation<BooleanExpression> {
+class Semantics<Negation> : public Semantics<BooleanExpression> {
 public:
-	Implementation(const Negation &);
-	virtual ~Implementation() override = default;
+	Semantics(const Negation &);
+	virtual ~Semantics() override = default;
 
-	virtual EC_word term() override;
+	virtual EC_word plterm() override;
 
 private:
 	const Negation &negation_;
@@ -28,12 +28,12 @@ private:
 
 
 template<>
-class Implementation<Comparison> : public Implementation<BooleanExpression> {
+class Semantics<Comparison> : public Semantics<BooleanExpression> {
 public:
-	Implementation(const Comparison &);
-	virtual ~Implementation() override;
+	Semantics(const Comparison &);
+	virtual ~Semantics() override;
 
-	virtual EC_word term() override;
+	virtual EC_word plterm() override;
 
 private:
 	const Comparison &comparison_;
@@ -42,10 +42,10 @@ private:
 
 
 template<>
-class Implementation<BooleanOperation> : public Implementation<BooleanExpression> {
+class Semantics<BooleanOperation> : public Semantics<BooleanExpression> {
 public:
-	Implementation(const BooleanOperation &);
-	virtual EC_word term() override;
+	Semantics(const BooleanOperation &);
+	virtual EC_word plterm() override;
 
 private:
 	const BooleanOperation &conjunction_;
@@ -54,10 +54,10 @@ private:
 
 
 template<>
-class Implementation<Quantification> : public Implementation<BooleanExpression> {
+class Semantics<Quantification> : public Semantics<BooleanExpression> {
 public:
-	Implementation(const Quantification &);
-	virtual EC_word term() override;
+	Semantics(const Quantification &);
+	virtual EC_word plterm() override;
 
 private:
 	const Quantification &quantification_;

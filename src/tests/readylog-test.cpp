@@ -11,14 +11,7 @@
 #include <model/procedural.h>
 
 #ifdef GOLOGPP_TEST_READYLOG
-#include <impl/readylog/action.h>
-#include <impl/readylog/effect_axiom.h>
-#include <impl/readylog/formula.h>
 #include <impl/readylog/execution.h>
-#include <impl/readylog/reference.h>
-#include <impl/readylog/fluent.h>
-#include <impl/readylog/atoms.h>
-#include <impl/readylog/implementation.h>
 #endif
 
 #ifdef GOLOGPP_TEST_PARSER

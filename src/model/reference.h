@@ -108,14 +108,14 @@ public:
 	{ return true; }
 
 
-	virtual void implement(Implementor &implementor) override
+	virtual void attach_semantics(SemanticsFactory &implementor) override
 	{
-		if (impl_)
+		if (semantics_)
 			return;
 
-		impl_ = implementor.make_impl(*this);
+		semantics_ = implementor.make_semantics(*this);
 		for (unique_ptr<Expression> &expr : args_)
-			expr->implement(implementor);
+			expr->attach_semantics(implementor);
 	}
 
 	virtual string to_string(const string &pfx) const override
@@ -174,11 +174,11 @@ public:
 	{ return true; }
 
 
-	virtual void implement(Implementor &implementor) override
+	virtual void attach_semantics(SemanticsFactory &implementor) override
 	{
-		if (impl_)
+		if (semantics_)
 			return;
-		impl_ = implementor.make_impl(*this);
+		semantics_ = implementor.make_semantics(*this);
 	}
 
 

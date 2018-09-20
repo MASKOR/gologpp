@@ -1,9 +1,9 @@
 #ifndef READYLOG_ATOMS_H_
 #define READYLOG_ATOMS_H_
 
-#include "implementation.h"
+#include "semantics.h"
 
-#include <model/implementation.h>
+#include <model/semantics.h>
 #include <model/atoms.h>
 #include <model/error.h>
 
@@ -13,13 +13,13 @@ namespace gologpp {
 
 
 template<>
-class Implementation<AbstractVariable> : public ReadylogImplementation {
+class Semantics<AbstractVariable> : public ReadylogSemantics {
 public:
-	Implementation(const AbstractVariable &var);
-	virtual ~Implementation() override;
+	Semantics(const AbstractVariable &var);
+	virtual ~Semantics() override;
 
 	void init();
-	virtual EC_word term() override;
+	virtual EC_word plterm() override;
 	void translate_as_golog_var(bool as_gv);
 
 private:
@@ -31,18 +31,18 @@ private:
 
 
 template<>
-class Implementation<Variable<BooleanExpression>> : public Implementation<AbstractVariable>
+class Semantics<Variable<BooleanExpression>> : public Semantics<AbstractVariable>
 {
 public:
-	using Implementation<AbstractVariable>::Implementation;
+	using Semantics<AbstractVariable>::Semantics;
 };
 
 
 template<>
-class Implementation<Variable<NumericExpression>> : public Implementation<AbstractVariable>
+class Semantics<Variable<NumericExpression>> : public Semantics<AbstractVariable>
 {
 public:
-	using Implementation<AbstractVariable>::Implementation;
+	using Semantics<AbstractVariable>::Semantics;
 };
 
 
@@ -53,7 +53,7 @@ public:
  */
 class GologVarMutator {
 public:
-	GologVarMutator(Implementation<AbstractVariable> &var_impl);
+	GologVarMutator(Semantics<AbstractVariable> &var_impl);
 
 	template<class ExpressionT>
 	GologVarMutator(const Reference<Variable<ExpressionT>> &var_ref)
@@ -62,21 +62,21 @@ public:
 
 	~GologVarMutator();
 private:
-	Implementation<AbstractVariable> &var_impl_;
+	Semantics<AbstractVariable> &var_impl_;
 };
 
 
 
 template<class ExpressionT>
-class Implementation<Constant<ExpressionT>> : public ReadylogImplementation {
+class Semantics<Constant<ExpressionT>> : public ReadylogSemantics {
 public:
-	Implementation(const Constant<ExpressionT> &value)
+	Semantics(const Constant<ExpressionT> &value)
 	: value_(value)
 	{}
 
-	virtual ~Implementation() override = default;
+	virtual ~Semantics() override = default;
 
-	virtual EC_word term() override;
+	virtual EC_word plterm() override;
 
 private:
 	const Constant<ExpressionT> &value_;

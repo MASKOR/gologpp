@@ -47,14 +47,14 @@ void Action::set_precondition(BooleanExpression *cond)
 }
 
 
-void Action::implement(Implementor &implementor)
+void Action::attach_semantics(SemanticsFactory &implementor)
 {
-	if (!impl_) {
-		impl_ = implementor.make_impl(*this);
-		scope().implement(implementor);
-		precondition_->implement(implementor);
+	if (!semantics_) {
+		semantics_ = implementor.make_semantics(*this);
+		scope().attach_semantics(implementor);
+		precondition_->attach_semantics(implementor);
 		for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
-			effect->implement(implementor);
+			effect->attach_semantics(implementor);
 	}
 }
 
@@ -86,13 +86,13 @@ Expression *Action::ref(const vector<Expression *> &args)
 { return make_ref(args); }
 
 
-void ExogAction::implement(Implementor &implementor)
+void ExogAction::attach_semantics(SemanticsFactory &implementor)
 {
-	if (!impl_) {
-		impl_ = implementor.make_impl(*this);
-		scope().implement(implementor);
+	if (!semantics_) {
+		semantics_ = implementor.make_semantics(*this);
+		scope().attach_semantics(implementor);
 		for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
-			effect->implement(implementor);
+			effect->attach_semantics(implementor);
 	}
 }
 
@@ -131,23 +131,23 @@ const Scope &AbstractTransition::parent_scope() const
 
 
 
-void Transition::implement(Implementor &implementor)
+void Transition::attach_semantics(SemanticsFactory &implementor)
 {
-	if (!impl_) {
-		impl_ = implementor.make_impl(*this);
+	if (!semantics_) {
+		semantics_ = implementor.make_semantics(*this);
 		for (unique_ptr<AbstractConstant> &c : args_)
-			c->implement(implementor);
+			c->attach_semantics(implementor);
 	}
 }
 
 
 
-void ExogTransition::implement(Implementor &implementor)
+void ExogTransition::attach_semantics(SemanticsFactory &implementor)
 {
-	if (!impl_) {
-		impl_ = implementor.make_impl(*this);
+	if (!semantics_) {
+		semantics_ = implementor.make_semantics(*this);
 		for (unique_ptr<AbstractConstant> &c : args_)
-			c->implement(implementor);
+			c->attach_semantics(implementor);
 	}
 }
 

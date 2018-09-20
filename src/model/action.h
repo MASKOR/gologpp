@@ -64,7 +64,7 @@ public:
 		boost::optional<vector<AbstractEffectAxiom *>> effects
 	);
 
-	virtual void implement(Implementor &) override;
+	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
 	virtual Expression *ref(const vector<Expression *> &args) override;
 	Reference<Action> *make_ref(const vector<Expression *> &args);
@@ -80,7 +80,7 @@ public:
 	using AbstractAction::AbstractAction;
 	ExogAction(const Action &) = delete;
 	ExogAction(ExogAction &&) = default;
-	virtual void implement(Implementor &) override;
+	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
 };
 
@@ -111,7 +111,7 @@ public:
 	using AbstractTransition::AbstractTransition;
 	Transition(const Transition &) = delete;
 	Transition(Transition &&) = default;
-	virtual void implement(Implementor &) override;
+	virtual void attach_semantics(SemanticsFactory &) override;
 };
 
 
@@ -121,7 +121,7 @@ public:
 	using AbstractTransition::AbstractTransition;
 	ExogTransition(const ExogTransition &) = delete;
 	ExogTransition(ExogTransition &&) = default;
-	virtual void implement(Implementor &) override;
+	virtual void attach_semantics(SemanticsFactory &) override;
 };
 
 

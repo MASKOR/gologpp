@@ -5,11 +5,11 @@
 
 namespace gologpp {
 
-HistoryImplementation::HistoryImplementation(History &h)
+HistorySemantics::HistorySemantics(History &h)
 : history_(h)
 {}
 
-HistoryImplementation::~HistoryImplementation()
+HistorySemantics::~HistorySemantics()
 {}
 
 History::History()
@@ -58,7 +58,7 @@ AExecutionBackend::~AExecutionBackend()
 {}
 
 
-ExecutionContext::ExecutionContext(unique_ptr<Implementor> &&implementor, unique_ptr<AExecutionBackend> &&exec_backend)
+ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<AExecutionBackend> &&exec_backend)
 : implementor_(std::move(implementor))
 , exec_backend_(std::move(exec_backend))
 {}
@@ -70,22 +70,22 @@ ExecutionContext::~ExecutionContext()
 History ExecutionContext::run(Block &&program)
 {
 	History history;
-	history.implement(*implementor_);
+	history.attach_semantics(*implementor_);
 
 	global_scope().implement_globals(*implementor_, *this);
 
-	program.implement(*implementor_);
+	program.attach_semantics(*implementor_);
 	compile(program);
 
 	while (!final(program, history)) {
 		while (!exog_queue_.empty()) {
 			ExogTransition exog = exog_queue_pop();
-			exog.implement(*implementor_);
+			exog.attach_semantics(*implementor_);
 			history.abstract_impl().append_exog(std::move(exog));
 		}
 		if (!trans(program, history)) {
 			ExogTransition exog = exog_queue_poll();
-			exog.implement(*implementor_);
+			exog.attach_semantics(*implementor_);
 			history.abstract_impl().append_exog(std::move(exog));
 		}
 	}

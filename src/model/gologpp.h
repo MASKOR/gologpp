@@ -4,6 +4,9 @@
 #include <memory>
 #include <vector>
 
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
+#include <boost/fusion/adapted/std_tuple.hpp>
+
 namespace gologpp {
 
 typedef unsigned char arity_t;
@@ -93,28 +96,28 @@ template<class> class Reference;
 
 class History;
 
-class AbstractImplementation;
+class AbstractSemantics;
 template<class> class Implementation;
-class Implementor;
+class SemanticsFactory;
 
 class AExecutionContext;
 class ExecutionContext;
 
 
 #define DEFINE_IMPLEMENT_WITH_MEMBERS(...) \
-	virtual void implement(Implementor &implementor) override { \
-		if (!impl_) { \
-			impl_ = implementor.make_impl(*this); \
+	virtual void attach_semantics(SemanticsFactory &f) override { \
+		if (!semantics_) { \
+			semantics_ = f.make_semantics(*this); \
 			boost::fusion::for_each(std::tie(__VA_ARGS__), [&] (auto &e) { \
-				e.implement(implementor); \
+				e.attach_semantics(f); \
 			} ); \
 		} \
 	}
 
 #define DEFINE_IMPLEMENT \
-	virtual void implement(Implementor &implementor) override { \
-		if (!impl_) \
-			impl_ = implementor.make_impl(*this); \
+	virtual void attach_semantics(SemanticsFactory &f) override { \
+		if (!semantics_) \
+			semantics_ = f.make_semantics(*this); \
 	}
 
 

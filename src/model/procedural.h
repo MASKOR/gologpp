@@ -19,7 +19,7 @@ namespace gologpp {
 class Block : public Statement, public ScopeOwner, public LanguageElement<Block> {
 public:
 	Block(Scope *own_scope, const vector<Statement *> &elements);
-	virtual void implement(Implementor &) override;
+	virtual void attach_semantics(SemanticsFactory &) override;
 
 	const vector<unique_ptr<Statement>> &elements() const;
 
@@ -34,7 +34,7 @@ private:
 class Choose : public Statement, public ScopeOwner, public LanguageElement<Choose> {
 public:
 	Choose(Scope *own_scope, const vector<Statement *> &alternatives);
-	void implement(Implementor &) override;
+	void attach_semantics(SemanticsFactory &) override;
 
 	const vector<unique_ptr<Statement>> &alternatives() const;
 
@@ -133,17 +133,17 @@ public:
 	{ return *statement_; }
 
 
-	virtual void implement(Implementor &implementor) override
+	virtual void attach_semantics(SemanticsFactory &f) override
 	{
-		if (impl_)
+		if (semantics_)
 			return;
 
 		for (unique_ptr<Constant<ExprT>> & c : domain_)
-			c->implement(implementor);
-		variable_->implement(implementor);
-		statement_->implement(implementor);
+			c->attach_semantics(f);
+		variable_->attach_semantics(f);
+		statement_->attach_semantics(f);
 
-		set_implementation(implementor.make_impl(*this));
+		set_implementation(f.make_semantics(*this));
 	}
 
 
@@ -182,7 +182,7 @@ public:
 
 	const NumericExpression &horizon() const;
 	const Reference<NumericFunction> &reward() const;
-	virtual void implement(Implementor &implementor) override;
+	virtual void attach_semantics(SemanticsFactory &implementor) override;
 	virtual string to_string(const string &pfx) const override;
 
 private:

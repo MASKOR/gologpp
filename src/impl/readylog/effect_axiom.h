@@ -1,7 +1,7 @@
 #ifndef READYLOG_EFFECTAXIOM_H_
 #define READYLOG_EFFECTAXIOM_H_
 
-#include "implementation.h"
+#include "semantics.h"
 
 #include <model/effect_axiom.h>
 #include "reference.h"
@@ -17,28 +17,28 @@ namespace gologpp {
 
 
 template<class ExpressionT>
-class Implementation<EffectAxiom<ExpressionT>> : public ReadylogImplementation {
+class Semantics<EffectAxiom<ExpressionT>> : public ReadylogSemantics {
 public:
-	Implementation(const EffectAxiom<ExpressionT> &eff)
+	Semantics(const EffectAxiom<ExpressionT> &eff)
 	: effect_(eff)
 	{}
 
-	virtual ~Implementation() override = default;
+	virtual ~Semantics() override = default;
 
-	virtual EC_word term() override
+	virtual EC_word plterm() override
 	{
-		effect_.action().scope().implementation().init_vars();
+		effect_.action().scope().semantics().init_vars();
 
 		EC_ref Srest, Body_cond, Eval_val, Body_subf, New_body;
 
 		if ( ! EclipseContext::instance().ec_query(
 			::term(EC_functor("process_condition", 3),
-				effect_.condition().implementation().term(),
+				effect_.condition().semantics().plterm(),
 				Srest,
 				Body_cond
 			)
 			&& ::term(EC_functor("process_subf", 5),
-				effect_.value().implementation().term(),
+				effect_.value().semantics().plterm(),
 				Eval_val,
 				Body_subf,
 				::newvar(),
@@ -54,9 +54,9 @@ public:
 
 		return ::term(EC_functor(":-", 2),
 			::term(EC_functor("ssa", 3),
-				effect_.fluent().implementation().term(),
+				effect_.fluent().semantics().plterm(),
 				Eval_val,
-				::list(effect_.action().implementation().term(), Srest)
+				::list(effect_.action().semantics().plterm(), Srest)
 			),
 			New_body
 		);

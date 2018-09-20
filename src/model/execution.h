@@ -22,10 +22,10 @@ class History;
 
 
 
-class HistoryImplementation : public AbstractImplementation {
+class HistorySemantics : public AbstractSemantics {
 public:
-	HistoryImplementation(History &history);
-	virtual ~HistoryImplementation();
+	HistorySemantics(History &history);
+	virtual ~HistorySemantics();
 
 	virtual void append_exog(ExogTransition &&) = 0;
 
@@ -44,8 +44,8 @@ public:
 
 	DEFINE_IMPLEMENT
 
-	HistoryImplementation &abstract_impl()
-	{ return static_cast<HistoryImplementation &>(*impl_); }
+	HistorySemantics &abstract_impl()
+	{ return static_cast<HistorySemantics &>(*semantics_); }
 
 	virtual string to_string(const string &pfx) const override;
 };
@@ -93,14 +93,14 @@ public:
 
 class ExecutionContext : public AExecutionContext {
 public:
-	ExecutionContext(unique_ptr<Implementor> &&implementor, unique_ptr<AExecutionBackend> &&exec_backend);
+	ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<AExecutionBackend> &&exec_backend);
 
 	virtual ~ExecutionContext() override;
 
 	virtual History run(Block &&program) override;
 
 private:
-	unique_ptr<Implementor> implementor_;
+	unique_ptr<SemanticsFactory> implementor_;
 	unique_ptr<AExecutionBackend> exec_backend_;
 };
 

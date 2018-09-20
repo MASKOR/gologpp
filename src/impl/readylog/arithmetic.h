@@ -1,7 +1,7 @@
 #ifndef READYLOG_ARITHMETIC_H_
 #define READYLOG_ARITHMETIC_H_
 
-#include "implementation.h"
+#include "semantics.h"
 #include <eclipseclass.h>
 
 namespace gologpp {
@@ -9,11 +9,11 @@ namespace gologpp {
 class ArithmeticOperation;
 
 template<>
-class Implementation<ArithmeticOperation> : public ReadylogImplementation {
+class Semantics<ArithmeticOperation> : public ReadylogSemantics {
 public:
-	Implementation(const ArithmeticOperation &);
+	Semantics(const ArithmeticOperation &);
 
-	EC_word term() override;
+	EC_word plterm() override;
 
 private:
 	const ArithmeticOperation &operation_;
