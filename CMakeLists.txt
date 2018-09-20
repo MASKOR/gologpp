@@ -8,23 +8,16 @@ find_package(PkgConfig)
 find_package(Boost REQUIRED)
 find_package(EclipseClp)
 
-#pkg_check_modules(SWIPL REQUIRED "swipl")
+pkg_check_modules(SWIPL "swipl")
 
-include_directories(${ECLIPSE_INCLUDE_DIRS} ${Boost_INCLUDE_DIR} src)
-link_directories(${ECLIPSE_LIBRARY_DIRS})
+include_directories(${Boost_INCLUDE_DIR} src)
 
 add_compile_options(-Wall)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -fno-omit-frame-pointer")
 
-find_file(READYLOG_PL preprocessor.pl
-        PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../
-        PATH_SUFFIXES /readylog/interpreter /kbsgolog/interpreters/readylog)
-add_definitions(-DREADYLOG_PATH=\"${READYLOG_PL}\")
-add_definitions(-DECLIPSE_DIR=\"${ECLIPSE_DIR}\")
-add_definitions(-DSOURCE_DIR=\"${CMAKE_SOURCE_DIR}\")
+add_definitions(-DSOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\")
 
 set(EXTRA_COMPILER_MACROS "" CACHE STRING "Extra macro definitions to pass to the compiler with the -D option")
-add_definitions(-DUSES_NO_ENGINE_HANDLE)
 
 foreach(def ${EXTRA_COMPILER_MACROS})
 	message(${def})
@@ -40,22 +33,22 @@ endif()
 
 
 set(INTERFACE_SRC
-		src/model/action.cpp
-		src/model/atoms.cpp
-		src/model/effect_axiom.cpp
-		src/model/fluent.cpp
-		src/model/expressions.cpp
-		src/model/formula.cpp
-		src/model/procedural.cpp
-		src/model/scope.cpp
-		src/model/situation.cpp
-		src/model/utilities.cpp
-		src/model/arithmetic.cpp
-		src/model/error.cpp
-		src/model/user_error.cpp
-		src/model/execution.cpp
-		src/model/reference.cpp
-		src/model/global.cpp
+	src/model/action.cpp
+	src/model/atoms.cpp
+	src/model/effect_axiom.cpp
+	src/model/fluent.cpp
+	src/model/expressions.cpp
+	src/model/formula.cpp
+	src/model/procedural.cpp
+	src/model/scope.cpp
+	src/model/situation.cpp
+	src/model/utilities.cpp
+	src/model/arithmetic.cpp
+	src/model/error.cpp
+	src/model/user_error.cpp
+	src/model/execution.cpp
+	src/model/reference.cpp
+	src/model/global.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -80,16 +73,20 @@ if (${BUILD_PARSER})
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
 	set_property(TARGET parsegolog++ PROPERTY CXX_STANDARD 14)
-	add_definitions(-DGOLOGPP_BUILD_PARSER)
 	if (${DEBUG_PARSER})
-		add_definitions(-DDEBUG_PARSER)
+		target_compile_definitions(parsegolog++ -DDEBUG_PARSER)
 	endif()
 endif()
 
 
-
-option(BUILD_READYLOG_IMPL "Build the readylog implementation" ON)
+if (${ECLIPSE_FOUND})
+	option(BUILD_READYLOG_IMPL "Build the readylog semantics (ECLiPSe Prolog)" ON)
+endif()
 if (${BUILD_READYLOG_IMPL})
+	find_file(READYLOG_PL preprocessor.pl
+		PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../
+		PATH_SUFFIXES /readylog/interpreter /kbsgolog/interpreters/readylog)
+
 	set(READYLOG_SRC
 		src/semantics/readylog/action.cpp
 		src/semantics/readylog/atoms.cpp
@@ -101,10 +98,14 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/scope.cpp
 		src/semantics/readylog/semantics.cpp
 	)
+
+	link_directories(${ECLIPSE_LIBRARY_DIRS})
 	add_library(readylog++ SHARED ${READYLOG_SRC})
+	target_compile_definitions(readylog++ PRIVATE -DREADYLOG_PATH=\"${READYLOG_PL}\")
+	target_compile_definitions(readylog++ PUBLIC -DECLIPSE_DIR=\"${ECLIPSE_DIR}\" -DUSES_NO_ENGINE_HANDLE)
+	target_include_directories(readylog++ PUBLIC ${ECLIPSE_INCLUDE_DIRS})
 	target_link_libraries(readylog++ golog++ ${ECLIPSE_LIBRARIES})
 	set_property(TARGET readylog++ PROPERTY CXX_STANDARD 14)
-	add_definitions(-DGOLOGPP_BUILD_READYLOG_IMPL)
 endif()
 
 
@@ -116,32 +117,31 @@ CMAKE_DEPENDENT_OPTION(TEST_ECLIPSE "Enable test for eclipse-clp" ON "BUILD_TEST
 CMAKE_DEPENDENT_OPTION(TEST_READYLOG "Try running test programs in readylog" ON "BUILD_TESTS;ECLIPSE_FOUND;BUILD_READYLOG_IMPL" OFF)
 
 if (${BUILD_TESTS})
-	add_definitions(-DGOLOGPP_BUILD_TESTS)
+	set(TEST_SRC
+		src/tests/readylog-test.cpp)
+	add_executable(readylog-test ${TEST_SRC})
 
 	if (${TEST_OBJECTMODEL})
-		add_definitions(-DGOLOGPP_TEST_OBJECTMODEL)
+		target_compile_definitions(readylog-test PRIVATE -DGOLOGPP_TEST_OBJECTMODEL)
 		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} golog++)
 	endif()
 
 	if (${TEST_PARSER})
-		add_definitions(-DGOLOGPP_TEST_PARSER)
+		target_compile_definitions(readylog-test PRIVATE -DGOLOGPP_TEST_PARSER)
 		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} parsegolog++)
 	endif()
 
 	if (${TEST_ECLIPSE})
-		add_definitions(-DGOLOGPP_TEST_ECLIPSE)
+		target_compile_definitions(readylog-test PRIVATE -DGOLOGPP_TEST_ECLIPSE)
 		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} ${ECLIPSE_LIBRARIES})
 	endif()
 
 	if (${TEST_READYLOG})
-		add_definitions(-DGOLOGPP_TEST_READYLOG)
+		target_compile_definitions(readylog-test PRIVATE -DGOLOGPP_TEST_READYLOG)
 		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} readylog++)
 	endif()
 
-	set(TEST_SRC
-		src/tests/readylog-test.cpp)
 
-	add_executable(readylog-test ${TEST_SRC})
 	if (USE_LIBASAN)
 		target_link_libraries(readylog-test asan)
 	endif()
