@@ -19,27 +19,6 @@ public:
 using ReadylogSemantics = Semantics<AbstractLanguageElement>;
 
 
-template<class ListT>
-EC_word *to_ec_words(const ListT &args)
-{
-	EC_word *rv = new EC_word[args.size()];
-	arity_t i = 0;
-	for (const auto &arg : args)
-		rv[i++] = arg->semantics().plterm();
-	return rv;
-}
-
-
-template<class ListT>
-EC_word to_ec_list(const ListT &vec, typename ListT::const_iterator begin)
-{
-	if (begin == vec.cend())
-		return ::nil();
-	else
-		return ::list((*begin)->semantics().plterm(), to_ec_list(vec, begin + 1));
-}
-
-
 class ReadylogSemanticsFactory : public SemanticsFactory {
 public:
 	ReadylogSemanticsFactory() = default;

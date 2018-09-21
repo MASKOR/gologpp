@@ -1,6 +1,7 @@
 #include "fluent.h"
 #include <model/fluent.h>
 #include "scope.h"
+#include "utilities.h"
 
 #include <iostream>
 

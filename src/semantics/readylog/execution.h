@@ -28,8 +28,6 @@ private:
 };
 
 
-EC_word operator && (const EC_word &lhs, const EC_word &rhs);
-
 
 struct eclipse_opts {
 	bool trace;

@@ -2,9 +2,10 @@
 #define READYLOG_REFERENCE_H_
 
 #include "semantics.h"
+#include "utilities.h"
 #include <model/reference.h>
 
-// Include headers for everything we might have a reference to (see term() method)
+// Include headers for everything we might have a reference to (see plterm() method)
 #include <model/action.h>
 #include <model/fluent.h>
 #include <model/procedural.h>

@@ -31,29 +31,33 @@ EC_word Semantics<Block>::plterm()
 {
 	block_.scope().semantics().init_vars();
 
+	EC_word rv;
+
 	if (dynamic_cast<const AbstractFunction *>(block_.parent())) {
 		if (block_.elements().size() == 1)
-			current_program_ = block_.elements()[0]->semantics().plterm();
+			rv = block_.elements()[0]->semantics().plterm();
 		else
 			throw std::runtime_error("Functions must contain exactly one return statement and nothing else.");
 	}
 	else
-		current_program_ = to_ec_list(block_.elements(), block_.elements().begin());
+		rv = to_ec_list(block_.elements(), block_.elements().begin());
 
-	return current_program_;
+	set_current_program(rv);
+
+	return rv;
 }
 
 
 EC_word Semantics<Block>::current_program()
 {
-	EC_word rv = ::newvar();
-	rv.unify(current_program_);
-	return rv;
+	return copy_term(current_program_);
 }
 
 
 void Semantics<Block>::set_current_program(EC_word e)
-{ current_program_ = e; }
+{
+	current_program_ = copy_term(e);
+}
 
 
 

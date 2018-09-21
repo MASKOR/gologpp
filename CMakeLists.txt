@@ -97,6 +97,7 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/procedural.cpp
 		src/semantics/readylog/scope.cpp
 		src/semantics/readylog/semantics.cpp
+		src/semantics/readylog/utilities.cpp
 	)
 
 	link_directories(${ECLIPSE_LIBRARY_DIRS})

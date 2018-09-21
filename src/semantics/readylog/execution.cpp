@@ -5,6 +5,7 @@
 #include <model/action.h>
 #include "procedural.h"
 #include "fluent.h"
+#include "utilities.h"
 
 #include <iostream>
 
@@ -26,18 +27,14 @@ void Semantics<History>::append_exog(ExogTransition &&trans)
 
 EC_word Semantics<History>::current_history()
 {
-	EC_word rv = ::newvar();
-	rv.unify(readylog_history_);
-	return rv;
+	return copy_term(readylog_history_);
 }
 
 
 void Semantics<History>::set_current_history(EC_word h)
-{ readylog_history_ = h; }
-
-
-EC_word operator && (const EC_word &lhs, const EC_word &rhs)
-{ return ::term(EC_functor(",", 2), lhs, rhs); }
+{
+	readylog_history_ = copy_term(h);
+}
 
 
 
