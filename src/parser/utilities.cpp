@@ -5,6 +5,7 @@
 #include <boost/spirit/include/qi_kleene.hpp>
 #include <boost/spirit/include/qi_not_predicate.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
+#include <boost/spirit/include/qi_difference.hpp>
 
 #include <boost/spirit/include/qi_eol.hpp>
 #include <boost/spirit/include/qi_omit.hpp>
@@ -43,7 +44,7 @@ gologpp_skipper::gologpp_skipper()
 	comment_multiline.name("comment_multiline");
 
 	comment_oneline = omit [
-		lit("//") > *char_
+		lit("//") > *(char_ - eol)
 	];
 	comment_oneline.name("comment_oneline");
 
