@@ -25,7 +25,7 @@ public:
 private:
 	const AbstractVariable &var_;
 	EC_word ec_var_;
-	EC_word golog_var_;
+	EC_atom golog_var_;
 	bool as_golog_var_;
 };
 
