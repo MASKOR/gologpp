@@ -87,6 +87,10 @@ ReadylogContext::ReadylogContext(unique_ptr<AExecutionBackend> &&exec_backend, c
 	}
 
 	//ec_query(EC_atom("toggle_dtdebug"));
+	
+	ec_query(::term(EC_functor("compile", 1),
+		EC_atom(SOURCE_DIR "/src/semantics/readylog/boilerplate.pl")
+	));
 }
 
 
@@ -153,7 +157,7 @@ void ReadylogContext::compile_term(const EC_word &term)
 
 void ReadylogContext::ec_write(EC_word t)
 {
-	//ec_query(::term(EC_functor("writeln", 1), t));
+	ec_query(::term(EC_functor("writeln", 1), t));
 }
 
 
@@ -176,17 +180,17 @@ bool ReadylogContext::final(Block &program, History &history)
 }
 
 
-bool ReadylogContext::trans(Block &block, History &history)
+bool ReadylogContext::trans(Block &program, History &history)
 {
 	EC_ref h1, e1;
 
 	if (options_.trace && !options_.guitrace) {
 		post_goal("toplevel");
 		EC_resume();
-	}
+	}//*/
 
 	EC_word trans = ::term(EC_functor("trans", 4),
-		block.semantics().current_program(),
+		program.semantics().current_program(),
 		history.semantics().current_history(),
 		e1, h1
 	);
@@ -198,7 +202,7 @@ bool ReadylogContext::trans(Block &block, History &history)
 		q = trans;
 
 	if (ec_query(q)) {
-		block.semantics().set_current_program(e1);
+		program.semantics().set_current_program(e1);
 		history.semantics().set_current_history(h1);
 		return true;
 	}
