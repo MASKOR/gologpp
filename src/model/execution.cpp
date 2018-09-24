@@ -3,6 +3,9 @@
 #include "action.h"
 #include "procedural.h"
 
+#include <iostream>
+#include <iomanip>
+
 namespace gologpp {
 
 HistorySemantics::HistorySemantics(History &h)
@@ -54,6 +57,14 @@ void AExecutionContext::exog_queue_push(ExogTransition &&exog)
 }
 
 
+AExecutionContext::Clock &AExecutionContext::clock()
+{ return clock_; }
+
+AExecutionContext::ExogQueue &AExecutionContext::exog_queue()
+{ return exog_queue_; }
+
+
+
 AExecutionBackend::~AExecutionBackend()
 {}
 
@@ -77,18 +88,34 @@ History ExecutionContext::run(Block &&program)
 	program.attach_semantics(*implementor_);
 	compile(program);
 
+	Clock::time_point t_loop = clock().now();
+
 	while (!final(program, history)) {
-		while (!exog_queue_.empty()) {
+		while (!exog_queue().empty()) {
 			ExogTransition exog = exog_queue_pop();
 			exog.attach_semantics(*implementor_);
 			history.abstract_impl().append_exog(std::move(exog));
 		}
+
+		Clock::time_point t_trans = clock().now();
+
 		if (!trans(program, history)) {
 			ExogTransition exog = exog_queue_poll();
 			exog.attach_semantics(*implementor_);
 			history.abstract_impl().append_exog(std::move(exog));
 		}
+
+		std::chrono::duration<double> d_trans = clock().now() - t_trans;
+		std::cout << std::fixed << std::setprecision(9) << "Transition time: "
+			<< d_trans.count() << " s." << std::endl;
+
 	}
+
+	std::chrono::duration<double> d_loop = clock().now() - t_loop;
+
+	std::cout << std::fixed << "Mainloop time: "
+		<< d_loop.count()  << " s." << std::endl;
+
 	return history;
 }
 

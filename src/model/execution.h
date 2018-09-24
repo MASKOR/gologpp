@@ -14,6 +14,7 @@
 #include <mutex>
 #include <queue>
 #include <condition_variable>
+#include <chrono>
 
 namespace gologpp {
 
@@ -54,6 +55,9 @@ public:
 
 class AExecutionContext {
 public:
+	typedef std::chrono::steady_clock Clock;
+	typedef std::queue<ExogTransition> ExogQueue;
+
 	virtual ~AExecutionContext() = default;
 
 	virtual bool final(Block &program, History &h) = 0;
@@ -72,12 +76,17 @@ public:
 	ExogTransition exog_queue_pop();
 	ExogTransition exog_queue_poll();
 	void exog_queue_push(ExogTransition &&exog);
+	Clock &clock();
 
 protected:
+	ExogQueue &exog_queue();
+
+private:
 	std::mutex exog_mutex_;
 	std::condition_variable queue_empty_condition_;
 	std::mutex queue_empty_mutex_;
-	std::queue<ExogTransition> exog_queue_;
+	ExogQueue exog_queue_;
+	Clock clock_;
 };
 
 
