@@ -121,8 +121,9 @@ void ReadylogContext::compile(const AbstractAction &action)
 	try {
 		Semantics<Action> action_impl = action.semantics<Action>();
 		compile_term(action_impl.prim_action());
-		compile_term(action_impl.prolog_poss_decl());
-		compile_term(action_impl.prolog_poss());
+		//compile_term(action_impl.prolog_poss_decl());
+		//compile_term(action_impl.prolog_poss());
+		compile_term(action_impl.poss());
 		for (EC_word &ssa : action_impl.SSAs())
 			compile_term(ssa);
 	} catch (std::bad_cast &) {

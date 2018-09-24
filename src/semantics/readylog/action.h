@@ -24,6 +24,7 @@ public:
 
 	EC_word prolog_poss_decl();
 	EC_word prolog_poss();
+	EC_word poss();
 
 	virtual EC_word plterm() override;
 private:

@@ -64,6 +64,16 @@ EC_word Semantics<Action>::prolog_poss()
 }
 
 
+EC_word Semantics<Action>::poss()
+{
+	action_.scope().semantics().init_vars();
+	return ::term(EC_functor("poss", 2),
+		plterm(),
+		action_.precondition().semantics().plterm()
+	);
+}
+
+
 vector<EC_word> Semantics<Action>::SSAs()
 {
 	action_.scope().semantics().init_vars();
