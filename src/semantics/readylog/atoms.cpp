@@ -4,9 +4,18 @@ namespace gologpp {
 
 Semantics<AbstractVariable>::Semantics(const AbstractVariable &var)
 : var_(var)
-, golog_var_(("gv_" + var.name()).c_str())
 , as_golog_var_(false)
-{}
+{
+	const AbstractLanguageElement *parent = dynamic_cast<const Expression &>(var_).parent();
+	size_t level = 1;
+	while (parent && parent != &var_ && dynamic_cast<const Expression *>(parent)) {
+		parent = dynamic_cast<const Expression *>(parent)->parent();
+		++level;
+	}
+	golog_var_ = EC_atom(
+		(var_.name() + "_lv" + std::to_string(level)).c_str()
+	);
+}
 
 Semantics<AbstractVariable>::~Semantics()
 {}
