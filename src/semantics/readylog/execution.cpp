@@ -153,6 +153,7 @@ void ReadylogContext::compile_term(const EC_word &term)
 		::term(EC_functor("compile_term", 1), term)
 	) )
 		throw EclipseError();
+	ec_write(term);
 }
 
 

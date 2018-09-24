@@ -64,11 +64,11 @@ public:
 		   https://sourceforge.net/p/eclipse-clp/mailman/message/23203000/
 		   http://eclipseclp.org/archive/eclipse-users/0704.html
 		*/
-		post_goal(::term(EC_functor("writeln", 1), t));
+		//post_goal(::term(EC_functor("writeln", 1), t));
 		post_goal(::term(EC_functor("once", 1), t));
-		post_goal(::term(EC_functor("writeln", 1), t));
+		//post_goal(::term(EC_functor("writeln", 1), t));
 		last_rv_ = EC_resume(*ec_start_);
-		std::cout << std::endl;
+		//std::cout << std::endl;
 
 		return last_rv_ == EC_status::EC_succeed;
 	}
