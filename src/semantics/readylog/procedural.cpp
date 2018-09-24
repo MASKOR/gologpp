@@ -69,10 +69,7 @@ Semantics<Choose>::Semantics(const Choose &c)
 EC_word Semantics<Choose>::plterm()
 {
 	choose_.scope().semantics().init_vars();
-	EC_word tail = ::nil();
-	for (const unique_ptr<Statement> &stmt : choose_.alternatives())
-		tail = ::list(stmt->semantics().plterm(), tail);
-	return ::term(EC_functor("nondet", 1), tail);
+	return ::term(EC_functor("nondet", 1), to_ec_list(choose_.alternatives()));
 }
 
 
