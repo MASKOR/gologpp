@@ -22,13 +22,5 @@ EC_word Semantics<AbstractFluent>::plterm()
 
 
 
-EC_word Semantics<AbstractFluent>::prim_fluent()
-{
-	fluent_.scope().semantics().init_vars();
-	return ::term(
-		EC_functor("prim_fluent", 1),
-		plterm()
-	);
-}
 
 } // namespace gologpp

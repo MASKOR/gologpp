@@ -2,6 +2,8 @@
 #define READYLOG_FLUENT_H_
 
 #include "semantics.h"
+#include "utilities.h"
+#include "scope.h"
 #include <model/fluent.h>
 
 #include <eclipseclass.h>
@@ -42,7 +44,7 @@ public:
 	Semantics(const AbstractFluent &f);
 	virtual ~Semantics() override = default;
 
-	EC_word prim_fluent();
+	virtual EC_word prim_fluent() = 0;
 	virtual EC_word plterm() override;
 	virtual vector<EC_word> initially() = 0;
 
@@ -64,6 +66,29 @@ public:
 
 		return rv;
 	}
+
+	virtual EC_word prim_fluent() override
+	{
+		fluent_.scope().semantics().init_vars();
+
+		const Fluent<ExprT> &f = dynamic_cast<const Fluent<ExprT> &>(fluent_);
+
+
+		vector<EC_word> domain_tuples;
+		for (const vector<unique_ptr<AbstractConstant>> &domain_tp : f.domain())
+			domain_tuples.emplace_back(to_ec_term(",", domain_tp));
+
+		return ::term(EC_functor(":-", 2),
+			::term(EC_functor("prim_fluent", 1),
+				plterm()
+			),
+			::term(EC_functor("member", 2),
+				to_ec_term(",", f.args()),
+				to_ec_list(domain_tuples)
+			)
+		);
+	}
+
 };
 
 
