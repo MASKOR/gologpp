@@ -9,6 +9,32 @@ EC_word operator && (const EC_word &lhs, const EC_word &rhs)
 { return ::term(EC_functor(",", 2), lhs, rhs); }
 
 
+
+template<>
+EC_word to_ec_term(const string &functor, const vector<EC_word> &vec, vector<EC_word>::const_iterator begin)
+{
+	if (begin + 1 == vec.cend())
+		return *begin;
+	else
+		return ::term(EC_functor(functor.c_str(), 2),
+			*begin,
+			to_ec_term(functor, vec, begin + 1)
+		);
+}
+
+
+
+template<>
+EC_word to_ec_list(const vector<EC_word> &vec, typename vector<EC_word>::const_iterator begin)
+{
+	if (begin == vec.cend())
+		return ::nil();
+	else
+		return ::list(*begin, to_ec_list(vec, begin + 1));
+}
+
+
+
 EC_word copy_term(EC_word t)
 {
 	EC_functor fn;
