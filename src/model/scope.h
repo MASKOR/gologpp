@@ -77,9 +77,8 @@ public:
 		if (!rv)
 			rv.reset(new Variable<ExpressionT>(name));
 		if (!has_var(name))
-			variables_.emplace(name, rv);
-		AbstractVariable *in_map = variables_.find(name)->second.get();
-		assert(in_map == rv.get());
+			variables_.emplace(name, rv); // Cache to avoid future scope walk
+
 		return rv;
 	}
 

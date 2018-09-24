@@ -87,6 +87,7 @@ public:
 	virtual ExpressionTypeTag expression_type_tag() const = 0;
 
 	const string &representation() const;
+	virtual AbstractConstant *copy() const = 0;
 
 	template<class ExpressionT>
 	operator Constant<ExpressionT> *() {
@@ -147,6 +148,9 @@ public:
 
 	virtual string to_string(const string &) const override
 	{ return representation(); }
+
+	virtual Constant<ExpressionT> *copy() const override
+	{ return new Constant<ExpressionT>(representation()); }
 };
 
 
