@@ -1,0 +1,6 @@
+Name: parsegolog++
+Description: The golog++ parser library
+Version: @GOLOGPP_VERSION@
+Requires: golog++
+Cflags: -I@BOOST_INCLUDEDIR@ @PARSEGOLOGPP_CXXFLAGS@
+Libs: -lparsegolog++

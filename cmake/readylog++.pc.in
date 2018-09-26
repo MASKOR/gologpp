@@ -1,0 +1,6 @@
+Name: readylog++
+Description: The ReadyLog semantics library for golog++
+Version: @GOLOGPP_VERSION@
+Requires: golog++
+Cflags: @READYLOGPP_CXXFLAGS@
+Libs: -lreadylog++ @READYLOGPP_LDFLAGS@

@@ -1,8 +1,10 @@
 project(golog++)
 cmake_minimum_required(VERSION 2.8)
-include(CMakeDependentOption)
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake PATH)
+include(CMakeDependentOption)
+include(GNUInstallDirs)
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 find_package(PkgConfig)
 find_package(Boost REQUIRED)
@@ -13,7 +15,7 @@ pkg_check_modules(SWIPL "swipl")
 include_directories(${Boost_INCLUDE_DIR} src)
 
 add_compile_options(-Wall)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -fno-omit-frame-pointer")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -fno-omit-frame-pointer -DDEBUG")
 
 add_definitions(-DSOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\")
 
@@ -29,8 +31,14 @@ if (${USE_LIBASAN})
 	add_compile_options(-fsanitize=address)
 endif()
 
-#add_definitions(-DHAVE_PTHREAD_H)
 
+set(GOLOGPP_VERSION 0.0.1)
+
+
+
+######################################################################################
+# The golog++ language metamodel: libgolog++.so
+######################################################################################
 
 set(INTERFACE_SRC
 	src/model/action.cpp
@@ -53,7 +61,43 @@ set(INTERFACE_SRC
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
 set_property(TARGET golog++ PROPERTY CXX_STANDARD 14)
+set_property(TARGET golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+install(TARGETS golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
+install(FILES
+	src/model/semantics.h
+	src/model/formula.h
+	src/model/effect_axiom.h
+	src/model/atoms.h
+	src/model/situation.h
+	src/model/arithmetic.h
+	src/model/procedural.h
+	src/model/error.h
+	src/model/scope.h
+	src/model/user_error.h
+	src/model/fluent.h
+	src/model/action.h
+	src/model/execution.h
+	src/model/utilities.h
+	src/model/language.h
+	src/model/global.h
+	src/model/reference.h
+	src/model/expressions.h
+	src/model/gologpp.h
+
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model
+)
+
+get_target_property(GOLOGPP_CXXFLAGS golog++ COMPILE_OPTIONS)
+list(JOIN GOLOGPP_CXXFLAGS " " GOLOGPP_CXXFLAGS)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/golog++.pc.in ${CMAKE_CURRENT_BINARY_DIR}/golog++.pc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/golog++.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+
+
+
+######################################################################################
+# The golog++ parser: libparsegolog++.so
+######################################################################################
 
 option(BUILD_PARSER "Build the parser library" ON)
 CMAKE_DEPENDENT_OPTION(DEBUG_PARSER "Enable debug output for the parser" OFF "BUILD_PARSER" OFF)
@@ -73,12 +117,42 @@ if (${BUILD_PARSER})
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
 	set_property(TARGET parsegolog++ PROPERTY CXX_STANDARD 14)
+	set_property(TARGET parsegolog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
 	target_compile_options(parsegolog++ PRIVATE -Wno-undefined-func-template)
 	if (${DEBUG_PARSER})
 		target_compile_definitions(parsegolog++ -DDEBUG_PARSER)
 	endif()
+	install(TARGETS parsegolog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
+	install(FILES
+		src/parser/grammar.h
+		src/parser/parser.h
+		src/parser/formula.h
+		src/parser/effect_axiom.h
+		src/parser/functions.h
+		src/parser/atoms.h
+		src/parser/arithmetic.h
+		src/parser/statements.h
+		src/parser/types.h
+		src/parser/fluent.h
+		src/parser/action.h
+		src/parser/utilities.h
+		src/parser/assignment.h
+		src/parser/reference.h
+		src/parser/expressions.h
+		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
+	)
+
+	get_target_property(PARSEGOLOGPP_CXXFLAGS parsegolog++ COMPILE_OPTIONS)
+	list(JOIN PARSEGOLOGPP_CXXFLAGS " " PARSEGOLOGPP_CXXFLAGS)
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/parsegolog++.pc.in ${CMAKE_CURRENT_BINARY_DIR}/parsegolog++.pc @ONLY)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/parsegolog++.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
 
+
+
+######################################################################################
+# The golog++ readylog semantics: libreadylog++.so
+######################################################################################
 
 if (${ECLIPSE_FOUND})
 	option(BUILD_READYLOG_IMPL "Build the readylog semantics (ECLiPSe Prolog)" ON)
@@ -108,14 +182,43 @@ if (${BUILD_READYLOG_IMPL})
 	target_include_directories(readylog++ PUBLIC ${ECLIPSE_INCLUDE_DIRS})
 	target_link_libraries(readylog++ golog++ ${ECLIPSE_LIBRARIES})
 	set_property(TARGET readylog++ PROPERTY CXX_STANDARD 14)
+	set_property(TARGET readylog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+	install(TARGETS readylog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
+	install(FILES
+		src/semantics/readylog/semantics.h
+		src/semantics/readylog/formula.h
+		src/semantics/readylog/effect_axiom.h
+		src/semantics/readylog/atoms.h
+		src/semantics/readylog/arithmetic.h
+		src/semantics/readylog/procedural.h
+		src/semantics/readylog/scope.h
+		src/semantics/readylog/fluent.h
+		src/semantics/readylog/action.h
+		src/semantics/readylog/execution.h
+		src/semantics/readylog/utilities.h
+		src/semantics/readylog/reference.h
+		src/semantics/readylog/config.h
+		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/readylog
+	)
+
+	get_target_property(READYLOGPP_CXX_FLAGS readylog++ COMPILE_OPTIONS)
+	list(JOIN READYLOGPP_CXX_FLAGS " " READYLOGPP_CXXFLAGS)
+	set(READYLOGPP_LDFLAGS "${ECLIPSE_LDFLAGS}")
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/readylog++.pc.in ${CMAKE_CURRENT_BINARY_DIR}/readylog++.pc @ONLY)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/readylog++.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
 
+
+
+######################################################################################
+# Tests
+######################################################################################
 
 option(BUILD_TESTS "Build tests" ON)
 
 CMAKE_DEPENDENT_OPTION(TEST_OBJECTMODEL "Enable test for object model" ON "BUILD_TESTS" OFF)
 CMAKE_DEPENDENT_OPTION(TEST_PARSER "Enable test for parser" ON "BUILD_TESTS;BUILD_PARSER" OFF)
-CMAKE_DEPENDENT_OPTION(TEST_ECLIPSE "Enable test for eclipse-clp" ON "BUILD_TESTS;ECLIPSE_FOUND" OFF)
+CMAKE_DEPENDENT_OPTION(TEST_ECLIPSE "Enable test for eclipse-clp" OFF "BUILD_TESTS;ECLIPSE_FOUND" OFF)
 CMAKE_DEPENDENT_OPTION(TEST_READYLOG "Try running test programs in readylog" ON "BUILD_TESTS;ECLIPSE_FOUND;BUILD_READYLOG_IMPL" OFF)
 
 if (${BUILD_TESTS})
