@@ -5,6 +5,8 @@
 
 #include <eclipseclass.h>
 
+#include <boost/preprocessor/seq/for_each.hpp>
+
 namespace gologpp {
 
 
@@ -19,71 +21,16 @@ public:
 using ReadylogSemantics = Semantics<AbstractLanguageElement>;
 
 
+#define GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE(_r, _data, GologT) \
+	virtual unique_ptr<AbstractSemantics> make_semantics(GologT &) override;
+
+
 class ReadylogSemanticsFactory : public SemanticsFactory {
 public:
 	ReadylogSemanticsFactory() = default;
 	virtual ~ReadylogSemanticsFactory() override = default;
 
-	virtual unique_ptr<AbstractSemantics> make_semantics(Action &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(ExogAction &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Transition &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(ExogTransition &) override;
-
-	virtual unique_ptr<AbstractSemantics> make_semantics(History &) override;
-
-	virtual unique_ptr<AbstractSemantics> make_semantics(Reference<Action> &) override;
-
-	virtual unique_ptr<AbstractSemantics> make_semantics(EffectAxiom<BooleanExpression> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(EffectAxiom<NumericExpression> &) override;
-
-	virtual unique_ptr<AbstractSemantics> make_semantics(InitialValue<BooleanExpression> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(InitialValue<NumericExpression> &) override;
-
-	virtual unique_ptr<AbstractSemantics> make_semantics(Fluent<BooleanExpression> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Fluent<NumericExpression> &) override;
-
-	virtual unique_ptr<AbstractSemantics> make_semantics(Reference<Fluent<BooleanExpression>> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Reference<Fluent<NumericExpression>> &) override;
-
-	virtual unique_ptr<AbstractSemantics> make_semantics(Scope &) override;
-
-	virtual unique_ptr<AbstractSemantics> make_semantics(Constant<BooleanExpression> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Constant<NumericExpression> &) override;
-
-	virtual unique_ptr<AbstractSemantics> make_semantics(Variable<BooleanExpression> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Variable<NumericExpression> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Reference<Variable<BooleanExpression>> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Reference<Variable<NumericExpression>> &) override;
-
-	virtual unique_ptr<AbstractSemantics> make_semantics(ArithmeticOperation &) override;
-
-	virtual unique_ptr<AbstractSemantics> make_semantics(Negation &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Comparison &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(BooleanOperation &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Quantification &) override;
-
-	virtual unique_ptr<AbstractSemantics> make_semantics(Block &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Choose &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Conditional &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Assignment<BooleanFluent> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Assignment<NumericFluent> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Assignment<BooleanVariable> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Assignment<NumericVariable> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Pick<BooleanExpression> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Pick<NumericExpression> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Search &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Solve &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Test &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(While &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Return<BooleanExpression> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Return<NumericExpression> &) override;
-
-	virtual unique_ptr<AbstractSemantics> make_semantics(Function<BooleanExpression> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Function<NumericExpression> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Function<Statement> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Reference<Function<BooleanExpression>> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Reference<Function<NumericExpression>> &) override;
-	virtual unique_ptr<AbstractSemantics> make_semantics(Reference<Function<Statement>> &) override;
+	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE, (), GOLOGPP_SEMANTIC_TYPES)
 };
 
 

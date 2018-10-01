@@ -7,6 +7,9 @@
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp>
 
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+
 namespace gologpp {
 
 typedef unsigned char arity_t;
@@ -97,11 +100,57 @@ template<class> class Reference;
 class History;
 
 class AbstractSemantics;
-template<class> class Implementation;
+template<class> class Semantics;
 class SemanticsFactory;
 
 class AExecutionContext;
 class ExecutionContext;
+
+template<class ExprT>
+using FluentAssignment = Assignment<Fluent<ExprT>>;
+
+template<class ExprT>
+using VariableAssignment = Assignment<Variable<ExprT>>;
+
+template<class ExprT>
+using FluentReference = Reference<Fluent<ExprT>>;
+
+template<class ExprT>
+using FunctionReference = Reference<Function<ExprT>>;
+
+template<class ExprT>
+using VariableReference = Reference<Variable<ExprT>>;
+
+
+#define GOLOGPP_VALUE_TYPES \
+	(BooleanExpression)(NumericExpression)
+
+#define GOLOGPP_EXPRESSION_TYPES \
+	GOLOGPP_VALUE_TYPES (Statement)
+
+#define GOLOGPP_VALUE_TYPE_TEMPLATES \
+	(EffectAxiom)(InitialValue)(Fluent)(Variable)(Constant) \
+	(FluentAssignment)(VariableAssignment) \
+	(FluentReference)(VariableReference)(Pick)(Return)
+
+#define GOLOGPP_EXPRESSION_TYPE_TEMPLATES \
+	(Function)(FunctionReference)
+
+#define GOLOGPP_TEMPLATE_CLASS(_, seq) \
+	(BOOST_PP_SEQ_ELEM(0, seq)<BOOST_PP_SEQ_ELEM(1, seq)>)
+
+#define GOLOGPP_SEMANTIC_TYPES \
+	(Action)(ExogAction)(Transition)(ExogTransition) \
+	(Scope)(ArithmeticOperation) \
+	(Negation)(Comparison)(BooleanOperation)(Quantification) \
+	(Block)(Choose)(Conditional)(Search)(Solve)(Test)(While) \
+	(History)(Reference<Action>) \
+	BOOST_PP_SEQ_FOR_EACH_PRODUCT(GOLOGPP_TEMPLATE_CLASS, \
+		(GOLOGPP_VALUE_TYPE_TEMPLATES)(GOLOGPP_VALUE_TYPES) \
+	) \
+	BOOST_PP_SEQ_FOR_EACH_PRODUCT(GOLOGPP_TEMPLATE_CLASS, \
+		(GOLOGPP_EXPRESSION_TYPE_TEMPLATES)(GOLOGPP_EXPRESSION_TYPES) \
+	) \
 
 
 #define DEFINE_IMPLEMENT_WITH_MEMBERS(...) \
