@@ -88,8 +88,10 @@ install(FILES
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model
 )
 
-get_target_property(GOLOGPP_CXXFLAGS golog++ COMPILE_OPTIONS)
-list(JOIN GOLOGPP_CXXFLAGS " " GOLOGPP_CXXFLAGS)
+get_target_property(GOLOGPP_CXXFLAGS_L golog++ COMPILE_OPTIONS)
+foreach(i IN LISTS GOLOGPP_CXXFLAGS_L)
+	set(GOLOGPP_CXXFLAGS "${GOLOGPP_CXXFLAGS} ${i}")
+endforeach()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/golog++.pc.in ${CMAKE_CURRENT_BINARY_DIR}/golog++.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/golog++.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
@@ -142,8 +144,10 @@ if (${BUILD_PARSER})
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)
 
-	get_target_property(PARSEGOLOGPP_CXXFLAGS parsegolog++ COMPILE_OPTIONS)
-	list(JOIN PARSEGOLOGPP_CXXFLAGS " " PARSEGOLOGPP_CXXFLAGS)
+	get_target_property(PARSEGOLOGPP_CXXFLAGS_L parsegolog++ COMPILE_OPTIONS)
+	foreach(i IN LISTS PARSEGOLOGPP_CXXFLAGS_L)
+		set(PARSEGOLOGPP_CXXFLAGS "${PARSEGOLOGPP_CXXFLAGS} ${i}")
+	endforeach()
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/parsegolog++.pc.in ${CMAKE_CURRENT_BINARY_DIR}/parsegolog++.pc @ONLY)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/parsegolog++.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
@@ -201,8 +205,10 @@ if (${BUILD_READYLOG_IMPL})
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/readylog
 	)
 
-	get_target_property(READYLOGPP_CXX_FLAGS readylog++ COMPILE_OPTIONS)
-	list(JOIN READYLOGPP_CXX_FLAGS " " READYLOGPP_CXXFLAGS)
+	get_target_property(READYLOGPP_CXX_FLAGS_L readylog++ COMPILE_OPTIONS)
+	foreach(i IN LISTS ${READYLOGPP_CXX_FLAGS_L})
+		set(READYLOGPP_CXX_FLAGS "${READYLOGPP_CXX_FLAGS} ${i}")
+	endforeach()
 	set(READYLOGPP_LDFLAGS "${ECLIPSE_LDFLAGS}")
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/readylog++.pc.in ${CMAKE_CURRENT_BINARY_DIR}/readylog++.pc @ONLY)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/readylog++.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
