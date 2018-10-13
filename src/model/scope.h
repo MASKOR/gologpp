@@ -59,6 +59,7 @@ private:
 public:
 	using VariablesMap = unordered_map<string, shared_ptr<AbstractVariable>>;
 	using GlobalsMap = unordered_map<Identifier, shared_ptr<Global>>;
+	using DomainsMap = unordered_map<Name, shared_ptr<AbstractDomain>>;
 
 	Scope(AbstractLanguageElement &owner, const vector<shared_ptr<AbstractVariable>> &lookup_vars = {});
 	Scope(Scope &parent_scope);
@@ -119,7 +120,6 @@ public:
 	void implement_globals(SemanticsFactory &implementor, AExecutionContext &ctx);
 	void clear();
 
-
 	bool exists_global(const string &name, arity_t arity) const;
 
 
@@ -176,8 +176,22 @@ public:
 	}
 
 
-	void register_global(Global *g);
+	bool exists_domain(const string &name) const;
 
+	template<class ExprT>
+	shared_ptr<Domain<ExprT>> lookup_domain(const string &name)
+	{
+		if (exists_domain(name))
+			return std::dynamic_pointer_cast<Domain<ExprT>>(
+				domains_->find(name)->second
+			);
+		else
+			return shared_ptr<Domain<ExprT>>();
+	}
+
+
+	void register_global(Global *g);
+	void register_domain(AbstractDomain *d);
 
 	virtual string to_string(const string &pfx) const override;
 
@@ -189,6 +203,7 @@ private:
 	VariablesMap variables_;
 
 	shared_ptr<GlobalsMap> globals_;
+	shared_ptr<DomainsMap> domains_;
 };
 
 

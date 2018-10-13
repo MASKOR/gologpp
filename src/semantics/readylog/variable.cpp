@@ -1,6 +1,8 @@
-#include "atoms.h"
+#include "variable.h"
 
 namespace gologpp {
+
+
 
 Semantics<AbstractVariable>::Semantics(const AbstractVariable &var)
 : var_(var)
@@ -36,6 +38,15 @@ void Semantics<AbstractVariable>::translate_as_golog_var(bool gv)
 { as_golog_var_ = gv; }
 
 
+EC_word Semantics<AbstractVariable>::member_restriction()
+{
+	return ::term(EC_functor("member", 2),
+		var_.semantics().plterm(),
+		var_.domain().semantics().plterm()
+	);
+}
+
+
 
 GologVarMutator::GologVarMutator(Semantics<AbstractVariable> &var_impl)
 : var_impl_(var_impl)
@@ -46,26 +57,4 @@ GologVarMutator::~GologVarMutator()
 
 
 
-template<>
-EC_word Semantics<Constant<BooleanExpression>>::plterm()
-{
-	if (value_.representation() == "true")
-		return EC_atom("true");
-	else if (value_.representation() == "false")
-		return EC_atom("fail");
-	else
-		throw Bug("Invalid boolean value `" + value_.representation() + "'");
-}
-
-
-template<>
-EC_word Semantics<Constant<NumericExpression>>::plterm()
-{
-	if (value_.representation().find('.') != string::npos)
-		return EC_word(std::stod(value_.representation()));
-	else
-		return EC_word(std::stol(value_.representation()));
-}
-
-
-}
+} // namespace gologpp

@@ -4,6 +4,7 @@
 #include "semantics.h"
 #include "utilities.h"
 #include "scope.h"
+#include "variable.h"
 #include <model/fluent.h>
 
 #include <eclipseclass.h>
@@ -71,22 +72,22 @@ public:
 	{
 		fluent_.scope().semantics().init_vars();
 
-		const Fluent<ExprT> &f = dynamic_cast<const Fluent<ExprT> &>(fluent_);
+		vector<EC_word> arg_domains;
+		for (const shared_ptr<AbstractVariable> &arg : fluent_.args())
+			if (arg->domain().is_defined())
+				arg_domains.emplace_back(
+					arg->semantics<AbstractVariable>().member_restriction()
+				);
 
+		EC_word prim_fluent = ::term(EC_functor("prim_fluent", 1), plterm());
 
-		vector<EC_word> domain_tuples;
-		for (const vector<unique_ptr<AbstractConstant>> &domain_tp : f.domain())
-			domain_tuples.emplace_back(to_ec_term(",", domain_tp));
-
-		return ::term(EC_functor(":-", 2),
-			::term(EC_functor("prim_fluent", 1),
-				plterm()
-			),
-			::term(EC_functor("member", 2),
-				to_ec_term(",", f.args()),
-				to_ec_list(domain_tuples)
-			)
-		);
+		if (arg_domains.size() > 0)
+			return ::term(EC_functor(":-", 2),
+				prim_fluent,
+				to_ec_term(",", arg_domains)
+			);
+		else
+			return prim_fluent;
 	}
 
 };

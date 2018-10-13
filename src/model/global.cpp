@@ -1,5 +1,7 @@
 #include "error.h"
 #include "global.h"
+#include "scope.h"
+#include "variable.h"
 
 
 namespace gologpp {

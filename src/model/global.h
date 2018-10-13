@@ -3,7 +3,7 @@
 
 #include "utilities.h"
 #include "language.h"
-#include "atoms.h"
+#include "variable.h"
 
 
 namespace gologpp {

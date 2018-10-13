@@ -1,7 +1,7 @@
 #include "formula.h"
-#include "atoms.h"
+#include "variable.h"
+
 #include <model/formula.h>
-#include <model/atoms.h>
 #include <model/error.h>
 
 namespace gologpp {

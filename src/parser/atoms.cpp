@@ -17,7 +17,6 @@
 
 #include <model/scope.h>
 #include <model/reference.h>
-#include <model/atoms.h>
 
 
 
@@ -77,8 +76,11 @@ rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var() {
 template<>
 rule<Constant<BooleanExpression> *> &constant<BooleanExpression>() {
 	static rule<Constant<BooleanExpression> *> rv {
-		(qi::string("true") | qi::string("false")) [
-			_val = new_<Constant<BooleanExpression>>(_1)
+		lit("true") [
+			_val = new_<Constant<BooleanExpression>>(true)
+		]
+		| lit("false") [
+			_val = new_<Constant<BooleanExpression>>(false)
 		],
 		type_descr<BooleanExpression>() + "_constant"
 	};
@@ -89,7 +91,10 @@ rule<Constant<BooleanExpression> *> &constant<BooleanExpression>() {
 template<>
 rule<Constant<NumericExpression> *> &constant<NumericExpression>() {
 	static rule<Constant<NumericExpression> *> rv {
-		(int_ | float_) [
+		double_ [
+			_val = new_<Constant<NumericExpression>>(_1)
+		]
+		| int_ [
 			_val = new_<Constant<NumericExpression>>(_1)
 		],
 		type_descr<NumericExpression>() + "_constant"

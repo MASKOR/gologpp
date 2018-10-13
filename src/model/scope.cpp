@@ -1,9 +1,9 @@
 #include "scope.h"
-#include "atoms.h"
 #include "procedural.h"
 #include "action.h"
 #include "fluent.h"
 #include "effect_axiom.h"
+#include "domain.h"
 
 namespace gologpp {
 
@@ -34,6 +34,7 @@ Scope::Scope()
 : parent_scope_(*this)
 , owner_(nullptr)
 , globals_(new GlobalsMap())
+, domains_(new DomainsMap())
 {}
 
 
@@ -41,6 +42,7 @@ Scope::Scope(AbstractLanguageElement &owner, const vector<shared_ptr<AbstractVar
 : parent_scope_(owner.scope())
 , owner_(&owner)
 , globals_(owner.scope().globals_)
+, domains_(owner.scope().domains_)
 {
 	for (const shared_ptr<AbstractVariable> &v : variables)
 		variables_.emplace(v->name(), v);
@@ -51,6 +53,7 @@ Scope::Scope(Scope &parent_scope)
 : parent_scope_(parent_scope)
 , owner_(nullptr)
 , globals_(parent_scope.globals_)
+, domains_(parent_scope.domains_)
 {}
 
 
@@ -59,6 +62,7 @@ Scope::Scope(Scope &&other)
 , owner_(other.owner_)
 , variables_(std::move(other.variables_))
 , globals_(std::move(other.globals_))
+, domains_(std::move(other.domains_))
 {}
 
 Scope::~Scope()
@@ -164,13 +168,17 @@ Scope &global_scope()
 bool Scope::exists_global(const string &name, arity_t arity) const
 { return globals_->find( { name, arity } ) != globals_->end(); }
 
+bool Scope::exists_domain(const string &name) const
+{ return domains_->find(name) != domains_->end(); }
+
 string Scope::to_string(const string &) const
 { return "[" + concat_list(vars(), ", ") + "]"; }
-
 
 void Scope::register_global(Global *g)
 { (*globals_)[*g].reset(g); }
 
+void Scope::register_domain(AbstractDomain *d)
+{ (*domains_)[*d].reset(d); }
 
 
 

@@ -2,6 +2,7 @@
 #include "effect_axiom.h"
 #include "scope.h"
 #include "execution.h"
+#include "variable.h"
 
 #include <eclipseclass.h>
 
@@ -16,7 +17,23 @@ Semantics<Action>::Semantics(const Action &a)
 EC_word Semantics<Action>::prim_action()
 {
 	action_.scope().semantics().init_vars();
-	return ::term(EC_functor("prim_action", 1), plterm());
+
+	vector<EC_word> arg_domains;
+	for (const shared_ptr<AbstractVariable> &arg : action_.args())
+		if (arg->domain().is_defined())
+			arg_domains.emplace_back(
+				arg->semantics<AbstractVariable>().member_restriction()
+			);
+
+	EC_word prim_action = ::term(EC_functor("prim_action", 1), plterm());
+
+	if (arg_domains.size() > 0)
+		return ::term(EC_functor(":-", 2),
+			prim_action,
+			to_ec_term(",", arg_domains)
+		);
+	else
+		return prim_action;
 }
 
 

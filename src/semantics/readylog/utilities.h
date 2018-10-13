@@ -3,11 +3,29 @@
 
 #include <eclipseclass.h>
 #include <model/gologpp.h>
+#include <model/error.h>
+#include <type_traits>
 
 namespace gologpp {
 
 
 EC_word operator && (const EC_word &lhs, const EC_word &rhs);
+
+using namespace std;
+
+
+template<class T> inline
+T &access(T *ptr)
+{ return *ptr; }
+
+template<class T> inline
+T &access(const unique_ptr<T> &ptr)
+{ return *ptr; }
+
+template<class T> inline
+typename enable_if<!is_pointer<T>::value, T>::type
+&access(T &&ptr)
+{ return std::forward<T>(ptr); }
 
 
 template<class ListT>
@@ -25,13 +43,16 @@ EC_word *to_ec_words(const ListT &args)
 template<class ListT>
 EC_word to_ec_term(const string &functor, const ListT &vec, typename ListT::const_iterator begin)
 {
-	if (begin + 1 == vec.cend())
-		return (*begin)->semantics().plterm();
-	else
+	auto it_cur = begin;
+	auto it_next = ++begin;
+	if (it_next == vec.cend())
+		return access(*it_cur).semantics().plterm();
+	else {
 		return ::term(EC_functor(functor.c_str(), 2),
-			(*begin)->semantics().plterm(),
-			to_ec_term(functor, vec, begin + 1)
+			access(*it_cur).semantics().plterm(),
+			to_ec_term(functor, vec, it_next)
 		);
+	}
 }
 
 template<>
@@ -39,7 +60,11 @@ EC_word to_ec_term(const string &functor, const vector<EC_word> &vec, vector<EC_
 
 template<class ListT>
 EC_word to_ec_term(const string &functor, const ListT &vec)
-{ return to_ec_term(functor, vec, vec.cbegin()); }
+{
+	if (vec.size() < 1)
+		throw Bug(string(__func__) + " must not be called on empty containers");
+	return to_ec_term(functor, vec, vec.cbegin());
+}
 
 
 
@@ -48,8 +73,11 @@ EC_word to_ec_list(const ListT &vec, typename ListT::const_iterator begin)
 {
 	if (begin == vec.cend())
 		return ::nil();
-	else
-		return ::list((*begin)->semantics().plterm(), to_ec_list(vec, begin + 1));
+	else {
+		auto it_cur = begin;
+		auto it_next = ++begin;
+		return ::list(access(*it_cur).semantics().plterm(), to_ec_list(vec, it_next));
+	}
 }
 
 template<>

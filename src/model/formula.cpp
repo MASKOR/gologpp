@@ -2,7 +2,6 @@
 
 #include "formula.h"
 #include "expressions.h"
-#include "atoms.h"
 
 
 namespace gologpp {

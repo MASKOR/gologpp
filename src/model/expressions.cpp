@@ -8,11 +8,13 @@ namespace gologpp {
 string to_string(ExpressionTypeTag t)
 {
 	switch (t) {
-	case BOOLEAN_EXPRESSION:
+	case BOOLEAN:
 		return "?";
-	case VALUE_EXPRESSION:
+	case NUMERIC:
 		return "%";
-	case STATEMENT:
+	case SYMBOLIC:
+		return "$";
+	case VOID:
 		return "";
 	}
 	return "[Unknown ExpressionTypeTag]";
@@ -44,28 +46,35 @@ void Expression::set_parent(AbstractLanguageElement *parent)
 
 
 
-ExpressionTypeTag BooleanExpression::expression_type_tag() const
-{ return BOOLEAN_EXPRESSION; }
+ExpressionTypeTag BooleanExpression::dynamic_type_tag() const
+{ return BOOLEAN; }
 
 ExpressionTypeTag BooleanExpression::static_type_tag()
-{ return BOOLEAN_EXPRESSION; }
+{ return BOOLEAN; }
 
 
 
-ExpressionTypeTag NumericExpression::expression_type_tag() const
-{ return VALUE_EXPRESSION; }
+ExpressionTypeTag NumericExpression::dynamic_type_tag() const
+{ return NUMERIC; }
 
 ExpressionTypeTag NumericExpression::static_type_tag()
-{ return VALUE_EXPRESSION; }
+{ return NUMERIC; }
 
 
 
-ExpressionTypeTag Statement::expression_type_tag() const
-{ return STATEMENT; }
+ExpressionTypeTag SymbolicExpression::dynamic_type_tag() const
+{ return SYMBOLIC; }
+
+ExpressionTypeTag SymbolicExpression::static_type_tag()
+{ return SYMBOLIC; }
+
+
+
+ExpressionTypeTag Statement::dynamic_type_tag() const
+{ return VOID; }
 
 ExpressionTypeTag Statement::static_type_tag()
-{ return STATEMENT; }
-
+{ return VOID; }
 
 
 }

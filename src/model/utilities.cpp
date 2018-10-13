@@ -1,5 +1,4 @@
 #include "utilities.h"
-#include "atoms.h"
 
 namespace gologpp {
 

@@ -6,6 +6,7 @@
 #include "error.h"
 #include "global.h"
 #include "reference.h"
+#include "constant.h"
 
 namespace gologpp {
 
@@ -91,6 +92,7 @@ private:
 };
 
 
+
 class AbstractFluent
 : public Global
 , public ScopeOwner
@@ -140,18 +142,20 @@ public:
 	{
 		// TODO: fail if already defined
 		for (InitialValue<ExpressionT> *ival : initial_values) {
-			vector<unique_ptr<AbstractConstant>> dom_entry;
 			for (arity_t arg_idx = 0; arg_idx < arity(); ++arg_idx) {
-				if (ival->args()[arg_idx]->expression_type_tag() != args()[arg_idx]->expression_type_tag())
+				AbstractVariable &arg = *args()[arg_idx];
+				AbstractConstant &arg_value = *ival->args()[arg_idx];
+				if (arg_value.dynamic_type_tag() != arg.dynamic_type_tag())
 					throw ExpressionTypeMismatch(
-						dynamic_cast<const Expression &>(*args()[arg_idx]),
-						dynamic_cast<const Expression &>(*ival->args()[arg_idx])
+						dynamic_cast<const Expression &>(arg),
+						dynamic_cast<const Expression &>(arg_value)
 					);
-				dom_entry.emplace_back(ival->args()[arg_idx]->copy());
+
+				if (arg.domain().is_implicit())
+					arg.add_to_domain(arg_value);
 			}
 			ival->set_fluent(*this);
 			initial_values_.push_back(unique_ptr<InitialValue<ExpressionT>>(ival));
-			domain_.emplace_back(std::move(dom_entry));
 		}
 	}
 
@@ -163,9 +167,6 @@ public:
 
 		for (unique_ptr<InitialValue<ExpressionT>> &ival : initial_values_)
 			ival->attach_semantics(implementor);
-		for (vector<unique_ptr<AbstractConstant>> &dom_entry : domain_)
-			for (unique_ptr<AbstractConstant> &c : dom_entry)
-				c->attach_semantics(implementor);
 		scope_->attach_semantics(implementor);
 		semantics_ = implementor.make_semantics(*this);
 	}
@@ -186,12 +187,8 @@ public:
 	virtual Expression *ref(const vector<Expression *> &args) override
 	{ return make_ref(args); }
 
-	const vector<vector<unique_ptr<AbstractConstant>>> &domain() const
-	{ return domain_; }
-
 private:
 	vector<unique_ptr<InitialValue<ExpressionT>>> initial_values_;
-	vector<vector<unique_ptr<AbstractConstant>>> domain_;
 };
 
 

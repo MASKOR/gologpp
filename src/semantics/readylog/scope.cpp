@@ -1,5 +1,5 @@
 #include "scope.h"
-#include "atoms.h"
+#include "variable.h"
 
 namespace gologpp {
 

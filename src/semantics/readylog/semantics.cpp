@@ -2,13 +2,15 @@
 #include "effect_axiom.h"
 #include "action.h"
 #include "fluent.h"
-#include "atoms.h"
+#include "variable.h"
+#include "constant.h"
 #include "formula.h"
 #include "procedural.h"
 #include "reference.h"
 #include "scope.h"
 #include "arithmetic.h"
 #include "execution.h"
+#include "domain.h"
 
 namespace gologpp {
 

@@ -2,8 +2,8 @@
 #define FORMULA_H
 
 #include "expressions.h"
-#include "atoms.h"
 #include "scope.h"
+#include "variable.h"
 
 #include <vector>
 #include <memory>

@@ -3,11 +3,12 @@
 
 #include "language.h"
 #include "expressions.h"
-#include "atoms.h"
 #include "utilities.h"
 #include "gologpp.h"
 #include "scope.h"
 #include "error.h"
+#include "variable.h"
+#include "domain.h"
 
 #include <memory>
 #include <vector>
@@ -87,7 +88,7 @@ public:
 		auto it_rarg = args().begin();
 		auto it_targ = target()->args().begin();
 		for (; it_rarg < args().end() && it_targ < target()->args().end(); ++it_rarg, ++it_targ) {
-			if ((*it_rarg)->expression_type_tag() != (*it_targ)->expression_type_tag())
+			if ((*it_rarg)->dynamic_type_tag() != (*it_targ)->dynamic_type_tag())
 				return false;
 
 			if ((*it_rarg)->is_ref() && !dynamic_cast<AbstractReference &>(**it_rarg).consistent())
@@ -192,6 +193,22 @@ public:
 
 private:
 	weak_ptr<Variable<ExprT>> target_;
+};
+
+
+
+template<class ExprT>
+class Reference<Domain<ExprT>>
+: public AbstractReference
+, public NoScopeOwner
+, public LanguageElement<Reference<Domain<ExprT>>>
+{
+	Reference(const shared_ptr<Domain<ExprT>> &target)
+	: target_(target)
+	{}
+
+private:
+	weak_ptr<Domain<ExprT>> target_;
 };
 
 

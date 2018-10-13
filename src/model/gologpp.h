@@ -37,6 +37,7 @@ class Global;
 class Expression;
 class BooleanExpression;
 class NumericExpression;
+class SymbolicExpression;
 class Statement;
 
 typedef BooleanExpression Bool;
@@ -62,6 +63,9 @@ template<class> class Variable;
 
 class AbstractConstant;
 template<class> class Constant;
+
+class AbstractDomain;
+template<class> class Domain;
 
 typedef Constant<BooleanExpression> BooleanConstant;
 typedef Constant<NumericExpression> NumericConstant;
@@ -122,8 +126,9 @@ template<class ExprT>
 using VariableReference = Reference<Variable<ExprT>>;
 
 
+
 #define GOLOGPP_VALUE_TYPES \
-	(BooleanExpression)(NumericExpression)
+	(BooleanExpression)(NumericExpression)(SymbolicExpression)
 
 #define GOLOGPP_EXPRESSION_TYPES \
 	GOLOGPP_VALUE_TYPES (Statement)
@@ -131,7 +136,8 @@ using VariableReference = Reference<Variable<ExprT>>;
 #define GOLOGPP_VALUE_TYPE_TEMPLATES \
 	(EffectAxiom)(InitialValue)(Fluent)(Variable)(Constant) \
 	(FluentAssignment)(VariableAssignment) \
-	(FluentReference)(VariableReference)(Pick)(Return)
+	(FluentReference)(VariableReference)(Pick)(Return) \
+	(Domain)
 
 #define GOLOGPP_EXPRESSION_TYPE_TEMPLATES \
 	(Function)(FunctionReference)

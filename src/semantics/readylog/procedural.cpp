@@ -1,6 +1,5 @@
 #include "scope.h"
 #include "procedural.h"
-#include "atoms.h"
 #include "reference.h"
 #include "execution.h"
 #include <model/procedural.h>

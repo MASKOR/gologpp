@@ -42,7 +42,8 @@ set(GOLOGPP_VERSION 0.0.1)
 
 set(INTERFACE_SRC
 	src/model/action.cpp
-	src/model/atoms.cpp
+	src/model/variable.cpp
+	src/model/constant.cpp
 	src/model/effect_axiom.cpp
 	src/model/fluent.cpp
 	src/model/expressions.cpp
@@ -57,6 +58,7 @@ set(INTERFACE_SRC
 	src/model/execution.cpp
 	src/model/reference.cpp
 	src/model/global.cpp
+	src/model/domain.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -68,7 +70,8 @@ install(FILES
 	src/model/semantics.h
 	src/model/formula.h
 	src/model/effect_axiom.h
-	src/model/atoms.h
+	src/model/variable.h
+	src/model/constant.h
 	src/model/situation.h
 	src/model/arithmetic.h
 	src/model/procedural.h
@@ -84,6 +87,7 @@ install(FILES
 	src/model/reference.h
 	src/model/expressions.h
 	src/model/gologpp.h
+	src/model/domain.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model
 )
@@ -168,7 +172,9 @@ if (${BUILD_READYLOG_IMPL})
 
 	set(READYLOG_SRC
 		src/semantics/readylog/action.cpp
-		src/semantics/readylog/atoms.cpp
+		src/semantics/readylog/variable.cpp
+		src/semantics/readylog/constant.cpp
+		src/semantics/readylog/domain.cpp
 		src/semantics/readylog/arithmetic.cpp
 		src/semantics/readylog/execution.cpp
 		src/semantics/readylog/fluent.cpp
@@ -192,7 +198,9 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/semantics.h
 		src/semantics/readylog/formula.h
 		src/semantics/readylog/effect_axiom.h
-		src/semantics/readylog/atoms.h
+		src/semantics/readylog/variable.h
+		src/semantics/readylog/constant.h
+		src/semantics/readylog/domain.h
 		src/semantics/readylog/arithmetic.h
 		src/semantics/readylog/procedural.h
 		src/semantics/readylog/scope.h

@@ -1,7 +1,6 @@
 #ifndef GOLOGPP_SITUATION_H
 #define GOLOGPP_SITUATION_H
 
-#include "atoms.h"
 #include "fluent.h"
 #include "utilities.h"
 

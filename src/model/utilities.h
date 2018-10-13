@@ -139,6 +139,12 @@ struct hash<gologpp::Identifier> {
     { return o.hash(); }
 };
 
+template<>
+struct hash<gologpp::Name> {
+	size_t operator () (const gologpp::Name &o) const
+	{ return o.hash(); }
+};
+
 } // namespace std
 
 #endif // GOLOGPP_UTILITIES_H_

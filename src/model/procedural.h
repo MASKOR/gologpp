@@ -11,6 +11,7 @@
 #include "expressions.h"
 #include "error.h"
 #include "global.h"
+#include "scope.h"
 
 namespace gologpp {
 
@@ -305,7 +306,7 @@ public:
 	virtual string to_string(const string &pfx) const override
 	{
 		string fn;
-		if (expression_type_tag() == ExpressionTypeTag::STATEMENT)
+		if (expression_type_tag() == ExpressionTypeTag::VOID)
 			fn = "procedure ";
 		else
 			fn = gologpp::to_string(expression_type_tag()) + "function ";

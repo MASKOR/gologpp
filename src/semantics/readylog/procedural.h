@@ -3,7 +3,7 @@
 
 #include "semantics.h"
 #include "scope.h"
-#include "atoms.h"
+#include "variable.h"
 
 #include <model/semantics.h>
 #include <model/expressions.h>
