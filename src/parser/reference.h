@@ -43,17 +43,18 @@ struct ReferenceParser : grammar<Reference<GologT> *(Scope &)> {
 		) ) > ")") [
 			_val = new_<Reference<GologT>>(_1, _2),
 			if_(!phoenix::bind(&Reference<GologT>::consistent, *_val)) [
-				_pass = false
+				_pass = false,
+				delete_(_val)
 			]
 		];
-		on_error<rethrow>(pred_ref, delete_(_val));
 
 		any_pred_ref = (((r_name() > "(") > -(
 			(atom()(_r1) | any_pred_ref(_r1)) % ","
 		) ) > ")") [
 			_val = phoenix::bind(&ref_to_global, _1, _2),
 			if_(!phoenix::bind(&AbstractReference::consistent, dynamic_cast_<AbstractReference &>(*_val))) [
-				_pass = false
+				_pass = false,
+				delete_(_val)
 			]
 		];
 

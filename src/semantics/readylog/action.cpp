@@ -41,7 +41,7 @@ EC_word Semantics<Action>::plterm()
 {
 	return ::term(
 		EC_functor(action_.name().c_str(), action_.arity()),
-		to_ec_words(action_.args())
+		to_ec_words(action_.args()).data()
 	);
 }
 
@@ -117,7 +117,7 @@ EC_word Semantics<ExogAction>::plterm()
 {
 	return ::term(
 		EC_functor(exog_.name().c_str(), exog_.arity()),
-		to_ec_words(exog_.args())
+		to_ec_words(exog_.args()).data()
 	);
 }
 

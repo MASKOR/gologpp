@@ -29,12 +29,11 @@ typename enable_if<!is_pointer<T>::value, T>::type
 
 
 template<class ListT>
-EC_word *to_ec_words(const ListT &args)
+vector<EC_word> to_ec_words(const ListT &args)
 {
-	EC_word *rv = new EC_word[args.size()];
-	arity_t i = 0;
+	vector<EC_word> rv;
 	for (const auto &arg : args)
-		rv[i++] = arg->semantics().plterm();
+		rv.push_back(arg->semantics().plterm());
 	return rv;
 }
 

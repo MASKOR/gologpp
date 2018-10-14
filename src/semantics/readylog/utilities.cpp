@@ -49,7 +49,7 @@ EC_word copy_term(EC_word t)
 	if (t.is_list(head, tail) == EC_succeed)
 		return ::list(copy_term(head), copy_term(tail));
 	else if (t.functor(&fn) == EC_succeed) {
-		EC_word *args = new EC_word[size_t(fn.arity())];
+		EC_word args[size_t(fn.arity())];
 		for (size_t i = 0; i < size_t(fn.arity()); ++i) {
 			EC_word t_arg;
 			if (t.arg(int(i+1), t_arg) != EC_succeed)

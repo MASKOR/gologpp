@@ -16,7 +16,7 @@ EC_word Semantics<AbstractFluent>::plterm()
 {
 	return ::term(
 		EC_functor(fluent_.name().c_str(), fluent_.arity()),
-		to_ec_words(fluent_.args())
+		to_ec_words(fluent_.args()).data()
 	);
 }
 
