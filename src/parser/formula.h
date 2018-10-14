@@ -7,10 +7,22 @@
 #include "expressions.h"
 #include "arithmetic.h"
 #include "reference.h"
+#include "symbolic_expression.h"
 
 
 namespace gologpp {
 namespace parser {
+
+
+template<class ExprT>
+struct ComparisonParser : grammar<Comparison<ExprT> *(Scope &)> {
+	ComparisonParser();
+
+	rule<Comparison<ExprT> *(Scope &)> comparison;
+	rule<ComparisonOperator()> cmp_op;
+	ExpressionParser<ExprT> expression;
+};
+
 
 template<>
 struct ExpressionParser<BooleanExpression> : grammar<BooleanExpression *(Scope &)> {
@@ -27,9 +39,8 @@ struct ExpressionParser<BooleanExpression> : grammar<BooleanExpression *(Scope &
 	ReferenceParser<BooleanFluent> bool_fluent_ref;
 	ReferenceParser<BooleanFunction> bool_function_ref;
 	rule<BooleanOperator()> bool_op;
-	rule<BooleanExpression *(Scope &)> num_comparison;
-	NumericExpressionParser num_expression;
-	rule<ComparisonOperator()> num_cmp_op;
+	ComparisonParser<NumericExpression> numeric_comparison;
+	ComparisonParser<SymbolicExpression> symbolic_comparison;
 };
 
 

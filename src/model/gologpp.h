@@ -69,14 +69,16 @@ template<class> class Domain;
 
 typedef Constant<BooleanExpression> BooleanConstant;
 typedef Constant<NumericExpression> NumericConstant;
+typedef Constant<SymbolicExpression> SymbolicConstant;
 
 typedef Variable<BooleanExpression> BooleanVariable;
 typedef Variable<NumericExpression> NumericVariable;
+typedef Variable<SymbolicExpression> SymbolicVariable;
 
 class ArithmeticOperation;
 
 class Negation;
-class Comparison;
+template<class> class Comparison;
 class BooleanOperation;
 class Quantification;
 
@@ -126,9 +128,11 @@ template<class ExprT>
 using VariableReference = Reference<Variable<ExprT>>;
 
 
+#define GOLOGPP_COMPARABLE_TYPES \
+	(NumericExpression)(SymbolicExpression)
 
 #define GOLOGPP_VALUE_TYPES \
-	(BooleanExpression)(NumericExpression)(SymbolicExpression)
+	GOLOGPP_COMPARABLE_TYPES (BooleanExpression)
 
 #define GOLOGPP_EXPRESSION_TYPES \
 	GOLOGPP_VALUE_TYPES (Statement)
@@ -148,7 +152,7 @@ using VariableReference = Reference<Variable<ExprT>>;
 #define GOLOGPP_SEMANTIC_TYPES \
 	(Action)(ExogAction)(Transition)(ExogTransition) \
 	(Scope)(ArithmeticOperation) \
-	(Negation)(Comparison)(BooleanOperation)(Quantification) \
+	(Negation)(BooleanOperation)(Quantification) \
 	(Block)(Choose)(Conditional)(Search)(Solve)(Test)(While) \
 	(History)(Reference<Action>) \
 	BOOST_PP_SEQ_FOR_EACH_PRODUCT(GOLOGPP_TEMPLATE_CLASS, \
@@ -157,6 +161,9 @@ using VariableReference = Reference<Variable<ExprT>>;
 	BOOST_PP_SEQ_FOR_EACH_PRODUCT(GOLOGPP_TEMPLATE_CLASS, \
 		(GOLOGPP_EXPRESSION_TYPE_TEMPLATES)(GOLOGPP_EXPRESSION_TYPES) \
 	) \
+	BOOST_PP_SEQ_FOR_EACH_PRODUCT(GOLOGPP_TEMPLATE_CLASS, \
+		((Comparison))(GOLOGPP_COMPARABLE_TYPES) \
+	)
 
 
 #define DEFINE_IMPLEMENT_WITH_MEMBERS(...) \

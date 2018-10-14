@@ -37,25 +37,36 @@ enum ComparisonOperator {
 string to_string(ComparisonOperator op);
 
 
-class Comparison : public BooleanExpression, public NoScopeOwner, public LanguageElement<Comparison> {
+template<class ExprT>
+class Comparison : public BooleanExpression, public NoScopeOwner, public LanguageElement<Comparison<ExprT>> {
 public:
-	Comparison(
-		NumericExpression *lhs,
-		ComparisonOperator op,
-		NumericExpression *rhs
-	);
-	ComparisonOperator op() const;
-	const NumericExpression &lhs() const;
-	const NumericExpression &rhs() const;
+	Comparison(ExprT *lhs, ComparisonOperator op, ExprT *rhs)
+	: lhs_(lhs)
+	, op_(op)
+	, rhs_(rhs)
+	{
+		lhs_->set_parent(this);
+		rhs_->set_parent(this);
+	}
+
+	ComparisonOperator op() const
+	{ return op_; }
+
+	const ExprT &lhs() const
+	{ return *lhs_; }
+
+	const ExprT &rhs() const
+	{ return *rhs_; }
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 
-	virtual string to_string(const string &pfx) const override;
+	virtual string to_string(const string &pfx) const override
+	{ return '(' + lhs().to_string(pfx) + ' ' + gologpp::to_string(op()) + ' ' + rhs().to_string(pfx) + ')'; }
 
 protected:
-	unique_ptr<NumericExpression> lhs_;
+	unique_ptr<ExprT> lhs_;
 	ComparisonOperator op_;
-	unique_ptr<NumericExpression> rhs_;
+	unique_ptr<ExprT> rhs_;
 };
 
 

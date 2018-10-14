@@ -119,6 +119,7 @@ if (${BUILD_PARSER})
 		src/parser/parser.cpp
 		src/parser/assignment.cpp
 		src/parser/fluent.cpp
+		src/parser/symbolic_expression.cpp
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
@@ -126,7 +127,7 @@ if (${BUILD_PARSER})
 	set_property(TARGET parsegolog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
 	target_compile_options(parsegolog++ PRIVATE -Wno-undefined-func-template)
 	if (${DEBUG_PARSER})
-		target_compile_definitions(parsegolog++ -DDEBUG_PARSER)
+		target_compile_definitions(parsegolog++ PRIVATE -DBOOST_SPIRIT_DEBUG)
 	endif()
 	install(TARGETS parsegolog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
 	install(FILES
@@ -145,6 +146,7 @@ if (${BUILD_PARSER})
 		src/parser/assignment.h
 		src/parser/reference.h
 		src/parser/expressions.h
+		src/parser/symbolic_expression.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)
 

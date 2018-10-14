@@ -42,31 +42,6 @@ string to_string(ComparisonOperator op)
 
 
 
-Comparison::Comparison(NumericExpression *lhs, ComparisonOperator op, NumericExpression *rhs)
-: lhs_(lhs)
-, op_(op)
-, rhs_(rhs)
-{
-	lhs_->set_parent(this);
-	rhs_->set_parent(this);
-}
-
-
-ComparisonOperator Comparison::op() const
-{ return op_; }
-
-const NumericExpression &Comparison::lhs() const
-{ return *lhs_; }
-
-const NumericExpression &Comparison::rhs() const
-{ return *rhs_; }
-
-
-string Comparison::to_string(const string &pfx) const
-{ return '(' + lhs().to_string(pfx) + ' ' + gologpp::to_string(op()) + ' ' + rhs().to_string(pfx) + ')'; }
-
-
-
 string to_string(BooleanOperator op)
 {
 	switch (op) {

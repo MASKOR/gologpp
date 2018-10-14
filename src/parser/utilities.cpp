@@ -47,8 +47,6 @@ gologpp_skipper::gologpp_skipper()
 		lit("//") > *(char_ - eol)
 	];
 	comment_oneline.name("comment_oneline");
-
-	BOOST_SPIRIT_DEBUG_NODES((skip)(spc)(comment_oneline)(comment_multiline))
 }
 
 

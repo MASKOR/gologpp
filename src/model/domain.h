@@ -13,7 +13,7 @@ namespace gologpp {
 
 /**
  * @class AbstractDomain
- * A domain is not a Global since it's compile-time constant in golog++.
+ * A domain is not a @class Global since it's compile-time constant in golog++.
  * We also don't need explicit reference representation, i.e. there is no Reference<Domain<...>>.
  * Since domains don't have arguments and anonymous domains can always appear inline,
  * the syntactic separation between named global definition and inline specification is not needed.
@@ -27,12 +27,27 @@ public:
 	AbstractDomain(const string &name, bool implicit);
 	virtual ~AbstractDomain() override = default;
 
+	/**
+	 * @return whether this is an implicit domain.
+	 * By default, every @class Variable has an empty implicit domain, which means its domain is undefined.
+	 * For @class Fluent arguments, the domain can be implicitly defined through the initially: statement.
+	 */
 	bool is_implicit()
 	{ return implicit_; }
 
-	virtual bool is_defined() = 0;
+	virtual bool is_defined() const = 0;
+
+	void add_subject(AbstractLanguageElement &subject)
+	{ subjects_.insert(&subject); }
+
+	std::unordered_set<AbstractLanguageElement *> &subjects()
+	{ return subjects_; }
+
+	const std::unordered_set<AbstractLanguageElement *> &subjects() const
+	{ return subjects_; }
 
 protected:
+	std::unordered_set<AbstractLanguageElement *> subjects_;
 	bool implicit_;
 };
 
@@ -45,7 +60,7 @@ class Domain
 , public std::enable_shared_from_this<Domain<ExprT>>
 {
 public:
-	Domain(const string &name = "", vector<Constant<ExprT> *> elements = {}, bool implicit = false)
+	Domain(const string &name, vector<Constant<ExprT> *> elements = {}, bool implicit = false)
 	: AbstractDomain(name, implicit)
 	{
 		for (Constant<ExprT> *c : elements) {
@@ -53,6 +68,10 @@ public:
 			delete c;
 		}
 	}
+
+	Domain()
+	: AbstractDomain("", true)
+	{}
 
 	virtual ~Domain() override = default;
 
@@ -69,20 +88,14 @@ public:
 			+ concat_list(elements_, ", ") + "};";
 	}
 
-	void add_subject(Variable<ExprT> &subject)
-	{ subjects_.insert(&subject); }
-
-	std::unordered_set<Variable<ExprT> *> &subjects()
-	{ subjects_; }
-
-	const std::unordered_set<const Variable<ExprT> *> &subjects() const
-	{ return subjects_; }
-
 	std::unordered_set<unique_ptr<Constant<ExprT>>> &elements()
 	{ return elements_; }
 
 	const std::unordered_set<unique_ptr<Constant<ExprT>>> &elements() const
 	{ return elements_; }
+
+	void add_element(const Constant<ExprT> &c)
+	{ elements_.emplace(new Constant<ExprT>(c)); }
 
 	virtual Scope &parent_scope() override
 	{ return global_scope(); }
@@ -90,12 +103,11 @@ public:
 	virtual const Scope &parent_scope() const override
 	{ return global_scope(); }
 
-	virtual bool is_defined() override
+	virtual bool is_defined() const override
 	{ return elements_.size() > 0; }
 
 
 protected:
-	std::unordered_set<Variable<ExprT> *> subjects_;
 	std::unordered_set<unique_ptr<Constant<ExprT>>> elements_;
 };
 

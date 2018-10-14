@@ -62,7 +62,7 @@ FunctionParser<ExpressionT>::FunctionParser()
 AbstractFunctionParser::AbstractFunctionParser()
 : AbstractFunctionParser::base_type(function, "any_function_definition")
 {
-	function = bool_func(_r1) | num_func(_r1);
+	function = bool_func(_r1) | num_func(_r1) | sym_func(_r1);
 	function.name("any_function_definition");
 	BOOST_SPIRIT_DEBUG_NODE(function);
 }

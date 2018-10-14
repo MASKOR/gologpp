@@ -25,7 +25,8 @@ public:
 	virtual AbstractDomain &domain() = 0;
 	virtual const AbstractDomain &domain() const = 0;
 
-	virtual void add_to_domain(const AbstractConstant &) = 0;
+	virtual void add_implicit_domain_element(const AbstractConstant &) = 0;
+	virtual void define_implicit_domain(const string &domain_name) = 0;
 
 	template<class ExpressionT>
 	operator ExpressionT *() {
@@ -46,7 +47,7 @@ class Variable
 protected:
 	Variable(const string &name)
 	: AbstractVariable(name)
-	, domain_(new Domain<ExpressionT>(name, {}, true))
+	, domain_(new Domain<ExpressionT>())
 	{ domain_->add_subject(*this); }
 
 public:
@@ -73,8 +74,14 @@ public:
 	virtual Domain<ExpressionT> &domain() const override
 	{ return *domain_; }
 
-	virtual void add_to_domain(const AbstractConstant &c) override
+	/**
+	 * Add @param c to this Variable's @class Domain if it is an implicit domain.
+	 * If it's an explicit domain, this method does nothing.
+	 */
+	virtual void add_implicit_domain_element(const AbstractConstant &c) override
 	{
+		if (!domain_->is_implicit())
+			return;
 		domain_->elements().emplace(new Constant<ExpressionT>(
 			dynamic_cast<const Constant<ExpressionT> &>(c)
 		) );
@@ -82,8 +89,14 @@ public:
 
 	void set_domain(const string &domain_name)
 	{
-		domain_ = global_scope().lookup_domain<ExpressionT>(domain_name, 0);
+		domain_ = global_scope().lookup_domain<ExpressionT>(domain_name);
 		domain_->add_subject(*this);
+	}
+
+	virtual void define_implicit_domain(const string &domain_name) override
+	{
+		global_scope().register_domain(new Domain<ExpressionT>(domain_name, {}, true));
+		set_domain(domain_name);
 	}
 
 	virtual ~Variable() override = default;

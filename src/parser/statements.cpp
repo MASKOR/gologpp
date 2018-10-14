@@ -38,17 +38,21 @@ StatementParser::StatementParser()
 	statement = compound_statement(_r1) | simple_statement(_r1);
 	statement.name("statement");
 
-	simple_statement = (test(_r1) | boolean_return(_r1) | numeric_return(_r1)
+	simple_statement = (test(_r1)
+		| boolean_return(_r1) | numeric_return(_r1) | symbolic_return(_r1)
 		| numeric_var_assignment(_r1)
 		| boolean_var_assignment(_r1)
+		| symbolic_var_assignment(_r1)
 		| numeric_fluent_assignment(_r1)
 		| boolean_fluent_assignment(_r1)
+		| symbolic_fluent_assignment(_r1)
 		| action_call(_r1) | procedure_call(_r1)) > ';';
 	simple_statement.name("simple_statement");
 
 	compound_statement = block(_r1) | choose(_r1) | conditional(_r1)
 		| boolean_pick(_r1)
 		| numeric_pick(_r1)
+		| symbolic_pick(_r1)
 		| solve(_r1) | search(_r1) | r_while(_r1);
 	compound_statement.name("compound_statement");
 
@@ -80,6 +84,7 @@ StatementParser::StatementParser()
 
 	boolean_pick = pick_<BooleanExpression>();
 	numeric_pick = pick_<NumericExpression>();
+	symbolic_pick = pick_<SymbolicExpression>();
 
 	search = (lit("search") > statement(_r1)) [
 		_val = new_<Search>(_1)
@@ -111,6 +116,12 @@ StatementParser::StatementParser()
 		_val = new_<Return<NumericExpression>>(_1)
 	];
 	numeric_return.name("numeric_return");
+
+	symbolic_return = (lit("return") >> symbolic_expression(_r1)) [
+		_val = new_<Return<SymbolicExpression>>(_1)
+	];
+	numeric_return.name("symbolic_return");
+
 
 	BOOST_SPIRIT_DEBUG_NODES((statement)(simple_statement)(compound_statement)
 		(block)(choose)(conditional)(search)(solve)(test)(r_while)

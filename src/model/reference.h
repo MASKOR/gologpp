@@ -197,21 +197,6 @@ private:
 
 
 
-template<class ExprT>
-class Reference<Domain<ExprT>>
-: public AbstractReference
-, public NoScopeOwner
-, public LanguageElement<Reference<Domain<ExprT>>>
-{
-	Reference(const shared_ptr<Domain<ExprT>> &target)
-	: target_(target)
-	{}
-
-private:
-	weak_ptr<Domain<ExprT>> target_;
-};
-
-
 } // namespace gologpp
 
 

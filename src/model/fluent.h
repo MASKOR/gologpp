@@ -122,7 +122,12 @@ public:
 
 	Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
 	: AbstractFluent(own_scope, name, args)
-	{}
+	, domain_(new Domain<ExpressionT>(
+		"implicit_domain(" + name + "/" + std::to_string(args.size()) + ")",
+		{},
+		true
+	  ) )
+	{ domain_->add_subject(*this); }
 
 	Fluent(Scope &parent_scope, const string &name)
 	: AbstractFluent(new Scope(parent_scope), name, {})
@@ -140,6 +145,14 @@ public:
 
 	void define(const vector<InitialValue<ExpressionT> *> &initial_values)
 	{
+		global_scope().register_domain(domain_);
+
+		for (shared_ptr<AbstractVariable> &arg : args())
+			if (arg->domain().is_implicit())
+				arg->define_implicit_domain("implicit_domain("
+					+ arg->str() + "@" + name() + "/" + std::to_string(arity()) +
+				")");
+
 		// TODO: fail if already defined
 		for (InitialValue<ExpressionT> *ival : initial_values) {
 			for (arity_t arg_idx = 0; arg_idx < arity(); ++arg_idx) {
@@ -151,10 +164,12 @@ public:
 						dynamic_cast<const Expression &>(arg_value)
 					);
 
-				if (arg.domain().is_implicit())
-					arg.add_to_domain(arg_value);
+				arg.add_implicit_domain_element(arg_value);
 			}
 			ival->set_fluent(*this);
+
+			domain_->add_element(ival->value());
+
 			initial_values_.push_back(unique_ptr<InitialValue<ExpressionT>>(ival));
 		}
 	}
@@ -189,6 +204,7 @@ public:
 
 private:
 	vector<unique_ptr<InitialValue<ExpressionT>>> initial_values_;
+	shared_ptr<Domain<ExpressionT>> domain_;
 };
 
 

@@ -18,6 +18,7 @@ struct ActionParser : grammar<Action *(Scope &)> {
 	rule<AbstractEffectAxiom *(Scope &)> effect;
 	EffectParser<BooleanExpression> boolean_effect;
 	EffectParser<NumericExpression> numeric_effect;
+	EffectParser<SymbolicExpression> symbolic_effect;
 	rule<Action *(Scope &)> action;
 	rule<Action *(Scope &), locals<Scope *>> action_forward;
 	rule<Action *(Scope &), locals<Scope *>> action_def;

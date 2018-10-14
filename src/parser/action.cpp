@@ -62,7 +62,7 @@ ActionParser::ActionParser()
 	action_def.name("action_definition");
 	on_error<rethrow>(action_def, delete_(_a));
 
-	effect = boolean_effect(_r1) | numeric_effect(_r1);
+	effect = boolean_effect(_r1) | numeric_effect(_r1) | symbolic_effect(_r1);
 
 	BOOST_SPIRIT_DEBUG_NODES((action)(action_forward)(action_def));
 }

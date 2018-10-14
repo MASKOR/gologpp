@@ -19,6 +19,12 @@ private:
 };
 
 
+class InvalidIdentifier : public SemanticError {
+public:
+	InvalidIdentifier(const std::string &name);
+};
+
+
 
 } // namespace gologpp
 

@@ -26,6 +26,10 @@ template<>
 inline auto type_mark<NumericExpression>()
 { return boost::spirit::qi::lit('%'); }
 
+template<>
+inline auto type_mark<SymbolicExpression>()
+{ return boost::spirit::qi::lit("§"); }
+
 
 
 template<class ExpressionT>
@@ -38,6 +42,10 @@ inline string type_descr<BooleanExpression>()
 template<>
 inline string type_descr<NumericExpression>()
 { return "numeric"; }
+
+template<>
+inline string type_descr<SymbolicExpression>()
+{ return "symbolic"; }
 
 
 

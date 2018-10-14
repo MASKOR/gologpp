@@ -38,7 +38,7 @@ template<class GologT>
 struct ReferenceParser : grammar<Reference<GologT> *(Scope &)> {
 	ReferenceParser() : ReferenceParser::base_type(pred_ref, string("reference_to_") + typeid(GologT).name())
 	{
-		pred_ref = ((r_name() > "(" > -(
+		pred_ref = (((r_name() >> "(") > -(
 			(atom()(_r1) | any_pred_ref(_r1)) %  ","
 		) ) > ")") [
 			_val = new_<Reference<GologT>>(_1, _2),
@@ -48,7 +48,7 @@ struct ReferenceParser : grammar<Reference<GologT> *(Scope &)> {
 		];
 		on_error<rethrow>(pred_ref, delete_(_val));
 
-		any_pred_ref = ((r_name() > "(" > -(
+		any_pred_ref = (((r_name() > "(") > -(
 			(atom()(_r1) | any_pred_ref(_r1)) % ","
 		) ) > ")") [
 			_val = phoenix::bind(&ref_to_global, _1, _2),

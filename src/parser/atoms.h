@@ -15,11 +15,11 @@ namespace parser {
 template<class ExpressionT>
 rule<shared_ptr<Variable<ExpressionT>>(Scope &)> &var();
 
-extern template
-rule<shared_ptr<Variable<BooleanExpression>>(Scope &)> &var<BooleanExpression>();
+#define GOLOGPP_PARSER_INSTANTIATE_VARIABLES(r, data, T) \
+	extern template \
+	rule<shared_ptr<Variable<T>>(Scope &)> &var<T>();
 
-extern template
-rule<shared_ptr<Variable<NumericExpression>>(Scope &)> &var<NumericExpression>();
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_INSTANTIATE_VARIABLES, (), GOLOGPP_EXPRESSION_TYPES)
 
 
 rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var();
@@ -30,16 +30,22 @@ rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var();
 ******************/
 
 template<class ExprT>
-rule<Constant<ExprT> *> &constant();
+rule<Constant<ExprT> *> &constant(bool allow_symbol_def = false);
 
-rule<AbstractConstant *> &abstract_constant();
+#define GOLOGPP_PARSER_DECLARE_CONSTANTS(r, data, T) \
+	template<> \
+	rule<Constant<T> *> &constant(bool allow_symbol_def);
+
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_DECLARE_CONSTANTS, (), GOLOGPP_EXPRESSION_TYPES)
+
+rule<AbstractConstant *> &abstract_constant(bool allow_symbol_def = false);
 
 
 /******************
 * General atoms
 ******************/
 
-rule<Expression *(Scope &)> &atom();
+rule<Expression *(Scope &)> &atom(bool allow_symbol_def = false);
 
 
 

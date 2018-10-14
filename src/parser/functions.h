@@ -26,6 +26,7 @@ struct AbstractFunctionParser : grammar<AbstractFunction *(Scope &)> {
 	rule<AbstractFunction *(Scope &)> function;
 	FunctionParser<NumericExpression> num_func;
 	FunctionParser<BooleanExpression> bool_func;
+	FunctionParser<SymbolicExpression> sym_func;
 };
 
 

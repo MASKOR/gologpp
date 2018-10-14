@@ -21,43 +21,6 @@ EC_word Semantics<Negation>::plterm()
 }
 
 
-Semantics<Comparison>::~Semantics()
-{}
-
-
-Semantics<Comparison>::Semantics(const Comparison &cmp)
-: comparison_(cmp)
-{
-	switch(comparison_.op()) {
-	case ComparisonOperator::EQ:
-		functor_ = "=";
-		break;
-	case ComparisonOperator::GE:
-		functor_ = ">=";
-		break;
-	case ComparisonOperator::GT:
-		functor_ = ">";
-		break;
-	case ComparisonOperator::LE:
-		functor_ = "=<";
-		break;
-	case ComparisonOperator::LT:
-		functor_ = "<";
-		break;
-	case ComparisonOperator::NEQ:
-		functor_ = "\\=";
-	}
-}
-
-
-EC_word Semantics<Comparison>::plterm()
-{
-	return ::term(EC_functor(functor_, 2),
-		comparison_.lhs().semantics().plterm(),
-		comparison_.rhs().semantics().plterm()
-	);
-}
-
 
 Semantics<BooleanOperation>::Semantics(const BooleanOperation &c)
 : conjunction_(c)

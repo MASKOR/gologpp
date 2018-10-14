@@ -4,6 +4,8 @@
 #include "fluent.h"
 #include "effect_axiom.h"
 #include "domain.h"
+#include "user_error.h"
+#include "constant.h"
 
 namespace gologpp {
 
@@ -158,8 +160,10 @@ void Scope::implement_globals(SemanticsFactory &implementor, AExecutionContext &
 void Scope::clear()
 {
 	variables_.clear();
-	if (this == &global_scope())
+	if (this == &global_scope()) {
 		globals_->clear();
+		//domains_->clear();
+	}
 }
 
 Scope &global_scope()
@@ -179,6 +183,20 @@ void Scope::register_global(Global *g)
 
 void Scope::register_domain(AbstractDomain *d)
 { (*domains_)[*d].reset(d); }
+
+
+Constant<SymbolicExpression> *Scope::get_symbol(const string &name)
+{
+	for (const DomainsMap::value_type &entry : *domains_) {
+		try {
+			const Domain<SymbolicExpression> &domain = dynamic_cast<const Domain<SymbolicExpression> &>(*entry.second);
+			if (domain.elements().find(std::make_unique<Constant<SymbolicExpression>>(name)) != domain.elements().end())
+				return new Constant<SymbolicExpression>(name);
+		} catch (std::bad_cast &)
+		{}
+	}
+	return nullptr;
+}
 
 
 

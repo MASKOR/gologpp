@@ -193,6 +193,12 @@ public:
 	void register_global(Global *g);
 	void register_domain(AbstractDomain *d);
 
+	template<class ExprT>
+	void register_domain(shared_ptr<Domain<ExprT>> &d)
+	{ domains_->emplace(*d, d); }
+
+	Constant<SymbolicExpression> *get_symbol(const string &name);
+
 	virtual string to_string(const string &pfx) const override;
 
 

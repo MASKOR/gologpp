@@ -3,6 +3,7 @@
 
 #include "semantics.h"
 #include <model/gologpp.h>
+#include <model/formula.h>
 
 #include <eclipseclass.h>
 
@@ -27,16 +28,45 @@ private:
 };
 
 
-template<>
-class Semantics<Comparison> : public Semantics<BooleanExpression> {
+template<class ExprT>
+class Semantics<Comparison<ExprT>> : public Semantics<BooleanExpression> {
 public:
-	Semantics(const Comparison &);
-	virtual ~Semantics() override;
+	Semantics(const Comparison<ExprT> &cmp)
+	: comparison_(cmp)
+	{
+		switch(comparison_.op()) {
+		case ComparisonOperator::EQ:
+			functor_ = "=";
+			break;
+		case ComparisonOperator::GE:
+			functor_ = ">=";
+			break;
+		case ComparisonOperator::GT:
+			functor_ = ">";
+			break;
+		case ComparisonOperator::LE:
+			functor_ = "=<";
+			break;
+		case ComparisonOperator::LT:
+			functor_ = "<";
+			break;
+		case ComparisonOperator::NEQ:
+			functor_ = "\\=";
+		}
+	}
 
-	virtual EC_word plterm() override;
+	virtual ~Semantics() override = default;
+
+	virtual EC_word plterm() override
+	{
+		return ::term(EC_functor(functor_, 2),
+			comparison_.lhs().semantics().plterm(),
+			comparison_.rhs().semantics().plterm()
+		);
+	}
 
 private:
-	const Comparison &comparison_;
+	const Comparison<ExprT> &comparison_;
 	const char *functor_;
 };
 

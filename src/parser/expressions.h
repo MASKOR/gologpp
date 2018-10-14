@@ -17,6 +17,7 @@ struct ExpressionParser;
 
 typedef ExpressionParser<BooleanExpression> BooleanExpressionParser;
 typedef ExpressionParser<NumericExpression> NumericExpressionParser;
+typedef ExpressionParser<SymbolicExpression> SymbolicExpressionParser;
 
 } // namespace parser
 } // namespace gologpp

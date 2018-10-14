@@ -2,6 +2,7 @@
 #include <model/procedural.h>
 
 #include "formula.h"
+#include "types.h"
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
@@ -18,6 +19,32 @@ namespace parser {
 
 
 
+template<class ExprT>
+ComparisonParser<ExprT>::ComparisonParser()
+: ComparisonParser<ExprT>::base_type(comparison, type_descr<ExprT>() + "_comparison")
+{
+	cmp_op =
+		qi::string(">") [ _val = val(ComparisonOperator::GT) ]
+		| qi::string(">=") [ _val = val(ComparisonOperator::GE) ]
+		| qi::string("<=") [ _val = val(ComparisonOperator::LE) ]
+		| qi::string("<") [ _val = val(ComparisonOperator::LT) ]
+		| qi::string("==") [ _val = val(ComparisonOperator::EQ) ]
+		| qi::string("!=") [ _val = val(ComparisonOperator::NEQ) ]
+	;
+	cmp_op.name("numeric_comparison_operator");
+
+	comparison = (
+		(expression(_r1) >> cmp_op) > expression(_r1)
+	) [
+		_val = new_<Comparison<ExprT>>(at_c<0>(_1), at_c<1>(_1), _2)
+	];
+	comparison.name("numeric_comparison");
+
+	BOOST_SPIRIT_DEBUG_NODE(comparison);
+}
+
+
+
 ExpressionParser<BooleanExpression>::ExpressionParser()
 : ExpressionParser::base_type(expression, "boolean_expression")
 {
@@ -25,7 +52,7 @@ ExpressionParser<BooleanExpression>::ExpressionParser()
 	expression.name("boolean_expression");
 
 	unary_expr = quantification(_r1) | negation(_r1) | constant<BooleanExpression>()
-		| bool_var_ref(_r1) | brace(_r1) | num_comparison(_r1)
+		| bool_var_ref(_r1) | brace(_r1) | numeric_comparison(_r1) | symbolic_comparison(_r1)
 		| bool_fluent_ref(_r1) | bool_function_ref(_r1);
 	unary_expr.name("unary_boolean_expression");
 
@@ -35,13 +62,6 @@ ExpressionParser<BooleanExpression>::ExpressionParser()
 		_val = new_<BooleanOperation>(at_c<0>(_1), at_c<1>(_1), _2)
 	];
 	binary_expr.name("binary_boolean_expression");
-
-	num_comparison = (
-		(num_expression(_r1) >> num_cmp_op) > num_expression(_r1)
-	) [
-		_val = new_<Comparison>(at_c<0>(_1), at_c<1>(_1), _2)
-	];
-	num_comparison.name("numeric_comparison");
 
 	quantification = ( (quantification_op > '(') [
 		_a = new_<Scope>(_r1)
@@ -64,15 +84,6 @@ ExpressionParser<BooleanExpression>::ExpressionParser()
 	;
 	bool_op.name("boolean_operator");
 
-	num_cmp_op =
-		qi::string(">") [ _val = val(ComparisonOperator::GT) ]
-		| qi::string(">=") [ _val = val(ComparisonOperator::GE) ]
-		| qi::string("<=") [ _val = val(ComparisonOperator::LE) ]
-		| qi::string("<") [ _val = val(ComparisonOperator::LT) ]
-		| qi::string("==") [ _val = val(ComparisonOperator::EQ) ]
-		| qi::string("!=") [ _val = val(ComparisonOperator::NEQ) ]
-	;
-	num_cmp_op.name("numeric_comparison_operator");
 
 	negation = '!' > unary_expr(_r1) [
 		_val = new_<Negation>(_1)
@@ -89,7 +100,7 @@ ExpressionParser<BooleanExpression>::ExpressionParser()
 
 	BOOST_SPIRIT_DEBUG_NODES((expression)(unary_expr)(binary_expr)
 	(negation)(brace)(bool_var_ref)(quantification)
-	(quantification_op)(bool_op)(num_comparison)(num_cmp_op));
+	(quantification_op)(bool_op));
 }
 
 

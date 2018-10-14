@@ -26,20 +26,23 @@ namespace parser {
 
 FluentParser<BooleanExpression> boolean_fluent;
 FluentParser<NumericExpression> numeric_fluent;
+FluentParser<SymbolicExpression> symbolic_fluent;
 
 
 template<class ExprT>
 FluentParser<ExprT>::FluentParser()
 : FluentParser::base_type(fluent)
+, fluent_name(r_name())
+, variable(abstract_var())
 {
 	fluent = fluent_forward(_r1) | fluent_def(_r1);
 	fluent.name(type_descr<ExprT>() + "_fluent_declaration");
 
 	fluent_forward = (
-		(((type_mark<ExprT>() >> "fluent") >> r_name() >> '(') [
+		(((type_mark<ExprT>() >> "fluent") >> fluent_name >> '(') [
 			_a = new_<Scope>(_r1)
 		] )
-		>> (abstract_var()(*_a) % ',') >> lit(')') >> ';'
+		>> (variable(*_a) % ',') >> lit(')') >> ';'
 	) [ // forward declaration
 		_val = phoenix::bind(
 			&Scope::declare_global<Fluent<ExprT>>,
@@ -51,10 +54,10 @@ FluentParser<ExprT>::FluentParser()
 	on_error<rethrow>(fluent_forward, delete_(_a));
 
 	fluent_def = (
-		(((type_mark<ExprT>() >> "fluent") >> r_name() >> '(') [
+		(((type_mark<ExprT>() >> "fluent") >> fluent_name >> '(') [
 			_a = new_<Scope>(_r1)
 		] )
-		>> (abstract_var()(*_a) % ',') >> ')'
+		>> (variable(*_a) % ',') >> ')'
 		>> ( lit('{') // definition
 			> "initially:"
 			> +initially
@@ -72,12 +75,12 @@ FluentParser<ExprT>::FluentParser()
 	fluent_def.name(type_descr<ExprT>() + "fluent_definition");
 	on_error<rethrow>(fluent_def, delete_(_a));
 
-	initially = (lit('(') > -(abstract_constant() % ',') > ')' > '=' > constant<ExprT>() > ';') [
+	initially = (lit('(') > -(abstract_constant(true) % ',') > ')' > '=' > constant<ExprT>(true) > ';') [
 		_val = new_<InitialValue<ExprT>>(_1, _2)
 	];
 	initially.name("initial_value_mapping");
 
-	BOOST_SPIRIT_DEBUG_NODES((fluent)(fluent_forward)(fluent_def)(initially));
+	BOOST_SPIRIT_DEBUG_NODES((fluent_name)(variable)(fluent)(fluent_forward)(fluent_def)(initially));
 }
 
 

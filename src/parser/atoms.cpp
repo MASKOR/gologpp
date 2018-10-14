@@ -14,6 +14,8 @@
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/operator/comparison.hpp>
+#include <boost/phoenix/statement/if.hpp>
 
 #include <model/scope.h>
 #include <model/reference.h>
@@ -39,6 +41,7 @@ rule<shared_ptr<Variable<ExpressionT>>(Scope &)> &var() {
 		],
 		type_descr<ExpressionT>() + "_variable"
 	};
+	BOOST_SPIRIT_DEBUG_NODE(rv);
 	return rv;
 }
 
@@ -48,12 +51,15 @@ rule<shared_ptr<Variable<BooleanExpression>>(Scope &)> &var<BooleanExpression>()
 template
 rule<shared_ptr<Variable<NumericExpression>>(Scope &)> &var<NumericExpression>();
 
+template
+rule<shared_ptr<Variable<SymbolicExpression>>(Scope &)> &var<SymbolicExpression>();
+
 
 
 
 
 rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var() {
-	static rule<shared_ptr<AbstractVariable> (Scope &)> rv {
+	static rule<shared_ptr<AbstractVariable> (Scope &)> any_var {
 		var<BooleanExpression>()(_r1) [ _val = phoenix::bind(
 			&std::dynamic_pointer_cast<AbstractVariable, BooleanVariable>,
 			_1
@@ -61,12 +67,17 @@ rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var() {
 		| var<NumericExpression>()(_r1) [ _val = phoenix::bind(
 			&std::dynamic_pointer_cast<AbstractVariable, NumericVariable>,
 			_1
+		) ]
+		| var<SymbolicExpression>()(_r1) [ _val = phoenix::bind(
+			&std::dynamic_pointer_cast<AbstractVariable, SymbolicVariable>,
+			_1
 		) ],
 		"any_variable"
 	};
-
-	return rv;
+	BOOST_SPIRIT_DEBUG_NODE(any_var);
+	return any_var;
 }
+
 
 
 /******************
@@ -74,8 +85,8 @@ rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var() {
 ******************/
 
 template<>
-rule<Constant<BooleanExpression> *> &constant<BooleanExpression>() {
-	static rule<Constant<BooleanExpression> *> rv {
+rule<Constant<BooleanExpression> *> &constant<BooleanExpression>(bool) {
+	static rule<Constant<BooleanExpression> *> bool_constant {
 		lit("true") [
 			_val = new_<Constant<BooleanExpression>>(true)
 		]
@@ -84,13 +95,14 @@ rule<Constant<BooleanExpression> *> &constant<BooleanExpression>() {
 		],
 		type_descr<BooleanExpression>() + "_constant"
 	};
-	return rv;
+	BOOST_SPIRIT_DEBUG_NODE(bool_constant);
+	return bool_constant;
 }
 
 
 template<>
-rule<Constant<NumericExpression> *> &constant<NumericExpression>() {
-	static rule<Constant<NumericExpression> *> rv {
+rule<Constant<NumericExpression> *> &constant<NumericExpression>(bool) {
+	static rule<Constant<NumericExpression> *> num_constant {
 		double_ [
 			_val = new_<Constant<NumericExpression>>(_1)
 		]
@@ -99,25 +111,44 @@ rule<Constant<NumericExpression> *> &constant<NumericExpression>() {
 		],
 		type_descr<NumericExpression>() + "_constant"
 	};
-	return rv;
+	BOOST_SPIRIT_DEBUG_NODE(num_constant);
+	return num_constant;
+}
+
+
+template<>
+rule<Constant<SymbolicExpression> *> &constant<SymbolicExpression>(bool allow_symbol_def) {
+	static rule<Constant<SymbolicExpression> *> rv_no_sym_def {
+		r_name() [
+			_val = phoenix::bind(&Scope::get_symbol, phoenix::bind(&global_scope), _1),
+			if_(_val == nullptr) [
+				_pass = false
+			]
+		],
+		"symbolic_constant_usage"
+	};
+	static rule<Constant<SymbolicExpression> *> rv_allow_sym_def {
+		r_name() [ _val = new_<Constant<SymbolicExpression>>(_1) ],
+		"symbolic_constant_definition"
+	};
+	BOOST_SPIRIT_DEBUG_NODES((rv_no_sym_def)(rv_allow_sym_def));
+	return allow_symbol_def ? rv_allow_sym_def : rv_no_sym_def;
 }
 
 
 
-rule<AbstractConstant *> &abstract_constant() {
-	static rule<AbstractConstant *> rv {
-		(constant<BooleanExpression>() | constant<NumericExpression>()),
+rule<AbstractConstant *> &abstract_constant(bool allow_symbol_def) {
+	static rule<AbstractConstant *> any_constant {
+		(
+			constant<BooleanExpression>()
+			| constant<NumericExpression>()
+			| constant<SymbolicExpression>(allow_symbol_def)
+		),
 		"any_constant"
 	};
-	return rv;
+	BOOST_SPIRIT_DEBUG_NODE(any_constant);
+	return any_constant;
 };
-
-
-extern template
-rule<Constant<BooleanExpression> *> &constant<BooleanExpression>();
-
-extern template
-rule<Constant<NumericExpression> *> &constant<NumericExpression>();
 
 
 
@@ -125,15 +156,18 @@ rule<Constant<NumericExpression> *> &constant<NumericExpression>();
 * General atoms
 ******************/
 
-rule<Expression *(Scope &)> &atom() {
-	static rule<Expression *(Scope &)> rv {
+rule<Expression *(Scope &)> &atom(bool allow_symbol_def) {
+	static rule<Expression *(Scope &)> any_atom {
 		var<BooleanExpression>()(_r1) [ _val = new_<Reference<BooleanVariable>>(_1) ]
 		| var<NumericExpression>()(_r1) [ _val = new_<Reference<NumericVariable>>(_1) ]
+		| var<SymbolicExpression>()(_r1) [ _val = new_<Reference<SymbolicVariable>>(_1) ]
 		| constant<BooleanExpression>() [ _val = _1 ]
 		| constant<NumericExpression>() [ _val = _1 ]
+		| constant<SymbolicExpression>(allow_symbol_def) [_val = _1 ]
 		, "any_atom"
 	};
-	return rv;
+	BOOST_SPIRIT_DEBUG_NODE(any_atom);
+	return any_atom;
 }
 
 

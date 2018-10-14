@@ -12,6 +12,8 @@
 
 namespace gologpp {
 
+
+
 class AbstractConstant : public virtual AbstractLanguageElement {
 private:
 	struct to_string_visitor;
@@ -81,7 +83,6 @@ public:
 	template<class T>
 	Constant(T repr);
 
-
 	Constant(Constant<ExpressionT> &&) = default;
 
 	Constant(const Constant<ExpressionT> &c)
@@ -115,8 +116,8 @@ public:
 	}
 
 	DEFINE_IMPLEMENT
-
 };
+
 
 } // namespace gologpp
 

@@ -32,6 +32,9 @@ AssignmentParser<Fluent<NumericExpression>>::AssignmentParser();
 template
 AssignmentParser<Fluent<BooleanExpression>>::AssignmentParser();
 
+template
+AssignmentParser<Fluent<SymbolicExpression>>::AssignmentParser();
+
 
 template<class ExpressionT>
 AssignmentParser<Variable<ExpressionT>>::AssignmentParser()
@@ -50,6 +53,9 @@ AssignmentParser<Variable<NumericExpression>>::AssignmentParser();
 
 template
 AssignmentParser<Variable<BooleanExpression>>::AssignmentParser();
+
+template
+AssignmentParser<Variable<SymbolicExpression>>::AssignmentParser();
 
 
 

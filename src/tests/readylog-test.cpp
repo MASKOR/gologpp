@@ -54,7 +54,7 @@ void test_objectmodel()
 		});
 		global_scope().register_global(put);
 
-		put->set_precondition(new Comparison(
+		put->set_precondition(new Comparison<NumericExpression>(
 			on->make_ref({ put->arg_ref<NumericExpression>("X") }),
 			ComparisonOperator::NEQ,
 			put->arg_ref<NumericExpression>("Y")
