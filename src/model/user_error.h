@@ -3,7 +3,7 @@
 
 #include <string>
 #include <exception>
-
+#include "gologpp.h"
 
 namespace gologpp {
 
@@ -22,6 +22,13 @@ private:
 class InvalidIdentifier : public SemanticError {
 public:
 	InvalidIdentifier(const std::string &name);
+};
+
+
+class RedeclarationError : public SemanticError {
+public:
+	RedeclarationError(const string &name);
+	RedeclarationError(const string &name, arity_t arity);
 };
 
 

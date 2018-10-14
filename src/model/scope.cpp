@@ -178,11 +178,21 @@ bool Scope::exists_domain(const string &name) const
 string Scope::to_string(const string &) const
 { return "[" + concat_list(vars(), ", ") + "]"; }
 
+
 void Scope::register_global(Global *g)
-{ (*globals_)[*g].reset(g); }
+{
+	if (exists_global(g->name(), g->arity()))
+		throw RedeclarationError(g->name(), g->arity());
+	(*globals_)[*g].reset(g);
+}
+
 
 void Scope::register_domain(AbstractDomain *d)
-{ (*domains_)[*d].reset(d); }
+{
+	if (exists_domain(d->name()))
+		throw RedeclarationError(d->name());
+	(*domains_)[*d].reset(d);
+}
 
 
 Constant<SymbolicExpression> *Scope::get_symbol(const string &name)

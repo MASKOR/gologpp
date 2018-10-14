@@ -9,6 +9,7 @@
 #include "utilities.h"
 #include "language.h"
 #include "expressions.h"
+#include "user_error.h"
 
 #include "gologpp.h"
 
@@ -195,7 +196,11 @@ public:
 
 	template<class ExprT>
 	void register_domain(shared_ptr<Domain<ExprT>> &d)
-	{ domains_->emplace(*d, d); }
+	{
+		if (exists_domain(d->name()))
+			throw RedeclarationError(d->name());
+		domains_->emplace(*d, d);
+	}
 
 	Constant<SymbolicExpression> *get_symbol(const string &name);
 
