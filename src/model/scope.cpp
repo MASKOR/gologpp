@@ -162,7 +162,7 @@ void Scope::clear()
 	variables_.clear();
 	if (this == &global_scope()) {
 		globals_->clear();
-		//domains_->clear();
+		domains_->clear();
 	}
 }
 
