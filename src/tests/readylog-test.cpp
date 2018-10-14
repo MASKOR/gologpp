@@ -106,7 +106,7 @@ void test_parser()
 	unique_ptr<Statement> mainproc = parser::parse_file(SOURCE_DIR "/blocksworld.gpp");
 
 	shared_ptr<NumericFluent> on = global_scope().lookup_global<NumericFluent>("on", 1);
-	shared_ptr<Action> put = global_scope().lookup_global<Action>("put", 2);
+	shared_ptr<Action> put = global_scope().lookup_global<Action>("stack", 2);
 	shared_ptr<BooleanFunction> goal = global_scope().lookup_global<BooleanFunction>("goal", 0);
 
 	if (on && put && goal)

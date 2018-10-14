@@ -1,41 +1,45 @@
-%fluent on(%x) {
+§fluent on(§x) {
 initially:
-	(1) = 0;
-	(2) = 0;
-	(3) = 0;
+	(a) = c;
+	(b) = table;
+	(c) = b;
+// 	(d) = a;
 }
 
-action stack(%x, %y) {
+action stack(§x, §y) {
 precondition:
-	%x != %y
-	& %x != 0
-	& on(%x) != %y
-	& !(exists (%z) (
-		on(%z) == %x |
-		on(%z) == %y
-	))
+	  §x != §y // Can't stack x on x
+	& §x != table // Can't stack table
+	& on(§x) != §y // Can't stack the same thing twice
+	& !(exists(§z) on(§z) == §x) // Nothing is on x
+	& (
+		§y == table // either y is the table...
+		| !exists(§z) on(§z) == §y // or nothing is on y
+	)
 
 effect:
-	on(%x) = %y;
+	on(§x) = §y;
 }
 
 
 ?function goal() {
-	return on(1) == 0 & on(2) == 1 & on(3) == 2;
+	return on(a) == table & on(b) == a & on(c) == b
+// 	& on(d) == c
+	;
 }
 
 %function reward() {
 	if (goal())
 		return 100;
 	else
-		return 0;
+		return -1;
 }
 
 
 {
-	solve(2, reward())
+	solve(6, reward())
 		while (!goal())
-			pick(%x in {2, 3})
-				pick(%y in {1, 2})
-					stack(%x, %y);
+			pick (§x in {a, b, c})
+				pick(§y in {table, a, b, c})
+					stack(§x, §y);
 }
