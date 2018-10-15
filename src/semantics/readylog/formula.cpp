@@ -22,6 +22,75 @@ EC_word Semantics<Negation>::plterm()
 
 
 
+Semantics<Comparison<NumericExpression>>::Semantics(const Comparison<NumericExpression> &cmp)
+: comparison_(cmp)
+{
+	switch(comparison_.op()) {
+	case ComparisonOperator::EQ:
+		functor_ = "=";
+		break;
+	case ComparisonOperator::GE:
+		functor_ = ">=";
+		break;
+	case ComparisonOperator::GT:
+		functor_ = ">";
+		break;
+	case ComparisonOperator::LE:
+		functor_ = "=<";
+		break;
+	case ComparisonOperator::LT:
+		functor_ = "<";
+		break;
+	case ComparisonOperator::NEQ:
+		functor_ = "\\=";
+	}
+}
+
+
+EC_word Semantics<Comparison<NumericExpression>>::plterm()
+{
+	return ::term(EC_functor(functor_, 2),
+		comparison_.lhs().semantics().plterm(),
+		comparison_.rhs().semantics().plterm()
+	);
+}
+
+
+
+Semantics<Comparison<SymbolicExpression>>::Semantics(const Comparison<SymbolicExpression> &cmp)
+: comparison_(cmp)
+{}
+
+EC_word Semantics<Comparison<SymbolicExpression>>::plterm()
+{
+	EC_word lhs = comparison_.lhs().semantics().plterm();
+	EC_word rhs = comparison_.rhs().semantics().plterm();
+
+	switch(comparison_.op()) {
+	case ComparisonOperator::EQ:
+		return ::term(EC_functor("=", 2), lhs, rhs);
+	case ComparisonOperator::GE:
+		return ::term(EC_functor(";", 2),
+			::term(EC_functor("compare", 3), EC_atom(">"), lhs, rhs),
+			::term(EC_functor("=", 2), lhs, rhs)
+		);
+	case ComparisonOperator::GT:
+		return ::term(EC_functor("compare", 3), EC_atom(">"), lhs, rhs);
+	case ComparisonOperator::LE:
+		return ::term(EC_functor(";", 2),
+			::term(EC_functor("compare", 3), EC_atom("<"), lhs, rhs),
+			::term(EC_functor("=", 2), lhs, rhs)
+		);
+	case ComparisonOperator::LT:
+		return ::term(EC_functor("compare", 3), EC_atom("<"), lhs, rhs);
+	case ComparisonOperator::NEQ:
+		return ::term(EC_functor("\\=", 2), lhs, rhs);
+	}
+	throw Bug("Unknown comparison operator");
+}
+
+
+
 Semantics<BooleanOperation>::Semantics(const BooleanOperation &c)
 : conjunction_(c)
 {

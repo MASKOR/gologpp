@@ -28,46 +28,30 @@ private:
 };
 
 
-template<class ExprT>
-class Semantics<Comparison<ExprT>> : public Semantics<BooleanExpression> {
+template<>
+class Semantics<Comparison<NumericExpression>> : public Semantics<BooleanExpression> {
 public:
-	Semantics(const Comparison<ExprT> &cmp)
-	: comparison_(cmp)
-	{
-		switch(comparison_.op()) {
-		case ComparisonOperator::EQ:
-			functor_ = "=";
-			break;
-		case ComparisonOperator::GE:
-			functor_ = ">=";
-			break;
-		case ComparisonOperator::GT:
-			functor_ = ">";
-			break;
-		case ComparisonOperator::LE:
-			functor_ = "=<";
-			break;
-		case ComparisonOperator::LT:
-			functor_ = "<";
-			break;
-		case ComparisonOperator::NEQ:
-			functor_ = "\\=";
-		}
-	}
+	Semantics(const Comparison<NumericExpression> &cmp);
 
 	virtual ~Semantics() override = default;
-
-	virtual EC_word plterm() override
-	{
-		return ::term(EC_functor(functor_, 2),
-			comparison_.lhs().semantics().plterm(),
-			comparison_.rhs().semantics().plterm()
-		);
-	}
+	virtual EC_word plterm() override;
 
 private:
-	const Comparison<ExprT> &comparison_;
+	const Comparison<NumericExpression> &comparison_;
 	const char *functor_;
+};
+
+
+template<>
+class Semantics<Comparison<SymbolicExpression>> : public Semantics<BooleanExpression> {
+public:
+	Semantics(const Comparison<SymbolicExpression> &cmp);
+
+	virtual ~Semantics() override = default;
+	virtual EC_word plterm() override;
+
+private:
+	const Comparison<SymbolicExpression> &comparison_;
 };
 
 
