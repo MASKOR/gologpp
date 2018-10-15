@@ -1,4 +1,4 @@
-§fluent on(§x) {
+§fluent loc(§x) {
 initially:
 	(a) = c;
 	(b) = table;
@@ -10,21 +10,21 @@ action stack(§x, §y) {
 precondition:
 	  §x != §y // Can't stack x on x
 	& §x != table // Can't stack table
-	& on(§x) != §y // Can't stack the same thing twice
-	& !(exists(§z) on(§z) == §x) // Nothing is on x
+	& loc(§x) != §y // Can't stack the same thing twice
+	& !exists(§z) loc(§z) == §x // Nothing is on x
 	& (
 		§y == table // either y is the table...
-		| !exists(§z) on(§z) == §y // or nothing is on y
+		| !exists(§z) loc(§z) == §y // or nothing is on y
 	)
 
 effect:
-	on(§x) = §y;
+	loc(§x) = §y;
 }
 
 
 ?function goal() {
-	return on(a) == table & on(b) == a & on(c) == b
-// 	& on(d) == c
+	return loc(a) == table & loc(b) == a & loc(c) == b
+// 	& loc(d) == c
 	;
 }
 
