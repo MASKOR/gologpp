@@ -1,3 +1,7 @@
+// §domain blocks = {a, b, c}
+// §domain locations = blocks + {table}
+// §domain coordinates = {0, 1, ...}
+
 §fluent loc(§x) {
 initially:
 	(a) = c;
@@ -7,6 +11,9 @@ initially:
 }
 
 action stack(§x, §y) {
+// domain:
+// 	§x in blocks;
+// 	§y in locations;
 precondition:
 	  §x != §y // Can't stack x on x
 	& §x != table // Can't stack table
