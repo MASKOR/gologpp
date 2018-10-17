@@ -31,13 +31,13 @@ namespace parser {
  ******************/
 
 
-template<class ExpressionT, bool local>
+template<class ExpressionT, bool only_local>
 rule<shared_ptr<Variable<ExpressionT>>(Scope &)> &var() {
 	static rule<shared_ptr<Variable<ExpressionT>>(Scope &)> variable;
 	variable = {
 		type_mark<ExpressionT>() >> r_name() [
 			_val = phoenix::bind(
-				local ? &Scope::get_local_var<ExpressionT> : &Scope::get_var<ExpressionT>,
+				only_local ? &Scope::get_local_var<ExpressionT> : &Scope::get_var<ExpressionT>,
 				_r1, _1
 			)
 		],

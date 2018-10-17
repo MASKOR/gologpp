@@ -17,7 +17,7 @@ struct FluentParser : grammar<Fluent<ExprT> *(Scope &), locals<Scope *>> {
 	rule<Fluent<ExprT> *(Scope &), locals<Scope *>> fluent_def;
 	rule<InitialValue<ExprT> *> initially;
 	decltype(r_name()) fluent_name;
-	decltype(abstract_var()) variable;
+	decltype(abstract_var<true>()) variable;
 };
 
 extern FluentParser<BooleanExpression> boolean_fluent;

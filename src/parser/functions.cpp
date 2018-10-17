@@ -29,7 +29,7 @@ FunctionParser<ExpressionT>::FunctionParser()
 			((type_mark<ExpressionT>() >> "function") >> r_name() >> '(') [
 				_a = new_<Scope>(_r1)
 			]
-			>> -(abstract_var()(*_a) % ',') >> ')' >> ';'
+			>> -(abstract_var<true>()(*_a) % ',') >> ')' >> ';'
 		) [
 			_val = phoenix::bind(
 				&Scope::declare_global<Function<ExpressionT>>,
@@ -43,7 +43,7 @@ FunctionParser<ExpressionT>::FunctionParser()
 			((type_mark<ExpressionT>() >> "function") >> r_name() >> '(') [
 				_a = new_<Scope>(phoenix::bind(&AbstractLanguageElement::m_scope, _r1))
 			]
-			>> -(abstract_var()(*_a) % ',') >> ')' >> statement(_r1)
+			>> -(abstract_var<true>()(*_a) % ',') >> ')' >> statement(_r1)
 		) [
 			_val = phoenix::bind(
 				&Scope::define_global<Function<ExpressionT>, Statement *>,

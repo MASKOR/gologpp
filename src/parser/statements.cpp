@@ -21,7 +21,7 @@ inline rule<Pick<ExprT> *(Scope &), locals<Scope *>> StatementParser::pick_()
 	return {
 		((lit("pick") >> '(') [
 			_a = new_<Scope>(_r1)
-		] >> var<ExprT>()(*_a)
+		] >> var<ExprT, true>()(*_a)
 		> -(lit("in") > '{' > constant<ExprT>() % ',' > '}')
 		> ')' > statement(*_a)) [
 			_val = new_<Pick<ExprT>>(_a, _1, _2, _3)

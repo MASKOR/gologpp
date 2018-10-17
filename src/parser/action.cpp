@@ -30,7 +30,7 @@ ActionParser::ActionParser()
 			_a = new_<Scope>(_r1),
 			_b = _1
 		])
-		> ( -(abstract_var()(*_a) % ',') > ')' ) [
+		> ( -(abstract_var<true>()(*_a) % ',') > ')' ) [
 			_c = _1
 		]
 	)

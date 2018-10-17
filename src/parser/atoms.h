@@ -12,7 +12,7 @@ namespace parser {
  * Variables
  ******************/
 
-template<class ExpressionT, bool local = false>
+template<class ExpressionT, bool only_local = false>
 rule<shared_ptr<Variable<ExpressionT>>(Scope &)> &var();
 
 #define GOLOGPP_PARSER_DECLARE_TEMPLATE_VAR(_, seq) \
@@ -30,7 +30,7 @@ rule<shared_ptr<Variable<SymbolicExpression>>(Scope &)> &var<SymbolicExpression,
 
 
 
-template<bool local = false>
+template<bool only_local = false>
 rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var();
 
 extern template
