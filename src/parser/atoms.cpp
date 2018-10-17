@@ -31,53 +31,68 @@ namespace parser {
  ******************/
 
 
-template<class ExpressionT>
+template<class ExpressionT, bool local>
 rule<shared_ptr<Variable<ExpressionT>>(Scope &)> &var() {
-	static rule<shared_ptr<Variable<ExpressionT>>(Scope &)> rv {
+	static rule<shared_ptr<Variable<ExpressionT>>(Scope &)> variable;
+	variable = {
 		type_mark<ExpressionT>() >> r_name() [
 			_val = phoenix::bind(
-				&Scope::get_var<ExpressionT>, _r1, _1
+				local ? &Scope::get_local_var<ExpressionT> : &Scope::get_var<ExpressionT>,
+				_r1, _1
 			)
 		],
 		type_descr<ExpressionT>() + "_variable"
 	};
-	BOOST_SPIRIT_DEBUG_NODE(rv);
-	return rv;
+
+	//BOOST_SPIRIT_DEBUG_NODE(variable);
+	return variable;
 }
 
-template
-rule<shared_ptr<Variable<BooleanExpression>>(Scope &)> &var<BooleanExpression>();
 
-template
-rule<shared_ptr<Variable<NumericExpression>>(Scope &)> &var<NumericExpression>();
-
-template
-rule<shared_ptr<Variable<SymbolicExpression>>(Scope &)> &var<SymbolicExpression>();
+#define GOLOGPP_PARSER_VAR_REFERENCE(ExprT) \
+	var<ExprT, false>()(_r1) [ \
+		_val = new_<Reference<Variable<ExprT>>>(_1) \
+	]
 
 
 
+#define GOLOGPP_INSTANTIATE_TEMPLATE_VAR(_, seq) \
+	template \
+	rule < shared_ptr < Variable < BOOST_PP_SEQ_ELEM(0, seq) > > (Scope &) > & \
+	var < BOOST_PP_SEQ_ELEM(0, seq), BOOST_PP_SEQ_ELEM(1, seq) > ();
+
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(
+	GOLOGPP_INSTANTIATE_TEMPLATE_VAR,
+	(GOLOGPP_VALUE_TYPES) ((true)(false))
+)
 
 
+template<bool only_local>
 rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var() {
 	static rule<shared_ptr<AbstractVariable> (Scope &)> any_var {
-		var<BooleanExpression>()(_r1) [ _val = phoenix::bind(
+		var < BooleanExpression, only_local > ()(_r1) [ _val = phoenix::bind(
 			&std::dynamic_pointer_cast<AbstractVariable, BooleanVariable>,
 			_1
 		) ]
-		| var<NumericExpression>()(_r1) [ _val = phoenix::bind(
+		| var<NumericExpression, only_local>()(_r1) [ _val = phoenix::bind(
 			&std::dynamic_pointer_cast<AbstractVariable, NumericVariable>,
 			_1
 		) ]
-		| var<SymbolicExpression>()(_r1) [ _val = phoenix::bind(
+		| var<SymbolicExpression, only_local>()(_r1) [ _val = phoenix::bind(
 			&std::dynamic_pointer_cast<AbstractVariable, SymbolicVariable>,
 			_1
 		) ],
 		"any_variable"
 	};
-	BOOST_SPIRIT_DEBUG_NODE(any_var);
+	//BOOST_SPIRIT_DEBUG_NODE(any_var);
 	return any_var;
 }
 
+template
+rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<true>();
+
+template
+rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<false>();
 
 
 /******************
@@ -85,7 +100,7 @@ rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var() {
 ******************/
 
 template<>
-rule<Constant<BooleanExpression> *> &constant<BooleanExpression>(bool) {
+rule<Constant<BooleanExpression> *> &constant<BooleanExpression, false>() {
 	static rule<Constant<BooleanExpression> *> bool_constant {
 		lit("true") [
 			_val = new_<Constant<BooleanExpression>>(true)
@@ -95,13 +110,18 @@ rule<Constant<BooleanExpression> *> &constant<BooleanExpression>(bool) {
 		],
 		type_descr<BooleanExpression>() + "_constant"
 	};
-	BOOST_SPIRIT_DEBUG_NODE(bool_constant);
+	//BOOST_SPIRIT_DEBUG_NODE(bool_constant);
 	return bool_constant;
 }
 
+// Ignore allow_symbol_definition parameter
+template<>
+rule<Constant<BooleanExpression> *> &constant<BooleanExpression, true>()
+{ return constant<BooleanExpression, false>(); }
+
 
 template<>
-rule<Constant<NumericExpression> *> &constant<NumericExpression>(bool) {
+rule<Constant<NumericExpression> *> &constant<NumericExpression, false>() {
 	static rule<Constant<NumericExpression> *> num_constant {
 		double_ [
 			_val = new_<Constant<NumericExpression>>(_1)
@@ -111,14 +131,19 @@ rule<Constant<NumericExpression> *> &constant<NumericExpression>(bool) {
 		],
 		type_descr<NumericExpression>() + "_constant"
 	};
-	BOOST_SPIRIT_DEBUG_NODE(num_constant);
+	//BOOST_SPIRIT_DEBUG_NODE(num_constant);
 	return num_constant;
 }
 
+// Ignore allow_symbol_definition parameter
+template<>
+rule<Constant<NumericExpression> *> &constant<NumericExpression, true>()
+{ return constant<NumericExpression, false>(); }
+
 
 template<>
-rule<Constant<SymbolicExpression> *> &constant<SymbolicExpression>(bool allow_symbol_def) {
-	static rule<Constant<SymbolicExpression> *> rv_no_sym_def {
+rule<Constant<SymbolicExpression> *> &constant<SymbolicExpression, false>() {
+	static rule<Constant<SymbolicExpression> *> symbol_usage {
 		r_name() [
 			_val = phoenix::bind(&Scope::get_symbol, phoenix::bind(&global_scope), _1),
 			if_(_val == nullptr) [
@@ -127,22 +152,30 @@ rule<Constant<SymbolicExpression> *> &constant<SymbolicExpression>(bool allow_sy
 		],
 		"symbolic_constant_usage"
 	};
-	static rule<Constant<SymbolicExpression> *> rv_allow_sym_def {
+	//BOOST_SPIRIT_DEBUG_NODE(symbol_usage);
+	return symbol_usage;
+}
+
+
+template<>
+rule<Constant<SymbolicExpression> *> &constant<SymbolicExpression, true>() {
+	static rule<Constant<SymbolicExpression> *> symbol_definition {
 		r_name() [ _val = new_<Constant<SymbolicExpression>>(_1) ],
 		"symbolic_constant_definition"
 	};
-	BOOST_SPIRIT_DEBUG_NODES((rv_no_sym_def)(rv_allow_sym_def));
-	return allow_symbol_def ? rv_allow_sym_def : rv_no_sym_def;
+	//BOOST_SPIRIT_DEBUG_NODE(symbol_definition);
+	return symbol_definition;
 }
 
 
 
-rule<AbstractConstant *> &abstract_constant(bool allow_symbol_def) {
+template<bool allow_symbol_def>
+rule<AbstractConstant *> &abstract_constant() {
 	static rule<AbstractConstant *> any_constant {
 		(
-			constant<BooleanExpression>()
-			| constant<NumericExpression>()
-			| constant<SymbolicExpression>(allow_symbol_def)
+			constant<BooleanExpression>() // allow_symbol_def is ignored and defaults to false
+			| constant<NumericExpression>() // allow_symbol_def is ignored and defaults to false
+			| constant<SymbolicExpression, allow_symbol_def>()
 		),
 		"any_constant"
 	};
@@ -151,19 +184,25 @@ rule<AbstractConstant *> &abstract_constant(bool allow_symbol_def) {
 };
 
 
+template
+rule<AbstractConstant *> &abstract_constant<false>();
+
+template
+rule<AbstractConstant *> &abstract_constant<true>();
+
 
 /******************
 * General atoms
 ******************/
 
-rule<Expression *(Scope &)> &atom(bool allow_symbol_def) {
+rule<Expression *(Scope &)> &atom() {
 	static rule<Expression *(Scope &)> any_atom {
 		var<BooleanExpression>()(_r1) [ _val = new_<Reference<BooleanVariable>>(_1) ]
 		| var<NumericExpression>()(_r1) [ _val = new_<Reference<NumericVariable>>(_1) ]
 		| var<SymbolicExpression>()(_r1) [ _val = new_<Reference<SymbolicVariable>>(_1) ]
 		| constant<BooleanExpression>() [ _val = _1 ]
 		| constant<NumericExpression>() [ _val = _1 ]
-		| constant<SymbolicExpression>(allow_symbol_def) [_val = _1 ]
+		| constant<SymbolicExpression>() [ _val = _1 ]
 		, "any_atom"
 	};
 	BOOST_SPIRIT_DEBUG_NODE(any_atom);

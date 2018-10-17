@@ -12,40 +12,63 @@ namespace parser {
  * Variables
  ******************/
 
-template<class ExpressionT>
+template<class ExpressionT, bool local = false>
 rule<shared_ptr<Variable<ExpressionT>>(Scope &)> &var();
 
-#define GOLOGPP_PARSER_INSTANTIATE_VARIABLES(r, data, T) \
+#define GOLOGPP_PARSER_DECLARE_TEMPLATE_VAR(_, seq) \
 	extern template \
-	rule<shared_ptr<Variable<T>>(Scope &)> &var<T>();
+	rule < shared_ptr < Variable < BOOST_PP_SEQ_ELEM(0, seq) > >(Scope &)> & \
+	var < BOOST_PP_SEQ_ELEM(0, seq), BOOST_PP_SEQ_ELEM(1, seq) > ();
 
-BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_INSTANTIATE_VARIABLES, (), GOLOGPP_EXPRESSION_TYPES)
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(
+	GOLOGPP_PARSER_DECLARE_TEMPLATE_VAR,
+	(GOLOGPP_EXPRESSION_TYPES) ( (true)(false) )
+)
+
+extern template
+rule<shared_ptr<Variable<SymbolicExpression>>(Scope &)> &var<SymbolicExpression, true>();
 
 
+
+template<bool local = false>
 rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var();
+
+extern template
+rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<true>();
+
 
 
 /******************
 * Constants
 ******************/
 
-template<class ExprT>
-rule<Constant<ExprT> *> &constant(bool allow_symbol_def = false);
+template<class ExprT, bool allow_symbol_def = false>
+rule<Constant<ExprT> *> &constant();
 
-#define GOLOGPP_PARSER_DECLARE_CONSTANTS(r, data, T) \
+#define GOLOGPP_PARSER_DECLARE_CONSTANTS(r, allow_symbol_def, T) \
 	template<> \
-	rule<Constant<T> *> &constant(bool allow_symbol_def);
+	rule<Constant<T> *> &constant<T, allow_symbol_def>();
 
-BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_DECLARE_CONSTANTS, (), GOLOGPP_EXPRESSION_TYPES)
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_DECLARE_CONSTANTS, false, GOLOGPP_EXPRESSION_TYPES)
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_DECLARE_CONSTANTS, true, GOLOGPP_EXPRESSION_TYPES)
 
-rule<AbstractConstant *> &abstract_constant(bool allow_symbol_def = false);
+
+template<bool allow_symbol_def = false>
+rule<AbstractConstant *> &abstract_constant();
+
+extern template
+rule<AbstractConstant *> &abstract_constant<false>();
+
+extern template
+rule<AbstractConstant *> &abstract_constant<true>();
+
 
 
 /******************
 * General atoms
 ******************/
 
-rule<Expression *(Scope &)> &atom(bool allow_symbol_def = false);
+rule<Expression *(Scope &)> &atom();
 
 
 

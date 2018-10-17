@@ -75,7 +75,7 @@ FluentParser<ExprT>::FluentParser()
 	fluent_def.name(type_descr<ExprT>() + "fluent_definition");
 	on_error<rethrow>(fluent_def, delete_(_a));
 
-	initially = (lit('(') > -(abstract_constant(true) % ',') > ')' > '=' > constant<ExprT>(true) > ';') [
+	initially = (lit('(') > -(abstract_constant<true>() % ',') > ')' > '=' > constant<ExprT>() > ';') [
 		_val = new_<InitialValue<ExprT>>(_1, _2)
 	];
 	initially.name("initial_value_mapping");

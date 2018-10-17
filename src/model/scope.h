@@ -84,6 +84,14 @@ public:
 		return rv;
 	}
 
+	template<class ExpressionT>
+	shared_ptr<Variable<ExpressionT>> get_local_var(const string &name)
+	{
+		if (!has_var(name))
+			variables_.emplace(name, new Variable<ExpressionT>(name));
+		return std::dynamic_pointer_cast<Variable<ExpressionT>>(variables_[name]);
+	}
+
 	shared_ptr<AbstractVariable> lookup_var(const string &name) const;
 	bool has_var(const string &name) const;
 
