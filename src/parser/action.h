@@ -11,7 +11,14 @@ namespace gologpp {
 namespace parser {
 
 
-struct ActionParser : grammar<Action *(Scope &)> {
+struct ActionParser : grammar <
+	Action *(Scope &),
+	locals <
+		Scope *,
+		string,
+		boost::optional < vector < shared_ptr < AbstractVariable > > >
+	>
+> {
 	ActionParser();
 
 	BooleanExpressionParser formula_parser;
@@ -19,9 +26,11 @@ struct ActionParser : grammar<Action *(Scope &)> {
 	EffectParser<BooleanExpression> boolean_effect;
 	EffectParser<NumericExpression> numeric_effect;
 	EffectParser<SymbolicExpression> symbolic_effect;
-	rule<Action *(Scope &)> action;
-	rule<Action *(Scope &), locals<Scope *>> action_forward;
-	rule<Action *(Scope &), locals<Scope *>> action_def;
+	rule < Action *(Scope &), locals <
+		Scope *,
+		string,
+		boost::optional < vector < shared_ptr < AbstractVariable > > >
+	> > action;
 };
 
 
