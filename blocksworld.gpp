@@ -18,7 +18,7 @@ precondition:
 	  §x != §y // Can't stack x on x
 	& §x != table // Can't stack table
 	& loc(§x) != §y // Can't stack the same thing twice
-	& !exists(§z) loc(§z) == §x // Nothing is on x
+	& (!exists(§z) loc(§z) == §x) // Nothing is on x
 	& (
 		§y == table // either y is the table...
 		| !exists(§z) loc(§z) == §y // or nothing is on y
