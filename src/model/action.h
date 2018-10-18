@@ -12,6 +12,7 @@
 #include "language.h"
 #include "scope.h"
 #include "global.h"
+#include "mapping.h"
 
 namespace gologpp {
 
@@ -69,8 +70,13 @@ public:
 	virtual Expression *ref(const vector<Expression *> &args) override;
 	Reference<Action> *make_ref(const vector<Expression *> &args);
 
+	const ActionMapping &mapping() const;
+	void set_mapping (ActionMapping *);
+
 private:
 	unique_ptr<BooleanExpression> precondition_;
+	unique_ptr<ActionMapping> mapping_;
+
 };
 
 

@@ -59,6 +59,7 @@ set(INTERFACE_SRC
 	src/model/reference.cpp
 	src/model/global.cpp
 	src/model/domain.cpp
+	src/model/mapping.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -88,6 +89,7 @@ install(FILES
 	src/model/expressions.h
 	src/model/gologpp.h
 	src/model/domain.h
+	src/model/mapping.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model
 )
