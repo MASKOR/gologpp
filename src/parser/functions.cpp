@@ -20,43 +20,35 @@ namespace parser {
 
 template<class ExpressionT>
 FunctionParser<ExpressionT>::FunctionParser()
-	: FunctionParser::base_type(function, type_descr<ExpressionT>() + "_function_definition")
-	{
-		function = function_forward(_r1) | function_def(_r1);
-		function.name(type_descr<ExpressionT>() + "_function_definition");
-
-		function_forward = (
-			((type_mark<ExpressionT>() >> "function") >> r_name() >> '(') [
-				_a = new_<Scope>(_r1)
+: FunctionParser::base_type(function, type_descr<ExpressionT>() + "_function_definition")
+{
+	function =
+		((type_mark<ExpressionT>() >> "function") > r_name() > '(') [
+			_a = new_<Scope>(_r1),
+			_b = _1
+		]
+		> ( -(abstract_var<true>()(*_a) % ',') > ')' ) [
+			_c = _1
+		]
+		> (
+			lit(';') [
+				_val = phoenix::bind(
+					&Scope::declare_global<Function<ExpressionT>>,
+					_r1, _a, _b, _c
+				)
 			]
-			>> -(abstract_var<true>()(*_a) % ',') >> ')' >> ';'
-		) [
-			_val = phoenix::bind(
-				&Scope::declare_global<Function<ExpressionT>>,
-				phoenix::bind(&global_scope),
-				_a, _1, _2
-			)
-		];
-		function_forward.name(type_descr<ExpressionT>() + "_function_forward_declaration");
-
-		function_def = (
-			((type_mark<ExpressionT>() >> "function") >> r_name() >> '(') [
-				_a = new_<Scope>(phoenix::bind(&AbstractLanguageElement::m_scope, _r1))
+			| statement(_r1) [
+				_val = phoenix::bind(
+					&Scope::define_global<Function<ExpressionT>, Statement *>,
+					_r1, _a, _b, _c, _1
+				)
 			]
-			>> -(abstract_var<true>()(*_a) % ',') >> ')' >> statement(_r1)
-		) [
-			_val = phoenix::bind(
-				&Scope::define_global<Function<ExpressionT>, Statement *>,
-				phoenix::bind(&global_scope),
-				_a, _1, _2, _3
-			)
-		];
-		function_def.name(type_descr<ExpressionT>() + "_function_definition");
-
-
-		on_error<rethrow>(function, delete_(_a));
-		BOOST_SPIRIT_DEBUG_NODE(function);
-	}
+		)
+	;
+	function.name(type_descr<ExpressionT>() + "_function_definition");
+	on_error<rethrow>(function, delete_(_a));
+	BOOST_SPIRIT_DEBUG_NODE(function);
+}
 
 
 AbstractFunctionParser::AbstractFunctionParser()

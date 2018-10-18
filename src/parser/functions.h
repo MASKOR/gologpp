@@ -9,12 +9,25 @@ namespace parser {
 
 
 template<class ExpressionT>
-struct FunctionParser : grammar<Function<ExpressionT> *(Scope &), locals<Scope *>> {
+struct FunctionParser
+: grammar <
+	Function<ExpressionT> *(Scope &),
+	locals <
+		Scope *,
+		string,
+		boost::optional<vector<shared_ptr<AbstractVariable>>>
+	>
+> {
 	FunctionParser();
 
-	rule<Function<ExpressionT> *(Scope &), locals<Scope *>> function_forward;
-	rule<Function<ExpressionT> *(Scope &), locals<Scope *>> function_def;
-	rule<Function<ExpressionT> *(Scope &), locals<Scope *>> function;
+	rule<
+		Function<ExpressionT> *(Scope &),
+		locals <
+			Scope *,
+			string,
+			boost::optional<vector<shared_ptr<AbstractVariable>>>
+		>
+	> function;
 	StatementParser statement;
 };
 
