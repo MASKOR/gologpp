@@ -104,6 +104,29 @@ string ExogAction::to_string(const string &pfx) const
 }
 
 
+
+AbstractTransition::AbstractTransition(const AbstractTransition &other)
+: action_(other.action_)
+{
+	for (const unique_ptr<AbstractConstant> &c : other.args()) {
+		AbstractConstant *cc = c->copy();
+		dynamic_cast<Expression *>(cc)->set_parent(this);
+		args_.emplace_back(cc);
+	}
+}
+
+
+AbstractTransition &AbstractTransition::operator = (const AbstractTransition &other)
+{
+	action_ = other.action_;
+	for (const unique_ptr<AbstractConstant> &c : other.args()) {
+		AbstractConstant *cc = c->copy();
+		dynamic_cast<Expression *>(cc)->set_parent(this);
+		args_.emplace_back(cc);
+	}
+	return *this;
+}
+
 const Action &AbstractTransition::action() const
 { return *action_; }
 
@@ -131,6 +154,10 @@ const Scope &AbstractTransition::parent_scope() const
 
 
 
+Transition::Transition(const Transition &other)
+: AbstractTransition(other)
+{}
+
 void Transition::attach_semantics(SemanticsFactory &implementor)
 {
 	if (!semantics_) {
@@ -141,6 +168,10 @@ void Transition::attach_semantics(SemanticsFactory &implementor)
 }
 
 
+
+ExogTransition::ExogTransition(const ExogTransition &other)
+: AbstractTransition(other)
+{}
 
 void ExogTransition::attach_semantics(SemanticsFactory &implementor)
 {

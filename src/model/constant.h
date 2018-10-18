@@ -52,6 +52,8 @@ public:
 
 	virtual bool operator == (const AbstractConstant &) const = 0;
 
+	virtual AbstractConstant *copy() const = 0;
+
 protected:
 	const LiteralVariant representation_;
 
@@ -114,6 +116,9 @@ public:
 		else
 			return variant() == c.variant();
 	}
+
+	virtual Constant<ExpressionT> *copy() const override
+	{ return new Constant(*this); }
 
 	DEFINE_IMPLEMENT
 };

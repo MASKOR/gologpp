@@ -91,6 +91,9 @@ class AbstractTransition
 , public virtual AbstractLanguageElement {
 public:
 	AbstractTransition(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args);
+	AbstractTransition(const AbstractTransition &);
+
+	AbstractTransition &operator = (const AbstractTransition &);
 
 	const Action &action() const;
 	const vector<unique_ptr<AbstractConstant>> &args() const;
@@ -109,8 +112,11 @@ protected:
 class Transition : public AbstractTransition, public LanguageElement<Transition> {
 public:
 	using AbstractTransition::AbstractTransition;
-	Transition(const Transition &) = delete;
+	using AbstractTransition::operator =;
+
 	Transition(Transition &&) = default;
+	Transition(const Transition &);
+
 	virtual void attach_semantics(SemanticsFactory &) override;
 };
 
@@ -119,8 +125,11 @@ public:
 class ExogTransition : public AbstractTransition, public LanguageElement<ExogTransition> {
 public:
 	using AbstractTransition::AbstractTransition;
-	ExogTransition(const ExogTransition &) = delete;
+	using AbstractTransition::operator =;
+
 	ExogTransition(ExogTransition &&) = default;
+	ExogTransition(const ExogTransition &);
+
 	virtual void attach_semantics(SemanticsFactory &) override;
 };
 
