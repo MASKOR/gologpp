@@ -9,20 +9,36 @@ namespace parser {
 
 
 template<class ExprT>
-struct FluentParser : grammar<Fluent<ExprT> *(Scope &), locals<Scope *>> {
+struct FluentParser
+: grammar <
+	Fluent<ExprT> *(Scope &),
+	locals <
+		Scope *,
+		string,
+		boost::optional < vector < shared_ptr < AbstractVariable > > >
+	>
+> {
 	FluentParser();
 
-	rule<Fluent<ExprT> *(Scope &), locals<Scope *>> fluent;
-	rule<Fluent<ExprT> *(Scope &), locals<Scope *>> fluent_forward;
-	rule<Fluent<ExprT> *(Scope &), locals<Scope *>> fluent_def;
+	rule <
+		Fluent < ExprT > *(Scope &),
+		locals <
+			Scope *,
+			string,
+			boost::optional < vector < shared_ptr < AbstractVariable > > >
+		>
+	> fluent;
 	rule<InitialValue<ExprT> *> initially;
 	decltype(r_name()) fluent_name;
 	decltype(abstract_var<true>()) variable;
 };
 
-extern FluentParser<BooleanExpression> boolean_fluent;
 extern FluentParser<NumericExpression> numeric_fluent;
+extern FluentParser<BooleanExpression> boolean_fluent;
 extern FluentParser<SymbolicExpression> symbolic_fluent;
+
+
+rule<AbstractFluent *(Scope &)> &abstract_fluent();
 
 
 } // namespace parser

@@ -24,9 +24,7 @@ struct ProgramParser : grammar<Statement *(Scope &)> {
 	: ProgramParser::base_type(program)
 	{
 		program = expect[*( omit[ // Discard attributes, they just register themselves as Globals
-			numeric_fluent(_r1)
-			| boolean_fluent(_r1)
-			| symbolic_fluent(_r1)
+			abstract_fluent()(_r1)
 			| action(_r1)
 			| function(_r1)
 		] ) >> statement(_r1) >> eoi];
