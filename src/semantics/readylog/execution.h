@@ -40,20 +40,20 @@ struct eclipse_opts {
 
 class ReadylogContext : public ExecutionContext {
 public:
-    virtual ~ReadylogContext() override;
-    static void init(unique_ptr<AExecutionBackend> &&, const eclipse_opts &options);
-    static void shutdown();
-    static ReadylogContext &instance();
+	virtual ~ReadylogContext() override;
+	static void init(unique_ptr<AExecutionBackend> &&, const eclipse_opts &options);
+	static void shutdown();
+	static ReadylogContext &instance();
 
 	virtual void compile(const Block &block) override;
 	virtual void compile(const AbstractAction &action) override;
 	virtual void compile(const AbstractFluent &fluent) override;
 	virtual void compile(const AbstractFunction &function) override;
 
-    virtual void compile_term(const EC_word &term);
+	virtual void compile_term(const EC_word &term);
 
-    virtual bool final(Block &program, History &history) override;
-    virtual bool trans(Block &program, History &history) override;
+	virtual bool final(Block &program, History &history) override;
+	virtual bool trans(Block &program, History &history) override;
 
 	bool ec_query(EC_word t)
 	{
@@ -88,7 +88,7 @@ private:
 
 	static unique_ptr<ReadylogContext> instance_;
 
-    ReadylogContext(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options);
+	ReadylogContext(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options);
 };
 
 
