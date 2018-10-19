@@ -1,6 +1,7 @@
 #include "action.h"
 #include "effect_axiom.h"
 #include "execution.h"
+#include "error.h"
 #include <string>
 
 namespace gologpp {
