@@ -36,29 +36,31 @@ void Semantics<History>::set_current_history(EC_word h)
 	readylog_history_ = copy_term(h);
 }
 
-
-EC_word Semantics<History>::get_list_head(EC_word list)
+EC_word Semantics<History>::get_history_head()
 {
     EC_word head, tail;
-    if (list.is_list(head, tail))
-        std::cout<<EC_fail<<std::endl;
+    if (current_history().is_list(head, tail) != EC_succeed)
+        std::cout << EC_fail << std::endl;
     return head;
 }
 
 
-char* Semantics<History>::get_head_name(EC_word head)
+string Semantics<History>::get_head_name(EC_word head)
 {
     EC_functor headfunctor;
-    head.functor(&headfunctor);
-    return headfunctor.name();
+    if (head.functor(&headfunctor) == EC_succeed) {
+        return headfunctor.name();
+    }
+    return "";
 }
 
 
 Transition Semantics<History>::get_last_transition()
 {
     EC_word head;
-    char *headname;
-    head = get_list_head(readylog_history_);
+    string headname;
+
+    head = get_history_head();
     headname = get_head_name(head);
     double d;
     long i;
