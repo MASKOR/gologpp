@@ -72,6 +72,25 @@ void Action::set_mapping(ActionMapping *mapping)
 	mapping_.reset(mapping);
 }
 
+bool Action::blocking() const
+{
+	return !(bool(on_succeed_) || bool(on_preempted_) || bool(on_failed_));
+}
+
+unique_ptr<Reference<Procedure>> &Action::on_succeed()
+{
+	return on_succeed_;
+}
+
+unique_ptr<Reference<Procedure>> &Action::on_preempted()
+{
+	return on_preempted_;
+}
+
+unique_ptr<Reference<Procedure>> &Action::on_failed()
+{
+	return on_failed_;
+}
 
 void Action::attach_semantics(SemanticsFactory &implementor)
 {
