@@ -75,9 +75,10 @@ typename std::enable_if<
 	std::basic_ostream<CharT, TraitsT>
 >::type
 &operator << (
-std::basic_ostream<CharT, TraitsT> &stream,
-const GologT &obj
-) { return stream << obj.to_string(""); }
+	std::basic_ostream<CharT, TraitsT> &stream,
+	const GologT &obj
+)
+{ return stream << obj.to_string(""); }
 
 
 template<class CharT, class TraitsT, class GologT>
@@ -87,9 +88,10 @@ typename std::enable_if<
 	std::basic_ostream<CharT, TraitsT>
 >::type
 &operator << (
-std::basic_ostream<CharT, TraitsT> &stream,
-const GologT *obj
-) { return stream << (obj ? obj->to_string("") : "nullptr"); }
+	std::basic_ostream<CharT, TraitsT> &stream,
+	const GologT *obj
+)
+{ return stream << (obj ? obj->to_string("") : "nullptr"); }
 
 
 

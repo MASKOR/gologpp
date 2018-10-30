@@ -54,6 +54,7 @@ ActionParser::ActionParser()
 			)
 		]
 	);
+	action.name("action_declaration");
 
 	effect = boolean_effect(_r1) | numeric_effect(_r1) | symbolic_effect(_r1);
 

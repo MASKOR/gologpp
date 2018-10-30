@@ -9,7 +9,6 @@
 namespace gologpp {
 
 
-
 class Global
 : public Identifier
 , public std::enable_shared_from_this<Global>
@@ -55,8 +54,6 @@ public:
 private:
 	vector<shared_ptr<AbstractVariable>> args_;
 };
-
-
 
 
 

@@ -23,11 +23,11 @@ struct ProgramParser : grammar<Statement *(Scope &)> {
 	ProgramParser()
 	: ProgramParser::base_type(program)
 	{
-		program = expect[*( omit[ // Discard attributes, they just register themselves as Globals
+		program = expect [ *( omit[ // Discard attributes, they just register themselves as Globals
 			abstract_fluent()(_r1)
 			| action(_r1)
 			| function(_r1)
-		] ) >> statement(_r1) >> eoi];
+		] ) >> statement(_r1) >> eoi ];
 
 		on_error<rethrow>(program,
 			phoenix::bind(&handle_error, _1, _3, _2, _4)

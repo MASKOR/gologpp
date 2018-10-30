@@ -57,4 +57,3 @@ ExpressionParser<NumericExpression>::ExpressionParser()
 
 } // namespace parser
 } // namespace gologpp
-
