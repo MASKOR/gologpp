@@ -43,7 +43,7 @@ struct EffectParser : grammar<EffectAxiom<ExprT> *(Scope &)> {
 		BOOST_SPIRIT_DEBUG_NODE(effect);
 	}
 
-	BooleanExpressionParser condition;
+	ExpressionParser<BooleanExpression> condition;
 	ExpressionParser<ExprT> expression;
 	ReferenceParser<Fluent<ExprT>> fluent_ref;
 	rule<EffectAxiom<ExprT> *(Scope &)> effect;

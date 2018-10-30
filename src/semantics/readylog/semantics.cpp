@@ -11,6 +11,7 @@
 #include "arithmetic.h"
 #include "execution.h"
 #include "domain.h"
+#include "string_concatenation.h"
 
 namespace gologpp {
 

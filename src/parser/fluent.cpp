@@ -17,6 +17,8 @@
 #include <boost/phoenix/operator/self.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
 
+#include <boost/optional/optional_io.hpp>
+
 #include <model/fluent.h>
 #include <model/expressions.h>
 
@@ -78,11 +80,14 @@ FluentParser<ExprT>::FluentParser()
 FluentParser<NumericExpression> numeric_fluent;
 FluentParser<BooleanExpression> boolean_fluent;
 FluentParser<SymbolicExpression> symbolic_fluent;
+FluentParser<StringExpression> string_fluent;
 
 
 rule<AbstractFluent *(Scope &)> &abstract_fluent() {
 	static rule<AbstractFluent *(Scope &)> any_fluent {
-		numeric_fluent(_r1) | boolean_fluent(_r1) | symbolic_fluent(_r1)
+		numeric_fluent(_r1) | boolean_fluent(_r1)
+		| symbolic_fluent(_r1) | string_fluent(_r1),
+		"any_fluent"
 	};
 	return any_fluent;
 }

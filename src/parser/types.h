@@ -30,6 +30,9 @@ template<>
 inline auto type_mark<SymbolicExpression>()
 { return boost::spirit::qi::lit("§"); }
 
+template<>
+inline auto type_mark<StringExpression>()
+{ return boost::spirit::qi::lit('$'); }
 
 
 template<class ExpressionT>
@@ -47,6 +50,9 @@ template<>
 inline string type_descr<SymbolicExpression>()
 { return "symbolic"; }
 
+template<>
+inline string type_descr<StringExpression>()
+{ return "string"; }
 
 
 

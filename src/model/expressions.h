@@ -15,6 +15,7 @@ enum ExpressionTypeTag {
 	BOOLEAN,
 	NUMERIC,
 	SYMBOLIC,
+	STRING,
 	VOID,
 };
 
@@ -76,6 +77,17 @@ protected:
 
 public:
 	typedef SymbolicExpression expression_t;
+	virtual ExpressionTypeTag dynamic_type_tag() const override;
+	static ExpressionTypeTag static_type_tag();
+};
+
+
+class StringExpression : public Expression {
+protected:
+	using Expression::Expression;
+
+public:
+	typedef StringExpression expression_t;
 	virtual ExpressionTypeTag dynamic_type_tag() const override;
 	static ExpressionTypeTag static_type_tag();
 };

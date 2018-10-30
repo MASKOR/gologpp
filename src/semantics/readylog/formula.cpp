@@ -56,17 +56,9 @@ EC_word Semantics<Comparison<NumericExpression>>::plterm()
 }
 
 
-
-Semantics<Comparison<SymbolicExpression>>::Semantics(const Comparison<SymbolicExpression> &cmp)
-: comparison_(cmp)
-{}
-
-EC_word Semantics<Comparison<SymbolicExpression>>::plterm()
+static EC_word build_ec_comparison(EC_word lhs, ComparisonOperator op, EC_word rhs)
 {
-	EC_word lhs = comparison_.lhs().semantics().plterm();
-	EC_word rhs = comparison_.rhs().semantics().plterm();
-
-	switch(comparison_.op()) {
+	switch(op) {
 	case ComparisonOperator::EQ:
 		return ::term(EC_functor("=", 2), lhs, rhs);
 	case ComparisonOperator::GE:
@@ -87,6 +79,35 @@ EC_word Semantics<Comparison<SymbolicExpression>>::plterm()
 		return ::term(EC_functor("\\=", 2), lhs, rhs);
 	}
 	throw Bug("Unknown comparison operator");
+}
+
+
+Semantics<Comparison<SymbolicExpression>>::Semantics(const Comparison<SymbolicExpression> &cmp)
+: comparison_(cmp)
+{}
+
+EC_word Semantics<Comparison<SymbolicExpression>>::plterm()
+{
+	return build_ec_comparison(
+		comparison_.lhs().semantics().plterm(),
+		comparison_.op(),
+		comparison_.rhs().semantics().plterm()
+	);
+}
+
+
+
+Semantics<Comparison<StringExpression>>::Semantics(const Comparison<StringExpression> &cmp)
+: comparison_(cmp)
+{}
+
+EC_word Semantics<Comparison<StringExpression>>::plterm()
+{
+	return build_ec_comparison(
+		comparison_.lhs().semantics().plterm(),
+		comparison_.op(),
+		comparison_.rhs().semantics().plterm()
+	);
 }
 
 

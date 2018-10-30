@@ -11,12 +11,7 @@ namespace gologpp {
 
 
 template<>
-class Semantics<BooleanExpression> : public ReadylogSemantics {
-};
-
-
-template<>
-class Semantics<Negation> : public Semantics<BooleanExpression> {
+class Semantics<Negation> : public ReadylogSemantics {
 public:
 	Semantics(const Negation &);
 	virtual ~Semantics() override = default;
@@ -29,7 +24,7 @@ private:
 
 
 template<>
-class Semantics<Comparison<NumericExpression>> : public Semantics<BooleanExpression> {
+class Semantics<Comparison<NumericExpression>> : public ReadylogSemantics {
 public:
 	Semantics(const Comparison<NumericExpression> &cmp);
 
@@ -43,7 +38,7 @@ private:
 
 
 template<>
-class Semantics<Comparison<SymbolicExpression>> : public Semantics<BooleanExpression> {
+class Semantics<Comparison<SymbolicExpression>> : public ReadylogSemantics {
 public:
 	Semantics(const Comparison<SymbolicExpression> &cmp);
 
@@ -56,7 +51,20 @@ private:
 
 
 template<>
-class Semantics<BooleanOperation> : public Semantics<BooleanExpression> {
+class Semantics<Comparison<StringExpression>> : public ReadylogSemantics {
+public:
+	Semantics(const Comparison<StringExpression> &cmp);
+
+	virtual ~Semantics() override = default;
+	virtual EC_word plterm() override;
+
+private:
+	const Comparison<StringExpression> &comparison_;
+};
+
+
+template<>
+class Semantics<BooleanOperation> : public ReadylogSemantics {
 public:
 	Semantics(const BooleanOperation &);
 	virtual EC_word plterm() override;
@@ -68,7 +76,7 @@ private:
 
 
 template<>
-class Semantics<Quantification> : public Semantics<BooleanExpression> {
+class Semantics<Quantification> : public ReadylogSemantics {
 public:
 	Semantics(const Quantification &);
 	virtual EC_word plterm() override;

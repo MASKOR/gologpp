@@ -30,4 +30,9 @@ EC_word Semantics<Constant<SymbolicExpression>>::plterm()
 { return EC_atom(value_.str().c_str()); }
 
 
+template<>
+EC_word Semantics<Constant<StringExpression>>::plterm()
+{ return EC_atom(value_.str().c_str()); }
+
+
 } // namespace gologpp

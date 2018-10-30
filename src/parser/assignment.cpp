@@ -3,6 +3,8 @@
 #include "arithmetic.h"
 #include "formula.h"
 #include "types.h"
+#include "symbolic_expression.h"
+#include "string_expression.h"
 
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_char.hpp>
@@ -25,15 +27,12 @@ AssignmentParser<Fluent<ExpressionT>>::AssignmentParser()
 	];
 }
 
+#define GOLOGPP_PARSER_INSTANTIATE_FLUENT_ASSIGNMENT(r, data, T) \
+	template \
+	AssignmentParser<Fluent<T>>::AssignmentParser();
 
-template
-AssignmentParser<Fluent<NumericExpression>>::AssignmentParser();
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_INSTANTIATE_FLUENT_ASSIGNMENT, (), GOLOGPP_VALUE_TYPES)
 
-template
-AssignmentParser<Fluent<BooleanExpression>>::AssignmentParser();
-
-template
-AssignmentParser<Fluent<SymbolicExpression>>::AssignmentParser();
 
 
 template<class ExpressionT>
@@ -48,15 +47,11 @@ AssignmentParser<Variable<ExpressionT>>::AssignmentParser()
 	var_ref.name("reference_to_" + type_descr<ExpressionT>() + "_variable");
 }
 
-template
-AssignmentParser<Variable<NumericExpression>>::AssignmentParser();
+#define GOLOGPP_PARSER_INSTANTIATE_VARIABLE_ASSIGNMENT(r, data, T) \
+	template \
+	AssignmentParser<Variable<T>>::AssignmentParser();
 
-template
-AssignmentParser<Variable<BooleanExpression>>::AssignmentParser();
-
-template
-AssignmentParser<Variable<SymbolicExpression>>::AssignmentParser();
-
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_INSTANTIATE_VARIABLE_ASSIGNMENT, (), GOLOGPP_VALUE_TYPES)
 
 
 

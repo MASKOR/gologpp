@@ -36,6 +36,7 @@ struct FluentParser
 extern FluentParser<NumericExpression> numeric_fluent;
 extern FluentParser<BooleanExpression> boolean_fluent;
 extern FluentParser<SymbolicExpression> symbolic_fluent;
+extern FluentParser<StringExpression> string_fluent;
 
 
 rule<AbstractFluent *(Scope &)> &abstract_fluent();

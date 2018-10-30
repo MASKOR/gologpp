@@ -26,6 +26,16 @@ Constant<SymbolicExpression>::Constant(string repr)
 {}
 
 template<> template<>
+Constant<StringExpression>::Constant(const string &repr)
+: AbstractConstant(repr)
+{}
+
+template<> template<>
+Constant<StringExpression>::Constant(string repr)
+: AbstractConstant(repr)
+{}
+
+template<> template<>
 Constant<BooleanExpression>::Constant(bool repr)
 : AbstractConstant(repr)
 {}

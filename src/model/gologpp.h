@@ -38,6 +38,7 @@ class Expression;
 class BooleanExpression;
 class NumericExpression;
 class SymbolicExpression;
+class StringExpression;
 class Statement;
 
 typedef BooleanExpression Bool;
@@ -70,12 +71,15 @@ template<class> class Domain;
 typedef Constant<BooleanExpression> BooleanConstant;
 typedef Constant<NumericExpression> NumericConstant;
 typedef Constant<SymbolicExpression> SymbolicConstant;
+typedef Constant<StringExpression> StringConstant;
 
 typedef Variable<BooleanExpression> BooleanVariable;
 typedef Variable<NumericExpression> NumericVariable;
 typedef Variable<SymbolicExpression> SymbolicVariable;
+typedef Variable<StringExpression> StringVariable;
 
 class ArithmeticOperation;
+class StringConcatenation;
 
 class Negation;
 template<class> class Comparison;
@@ -99,6 +103,8 @@ template<class> class Function;
 using Procedure = Function<Statement>;
 using BooleanFunction = Function<BooleanExpression>;
 using NumericFunction = Function<NumericExpression>;
+using SymbolicFunction = Function<SymbolicExpression>;
+using StringFunction = Function<StringExpression>;
 
 class AbstractReference;
 template<class> class Reference;
@@ -129,7 +135,7 @@ using VariableReference = Reference<Variable<ExprT>>;
 
 
 #define GOLOGPP_COMPARABLE_TYPES \
-	(NumericExpression)(SymbolicExpression)
+	(NumericExpression)(SymbolicExpression)(StringExpression)
 
 #define GOLOGPP_VALUE_TYPES \
 	GOLOGPP_COMPARABLE_TYPES (BooleanExpression)
@@ -155,6 +161,7 @@ using VariableReference = Reference<Variable<ExprT>>;
 	(Negation)(BooleanOperation)(Quantification) \
 	(Block)(Choose)(Conditional)(Search)(Solve)(Test)(While) \
 	(History)(Reference<Action>) \
+	(StringConcatenation) \
 	BOOST_PP_SEQ_FOR_EACH_PRODUCT(GOLOGPP_TEMPLATE_CLASS, \
 		(GOLOGPP_VALUE_TYPE_TEMPLATES)(GOLOGPP_VALUE_TYPES) \
 	) \

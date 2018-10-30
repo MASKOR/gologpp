@@ -9,6 +9,11 @@
 #include <boost/spirit/include/qi_real.hpp>
 #include <boost/spirit/include/qi_lexeme.hpp>
 #include <boost/spirit/include/qi_char_class.hpp>
+#include <boost/spirit/include/qi_char_.hpp>
+#include <boost/spirit/include/qi_difference.hpp>
+#include <boost/spirit/include/qi_kleene.hpp>
+#include <boost/spirit/include/qi_no_skip.hpp>
+#include <boost/spirit/include/qi_as_string.hpp>
 
 #include <boost/phoenix/bind/bind_function.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
@@ -16,6 +21,7 @@
 #include <boost/phoenix/operator/self.hpp>
 #include <boost/phoenix/operator/comparison.hpp>
 #include <boost/phoenix/statement/if.hpp>
+#include <boost/phoenix/fusion/at.hpp>
 
 #include <model/scope.h>
 #include <model/reference.h>
@@ -80,6 +86,10 @@ rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var() {
 		) ]
 		| var<SymbolicExpression, only_local>()(_r1) [ _val = phoenix::bind(
 			&std::dynamic_pointer_cast<AbstractVariable, SymbolicVariable>,
+			_1
+		) ]
+		| var<StringExpression, only_local>()(_r1) [ _val = phoenix::bind(
+			&std::dynamic_pointer_cast<AbstractVariable, StringVariable>,
 			_1
 		) ],
 		"any_variable"
@@ -169,6 +179,26 @@ rule<Constant<SymbolicExpression> *> &constant<SymbolicExpression, true>() {
 
 
 
+template<>
+rule<Constant<StringExpression> *> &constant<StringExpression, true>() {
+	static rule<Constant<StringExpression> *> string_constant {
+		qi::as_string [ qi::lexeme [
+			lit('"') > *(char_ - '"') > lit('"')
+		] ] [
+			_val = new_<Constant<StringExpression>>(_1)
+		],
+		"string_constant"
+	};
+	return string_constant;
+}
+
+// Ignore allow_symbol_definition parameter
+template<>
+rule<Constant<StringExpression> *> &constant<StringExpression, false>()
+{ return constant<StringExpression, true>(); }
+
+
+
 template<bool allow_symbol_def>
 rule<AbstractConstant *> &abstract_constant() {
 	static rule<AbstractConstant *> any_constant {
@@ -176,6 +206,7 @@ rule<AbstractConstant *> &abstract_constant() {
 			constant<BooleanExpression>() // allow_symbol_def is ignored and defaults to false
 			| constant<NumericExpression>() // allow_symbol_def is ignored and defaults to false
 			| constant<SymbolicExpression, allow_symbol_def>()
+			| constant<StringExpression>()
 		),
 		"any_constant"
 	};

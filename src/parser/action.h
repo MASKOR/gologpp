@@ -21,7 +21,7 @@ struct ActionParser : grammar <
 > {
 	ActionParser();
 
-	BooleanExpressionParser formula_parser;
+	ExpressionParser<BooleanExpression> formula_parser;
 	rule<AbstractEffectAxiom *(Scope &)> effect;
 	EffectParser<BooleanExpression> boolean_effect;
 	EffectParser<NumericExpression> numeric_effect;

@@ -15,9 +15,11 @@ namespace parser {
 template<class ExprT>
 struct ExpressionParser;
 
-typedef ExpressionParser<BooleanExpression> BooleanExpressionParser;
-typedef ExpressionParser<NumericExpression> NumericExpressionParser;
-typedef ExpressionParser<SymbolicExpression> SymbolicExpressionParser;
+#define GOLOGPP_PARSER_SPECIALIZE_EXPRESSION_PARSER(r, data, T) \
+template<> struct ExpressionParser<T>;
+
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_SPECIALIZE_EXPRESSION_PARSER, (), GOLOGPP_VALUE_TYPES)
+
 
 } // namespace parser
 } // namespace gologpp

@@ -13,6 +13,8 @@ string to_string(ExpressionTypeTag t)
 	case NUMERIC:
 		return "%";
 	case SYMBOLIC:
+		return "§";
+	case STRING:
 		return "$";
 	case VOID:
 		return "";
@@ -68,6 +70,12 @@ ExpressionTypeTag SymbolicExpression::dynamic_type_tag() const
 ExpressionTypeTag SymbolicExpression::static_type_tag()
 { return SYMBOLIC; }
 
+
+ExpressionTypeTag StringExpression::dynamic_type_tag() const
+{ return STRING; }
+
+ExpressionTypeTag StringExpression::static_type_tag()
+{ return STRING; }
 
 
 ExpressionTypeTag Statement::dynamic_type_tag() const

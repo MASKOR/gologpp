@@ -11,6 +11,8 @@
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/object/delete.hpp>
 
+#include <boost/optional/optional_io.hpp>
+
 #include <model/scope.h>
 #include <model/procedural.h>
 

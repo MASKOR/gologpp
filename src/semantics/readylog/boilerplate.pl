@@ -1,3 +1,5 @@
+function(strcat(X, Y), R, concat_atoms(X, Y, R)).
+
 ssa( online, false, [clipOnline|_69485] ) :- !, true.
 ssa( online, true, [setOnline|_69524] ) :- !, true.
 ssa( start, T, [setTime(T)|_69563] ) :- !, true.
