@@ -94,6 +94,37 @@ typename std::enable_if<
 { return stream << (obj ? obj->to_string("") : "nullptr"); }
 
 
+template<class CharT, class TraitsT, class GologT>
+typename std::enable_if<
+	std::is_base_of<AbstractLanguageElement, GologT>::value
+	|| std::is_base_of<Expression, GologT>::value,
+	std::basic_ostream<CharT, TraitsT>
+>::type
+&operator << (
+	std::basic_ostream<CharT, TraitsT> &stream,
+	const shared_ptr<GologT> &obj
+)
+{ return stream << (obj ? obj->to_string("") : "nullptr"); }
+
+
+template<class CharT, class TraitsT, class ElemT>
+std::basic_ostream<CharT, TraitsT>
+&operator << (
+	std::basic_ostream<CharT, TraitsT> &stream,
+	const vector<ElemT> &v
+)
+{
+	stream << "[";
+	typename vector<ElemT>::const_iterator it = v.begin();
+	for (const ElemT &e : v) {
+		stream << e;
+		if (++it < v.end())
+			stream << ", ";
+	}
+	return stream << "]";
+}
+
+
 
 extern const string indent;
 
