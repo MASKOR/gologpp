@@ -24,11 +24,17 @@ public:
 
 	virtual EC_word plterm() override
 	{
-		return ::term(EC_functor("initial_val", 2),
-			::term(
+		EC_word fluent_inst;
+		if (ival_.fluent().arity() > 0)
+			fluent_inst = ::term(
 				EC_functor(ival_.fluent().name().c_str(), ival_.fluent().arity()),
 				to_ec_words(ival_.args()).data()
-			),
+			);
+		else
+			fluent_inst = EC_atom(ival_.fluent().name().c_str());
+
+		return ::term(EC_functor("initial_val", 2),
+			fluent_inst,
 			ival_.value().semantics().plterm()
 		);
 	}

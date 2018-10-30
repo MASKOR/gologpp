@@ -14,10 +14,13 @@ Semantics<AbstractFluent>::Semantics(const AbstractFluent &f)
 
 EC_word Semantics<AbstractFluent>::plterm()
 {
-	return ::term(
-		EC_functor(fluent_.name().c_str(), fluent_.arity()),
-		to_ec_words(fluent_.args()).data()
-	);
+	if (fluent_.arity() > 0)
+		return ::term(
+			EC_functor(fluent_.name().c_str(), fluent_.arity()),
+			to_ec_words(fluent_.args()).data()
+		);
+	else
+		return EC_atom(fluent_.name().c_str());
 }
 
 
