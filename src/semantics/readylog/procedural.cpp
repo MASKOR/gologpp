@@ -80,7 +80,18 @@ Semantics<Conditional>::Semantics(const Conditional &c)
 
 EC_word Semantics<Conditional>::plterm()
 {
-	return ::term(EC_functor("lif", 3),
+	EC_functor fn("if", 3);
+
+	const AbstractLanguageElement *parent = conditional_.parent();
+	while (parent) {
+		if (dynamic_cast<const Global *>(parent)) {
+			if (!dynamic_cast<const Procedure *>(parent))
+				fn = EC_functor("lif", 3);
+			break;
+		}
+		parent = dynamic_cast<const Expression *>(parent)->parent();
+	}
+	return ::term(fn,
 		conditional_.condition().semantics().plterm(),
 		conditional_.block_true().semantics().plterm(),
 		conditional_.block_false().semantics().plterm()
