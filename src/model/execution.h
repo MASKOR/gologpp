@@ -15,6 +15,7 @@
 #include <queue>
 #include <condition_variable>
 #include <chrono>
+#include <unordered_set>
 
 namespace gologpp {
 

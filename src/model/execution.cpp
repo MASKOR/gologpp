@@ -120,6 +120,9 @@ History ExecutionContext::run(Block &&program)
 		}
 		else {
 			shared_ptr <Transition> trans = history.abstract_impl().get_last_transition();
+			trans->state = Action::IDLE;
+			backend()->set_running_transition(trans);
+			backend()->execute_transition(trans);
 		}
 
 		std::chrono::duration<double> d_trans = clock().now() - t_trans;
