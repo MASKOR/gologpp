@@ -54,11 +54,16 @@ public:
 
 
 
+class AExecutionBackend;
+
+
+
 class AExecutionContext {
 public:
 	typedef std::chrono::steady_clock Clock;
 	typedef std::queue<ExogTransition> ExogQueue;
 
+	AExecutionContext(unique_ptr<AExecutionBackend> &&exec_backend);
 	virtual ~AExecutionContext() = default;
 
 	virtual bool final(Block &program, History &h) = 0;
@@ -79,6 +84,8 @@ public:
 	void exog_queue_push(ExogTransition &&exog);
 	Clock &clock();
 
+	unique_ptr<AExecutionBackend> &backend();
+
 protected:
 	ExogQueue &exog_queue();
 
@@ -88,15 +95,8 @@ private:
 	std::mutex queue_empty_mutex_;
 	ExogQueue exog_queue_;
 	Clock clock_;
-};
 
-
-
-class AExecutionBackend {
-public:
-	virtual ~AExecutionBackend();
-
-	virtual void execute_transition(const Transition &) = 0;
+	unique_ptr<AExecutionBackend> exec_backend_;
 };
 
 
@@ -111,9 +111,24 @@ public:
 
 private:
 	unique_ptr<SemanticsFactory> implementor_;
-	unique_ptr<AExecutionBackend> exec_backend_;
+
 };
 
+
+
+class AExecutionBackend {
+public:
+	virtual ~AExecutionBackend();
+
+	virtual void execute_transition(shared_ptr <Transition> ) = 0;
+
+	std::unordered_set < shared_ptr <Transition> > &running_transition() ;
+	void set_running_transition (shared_ptr <Transition> trans);
+
+protected:
+	std::unordered_set < shared_ptr <Transition> > running_transitions_;
+	std::queue < shared_ptr <Transition> > done_transitions_;
+};
 
 
 } // namespace gologpp

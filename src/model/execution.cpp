@@ -63,18 +63,32 @@ AExecutionContext::Clock &AExecutionContext::clock()
 AExecutionContext::ExogQueue &AExecutionContext::exog_queue()
 { return exog_queue_; }
 
-
-
-AExecutionBackend::~AExecutionBackend()
+AExecutionContext::AExecutionContext(unique_ptr<AExecutionBackend> &&exec_backend)
+: exec_backend_(move(exec_backend))
 {}
+
 
 
 ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<AExecutionBackend> &&exec_backend)
-: implementor_(std::move(implementor))
-, exec_backend_(std::move(exec_backend))
+: AExecutionContext(std::move(exec_backend))
+, implementor_(std::move(implementor))
 {}
 
 ExecutionContext::~ExecutionContext()
+{}
+
+
+
+unique_ptr<AExecutionBackend> &AExecutionContext::backend()
+{ return exec_backend_;}
+
+std::unordered_set< shared_ptr<Transition> >& AExecutionBackend::running_transition()
+{ return running_transitions_; }
+
+void AExecutionBackend::set_running_transition(shared_ptr <Transition> trans)
+{ running_transitions_.insert(trans); }
+
+AExecutionBackend::~AExecutionBackend()
 {}
 
 
