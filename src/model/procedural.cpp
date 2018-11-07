@@ -11,10 +11,10 @@
 namespace gologpp {
 
 
-Block::Block(Scope *own_scope, const vector<Statement *> &elements)
+Block::Block(Scope *own_scope, const vector<VoidExpression *> &elements)
 : ScopeOwner(own_scope)
 {
-	for (Statement *stmt : elements) {
+	for (VoidExpression *stmt : elements) {
 		stmt->set_parent(this);
 		elements_.emplace_back(stmt);
 	}
@@ -30,7 +30,7 @@ void Block::attach_semantics(SemanticsFactory &f)
 	}
 }
 
-const vector<unique_ptr<Statement>> &Block::elements() const
+const vector<unique_ptr<VoidExpression>> &Block::elements() const
 { return elements_; }
 
 string Block::to_string(const string &pfx) const
@@ -48,16 +48,16 @@ string Block::to_string(const string &pfx) const
 
 
 
-Choose::Choose(Scope *own_scope, const vector<Statement *> &alternatives)
+Choose::Choose(Scope *own_scope, const vector<VoidExpression *> &alternatives)
 : ScopeOwner(own_scope)
 {
-	for (Statement *stmt : alternatives) {
+	for (VoidExpression *stmt : alternatives) {
 		stmt->set_parent(this);
 		alternatives_.emplace_back(stmt);
 	}
 }
 
-const vector<unique_ptr<Statement>> &Choose::alternatives() const
+const vector<unique_ptr<VoidExpression>> &Choose::alternatives() const
 { return alternatives_; }
 
 
@@ -66,7 +66,7 @@ void Choose::attach_semantics(SemanticsFactory &f)
 	if (!semantics_) {
 		semantics_ = f.make_semantics(*this);
 		scope().attach_semantics(f);
-		for (unique_ptr<Statement> &stmt : alternatives_)
+		for (unique_ptr<VoidExpression> &stmt : alternatives_)
 			stmt->attach_semantics(f);
 	}
 }
@@ -83,8 +83,8 @@ string Choose::to_string(const string &pfx) const
 
 Conditional::Conditional(
 	BooleanExpression *condition,
-	Statement *block_true,
-	const boost::optional<Statement *> &block_false
+	VoidExpression *block_true,
+	const boost::optional<VoidExpression *> &block_false
 )
 : condition_(condition)
 , block_true_(block_true)
@@ -98,10 +98,10 @@ Conditional::Conditional(
 const BooleanExpression &Conditional::condition() const
 { return *condition_; }
 
-const Statement &Conditional::block_false() const
+const VoidExpression &Conditional::block_false() const
 { return *block_false_; }
 
-const Statement &Conditional::block_true() const
+const VoidExpression &Conditional::block_true() const
 { return *block_true_; }
 
 
@@ -113,13 +113,13 @@ string Conditional::to_string(const string &pfx) const
 
 
 
-Search::Search(Statement *statement)
+Search::Search(VoidExpression *statement)
 : statement_(statement)
 {
 	statement_->set_parent(this);
 }
 
-const Statement &Search::statement() const
+const VoidExpression &Search::statement() const
 { return *statement_; }
 
 string Search::to_string(const string &pfx) const
@@ -130,7 +130,7 @@ string Search::to_string(const string &pfx) const
 Solve::Solve(
 	NumericExpression *horizon,
 	Reference<NumericFunction> *reward,
-	Statement *statement
+	VoidExpression *statement
 )
 : Search(statement)
 , horizon_(horizon)
@@ -182,7 +182,7 @@ string Test::to_string(const string &pfx) const
 
 
 
-While::While(BooleanExpression *expression, Statement *statement)
+While::While(BooleanExpression *expression, VoidExpression *statement)
 : expression_(expression)
 , statement_(statement)
 {
@@ -193,7 +193,7 @@ While::While(BooleanExpression *expression, Statement *statement)
 const BooleanExpression &While::expression() const
 { return *expression_; }
 
-const Statement &While::statement() const
+const VoidExpression &While::statement() const
 { return *statement_; }
 
 string While::to_string(const string &pfx) const
@@ -211,10 +211,10 @@ AbstractFunction::AbstractFunction(Scope *own_scope, const string &name, const v
 AbstractFunction::~AbstractFunction()
 {}
 
-const Statement &AbstractFunction::definition() const
+const VoidExpression &AbstractFunction::definition() const
 { return *definition_; }
 
-void AbstractFunction::define(Statement *definition)
+void AbstractFunction::define(VoidExpression *definition)
 {
 	definition_.reset(definition);
 	definition_->set_parent(this);

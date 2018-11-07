@@ -15,12 +15,12 @@ namespace parser {
 
 
 
-struct StatementParser : grammar<Statement *(Scope &)> {
+struct StatementParser : grammar<VoidExpression *(Scope &)> {
 	StatementParser();
 
-	rule<Statement *(Scope &)> statement;
-	rule<Statement *(Scope &)> simple_statement;
-	rule<Statement *(Scope &)> compound_statement;
+	rule<VoidExpression *(Scope &)> statement;
+	rule<VoidExpression *(Scope &)> simple_statement;
+	rule<VoidExpression *(Scope &)> compound_statement;
 	rule<Block *(Scope &), locals<Scope *>> block;
 	rule<Choose *(Scope &), locals<Scope *>> choose;
 	rule<Conditional *(Scope &)> conditional;

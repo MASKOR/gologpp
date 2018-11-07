@@ -103,7 +103,7 @@ void test_objectmodel()
 void test_parser()
 {
 #ifdef GOLOGPP_TEST_PARSER
-	unique_ptr<Statement> mainproc = parser::parse_file(SOURCE_DIR "/blocksworld.gpp");
+	unique_ptr<VoidExpression> mainproc = parser::parse_file(SOURCE_DIR "/blocksworld.gpp");
 
 	shared_ptr<NumericFluent> on = global_scope().lookup_global<NumericFluent>("on", 1);
 	shared_ptr<Action> put = global_scope().lookup_global<Action>("stack", 2);
@@ -117,7 +117,7 @@ void test_parser()
 	options.trace = false;
 	options.guitrace = false;
 
-	ReadylogContext::init(unique_ptr<AExecutionBackend>(nullptr), options);
+	ReadylogContext::init(unique_ptr<PlatformBackend>(nullptr), options);
 	ReadylogContext &ctx = ReadylogContext::instance();
 
 	ctx.run(Block(

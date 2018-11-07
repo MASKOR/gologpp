@@ -24,7 +24,7 @@ class AbstractAction
 , public ScopeOwner
 , public virtual AbstractLanguageElement {
 public:
-	typedef Statement expression_t;
+	typedef VoidExpression expression_t;
 
 	AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 

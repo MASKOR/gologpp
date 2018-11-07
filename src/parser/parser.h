@@ -7,9 +7,9 @@ namespace gologpp {
 namespace parser {
 
 
-unique_ptr<Statement> parse_string(const std::string &code);
+unique_ptr<VoidExpression> parse_string(const std::string &code);
 
-unique_ptr<Statement> parse_file(const std::string &filename);
+unique_ptr<VoidExpression> parse_file(const std::string &filename);
 
 
 } // namespace parser

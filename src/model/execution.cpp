@@ -2,31 +2,12 @@
 #include "fluent.h"
 #include "action.h"
 #include "procedural.h"
+#include "history.h"
 
 #include <iostream>
 #include <iomanip>
 
 namespace gologpp {
-
-HistorySemantics::HistorySemantics(History &h)
-: history_(h)
-{}
-
-HistorySemantics::~HistorySemantics()
-{}
-
-History::History()
-{}
-
-Scope &History::parent_scope()
-{ return global_scope(); }
-
-const Scope &History::parent_scope() const
-{ return global_scope(); }
-
-
-string History::to_string(const string &pfx) const
-{ return pfx + linesep + "history: no representation" + linesep; }
 
 
 ExogTransition AExecutionContext::exog_queue_pop()
@@ -65,11 +46,11 @@ AExecutionContext::ExogQueue &AExecutionContext::exog_queue()
 
 
 
-AExecutionBackend::~AExecutionBackend()
+PlatformBackend::~PlatformBackend()
 {}
 
 
-ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<AExecutionBackend> &&exec_backend)
+ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<PlatformBackend> &&exec_backend)
 : implementor_(std::move(implementor))
 , exec_backend_(std::move(exec_backend))
 {}

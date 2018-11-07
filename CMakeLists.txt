@@ -59,6 +59,8 @@ set(INTERFACE_SRC
 	src/model/reference.cpp
 	src/model/global.cpp
 	src/model/domain.cpp
+	src/model/string_concatenation.cpp
+	src/model/history.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -88,6 +90,8 @@ install(FILES
 	src/model/expressions.h
 	src/model/gologpp.h
 	src/model/domain.h
+	src/model/string_concatenation.h
+	src/model/history.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model
 )
@@ -120,6 +124,7 @@ if (${BUILD_PARSER})
 		src/parser/assignment.cpp
 		src/parser/fluent.cpp
 		src/parser/symbolic_expression.cpp
+		src/parser/string_expression.cpp
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
@@ -185,6 +190,8 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/scope.cpp
 		src/semantics/readylog/semantics.cpp
 		src/semantics/readylog/utilities.cpp
+		src/semantics/readylog/string_concatenation.cpp
+		src/semantics/readylog/history.cpp
 	)
 
 	link_directories(${ECLIPSE_LIBRARY_DIRS})
@@ -212,6 +219,8 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/utilities.h
 		src/semantics/readylog/reference.h
 		src/semantics/readylog/config.h
+		src/semantics/readylog/string_concatenation.h
+		src/semantics/readylog/history.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/readylog
 	)
 

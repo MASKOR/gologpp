@@ -41,7 +41,7 @@ FunctionParser<ExpressionT>::FunctionParser()
 			]
 			| statement(_r1) [
 				_val = phoenix::bind(
-					&Scope::define_global<Function<ExpressionT>, Statement *>,
+					&Scope::define_global<Function<ExpressionT>, VoidExpression *>,
 					_r1, _a, _b, _c, _1
 				)
 			]

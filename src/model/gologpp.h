@@ -39,10 +39,14 @@ class BooleanExpression;
 class NumericExpression;
 class SymbolicExpression;
 class StringExpression;
-class Statement;
+class VoidExpression;
 
 typedef BooleanExpression Bool;
 typedef NumericExpression Number;
+typedef SymbolicExpression Symbol;
+typedef StringExpression String;
+typedef VoidExpression Void;
+typedef VoidExpression Statement;
 
 
 class AbstractEffectAxiom;
@@ -68,15 +72,15 @@ template<class> class Constant;
 class AbstractDomain;
 template<class> class Domain;
 
-typedef Constant<BooleanExpression> BooleanConstant;
-typedef Constant<NumericExpression> NumericConstant;
-typedef Constant<SymbolicExpression> SymbolicConstant;
-typedef Constant<StringExpression> StringConstant;
+typedef Constant<Bool> BooleanConstant;
+typedef Constant<Number> NumericConstant;
+typedef Constant<Symbol> SymbolicConstant;
+typedef Constant<String> StringConstant;
 
-typedef Variable<BooleanExpression> BooleanVariable;
-typedef Variable<NumericExpression> NumericVariable;
-typedef Variable<SymbolicExpression> SymbolicVariable;
-typedef Variable<StringExpression> StringVariable;
+typedef Variable<Bool> BooleanVariable;
+typedef Variable<Number> NumericVariable;
+typedef Variable<Symbol> SymbolicVariable;
+typedef Variable<String> StringVariable;
 
 class ArithmeticOperation;
 class StringConcatenation;
@@ -100,11 +104,12 @@ template<class> class Return;
 
 class AbstractFunction;
 template<class> class Function;
-using Procedure = Function<Statement>;
-using BooleanFunction = Function<BooleanExpression>;
-using NumericFunction = Function<NumericExpression>;
-using SymbolicFunction = Function<SymbolicExpression>;
-using StringFunction = Function<StringExpression>;
+using Procedure = Function<Void>;
+using VoidFunction = Function<Void>;
+using BooleanFunction = Function<Bool>;
+using NumericFunction = Function<Number>;
+using SymbolicFunction = Function<Symbol>;
+using StringFunction = Function<String>;
 
 class AbstractReference;
 template<class> class Reference;
@@ -141,7 +146,7 @@ using VariableReference = Reference<Variable<ExprT>>;
 	GOLOGPP_COMPARABLE_TYPES (BooleanExpression)
 
 #define GOLOGPP_EXPRESSION_TYPES \
-	GOLOGPP_VALUE_TYPES (Statement)
+	GOLOGPP_VALUE_TYPES (VoidExpression)
 
 #define GOLOGPP_VALUE_TYPE_TEMPLATES \
 	(EffectAxiom)(InitialValue)(Fluent)(Variable)(Constant) \

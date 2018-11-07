@@ -12,6 +12,7 @@
 #include "execution.h"
 #include "domain.h"
 #include "string_concatenation.h"
+#include "history.h"
 
 namespace gologpp {
 

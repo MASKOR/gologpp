@@ -10,9 +10,9 @@ namespace parser {
 
 
 
-unique_ptr<Statement> parse_string(const std::string &code)
+unique_ptr<VoidExpression> parse_string(const std::string &code)
 {
-	Statement *rv = nullptr;
+	VoidExpression *rv = nullptr;
 	ProgramParser program_parser;
 	boost::spirit::qi::phrase_parse(
 		iterator(code.cbegin()),
@@ -21,11 +21,11 @@ unique_ptr<Statement> parse_string(const std::string &code)
 		gologpp_skipper(),
 		rv
 	);
-	return unique_ptr<Statement>(rv);
+	return unique_ptr<VoidExpression>(rv);
 }
 
 
-unique_ptr<Statement> parse_file(const std::string &filename)
+unique_ptr<VoidExpression> parse_file(const std::string &filename)
 {
 	std::ifstream file(filename);
 	if (!file.is_open())

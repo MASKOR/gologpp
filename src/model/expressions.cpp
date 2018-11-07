@@ -78,10 +78,10 @@ ExpressionTypeTag StringExpression::static_type_tag()
 { return STRING; }
 
 
-ExpressionTypeTag Statement::dynamic_type_tag() const
+ExpressionTypeTag VoidExpression::dynamic_type_tag() const
 { return VOID; }
 
-ExpressionTypeTag Statement::static_type_tag()
+ExpressionTypeTag VoidExpression::static_type_tag()
 { return VOID; }
 
 

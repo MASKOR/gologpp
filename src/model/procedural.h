@@ -17,64 +17,64 @@ namespace gologpp {
 
 
 
-class Block : public Statement, public ScopeOwner, public LanguageElement<Block> {
+class Block : public VoidExpression, public ScopeOwner, public LanguageElement<Block> {
 public:
-	Block(Scope *own_scope, const vector<Statement *> &elements);
+	Block(Scope *own_scope, const vector<VoidExpression *> &elements);
 	virtual void attach_semantics(SemanticsFactory &) override;
 
-	const vector<unique_ptr<Statement>> &elements() const;
+	const vector<unique_ptr<VoidExpression>> &elements() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	vector<unique_ptr<Statement>> elements_;
+	vector<unique_ptr<VoidExpression>> elements_;
 };
 
 
 
-class Choose : public Statement, public ScopeOwner, public LanguageElement<Choose> {
+class Choose : public VoidExpression, public ScopeOwner, public LanguageElement<Choose> {
 public:
-	Choose(Scope *own_scope, const vector<Statement *> &alternatives);
+	Choose(Scope *own_scope, const vector<VoidExpression *> &alternatives);
 	void attach_semantics(SemanticsFactory &) override;
 
-	const vector<unique_ptr<Statement>> &alternatives() const;
+	const vector<unique_ptr<VoidExpression>> &alternatives() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	vector<unique_ptr<Statement>> alternatives_;
+	vector<unique_ptr<VoidExpression>> alternatives_;
 };
 
 
 
-class Conditional : public Statement, public NoScopeOwner, public LanguageElement<Conditional> {
+class Conditional : public VoidExpression, public NoScopeOwner, public LanguageElement<Conditional> {
 public:
 	Conditional(
 		BooleanExpression *condition,
-		Statement *block_true,
-		const boost::optional<Statement *> &block_false
+		VoidExpression *block_true,
+		const boost::optional<VoidExpression *> &block_false
 	);
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, *block_true_, *block_false_)
 
 	const BooleanExpression &condition() const;
-	const Statement &block_true() const;
-	const Statement &block_false() const;
+	const VoidExpression &block_true() const;
+	const VoidExpression &block_false() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 protected:
 	unique_ptr<BooleanExpression> condition_;
-	unique_ptr<Statement> block_true_;
-	unique_ptr<Statement> block_false_;
+	unique_ptr<VoidExpression> block_true_;
+	unique_ptr<VoidExpression> block_false_;
 };
 
 
 
 template<class LhsT>
-class Assignment : public Statement, public NoScopeOwner, public LanguageElement<Assignment<LhsT>> {
+class Assignment : public VoidExpression, public NoScopeOwner, public LanguageElement<Assignment<LhsT>> {
 public:
-	static_assert(!std::is_base_of<Statement, LhsT>::value, "Cannot assign to a Statement");
+	static_assert(!std::is_base_of<VoidExpression, LhsT>::value, "Cannot assign to a Statement");
 
 	Assignment(Reference<LhsT> *lhs, typename LhsT::expression_t *rhs)
 	: lhs_(lhs), rhs_(rhs)
@@ -102,13 +102,13 @@ private:
 
 
 template<class ExprT>
-class Pick : public Statement, public ScopeOwner, public LanguageElement<Pick<ExprT>> {
+class Pick : public VoidExpression, public ScopeOwner, public LanguageElement<Pick<ExprT>> {
 public:
 	Pick(
 		Scope *own_scope,
 		const shared_ptr<Variable<ExprT>> &variable,
 		const boost::optional<std::vector<Constant<ExprT> *>> &domain,
-		Statement *statement
+		VoidExpression *statement
 	)
 	: ScopeOwner(own_scope)
 	, variable_(variable)
@@ -130,7 +130,7 @@ public:
 	const Variable<ExprT> &variable() const
 	{ return *variable_; }
 
-	const Statement &statement() const
+	const VoidExpression &statement() const
 	{ return *statement_; }
 
 
@@ -154,22 +154,22 @@ public:
 private:
 	vector<unique_ptr<Constant<ExprT>>> domain_;
 	shared_ptr<Variable<ExprT>> variable_;
-	unique_ptr<Statement> statement_;
+	unique_ptr<VoidExpression> statement_;
 };
 
 
 
-class Search : public Statement, public NoScopeOwner, public LanguageElement<Search> {
+class Search : public VoidExpression, public NoScopeOwner, public LanguageElement<Search> {
 public:
-	Search(Statement *statement);
+	Search(VoidExpression *statement);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*statement_)
 
-	const Statement &statement() const;
+	const VoidExpression &statement() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 protected:
-	unique_ptr<Statement> statement_;
+	unique_ptr<VoidExpression> statement_;
 };
 
 
@@ -178,7 +178,7 @@ public:
 	Solve(
 		NumericExpression *horizon,
 		Reference<NumericFunction> *reward,
-		Statement *statement
+		VoidExpression *statement
 	);
 
 	const NumericExpression &horizon() const;
@@ -192,7 +192,7 @@ private:
 };
 
 
-class Test : public Statement, public NoScopeOwner, public LanguageElement<Test> {
+class Test : public VoidExpression, public NoScopeOwner, public LanguageElement<Test> {
 public:
 	Test(BooleanExpression *expression);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_)
@@ -206,24 +206,24 @@ protected:
 };
 
 
-class While : public Statement, public NoScopeOwner, public LanguageElement<While> {
+class While : public VoidExpression, public NoScopeOwner, public LanguageElement<While> {
 public:
-	While(BooleanExpression *expression, Statement *stmt);
+	While(BooleanExpression *expression, VoidExpression *stmt);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_, *statement_)
 
 	const BooleanExpression &expression() const;
-	const Statement &statement() const;
+	const VoidExpression &statement() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 protected:
 	unique_ptr<BooleanExpression> expression_;
-	unique_ptr<Statement> statement_;
+	unique_ptr<VoidExpression> statement_;
 };
 
 
 template<class ExpressionT>
-class Return : public Statement, public NoScopeOwner, public LanguageElement<Return<ExpressionT>> {
+class Return : public VoidExpression, public NoScopeOwner, public LanguageElement<Return<ExpressionT>> {
 public:
 	Return(ExpressionT *expr)
 	: expr_(expr)
@@ -255,12 +255,12 @@ public:
 	virtual ~AbstractFunction() override;
 	virtual ExpressionTypeTag expression_type_tag() const = 0;
 
-	const Statement &definition() const;
-	void define(Statement *definition);
+	const VoidExpression &definition() const;
+	void define(VoidExpression *definition);
 	virtual void compile(AExecutionContext &ctx) override;
 
 protected:
-	unique_ptr<Statement> definition_;
+	unique_ptr<VoidExpression> definition_;
 	vector<shared_ptr<AbstractVariable>> args_;
 };
 

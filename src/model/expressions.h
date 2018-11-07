@@ -93,12 +93,12 @@ public:
 };
 
 
-class Statement : public Expression {
+class VoidExpression : public Expression {
 protected:
 	using Expression::Expression;
 
 public:
-	typedef Statement expression_t;
+	typedef VoidExpression expression_t;
 	virtual ExpressionTypeTag dynamic_type_tag() const override;
 	static ExpressionTypeTag static_type_tag();
 };

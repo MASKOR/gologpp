@@ -1,54 +1,32 @@
 #include "execution.h"
 
 #include <eclipseclass.h>
+
 #include "action.h"
-#include <model/action.h>
 #include "procedural.h"
 #include "fluent.h"
 #include "utilities.h"
+#include "history.h"
+
+#include <model/action.h>
 
 #include <iostream>
 
+
 namespace gologpp {
-
-
-Semantics<History>::Semantics(History &history)
-: HistorySemantics(history)
-{
-	readylog_history_ = ::list(EC_atom("s0"), ::nil());
-}
-
-
-void Semantics<History>::append_exog(ExogTransition &&trans)
-{
-	readylog_history_ = ::list(trans.semantics().plterm(), readylog_history_);
-}
-
-
-EC_word Semantics<History>::current_history()
-{
-	return copy_term(readylog_history_);
-}
-
-
-void Semantics<History>::set_current_history(EC_word h)
-{
-	readylog_history_ = copy_term(h);
-}
-
 
 
 unique_ptr<ReadylogContext> ReadylogContext::instance_;
 
 
-void ReadylogContext::init(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options)
+void ReadylogContext::init(unique_ptr<PlatformBackend> &&exec_backend, const eclipse_opts &options)
 { instance_ = unique_ptr<ReadylogContext>(new ReadylogContext(std::move(exec_backend), options)); }
 
 void ReadylogContext::shutdown()
 { instance_.reset(); }
 
 
-ReadylogContext::ReadylogContext(unique_ptr<AExecutionBackend> &&exec_backend, const eclipse_opts &options)
+ReadylogContext::ReadylogContext(unique_ptr<PlatformBackend> &&exec_backend, const eclipse_opts &options)
 : ExecutionContext(std::make_unique<ReadylogSemanticsFactory>(), std::move(exec_backend))
 , options_(options)
 {
@@ -95,9 +73,7 @@ ReadylogContext::ReadylogContext(unique_ptr<AExecutionBackend> &&exec_backend, c
 
 
 ReadylogContext::~ReadylogContext()
-{
-	ec_cleanup();
-}
+{ ec_cleanup(); }
 
 
 ReadylogContext &ReadylogContext::instance()
@@ -209,6 +185,28 @@ bool ReadylogContext::trans(Block &program, History &history)
 		return true;
 	}
 	return false;
+}
+
+
+bool ReadylogContext::ec_query(EC_word t)
+{
+	/* Insanity ensues:
+	   Since the EC_ref::cut_to() mechanism seems to be broken, as well as post_goal("!"),
+	   which simply has no effect, once/1 seems to be the ONLY way to cut choicepoints from
+	   posted goals.
+
+	   More info:
+	   http://eclipseclp.org/doc/embedding/embroot081.html
+	   https://sourceforge.net/p/eclipse-clp/mailman/message/23203000/
+	   http://eclipseclp.org/archive/eclipse-users/0704.html
+	*/
+	//post_goal(::term(EC_functor("writeln", 1), t));
+	post_goal(::term(EC_functor("once", 1), t));
+	//post_goal(::term(EC_functor("writeln", 1), t));
+	last_rv_ = EC_resume(*ec_start_);
+	//std::cout << std::endl;
+
+	return last_rv_ == EC_status::EC_succeed;
 }
 
 

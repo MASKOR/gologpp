@@ -70,14 +70,14 @@ public:
  * 3. Map ReadylogProcedure class to to Function types that should use it.
  */
 template<>
-class Semantics<Function<Statement>> : public ReadylogProcedure<Statement> {
+class Semantics<Function<Void>> : public ReadylogProcedure<Void> {
 public:
-	using ReadylogProcedure<Statement>::ReadylogProcedure;
+	using ReadylogProcedure<VoidExpression>::ReadylogProcedure;
 };
 
 
 template<>
-class Semantics<Function<BooleanExpression>> : public ReadylogProcedure<BooleanExpression> {
+class Semantics<Function<BooleanExpression>> : public ReadylogProcedure<Bool> {
 public:
 	using ReadylogProcedure<BooleanExpression>::ReadylogProcedure;
 };

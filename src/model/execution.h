@@ -18,39 +18,6 @@
 
 namespace gologpp {
 
-class Situation;
-class History;
-
-
-
-class HistorySemantics : public AbstractSemantics {
-public:
-	HistorySemantics(History &history);
-	virtual ~HistorySemantics();
-
-	virtual void append_exog(ExogTransition &&) = 0;
-
-protected:
-	History &history_;
-};
-
-
-
-class History : public LanguageElement<History>, public NoScopeOwner {
-public:
-	History();
-
-	virtual Scope &parent_scope() override;
-	virtual const Scope &parent_scope() const override;
-
-	DEFINE_IMPLEMENT
-
-	HistorySemantics &abstract_impl()
-	{ return static_cast<HistorySemantics &>(*semantics_); }
-
-	virtual string to_string(const string &pfx) const override;
-};
-
 
 
 class AExecutionContext {
@@ -91,9 +58,9 @@ private:
 
 
 
-class AExecutionBackend {
+class PlatformBackend {
 public:
-	virtual ~AExecutionBackend();
+	virtual ~PlatformBackend();
 
 	virtual void execute_transition(const Transition &) = 0;
 };
@@ -102,7 +69,7 @@ public:
 
 class ExecutionContext : public AExecutionContext {
 public:
-	ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<AExecutionBackend> &&exec_backend);
+	ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<PlatformBackend> &&exec_backend);
 
 	virtual ~ExecutionContext() override;
 
@@ -110,7 +77,7 @@ public:
 
 private:
 	unique_ptr<SemanticsFactory> implementor_;
-	unique_ptr<AExecutionBackend> exec_backend_;
+	unique_ptr<PlatformBackend> exec_backend_;
 };
 
 

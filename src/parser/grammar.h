@@ -19,7 +19,7 @@ namespace gologpp {
 namespace parser {
 
 
-struct ProgramParser : grammar<Statement *(Scope &)> {
+struct ProgramParser : grammar<VoidExpression *(Scope &)> {
 	ProgramParser()
 	: ProgramParser::base_type(program)
 	{
@@ -36,7 +36,7 @@ struct ProgramParser : grammar<Statement *(Scope &)> {
 		BOOST_SPIRIT_DEBUG_NODE(program);
 	}
 
-	rule<Statement *(Scope &)> program;
+	rule<VoidExpression *(Scope &)> program;
 	ActionParser action;
 	AbstractFunctionParser function;
 	StatementParser statement;
