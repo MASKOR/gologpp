@@ -36,14 +36,17 @@ Action::Action(Scope *own_scope, const string &name, const vector<shared_ptr<Abs
 	set_precondition(new BooleanConstant(true));
 	vector<Expression *> mapping_args;
 	for (const shared_ptr<AbstractVariable> &arg : args) {
-		switch(arg->expression_type_tag()) {
-		case BOOLEAN_EXPRESSION:
+		switch(arg->dynamic_type_tag()) {
+		case BOOLEAN:
 			mapping_args.push_back(new Reference<BooleanVariable>(std::dynamic_pointer_cast<BooleanVariable>(arg)));
 			break;
-		case VALUE_EXPRESSION:
+		case NUMERIC:
 			mapping_args.push_back(new Reference<NumericVariable>(std::dynamic_pointer_cast<NumericVariable>(arg)));
 			break;
-		case STATEMENT:
+		case SYMBOLIC:
+			mapping_args.push_back(new Reference<SymbolicVariable>(std::dynamic_pointer_cast<SymbolicVariable>(arg)));
+			break;
+		case VOID:
 			throw Bug("Variable<Statement> is impossible");
 		}
 	}
