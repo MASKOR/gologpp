@@ -79,6 +79,8 @@ public:
 	unique_ptr<Reference<Procedure>> &on_preempted();
 	unique_ptr<Reference<Procedure>> &on_failed();
 
+	enum State { IDLE, RUNNING, SUCCEEDED, PREEMPTED, ABORTED };
+
 private:
 	unique_ptr<BooleanExpression> precondition_;
 	unique_ptr<ActionMapping> mapping_;
@@ -133,6 +135,8 @@ public:
 	Transition(const Transition &);
 
 	virtual void attach_semantics(SemanticsFactory &) override;
+
+	Action::State state;
 };
 
 
