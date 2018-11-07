@@ -55,7 +55,7 @@ string Semantics<History>::get_head_name(EC_word head)
 }
 
 
-Transition Semantics<History>::get_last_transition()
+shared_ptr<Transition> Semantics<History>::get_last_transition()
 {
 	EC_word head;
 	string headname;
@@ -83,7 +83,7 @@ Transition Semantics<History>::get_last_transition()
 			std::cout << "not a simple type\n";
 	}
 	shared_ptr<Action> on_shared = global_scope().lookup_global<Action>(headname, (arity_t)head.arity());
-	Transition trans(on_shared,std::move(args));
+	shared_ptr<Transition> trans = std::make_shared<Transition>(on_shared,std::move(args));
 	return trans;
 }
 

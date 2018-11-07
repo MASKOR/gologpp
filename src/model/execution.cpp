@@ -119,8 +119,7 @@ History ExecutionContext::run(Block &&program)
 			history.abstract_impl().append_exog(std::move(exog));
 		}
 		else {
-			Transition trans = history.abstract_impl().get_last_transition();
-			exec_backend_->execute_transition(trans);
+			shared_ptr <Transition> trans = history.abstract_impl().get_last_transition();
 		}
 
 		std::chrono::duration<double> d_trans = clock().now() - t_trans;

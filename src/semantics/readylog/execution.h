@@ -18,7 +18,7 @@ class Semantics<History> : public HistorySemantics {
 public:
 	Semantics(History &);
 	virtual ~Semantics() override = default;
-	virtual Transition get_last_transition() override;
+	virtual shared_ptr <Transition> get_last_transition() override;
 	virtual void append_exog(ExogTransition &&exog) override;
 	EC_word current_history();
 	void set_current_history(EC_word h);
