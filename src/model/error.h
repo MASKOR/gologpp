@@ -14,6 +14,8 @@ class InconsistentModel : public std::exception {
 class EngineError : public std::exception {
 };
 
+
+
 class Bug : public std::exception {
 public:
 	Bug(const std::string &msg);
@@ -26,16 +28,17 @@ private:
 };
 
 
-class UserError : public std::exception {
+
+class UserError : public std::runtime_error {
+public:
+	UserError(const string &msg);
 };
+
+
 
 class ExpressionTypeMismatch : public UserError {
 public:
 	ExpressionTypeMismatch(const Expression &expr1_, const Expression &expr2_);
-
-private:
-	const Expression &expr1_;
-	const Expression &expr2_;
 };
 
 }

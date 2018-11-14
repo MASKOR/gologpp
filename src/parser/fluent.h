@@ -3,6 +3,7 @@
 
 #include "utilities.h"
 #include "atoms.h"
+#include "domain.h"
 
 namespace gologpp {
 namespace parser {
@@ -31,6 +32,7 @@ struct FluentParser
 	rule<InitialValue<ExprT> *> initially;
 	decltype(r_name()) fluent_name;
 	decltype(abstract_var<true>()) variable;
+	AnyDomainAssignmentParser domain_assignment;
 };
 
 extern FluentParser<NumericExpression> numeric_fluent;

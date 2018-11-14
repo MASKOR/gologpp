@@ -6,6 +6,7 @@
 #include "scope.h"
 #include "expressions.h"
 #include "constant.h"
+#include "error.h"
 
 #include <unordered_set>
 
@@ -60,20 +61,35 @@ class Domain
 , public std::enable_shared_from_this<Domain<ExprT>>
 {
 public:
-	Domain(const string &name, vector<Constant<ExprT> *> elements = {}, bool implicit = false)
+	typedef std::unordered_set<unique_ptr<Constant<ExprT>>> ElementSet;
+	typedef typename ElementSet::iterator ElementIterator;
+
+	Domain(const string &name, const vector<Constant<ExprT> *> &elements = {}, bool implicit = false)
 	: AbstractDomain(name, implicit)
-	{
-		for (Constant<ExprT> *c : elements) {
-			elements_.emplace(std::move(*c));
-			delete c;
-		}
-	}
+	{ add_elements(elements); }
 
 	Domain()
 	: AbstractDomain("", true)
 	{}
 
+	Domain(const string &name, const Domain<ExprT> &other)
+	: AbstractDomain(name, false)
+	{ add_elements(other); }
+
+	Domain(const Domain<ExprT> &other)
+	: AbstractDomain(other.name(), other.implicit_)
+	{ add_elements(other); }
+
 	virtual ~Domain() override = default;
+
+	Domain<ExprT> &operator = (const Domain<ExprT> &other)
+	{
+		this->name_ = other.name_;
+		this->subjects_ = other.subjects_;
+		this->implicit_ = other.implicit_;
+		add_elements(other);
+		return *this;
+	}
 
 	void attach_semantics(SemanticsFactory &f) override
 	{
@@ -82,16 +98,18 @@ public:
 		set_implementation(f.make_semantics(*this));
 	}
 
+
 	virtual string to_string(const string &) const override
 	{
 		return gologpp::to_string(ExprT::static_type_tag()) + "domain " + this->name() + " = { "
 			+ concat_list(elements_, ", ") + "};";
 	}
 
-	std::unordered_set<unique_ptr<Constant<ExprT>>> &elements()
+
+	ElementSet &elements()
 	{ return elements_; }
 
-	const std::unordered_set<unique_ptr<Constant<ExprT>>> &elements() const
+	const ElementSet &elements() const
 	{ return elements_; }
 
 	void add_element(const Constant<ExprT> &c)
@@ -106,11 +124,92 @@ public:
 	virtual bool is_defined() const override
 	{ return elements_.size() > 0; }
 
+	void add_elements(const vector<Constant<ExprT> *> &elements)
+	{
+		for (Constant<ExprT> *c : elements)
+			elements_.emplace(c);
+	}
+
+
+	void add_elements(const Domain<ExprT> &other)
+	{
+		for (const unique_ptr<Constant<ExprT>> &e : other.elements())
+			elements_.insert(std::make_unique<Constant<ExprT>>(*e));
+	}
+
+
+	template<class DefinitionT>
+	void define(const DefinitionT def)
+	{
+		if (is_defined())
+			throw RedefinitionError(this->name());
+		add_elements(def);
+	}
+
+
+	void remove(const Domain<ExprT> &other)
+	{
+		for (const unique_ptr<Constant<ExprT>> &e : other.elements())
+			elements_.erase(e);
+	}
 
 protected:
-	std::unordered_set<unique_ptr<Constant<ExprT>>> elements_;
+	ElementSet elements_;
 };
 
+
+enum DomainOperator {
+	UNION, DIFFERENCE, INTERSECTION
+};
+
+
+template<class ExprT>
+Domain<ExprT> domain_union(const Domain<ExprT> &lhs, const Domain<ExprT> &rhs)
+{
+	Domain<ExprT> rv { "" };
+	rv.add_elements(lhs);
+	rv.add_elements(rhs);
+	return std::move(rv);
+}
+
+
+template<class ExprT>
+Domain<ExprT> domain_difference(const Domain<ExprT> &lhs, const Domain<ExprT> &rhs)
+{
+	Domain<ExprT> rv { "" };
+	rv.add_elements(lhs);
+	rv.remove(rhs);
+	return std::move(rv);
+}
+
+
+template<class ExprT>
+Domain<ExprT> domain_intersection(const Domain<ExprT> &lhs, const Domain<ExprT> &rhs)
+{
+	Domain<ExprT> rv { "" };
+	rv.add_elements(lhs);
+	rv.remove(domain_difference(lhs, rhs));
+	rv.remove(domain_difference(rhs, lhs));
+	return std::move(rv);
+}
+
+
+template<class ExprT>
+Domain<ExprT> domain_operation(const Domain<ExprT> &lhs, DomainOperator op, const Domain<ExprT> &rhs)
+{
+	switch(op) {
+	case UNION:
+		return std::move(domain_union(lhs, rhs));
+		break;
+	case DIFFERENCE:
+		return std::move(domain_difference(lhs, rhs));
+		break;
+	case INTERSECTION:
+		return std::move(domain_intersection(lhs, rhs));
+		break;
+	}
+	throw Bug("Unhandled domain type");
+}
 
 
 } // namespace gologpp

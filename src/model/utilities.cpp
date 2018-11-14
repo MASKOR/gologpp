@@ -43,6 +43,9 @@ bool Identifier::operator == (const Identifier &other) const
 size_t Identifier::hash() const
 { return Name::hash() ^ (std::hash<gologpp::arity_t>{}(arity()) << 1); }
 
+string Identifier::signature_str() const
+{ return name() + "/" + std::to_string(arity()); }
+
 
 #ifdef DEBUG_PARSER
 const string indent("");

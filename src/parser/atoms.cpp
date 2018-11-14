@@ -37,13 +37,13 @@ namespace parser {
  ******************/
 
 
-template<class ExpressionT, bool only_local>
+template<class ExpressionT, bool only_local, bool allow_def>
 rule<shared_ptr<Variable<ExpressionT>>(Scope &)> &var() {
 	static rule<shared_ptr<Variable<ExpressionT>>(Scope &)> variable;
 	variable = {
 		type_mark<ExpressionT>() >> r_name() [
 			_val = phoenix::bind(
-				only_local ? &Scope::get_local_var<ExpressionT> : &Scope::get_var<ExpressionT>,
+				&Scope::get_var<ExpressionT, only_local, allow_def>,
 				_r1, _1
 			)
 		],
@@ -54,29 +54,21 @@ rule<shared_ptr<Variable<ExpressionT>>(Scope &)> &var() {
 	return variable;
 }
 
-
-#define GOLOGPP_PARSER_VAR_REFERENCE(ExprT) \
-	var<ExprT, false>()(_r1) [ \
-		_val = new_<Reference<Variable<ExprT>>>(_1) \
-	]
-
-
-
 #define GOLOGPP_INSTANTIATE_TEMPLATE_VAR(_, seq) \
 	template \
 	rule < shared_ptr < Variable < BOOST_PP_SEQ_ELEM(0, seq) > > (Scope &) > & \
-	var < BOOST_PP_SEQ_ELEM(0, seq), BOOST_PP_SEQ_ELEM(1, seq) > ();
+	var < BOOST_PP_SEQ_ELEM(0, seq), BOOST_PP_SEQ_ELEM(1, seq), BOOST_PP_SEQ_ELEM(2, seq) > ();
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(
 	GOLOGPP_INSTANTIATE_TEMPLATE_VAR,
-	(GOLOGPP_VALUE_TYPES) ((true)(false))
+	(GOLOGPP_VALUE_TYPES) ((true)(false)) ((true)(false))
 )
 
 
 template<bool only_local>
 rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var() {
 	static rule<shared_ptr<AbstractVariable> (Scope &)> any_var {
-		var < BooleanExpression, only_local > ()(_r1) [ _val = phoenix::bind(
+		var<BooleanExpression, only_local>()(_r1) [ _val = phoenix::bind(
 			&std::dynamic_pointer_cast<AbstractVariable, BooleanVariable>,
 			_1
 		) ]

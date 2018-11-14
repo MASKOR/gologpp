@@ -144,6 +144,9 @@ public:
 	{ return initial_values_; }
 
 	void define(const vector<InitialValue<ExpressionT> *> &initial_values)
+	{ define(boost::optional<vector<InitialValue<ExpressionT> *>>(initial_values)); }
+
+	void define(const boost::optional<vector<InitialValue<ExpressionT> *>> &initial_values)
 	{
 		global_scope().register_domain(domain_);
 
@@ -153,25 +156,29 @@ public:
 					+ arg->str() + "@" + name() + "/" + std::to_string(arity()) +
 				")");
 
-		// TODO: fail if already defined
-		for (InitialValue<ExpressionT> *ival : initial_values) {
-			for (arity_t arg_idx = 0; arg_idx < arity(); ++arg_idx) {
-				AbstractVariable &arg = *args()[arg_idx];
-				AbstractConstant &arg_value = *ival->args()[arg_idx];
-				if (arg_value.dynamic_type_tag() != arg.dynamic_type_tag())
-					throw ExpressionTypeMismatch(
-						dynamic_cast<const Expression &>(arg),
-						dynamic_cast<const Expression &>(arg_value)
-					);
+		if (initial_values) {
+			// TODO: fail if already defined
+			for (InitialValue<ExpressionT> *ival : initial_values.get()) {
+				for (arity_t arg_idx = 0; arg_idx < arity(); ++arg_idx) {
+					AbstractVariable &arg = *args()[arg_idx];
+					AbstractConstant &arg_value = *ival->args()[arg_idx];
+					if (arg_value.dynamic_type_tag() != arg.dynamic_type_tag())
+						throw ExpressionTypeMismatch(
+							dynamic_cast<const Expression &>(arg),
+							dynamic_cast<const Expression &>(arg_value)
+						);
 
-				arg.add_implicit_domain_element(arg_value);
+					arg.add_implicit_domain_element(arg_value);
+				}
+				ival->set_fluent(*this);
+
+				domain_->add_element(ival->value());
+
+				initial_values_.push_back(unique_ptr<InitialValue<ExpressionT>>(ival));
 			}
-			ival->set_fluent(*this);
-
-			domain_->add_element(ival->value());
-
-			initial_values_.push_back(unique_ptr<InitialValue<ExpressionT>>(ival));
 		}
+		else
+			throw UserError("Fluent " + signature_str() + ": No `initially:' block");
 	}
 
 

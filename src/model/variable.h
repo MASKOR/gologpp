@@ -93,6 +93,17 @@ public:
 		domain_->add_subject(*this);
 	}
 
+	void set_domain_copy(const Domain<ExpressionT> &domain)
+	{
+		if (domain_ && domain_->is_defined())
+			throw std::runtime_error("domain already set for " + name());
+		domain_ = std::make_shared<Domain<ExpressionT>>(
+			"anonymous_domain(" + str() + ")",
+			domain
+		);
+		domain_->add_subject(*this);
+	}
+
 	virtual void define_implicit_domain(const string &domain_name) override
 	{
 		global_scope().register_domain(new Domain<ExpressionT>(domain_name, {}, true));

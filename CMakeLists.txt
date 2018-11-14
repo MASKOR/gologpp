@@ -125,6 +125,7 @@ if (${BUILD_PARSER})
 		src/parser/fluent.cpp
 		src/parser/symbolic_expression.cpp
 		src/parser/string_expression.cpp
+		src/parser/domain.cpp
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
@@ -152,6 +153,7 @@ if (${BUILD_PARSER})
 		src/parser/reference.h
 		src/parser/expressions.h
 		src/parser/symbolic_expression.h
+		src/parser/domain.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)
 

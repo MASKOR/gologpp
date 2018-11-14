@@ -1,5 +1,6 @@
 #include "fluent.h"
 #include "types.h"
+#include "domain.h"
 
 #include <boost/spirit/home/qi/nonterminal/error_handler.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>
@@ -11,6 +12,7 @@
 #include <boost/spirit/include/qi_string.hpp>
 #include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_action.hpp>
+#include <boost/spirit/include/qi_permutation.hpp>
 
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/object/new.hpp>
@@ -51,14 +53,14 @@ FluentParser<ExprT>::FluentParser()
 				_a, _b, _c
 			)
 		]
-		| (lit('{') // definition
-			> "initially:"
-			> +initially
-		> '}' ) [
+		| ( lit('{') > (// definition
+			("initially:" > +initially)
+			^ ("domain:" > +domain_assignment(*_a))
+		) > '}' ) [
 			_val = phoenix::bind(
 				&Scope::define_global<
 					Fluent<ExprT>,
-					const vector<InitialValue<ExprT> *> &
+					const boost::optional<vector<InitialValue<ExprT> *>> &
 				>,
 				_r1,
 				_a, _b, _c, _1

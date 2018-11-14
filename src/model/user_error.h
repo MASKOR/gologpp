@@ -25,10 +25,10 @@ public:
 };
 
 
-class RedeclarationError : public SemanticError {
+class RedefinitionError : public SemanticError {
 public:
-	RedeclarationError(const string &name);
-	RedeclarationError(const string &name, arity_t arity);
+	RedefinitionError(const string &name);
+	RedefinitionError(const string &name, arity_t arity);
 };
 
 

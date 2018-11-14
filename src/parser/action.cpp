@@ -10,6 +10,7 @@
 #include <boost/spirit/include/qi_list.hpp>
 #include <boost/spirit/include/qi_plus.hpp>
 #include <boost/spirit/include/qi_lit.hpp>
+#include <boost/spirit/include/qi_permutation.hpp>
 
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/object/new.hpp>
@@ -38,11 +39,12 @@ ActionParser::ActionParser()
 		lit(';') [
 			phoenix::bind(&Scope::declare_global<Action>, _r1, _a, _b, _c)
 		]
-		| ( '{'
-			> -( "precondition:" > formula_parser(*_a) )
-			> -( "effect:" > +(effect(*_a) > ';') )
+		| ( lit('{') > (
+			( "precondition:" > formula_parser(*_a) )
+			^ ( "effect:" > +(effect(*_a) > ';') )
+			^ ( "domain:" > +(domain_assignment(*_a)) )
 			//> "signal:" //*/
-		> '}' ) [
+		) > '}' ) [
 			phoenix::bind(
 				&Scope::define_global<
 					Action,

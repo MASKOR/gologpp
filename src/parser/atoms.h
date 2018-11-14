@@ -12,21 +12,18 @@ namespace parser {
  * Variables
  ******************/
 
-template<class ExpressionT, bool only_local = false>
+template<class ExpressionT, bool only_local = false, bool allow_def = true>
 rule<shared_ptr<Variable<ExpressionT>>(Scope &)> &var();
 
 #define GOLOGPP_PARSER_DECLARE_TEMPLATE_VAR(_, seq) \
 	extern template \
 	rule < shared_ptr < Variable < BOOST_PP_SEQ_ELEM(0, seq) > >(Scope &)> & \
-	var < BOOST_PP_SEQ_ELEM(0, seq), BOOST_PP_SEQ_ELEM(1, seq) > ();
+	var < BOOST_PP_SEQ_ELEM(0, seq), BOOST_PP_SEQ_ELEM(1, seq), BOOST_PP_SEQ_ELEM(2, seq) > ();
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(
 	GOLOGPP_PARSER_DECLARE_TEMPLATE_VAR,
-	(GOLOGPP_EXPRESSION_TYPES) ( (true)(false) )
+	(GOLOGPP_VALUE_TYPES) ((true)(false)) ((true)(false))
 )
-
-extern template
-rule<shared_ptr<Variable<SymbolicExpression>>(Scope &)> &var<SymbolicExpression, true>();
 
 
 
@@ -36,6 +33,8 @@ rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var();
 extern template
 rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<true>();
 
+extern template
+rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<false>();
 
 
 /******************

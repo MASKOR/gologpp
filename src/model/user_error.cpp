@@ -18,11 +18,11 @@ InvalidIdentifier::InvalidIdentifier(const std::string &name)
 
 
 
-RedeclarationError::RedeclarationError(const string &name)
+RedefinitionError::RedefinitionError(const string &name)
 : SemanticError("Symbol already declared: " + name)
 {}
 
-RedeclarationError::RedeclarationError(const string &name, arity_t arity)
+RedefinitionError::RedefinitionError(const string &name, arity_t arity)
 : SemanticError("Symbol already declared: " + name + "/" + std::to_string(arity))
 {}
 

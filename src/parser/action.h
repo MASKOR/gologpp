@@ -4,6 +4,7 @@
 #include "utilities.h"
 #include "formula.h"
 #include "effect_axiom.h"
+#include "domain.h"
 
 #include <model/scope.h>
 
@@ -26,6 +27,7 @@ struct ActionParser : grammar <
 	EffectParser<BooleanExpression> boolean_effect;
 	EffectParser<NumericExpression> numeric_effect;
 	EffectParser<SymbolicExpression> symbolic_effect;
+	AnyDomainAssignmentParser domain_assignment;
 	rule < Action *(Scope &), locals <
 		Scope *,
 		string,

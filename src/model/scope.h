@@ -10,6 +10,7 @@
 #include "language.h"
 #include "expressions.h"
 #include "user_error.h"
+#include "error.h"
 
 #include "gologpp.h"
 
@@ -71,28 +72,41 @@ public:
 
 	~Scope() override;
 
-	template<class ExpressionT>
+	template<class ExpressionT, bool only_local = false, bool allow_def = true>
 	shared_ptr<Variable<ExpressionT>> get_var(const string &name)
 	{
 		shared_ptr<Variable<ExpressionT>> rv;
-		rv = std::dynamic_pointer_cast<Variable<ExpressionT>>(lookup_var(name));
-		if (!rv)
+
+		auto it = variables_.find(name);
+		if (it != variables_.end())
+			rv = std::dynamic_pointer_cast<Variable<ExpressionT>>(it->second);
+
+		if (!rv && !only_local && &parent_scope() != this)
+			rv = std::dynamic_pointer_cast<Variable<ExpressionT>>(
+				parent_scope().get_var<ExpressionT, false, false>(name)
+			);
+
+		if (!rv && allow_def) {
 			rv.reset(new Variable<ExpressionT>(name));
-		if (!has_var(name))
-			variables_.emplace(name, rv); // Cache to avoid future scope walk
+			variables_[name] = rv;
+		}
+
+		if (!rv)
+			throw InvalidIdentifier(name);
 
 		return rv;
 	}
 
 	template<class ExpressionT>
 	shared_ptr<Variable<ExpressionT>> get_local_var(const string &name)
-	{
-		if (!has_var(name))
-			variables_.emplace(name, new Variable<ExpressionT>(name));
-		return std::dynamic_pointer_cast<Variable<ExpressionT>>(variables_[name]);
-	}
+	{ return get_var<ExpressionT, true, true>(name); }
+
+	template<class ExpressionT>
+	shared_ptr<Variable<ExpressionT>> lookup_local_var(const string &name) const
+	{ return get_var<ExpressionT, true, false>(name); }
 
 	shared_ptr<AbstractVariable> lookup_var(const string &name) const;
+
 	bool has_var(const string &name) const;
 
 	vector<shared_ptr<AbstractVariable>> lookup_vars(const vector<string> &names);
@@ -203,11 +217,22 @@ public:
 	void register_domain(AbstractDomain *d);
 
 	template<class ExprT>
-	void register_domain(shared_ptr<Domain<ExprT>> &d)
+	void register_domain(const shared_ptr<Domain<ExprT>> &d)
+	{ domains_->emplace(*d, d); }
+
+	template<class ExprT>
+	void declare_domain(const string &name)
+	{ domains_->emplace(name, std::make_shared<Domain<ExprT>>(name)); }
+
+
+	template<class ExprT>
+	void define_domain(const string &name, const Domain<ExprT> input)
 	{
-		if (exists_domain(d->name()))
-			throw RedeclarationError(d->name());
-		domains_->emplace(*d, d);
+		shared_ptr<Domain<ExprT>> d = lookup_domain<ExprT>(name);
+		if (d)
+			d->define(input);
+		else
+			register_domain<ExprT>(std::make_shared<Domain<ExprT>>(name, input));
 	}
 
 	Constant<SymbolicExpression> *get_symbol(const string &name);

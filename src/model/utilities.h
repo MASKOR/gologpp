@@ -20,8 +20,8 @@ public:
     virtual bool operator == (const Name &other) const;
     virtual size_t hash() const;
     
-private:
-    const string name_;
+protected:
+    string name_;
 };
 
 
@@ -44,6 +44,8 @@ public:
 
     virtual bool operator == (const Identifier &other) const;
     virtual size_t hash() const override;
+
+	string signature_str() const;
 
 private:
     arity_t arity_;

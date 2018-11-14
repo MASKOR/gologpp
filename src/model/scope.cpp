@@ -182,7 +182,7 @@ string Scope::to_string(const string &) const
 void Scope::register_global(Global *g)
 {
 	if (exists_global(g->name(), g->arity()))
-		throw RedeclarationError(g->name(), g->arity());
+		throw RedefinitionError(g->name(), g->arity());
 	(*globals_)[*g].reset(g);
 }
 
@@ -190,7 +190,7 @@ void Scope::register_global(Global *g)
 void Scope::register_domain(AbstractDomain *d)
 {
 	if (exists_domain(d->name()))
-		throw RedeclarationError(d->name());
+		throw RedefinitionError(d->name());
 	(*domains_)[*d].reset(d);
 }
 
