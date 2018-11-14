@@ -14,7 +14,7 @@ namespace gologpp {
 
 /**
  * @class AbstractDomain
- * A domain is not a @class Global since it's compile-time constant in golog++.
+ * A domain is not a @ref Global since it's compile-time constant in golog++.
  * We also don't need explicit reference representation, i.e. there is no Reference<Domain<...>>.
  * Since domains don't have arguments and anonymous domains can always appear inline,
  * the syntactic separation between named global definition and inline specification is not needed.
@@ -30,8 +30,8 @@ public:
 
 	/**
 	 * @return whether this is an implicit domain.
-	 * By default, every @class Variable has an empty implicit domain, which means its domain is undefined.
-	 * For @class Fluent arguments, the domain can be implicitly defined through the initially: statement.
+	 * By default, every @ref Variable has an empty implicit domain, which means its domain is undefined.
+	 * For @ref Fluent arguments, the domain can be implicitly defined through the initially: statement.
 	 */
 	bool is_implicit()
 	{ return implicit_; }
