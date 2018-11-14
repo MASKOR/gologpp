@@ -37,12 +37,12 @@ ExpressionParser<NumericExpression>::ExpressionParser()
 	brace.name("braced_numeric_expression");
 
 	arith_operator =
-		qi::string("+") [ _val = val(ArithmeticOperation::ADDITION) ]
-		| qi::string("-") [ _val = val(ArithmeticOperation::SUBTRACTION) ]
-		| qi::string("/") [ _val = val(ArithmeticOperation::DIVISION) ]
-		| qi::string("*") [ _val = val(ArithmeticOperation::MULTIPLICATION) ]
-		| qi::string("**") [ _val = val(ArithmeticOperation::POWER) ]
-		| qi::string("%") [ _val = val(ArithmeticOperation::MODULO) ]
+		lit("+") [ _val = val(ArithmeticOperation::ADDITION) ]
+		| lit("-") [ _val = val(ArithmeticOperation::SUBTRACTION) ]
+		| lit("/") [ _val = val(ArithmeticOperation::DIVISION) ]
+		| lit("*") [ _val = val(ArithmeticOperation::MULTIPLICATION) ]
+		| lit("**") [ _val = val(ArithmeticOperation::POWER) ]
+		| lit("%") [ _val = val(ArithmeticOperation::MODULO) ]
 	;
 	arith_operator.name("arithmetic_operator");
 
