@@ -45,18 +45,33 @@ AExecutionContext::ExogQueue &AExecutionContext::exog_queue()
 { return exog_queue_; }
 
 
-
 PlatformBackend::~PlatformBackend()
+{}
+
+AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_backend)
+: exec_backend_(move(platform_backend))
 {}
 
 
 ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<PlatformBackend> &&exec_backend)
-: implementor_(std::move(implementor))
-, exec_backend_(std::move(exec_backend))
+: AExecutionContext(std::move(exec_backend))
+, implementor_(std::move(implementor))
 {}
 
 ExecutionContext::~ExecutionContext()
 {}
+
+
+
+unique_ptr<PlatformBackend> &AExecutionContext::backend()
+{ return exec_backend_;}
+
+std::unordered_set< shared_ptr<Transition> >& PlatformBackend::running_transition()
+{ return running_transitions_; }
+
+void PlatformBackend::set_running_transition(shared_ptr <Transition> trans)
+{ running_transitions_.insert(trans); }
+
 
 
 History ExecutionContext::run(Block &&program)
@@ -84,6 +99,12 @@ History ExecutionContext::run(Block &&program)
 			ExogTransition exog = exog_queue_poll();
 			exog.attach_semantics(*implementor_);
 			history.abstract_impl().append_exog(std::move(exog));
+		}
+		else {
+			shared_ptr <Transition> trans = history.abstract_impl().get_last_transition();
+			trans->state = Action::IDLE;
+			backend()->set_running_transition(trans);
+			backend()->execute_transition(*trans);
 		}
 
 		std::chrono::duration<double> d_trans = clock().now() - t_trans;

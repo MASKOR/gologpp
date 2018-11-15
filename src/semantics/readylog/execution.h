@@ -10,10 +10,8 @@
 #include "history.h"
 
 
-class EC_word;
-
-
 namespace gologpp {
+
 
 struct eclipse_opts {
 	bool trace;
@@ -22,10 +20,10 @@ struct eclipse_opts {
 
 class ReadylogContext : public ExecutionContext {
 public:
-    virtual ~ReadylogContext() override;
-    static void init(unique_ptr<PlatformBackend> &&, const eclipse_opts &options);
-    static void shutdown();
-    static ReadylogContext &instance();
+	virtual ~ReadylogContext() override;
+	static void init(unique_ptr<PlatformBackend> &&, const eclipse_opts &options);
+	static void shutdown();
+	static ReadylogContext &instance();
 
 	virtual void compile(const Block &block) override;
 	virtual void compile(const AbstractAction &action) override;

@@ -61,6 +61,7 @@ set(INTERFACE_SRC
 	src/model/domain.cpp
 	src/model/string_concatenation.cpp
 	src/model/history.cpp
+	src/model/mapping.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -92,6 +93,7 @@ install(FILES
 	src/model/domain.h
 	src/model/string_concatenation.h
 	src/model/history.h
+	src/model/mapping.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model
 )

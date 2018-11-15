@@ -1,6 +1,7 @@
 #include "action.h"
 #include "effect_axiom.h"
 #include "execution.h"
+#include "error.h"
 #include <string>
 
 namespace gologpp {
@@ -31,7 +32,26 @@ string AbstractAction::to_string(const string &) const
 
 Action::Action(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
 : AbstractAction(own_scope, name, args)
-{ set_precondition(new BooleanConstant(true)); }
+{
+	set_precondition(new BooleanConstant(true));
+	vector<Expression *> mapping_args;
+	for (const shared_ptr<AbstractVariable> &arg : args) {
+		switch(arg->dynamic_type_tag()) {
+		case BOOLEAN:
+			mapping_args.push_back(new Reference<BooleanVariable>(std::dynamic_pointer_cast<BooleanVariable>(arg)));
+			break;
+		case NUMERIC:
+			mapping_args.push_back(new Reference<NumericVariable>(std::dynamic_pointer_cast<NumericVariable>(arg)));
+			break;
+		case SYMBOLIC:
+			mapping_args.push_back(new Reference<SymbolicVariable>(std::dynamic_pointer_cast<SymbolicVariable>(arg)));
+			break;
+		case VOID:
+			throw Bug("Variable<Statement> is impossible");
+		}
+	}
+	mapping_.reset(new ActionMapping(name, mapping_args));
+}
 
 Action::Action(Scope &parent_scope, const string &name)
 : Action(new Scope(parent_scope), name, {})
@@ -46,6 +66,35 @@ void Action::set_precondition(BooleanExpression *cond)
 	precondition_->set_parent(this);
 }
 
+const ActionMapping& Action::mapping() const
+{
+	return *mapping_;
+}
+
+void Action::set_mapping(ActionMapping *mapping)
+{
+	mapping_.reset(mapping);
+}
+
+bool Action::blocking() const
+{
+	return !(bool(on_succeed_) || bool(on_preempted_) || bool(on_failed_));
+}
+
+unique_ptr<Reference<Procedure>> &Action::on_succeed()
+{
+	return on_succeed_;
+}
+
+unique_ptr<Reference<Procedure>> &Action::on_preempted()
+{
+	return on_preempted_;
+}
+
+unique_ptr<Reference<Procedure>> &Action::on_failed()
+{
+	return on_failed_;
+}
 
 void Action::attach_semantics(SemanticsFactory &implementor)
 {

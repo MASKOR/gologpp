@@ -14,6 +14,7 @@ public:
 	HistorySemantics(History &history);
 	virtual ~HistorySemantics();
 
+	virtual shared_ptr <Transition> get_last_transition() = 0;
 	virtual void append_exog(ExogTransition &&) = 0;
 
 protected:

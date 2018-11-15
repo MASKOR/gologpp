@@ -10,8 +10,6 @@
 
 #include <model/action.h>
 
-#include <iostream>
-
 
 namespace gologpp {
 
