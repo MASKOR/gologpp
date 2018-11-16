@@ -46,6 +46,11 @@ Constant<NumericExpression>::Constant(int repr)
 {}
 
 template<> template<>
+Constant<NumericExpression>::Constant(long repr)
+: AbstractConstant(repr)
+{}
+
+template<> template<>
 Constant<NumericExpression>::Constant(double repr)
 : AbstractConstant(repr)
 {}
