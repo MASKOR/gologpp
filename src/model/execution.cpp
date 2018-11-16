@@ -10,6 +10,14 @@
 namespace gologpp {
 
 
+AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_backend)
+: exec_backend_(move(platform_backend))
+{
+	if (!exec_backend_)
+		exec_backend_ = std::make_unique<COutBackend>();
+}
+
+
 ExogTransition AExecutionContext::exog_queue_pop()
 {
 	std::lock_guard<std::mutex> { exog_mutex_ };
@@ -37,20 +45,15 @@ void AExecutionContext::exog_queue_push(ExogTransition &&exog)
 	}
 }
 
-
 AExecutionContext::Clock &AExecutionContext::clock()
 { return clock_; }
 
 AExecutionContext::ExogQueue &AExecutionContext::exog_queue()
 { return exog_queue_; }
 
+unique_ptr<PlatformBackend> &AExecutionContext::backend()
+{ return exec_backend_;}
 
-PlatformBackend::~PlatformBackend()
-{}
-
-AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_backend)
-: exec_backend_(move(platform_backend))
-{}
 
 
 ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<PlatformBackend> &&exec_backend)
@@ -60,19 +63,6 @@ ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, u
 
 ExecutionContext::~ExecutionContext()
 {}
-
-
-
-unique_ptr<PlatformBackend> &AExecutionContext::backend()
-{ return exec_backend_;}
-
-std::unordered_set< shared_ptr<Transition> >& PlatformBackend::running_transition()
-{ return running_transitions_; }
-
-void PlatformBackend::set_running_transition(shared_ptr <Transition> trans)
-{ running_transitions_.insert(trans); }
-
-
 
 History ExecutionContext::run(Block &&program)
 {
@@ -110,7 +100,6 @@ History ExecutionContext::run(Block &&program)
 		std::chrono::duration<double> d_trans = clock().now() - t_trans;
 		std::cout << std::fixed << std::setprecision(9) << "Transition time: "
 			<< d_trans.count() << " s." << std::endl;
-
 	}
 
 	std::chrono::duration<double> d_loop = clock().now() - t_loop;
@@ -122,6 +111,20 @@ History ExecutionContext::run(Block &&program)
 }
 
 
+
+PlatformBackend::~PlatformBackend()
+{}
+
+std::unordered_set< shared_ptr<Transition> >& PlatformBackend::running_transition()
+{ return running_transitions_; }
+
+void PlatformBackend::set_running_transition(shared_ptr <Transition> trans)
+{ running_transitions_.insert(trans); }
+
+
+
+void COutBackend::execute_transition(const Transition &t)
+{ std::cout << "<<< Transition " << t.str() << " >>>" << std::endl; }
 
 
 }

@@ -65,6 +65,20 @@ private:
 
 
 
+class ExecutionContext : public AExecutionContext {
+public:
+	ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<PlatformBackend> &&exec_backend);
+
+	virtual ~ExecutionContext() override;
+
+	virtual History run(Block &&program) override;
+
+private:
+	unique_ptr<SemanticsFactory> implementor_;
+};
+
+
+
 class PlatformBackend {
 public:
 	virtual ~PlatformBackend();
@@ -80,17 +94,11 @@ protected:
 
 
 
-class ExecutionContext : public AExecutionContext {
+class COutBackend : public PlatformBackend {
 public:
-	ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<PlatformBackend> &&exec_backend);
-
-	virtual ~ExecutionContext() override;
-
-	virtual History run(Block &&program) override;
-
-private:
-	unique_ptr<SemanticsFactory> implementor_;
+	virtual void execute_transition(const Transition &) override;
 };
+
 
 
 } // namespace gologpp

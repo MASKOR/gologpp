@@ -2,8 +2,6 @@
 #include "utilities.h"
 #include "action.h"
 
-#include <iostream>
-
 namespace gologpp {
 
 
@@ -11,7 +9,7 @@ EC_word Semantics<History>::get_history_head()
 {
 	EC_word head, tail;
 	if (current_history().is_list(head, tail) != EC_succeed)
-		std::cout << EC_fail << std::endl;
+		throw Bug("ReadyLog history is not a list");
 	return head;
 }
 
@@ -28,31 +26,36 @@ string Semantics<History>::get_head_name(EC_word head)
 
 shared_ptr<Transition> Semantics<History>::get_last_transition()
 {
-	EC_word head;
-	string headname;
+	EC_word head = get_history_head();
+	string headname = get_head_name(head);
 
-	head = get_history_head();
-	headname = get_head_name(head);
 	double d;
 	long i;
 	EC_atom did;
 	char *s;
 	EC_word term;
+
 	vector<unique_ptr<AbstractConstant>> args;
-	for(int j = 1; j <= head.arity();j++){
+	for (int j = 1; j <= head.arity();j++) {
 		head.arg(j,term);
-		if (EC_succeed == term.is_double(&d)){
+		if (EC_succeed == term.is_double(&d))
 			args.emplace_back(new NumericConstant(d));
-		}
 		else if (EC_succeed == term.is_long(&i))
-			std::cout << i << "\n";
-		else if (EC_succeed == term.is_atom(&did))
-			std::cout << did.Name() << "\n";
+			args.emplace_back(new NumericConstant(i));
+		else if (EC_succeed == term.is_atom(&did)) {
+			if (did == EC_atom("true"))
+				args.emplace_back(new BooleanConstant(true));
+			else if (did == EC_atom("fail"))
+				args.emplace_back(new BooleanConstant(false));
+			else
+				args.emplace_back(new SymbolicConstant(string(did.name())));
+		}
 		else if (EC_succeed == term.is_string(&s))
-			std::cout << s << "\n";
+			args.emplace_back(new StringConstant(string(s)));
 		else
-			std::cout << "not a simple type\n";
+			throw Bug("Transition argument #" + std::to_string(j) + " is not a simple type");
 	}
+
 	shared_ptr<Action> on_shared = global_scope().lookup_global<Action>(headname, (arity_t)head.arity());
 	shared_ptr<Transition> trans = std::make_shared<Transition>(on_shared,std::move(args));
 	return trans;
