@@ -21,7 +21,7 @@ struct eclipse_opts {
 class ReadylogContext : public ExecutionContext {
 public:
 	virtual ~ReadylogContext() override;
-	static void init(unique_ptr<PlatformBackend> &&, const eclipse_opts &options);
+	static void init(const eclipse_opts &options = {false, false}, unique_ptr<PlatformBackend> &&backend = nullptr);
 	static void shutdown();
 	static ReadylogContext &instance();
 
@@ -38,7 +38,7 @@ public:
 	void ec_write(EC_word t);
 
 private:
-    ReadylogContext(unique_ptr<PlatformBackend> &&exec_backend, const eclipse_opts &options);
+    ReadylogContext(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend);
 
     virtual void compile_term(const EC_word &term);
 

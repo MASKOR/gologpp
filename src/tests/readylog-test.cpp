@@ -117,7 +117,7 @@ void test_parser()
 	options.trace = false;
 	options.guitrace = false;
 
-	ReadylogContext::init(unique_ptr<PlatformBackend>(nullptr), options);
+	ReadylogContext::init(options);
 	ReadylogContext &ctx = ReadylogContext::instance();
 
 	ctx.run(Block(

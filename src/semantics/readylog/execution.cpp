@@ -17,14 +17,14 @@ namespace gologpp {
 unique_ptr<ReadylogContext> ReadylogContext::instance_;
 
 
-void ReadylogContext::init(unique_ptr<PlatformBackend> &&exec_backend, const eclipse_opts &options)
-{ instance_ = unique_ptr<ReadylogContext>(new ReadylogContext(std::move(exec_backend), options)); }
+void ReadylogContext::init(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend)
+{ instance_ = unique_ptr<ReadylogContext>(new ReadylogContext(options, std::move(exec_backend))); }
 
 void ReadylogContext::shutdown()
 { instance_.reset(); }
 
 
-ReadylogContext::ReadylogContext(unique_ptr<PlatformBackend> &&exec_backend, const eclipse_opts &options)
+ReadylogContext::ReadylogContext(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend)
 : ExecutionContext(std::make_unique<ReadylogSemanticsFactory>(), std::move(exec_backend))
 , options_(options)
 {
