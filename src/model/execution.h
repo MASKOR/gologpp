@@ -60,7 +60,7 @@ private:
 	std::mutex queue_empty_mutex_;
 	ExogQueue exog_queue_;
 	Clock clock_;
-	unique_ptr<PlatformBackend> &&exec_backend_;
+	unique_ptr<PlatformBackend> exec_backend_;
 };
 
 
