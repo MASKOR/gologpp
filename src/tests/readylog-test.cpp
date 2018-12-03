@@ -86,7 +86,7 @@ void test_objectmodel()
 			put->make_ref({new NumericConstant(1), new NumericConstant(2)})
 		});
 
-		ReadylogContext::init(unique_ptr<PlatformBackend>(nullptr), options);
+		ReadylogContext::init(options);
 		ReadylogContext &ctx = ReadylogContext::instance();
 
 		ctx.run(std::move(main));
