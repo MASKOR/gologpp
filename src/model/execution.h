@@ -83,7 +83,7 @@ class PlatformBackend {
 public:
 	virtual ~PlatformBackend();
 
-	virtual void execute_transition(const Transition &) = 0;
+	virtual void execute_transition(shared_ptr<Transition>) = 0;
 	std::unordered_set < shared_ptr <Transition> > &running_transition() ;
 	void set_running_transition (shared_ptr <Transition> trans);
 
@@ -96,7 +96,7 @@ protected:
 
 class COutBackend : public PlatformBackend {
 public:
-	virtual void execute_transition(const Transition &) override;
+	virtual void execute_transition(shared_ptr<Transition>) override;
 };
 
 

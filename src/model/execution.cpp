@@ -94,7 +94,7 @@ History ExecutionContext::run(Block &&program)
 			shared_ptr <Transition> trans = history.abstract_impl().get_last_transition();
 			trans->state = Action::IDLE;
 			backend()->set_running_transition(trans);
-			backend()->execute_transition(*trans);
+			backend()->execute_transition(trans);
 		}
 
 		std::chrono::duration<double> d_trans = clock().now() - t_trans;
@@ -123,8 +123,8 @@ void PlatformBackend::set_running_transition(shared_ptr <Transition> trans)
 
 
 
-void COutBackend::execute_transition(const Transition &t)
-{ std::cout << "<<< Transition " << t.str() << " >>>" << std::endl; }
+void COutBackend::execute_transition(shared_ptr<Transition> t)
+{ std::cout << "<<< Transition " << t->str() << " >>>" << std::endl; }
 
 
 }
