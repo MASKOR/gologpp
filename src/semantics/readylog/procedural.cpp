@@ -32,7 +32,8 @@ EC_word Semantics<Block>::plterm()
 
 	EC_word rv;
 
-	if (dynamic_cast<const AbstractFunction *>(block_.parent())) {
+	const AbstractFunction *parent_fn = dynamic_cast<const AbstractFunction *>(block_.parent());
+	if (parent_fn && !dynamic_cast<const Function<Void> *>(parent_fn)) {
 		if (block_.elements().size() == 1)
 			rv = block_.elements()[0]->semantics().plterm();
 		else
