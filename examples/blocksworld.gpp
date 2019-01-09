@@ -30,6 +30,12 @@ effect:
 }
 
 
+procedure bla() {
+	stack(a,b);
+	stack(a,table);
+}
+
+
 ?function goal() {
 	return loc(a) == table & loc(b) == a & loc(c) == b
 // 	& loc(d) == c
