@@ -40,6 +40,7 @@ struct AbstractFunctionParser : grammar<AbstractFunction *(Scope &)> {
 	FunctionParser<BooleanExpression> bool_func;
 	FunctionParser<SymbolicExpression> sym_func;
 	FunctionParser<StringExpression> string_func;
+	FunctionParser<VoidExpression> procedure;
 };
 
 

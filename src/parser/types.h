@@ -5,6 +5,7 @@
 
 #include <boost/spirit/include/qi_lit.hpp>
 #include <boost/spirit/include/qi_char.hpp>
+#include <boost/spirit/include/qi_eps.hpp>
 
 namespace gologpp {
 namespace parser {
@@ -53,6 +54,10 @@ inline string type_descr<SymbolicExpression>()
 template<>
 inline string type_descr<StringExpression>()
 { return "string"; }
+
+template<>
+inline string type_descr<VoidExpression>()
+{ return "void"; }
 
 
 
