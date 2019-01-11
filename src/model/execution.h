@@ -6,6 +6,7 @@
 #include "action.h"
 #include "procedural.h"
 #include "gologpp.h"
+#include "platform_backend.h"
 
 #include <memory>
 #include <vector>
@@ -14,21 +15,16 @@
 #include <mutex>
 #include <queue>
 #include <condition_variable>
-#include <chrono>
-#include <unordered_set>
 
 namespace gologpp {
 
 
-class PlatformBackend;
-
 
 class AExecutionContext {
 public:
-	typedef std::chrono::steady_clock Clock;
-	typedef std::queue<ExogTransition> ExogQueue;
+	typedef std::queue<shared_ptr<AbstractTransition>> ExogQueue;
 
-	AExecutionContext(unique_ptr<PlatformBackend> &&exec_backend);
+	AExecutionContext(unique_ptr<PlatformBackend> &&platform_backend);
 	virtual ~AExecutionContext() = default;
 
 	virtual bool final(Block &program, History &h) = 0;
@@ -37,30 +33,28 @@ public:
 	/**
 	 * @brief compile called once for the toplevel @param program.
 	 */
+	virtual void precompile() = 0;
 	virtual void compile(const Block &program) = 0;
 	virtual void compile(const AbstractFluent &fluent) = 0;
 	virtual void compile(const AbstractAction &action) = 0;
 	virtual void compile(const AbstractFunction &function) = 0;
+	virtual void postcompile() = 0;
 
 	virtual History run(Block &&program) = 0;
 
-	ExogTransition exog_queue_pop();
-	ExogTransition exog_queue_poll();
-	void exog_queue_push(ExogTransition &&exog);
-	Clock &clock();
+	shared_ptr<AbstractTransition> exog_queue_pop();
+	shared_ptr<AbstractTransition> exog_queue_poll();
+	bool exog_empty();
+	void exog_queue_push(shared_ptr<AbstractTransition> exog);
 
 	unique_ptr<PlatformBackend> &backend();
-
-protected:
-	ExogQueue &exog_queue();
 
 private:
 	std::mutex exog_mutex_;
 	std::condition_variable queue_empty_condition_;
 	std::mutex queue_empty_mutex_;
 	ExogQueue exog_queue_;
-	Clock clock_;
-	unique_ptr<PlatformBackend> exec_backend_;
+	unique_ptr<PlatformBackend> platform_backend_;
 };
 
 
@@ -73,31 +67,13 @@ public:
 
 	virtual History run(Block &&program) override;
 
+	Clock::time_point context_time() const;
+
 private:
+	Clock::time_point context_time_;
 	unique_ptr<SemanticsFactory> implementor_;
 };
 
-
-
-class PlatformBackend {
-public:
-	virtual ~PlatformBackend();
-
-	virtual void execute_transition(shared_ptr<Transition>) = 0;
-	std::unordered_set < shared_ptr <Transition> > &running_transition() ;
-	void set_running_transition (shared_ptr <Transition> trans);
-
-protected:
-	std::unordered_set < shared_ptr <Transition> > running_transitions_;
-	std::queue < shared_ptr <Transition> > done_transitions_;
-};
-
-
-
-class COutBackend : public PlatformBackend {
-public:
-	virtual void execute_transition(shared_ptr<Transition>) override;
-};
 
 
 

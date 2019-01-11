@@ -6,6 +6,7 @@
 #include "domain.h"
 #include "user_error.h"
 #include "constant.h"
+#include "execution.h"
 
 namespace gologpp {
 
@@ -147,6 +148,8 @@ const Scope::VariablesMap &Scope::var_map() const
 
 void Scope::implement_globals(SemanticsFactory &implementor, AExecutionContext &ctx)
 {
+	ctx.precompile();
+
 	// Two loops since we want everything implemented before we attempt to compile anything.
 	// It's all connected, you know...
 	for (GlobalsMap::value_type &entry : *globals_)
@@ -154,6 +157,8 @@ void Scope::implement_globals(SemanticsFactory &implementor, AExecutionContext &
 			->attach_semantics(implementor);
 	for (GlobalsMap::value_type &entry : *globals_)
 		entry.second->compile(ctx);
+
+	ctx.postcompile();
 }
 
 

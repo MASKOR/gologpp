@@ -121,6 +121,19 @@ StatementParser::StatementParser()
 	];
 	numeric_return.name("symbolic_return");
 
+	durative_call = (
+		( (
+			lit("start") [ _a = DurativeCall::Type::START ]
+			| lit("stop") [ _a = DurativeCall::Type::STOP ]
+			| lit("finish") [ _a = DurativeCall::Type::FINISH ]
+			| lit("fail") [ _a = DurativeCall::Type::FAIL ]
+		) >> "(" )
+		> action_call(_r1) > ")"
+	) [
+		_val = new_<DurativeCall>(_a, _1)
+	];
+	durative_call.name("durative_action_call");
+
 
 	BOOST_SPIRIT_DEBUG_NODES((statement)(simple_statement)(compound_statement)
 		(block)(choose)(conditional)(search)(solve)(test)(r_while)

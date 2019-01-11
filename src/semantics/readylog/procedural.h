@@ -4,6 +4,7 @@
 #include "semantics.h"
 #include "scope.h"
 #include "variable.h"
+#include "utilities.h"
 
 #include <model/semantics.h>
 #include <model/expressions.h>
@@ -46,6 +47,7 @@ protected:
 };
 
 
+
 /*
  * 2. Semantics for all Function types that get translated into readylog procedures.
  *    This class is only used indirectly (see below)
@@ -64,6 +66,7 @@ public:
 		);
 	}
 };
+
 
 
 /*
@@ -124,8 +127,9 @@ public:
 
 private:
 	const Block &block_;
-	EC_word current_program_;
+	ManagedTerm current_program_;
 };
+
 
 
 template<>
@@ -139,6 +143,7 @@ private:
 };
 
 
+
 template<>
 class Semantics<Conditional> : public ReadylogSemantics {
 public:
@@ -147,6 +152,18 @@ public:
 
 private:
 	const Conditional &conditional_;
+};
+
+
+
+template<>
+class Semantics<Concurrent> : public ReadylogSemantics {
+public:
+	Semantics(const Concurrent &);
+	virtual EC_word plterm() override;
+
+private:
+	const Concurrent &concurrent_;
 };
 
 
@@ -194,6 +211,7 @@ private:
 };
 
 
+
 template<class ExprT>
 class Semantics<Pick<ExprT>> : public ReadylogSemantics {
 public:
@@ -217,10 +235,10 @@ public:
 		}
 	}
 
-
 private:
 	const Pick<ExprT> &pick_;
 };
+
 
 
 template<>
@@ -234,6 +252,7 @@ private:
 };
 
 
+
 template<>
 class Semantics<Solve> : public ReadylogSemantics {
 public:
@@ -243,6 +262,7 @@ public:
 private:
 	const Solve &solve_;
 };
+
 
 
 template<>
@@ -256,6 +276,7 @@ private:
 };
 
 
+
 template<>
 class Semantics<While> : public ReadylogSemantics {
 public:
@@ -265,6 +286,7 @@ public:
 private:
 	const While &while_;
 };
+
 
 
 template<class ExpressionT>
@@ -297,8 +319,22 @@ private:
 };
 
 
+
 template<>
 EC_word Semantics<Return<BooleanExpression>>::plterm();
+
+
+
+template<>
+class Semantics<DurativeCall> : public ReadylogSemantics {
+public:
+	Semantics(const DurativeCall &call);
+
+	virtual EC_word plterm() override;
+
+private:
+	const DurativeCall &call_;
+};
 
 
 

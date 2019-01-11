@@ -18,6 +18,7 @@ public:
     
     const string &name() const;
     virtual bool operator == (const Name &other) const;
+    bool operator != (const Name &other) const;
     virtual size_t hash() const;
     
 protected:
@@ -43,6 +44,7 @@ public:
     void set_arity(arity_t);
 
     virtual bool operator == (const Identifier &other) const;
+    bool operator != (const Identifier &other) const;
     virtual size_t hash() const override;
 
 	string signature_str() const;

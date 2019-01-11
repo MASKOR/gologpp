@@ -51,6 +51,7 @@ public:
 	{ return boost::apply_visitor(to_string_visitor(), representation_); }
 
 	virtual bool operator == (const AbstractConstant &) const = 0;
+	bool operator != (const AbstractConstant &) const;
 
 	virtual AbstractConstant *copy() const = 0;
 
@@ -122,6 +123,11 @@ public:
 
 	DEFINE_IMPLEMENT
 };
+
+
+
+vector<unique_ptr<AbstractConstant>> copy(const vector<unique_ptr<AbstractConstant>> &v);
+
 
 
 } // namespace gologpp

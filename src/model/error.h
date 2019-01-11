@@ -11,7 +11,8 @@ namespace gologpp {
 class InconsistentModel : public std::exception {
 };
 
-class EngineError : public std::exception {
+class EngineError : public std::runtime_error {
+	using std::runtime_error::runtime_error;
 };
 
 
@@ -25,6 +26,19 @@ public:
 
 private:
 	std::string msg_;
+};
+
+
+class DuplicateTransition : public EngineError {
+	using EngineError::EngineError;
+};
+
+class LostTransition : public EngineError {
+	using EngineError::EngineError;
+};
+
+class InconsistentTransition : public EngineError {
+	using EngineError::EngineError;
 };
 
 

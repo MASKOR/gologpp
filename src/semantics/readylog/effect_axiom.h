@@ -26,6 +26,18 @@ public:
 	virtual ~Semantics() override = default;
 
 	virtual EC_word plterm() override
+	{ return durative_causes_val(); }
+
+	EC_word durative_causes_val() {
+		return ::term(EC_functor("durative_causes_val", 4),
+			effect_.action().semantics().plterm(),
+			effect_.fluent().semantics().plterm(),
+			effect_.value().semantics().plterm(),
+			effect_.condition().semantics().plterm()
+		);
+	}
+
+	/*EC_word ssa()
 	{
 		effect_.action().scope().semantics().init_vars();
 
@@ -60,7 +72,7 @@ public:
 			),
 			New_body
 		);
-	}
+	}*/
 
 
 private:

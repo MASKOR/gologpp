@@ -14,8 +14,9 @@ namespace gologpp {
 
 
 struct eclipse_opts {
-	bool trace;
-	bool guitrace;
+	bool trace = false;
+	bool guitrace = false;
+	bool toplevel = false;
 };
 
 class ReadylogContext : public ExecutionContext {
@@ -25,10 +26,12 @@ public:
 	static void shutdown();
 	static ReadylogContext &instance();
 
+	virtual void precompile() override {}
 	virtual void compile(const Block &block) override;
 	virtual void compile(const AbstractAction &action) override;
 	virtual void compile(const AbstractFluent &fluent) override;
 	virtual void compile(const AbstractFunction &function) override;
+	virtual void postcompile() override;
 
     virtual bool final(Block &program, History &history) override;
     virtual bool trans(Block &program, History &history) override;
@@ -49,8 +52,8 @@ private:
 };
 
 
-class EclipseError : public std::exception {
-	using std::exception::exception;
+class EclipseError : public std::runtime_error {
+	using std::runtime_error::runtime_error;
 };
 
 

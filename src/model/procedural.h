@@ -1,3 +1,7 @@
+/**
+ * @file procedural.h Header for all classes that represent procedural code.
+ */
+
 #ifndef PROCEDURE_H
 #define PROCEDURE_H
 
@@ -12,11 +16,15 @@
 #include "error.h"
 #include "global.h"
 #include "scope.h"
+#include "action.h"
+#include "reference.h"
 
 namespace gologpp {
 
 
-
+/**
+ * @brief A scoped block of procedural code.
+ */
 class Block : public VoidExpression, public ScopeOwner, public LanguageElement<Block> {
 public:
 	Block(Scope *own_scope, const vector<VoidExpression *> &elements);
@@ -32,6 +40,9 @@ private:
 
 
 
+/**
+ * @brief Nondeterministic choice from a set of @ref Statement.
+ */
 class Choose : public VoidExpression, public ScopeOwner, public LanguageElement<Choose> {
 public:
 	Choose(Scope *own_scope, const vector<VoidExpression *> &alternatives);
@@ -47,6 +58,9 @@ private:
 
 
 
+/**
+ * @brief Classical if-then-else.
+ */
 class Conditional : public VoidExpression, public NoScopeOwner, public LanguageElement<Conditional> {
 public:
 	Conditional(
@@ -71,10 +85,37 @@ protected:
 
 
 
+/**
+ * @brief Execute a set of statements in parallel.
+ */
+class Concurrent : public VoidExpression, public ScopeOwner, public LanguageElement<Concurrent> {
+public:
+	Concurrent(Scope *own_scope, const vector<VoidExpression *> &procs);
+	void attach_semantics(SemanticsFactory &) override;
+
+	const vector<unique_ptr<VoidExpression>> &procs() const;
+
+	virtual string to_string(const string &pfx) const override;
+
+private:
+	vector<unique_ptr<VoidExpression>> procs_;
+};
+
+
+
+/**
+ * @class Assignment
+ * @tparam LhsT The type of the left hand side expression.
+ * @brief Type-safe assignment.
+ *
+ * The type of the right hand side must have the same Expression type as the left hand side.
+ * @see Assignment::Assignment.
+ */
 template<class LhsT>
 class Assignment : public VoidExpression, public NoScopeOwner, public LanguageElement<Assignment<LhsT>> {
 public:
-	static_assert(!std::is_base_of<VoidExpression, LhsT>::value, "Cannot assign to a Statement");
+	static_assert(!std::is_base_of<VoidExpression, LhsT>::value, "Cannot assign to a statement");
+	static_assert(!std::is_base_of<AbstractFunction, LhsT>::value, "Cannot assign to a function");
 
 	Assignment(Reference<LhsT> *lhs, typename LhsT::expression_t *rhs)
 	: lhs_(lhs), rhs_(rhs)
@@ -101,6 +142,12 @@ private:
 
 
 
+/**
+ * @class Pick
+ * @tparam ExprT The expression type of the variable and of the elements to pick from.
+ *
+ * @brief Nondeterministically pick a variable assignment.
+ */
 template<class ExprT>
 class Pick : public VoidExpression, public ScopeOwner, public LanguageElement<Pick<ExprT>> {
 public:
@@ -159,6 +206,12 @@ private:
 
 
 
+/**
+ * @brief Plan and execute.
+ *
+ * Resolve all nondeterinisms within a statement so that all its tests succeed and all its actions
+ * become executable.
+ */
 class Search : public VoidExpression, public NoScopeOwner, public LanguageElement<Search> {
 public:
 	Search(VoidExpression *statement);
@@ -173,7 +226,14 @@ protected:
 };
 
 
-class Solve : public Search, public LanguageElement<Solve> {
+
+/**
+ * @brief Plan with a reward function up to a search horizon, then execute.
+ *
+ * Search for a "best" executable path given a reward function, but only up to a
+ * certain maximum number of actions (the horizon). Then execute the found action sequence.
+ */
+class Solve : public VoidExpression, public NoScopeOwner, public LanguageElement<Solve> {
 public:
 	Solve(
 		NumericExpression *horizon,
@@ -181,17 +241,23 @@ public:
 		VoidExpression *statement
 	);
 
+	const VoidExpression &statement() const;
 	const NumericExpression &horizon() const;
 	const Reference<NumericFunction> &reward() const;
 	virtual void attach_semantics(SemanticsFactory &implementor) override;
 	virtual string to_string(const string &pfx) const override;
 
 private:
+	unique_ptr<VoidExpression> statement_;
 	unique_ptr<NumericExpression> horizon_;
 	unique_ptr<Reference<NumericFunction>> reward_;
 };
 
 
+
+/**
+ * @brief Test for a boolean condition. Fail the program if the condition evaluates to false.
+ */
 class Test : public VoidExpression, public NoScopeOwner, public LanguageElement<Test> {
 public:
 	Test(BooleanExpression *expression);
@@ -206,6 +272,10 @@ protected:
 };
 
 
+
+/**
+ * @brief Classical while loop.
+ */
 class While : public VoidExpression, public NoScopeOwner, public LanguageElement<While> {
 public:
 	While(BooleanExpression *expression, VoidExpression *stmt);
@@ -222,6 +292,11 @@ protected:
 };
 
 
+
+/**
+ * @brief Return a value from a function.
+ * @tparam ExpressionT the type of the returned value. Must match the type of the function.
+ */
 template<class ExpressionT>
 class Return : public VoidExpression, public NoScopeOwner, public LanguageElement<Return<ExpressionT>> {
 public:
@@ -242,6 +317,10 @@ private:
 };
 
 
+
+/**
+ * @brief The abstract superclass of all @ref Function types.
+ */
 class AbstractFunction
 : public Global
 , public ScopeOwner
@@ -265,6 +344,12 @@ protected:
 };
 
 
+
+/**
+ * @brief A function, also called a subroutine.
+ * @tparam ExpressionT The type returned by the function.
+ * A function that returns a @ref VoidExpression is also called a @ref Procedure.
+ */
 template<class ExpressionT>
 class Function
 : public AbstractFunction
@@ -316,6 +401,34 @@ public:
 			+ ") " + definition().to_string(pfx);
 	}
 };
+
+
+
+class DurativeCall
+: public VoidExpression
+, public NoScopeOwner
+, public LanguageElement<DurativeCall>
+{
+public:
+	enum Type {
+		START, FINISH, FAIL, STOP
+	};
+
+	DurativeCall(Type type, Reference<Action> *action);
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*action_)
+
+	Type type() const;
+	const Reference<Action> &action() const;
+	virtual string to_string(const string &pfx) const override;
+
+private:
+	const Type type_;
+	const unique_ptr<Reference<Action>> action_;
+};
+
+
+string to_string(DurativeCall::Type type);
+
 
 
 } // namespace gologpp

@@ -10,6 +10,9 @@ AbstractConstant::~AbstractConstant()
 size_t AbstractConstant::hash() const
 { return boost::hash_value(representation_); }
 
+bool AbstractConstant::operator != (const AbstractConstant &other) const
+{ return !(*this == other); }
+
 const AbstractConstant::LiteralVariant &AbstractConstant::variant() const
 { return representation_; }
 
@@ -56,5 +59,13 @@ Constant<NumericExpression>::Constant(double repr)
 {}
 
 
-
+vector<unique_ptr<AbstractConstant>> copy(const vector<unique_ptr<AbstractConstant>> &v)
+{
+	vector<unique_ptr<AbstractConstant>> rv;
+	for (const unique_ptr<AbstractConstant> &c : v)
+		rv.emplace_back(c->copy());
+	return rv;
 }
+
+
+} // namespace gologpp

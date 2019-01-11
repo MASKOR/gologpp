@@ -16,6 +16,9 @@ const string &Name::name() const
 bool Name::operator == (const Name &other) const
 { return name() == other.name(); }
 
+bool Name::operator != (const Name &other) const
+{ return !(*this == other); }
+
 size_t Name::hash() const
 { return std::hash<string>{}(name()); }
 
@@ -39,6 +42,9 @@ void Identifier::set_arity(arity_t a)
 
 bool Identifier::operator == (const Identifier &other) const
 { return name() == other.name() && arity() == other.arity(); }
+
+bool Identifier::operator != (const Identifier &other) const
+{ return !(*this == other); }
 
 size_t Identifier::hash() const
 { return Name::hash() ^ (std::hash<gologpp::arity_t>{}(arity()) << 1); }

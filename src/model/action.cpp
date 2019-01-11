@@ -28,6 +28,9 @@ void AbstractAction::compile(AExecutionContext &ctx)
 string AbstractAction::to_string(const string &) const
 { return name() + '(' + concat_list(args(), ", ", "") + ")"; }
 
+bool AbstractAction::operator != (const AbstractAction &other) const
+{ return !(*this == other); }
+
 
 
 Action::Action(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
@@ -60,6 +63,18 @@ Action::Action(Scope &parent_scope, const string &name)
 : Action(new Scope(parent_scope), name, {})
 {}
 
+
+bool Action::operator == (const AbstractAction &other) const
+{
+	try {
+		const Action &a = dynamic_cast<const Action &>(other);
+		return hash() == a.hash();
+	} catch (std::bad_cast &) {
+		return false;
+	}
+}
+
+
 const BooleanExpression &Action::precondition() const
 { return *precondition_; }
 
@@ -79,25 +94,6 @@ void Action::set_mapping(ActionMapping *mapping)
 	mapping_.reset(mapping);
 }
 
-bool Action::blocking() const
-{
-	return !(bool(on_succeed_) || bool(on_preempted_) || bool(on_failed_));
-}
-
-unique_ptr<Reference<Procedure>> &Action::on_succeed()
-{
-	return on_succeed_;
-}
-
-unique_ptr<Reference<Procedure>> &Action::on_preempted()
-{
-	return on_preempted_;
-}
-
-unique_ptr<Reference<Procedure>> &Action::on_failed()
-{
-	return on_failed_;
-}
 
 void Action::attach_semantics(SemanticsFactory &implementor)
 {
@@ -138,6 +134,18 @@ Expression *Action::ref(const vector<Expression *> &args)
 { return make_ref(args); }
 
 
+
+bool ExogAction::operator == (const AbstractAction &other) const
+{
+	try {
+		const ExogAction &a = dynamic_cast<const ExogAction &>(other);
+		return hash() == a.hash();
+	} catch (std::bad_cast &) {
+		return false;
+	}
+}
+
+
 void ExogAction::attach_semantics(SemanticsFactory &implementor)
 {
 	if (!semantics_) {
@@ -155,84 +163,6 @@ string ExogAction::to_string(const string &pfx) const
 		+ linesep + pfx + "effect:" + linesep + concat_list(effects(), ";" linesep, pfx) + linesep "}";
 }
 
-
-
-AbstractTransition::AbstractTransition(const AbstractTransition &other)
-: action_(other.action_)
-{
-	for (const unique_ptr<AbstractConstant> &c : other.args()) {
-		AbstractConstant *cc = c->copy();
-		dynamic_cast<Expression *>(cc)->set_parent(this);
-		args_.emplace_back(cc);
-	}
-}
-
-
-AbstractTransition &AbstractTransition::operator = (const AbstractTransition &other)
-{
-	action_ = other.action_;
-	for (const unique_ptr<AbstractConstant> &c : other.args()) {
-		AbstractConstant *cc = c->copy();
-		dynamic_cast<Expression *>(cc)->set_parent(this);
-		args_.emplace_back(cc);
-	}
-	return *this;
-}
-
-const Action &AbstractTransition::action() const
-{ return *action_; }
-
-const vector<unique_ptr<AbstractConstant>> &AbstractTransition::args() const
-{ return args_; }
-
-
-
-AbstractTransition::AbstractTransition(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args)
-: action_(action)
-, args_(std::move(args))
-{
-	for (unique_ptr<AbstractConstant> &c : args_)
-		dynamic_cast<Expression *>(c.get())->set_parent(this);
-}
-
-string AbstractTransition::to_string(const string &) const
-{ return action().name() + '(' + concat_list(args(), ", ") + ')'; }
-
-Scope &AbstractTransition::parent_scope()
-{ return global_scope(); }
-
-const Scope &AbstractTransition::parent_scope() const
-{ return global_scope(); }
-
-
-
-Transition::Transition(const Transition &other)
-: AbstractTransition(other)
-{}
-
-void Transition::attach_semantics(SemanticsFactory &implementor)
-{
-	if (!semantics_) {
-		semantics_ = implementor.make_semantics(*this);
-		for (unique_ptr<AbstractConstant> &c : args_)
-			c->attach_semantics(implementor);
-	}
-}
-
-
-
-ExogTransition::ExogTransition(const ExogTransition &other)
-: AbstractTransition(other)
-{}
-
-void ExogTransition::attach_semantics(SemanticsFactory &implementor)
-{
-	if (!semantics_) {
-		semantics_ = implementor.make_semantics(*this);
-		for (unique_ptr<AbstractConstant> &c : args_)
-			c->attach_semantics(implementor);
-	}
-}
 
 
 

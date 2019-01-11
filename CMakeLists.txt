@@ -62,6 +62,8 @@ set(INTERFACE_SRC
 	src/model/string_concatenation.cpp
 	src/model/history.cpp
 	src/model/mapping.cpp
+	src/model/platform_backend.cpp
+	src/model/transition.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -94,6 +96,8 @@ install(FILES
 	src/model/string_concatenation.h
 	src/model/history.h
 	src/model/mapping.h
+	src/model/platform_backend.h
+	src/model/transition.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model
 )
@@ -196,6 +200,7 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/utilities.cpp
 		src/semantics/readylog/string_concatenation.cpp
 		src/semantics/readylog/history.cpp
+		src/semantics/readylog/reference.cpp
 	)
 
 	link_directories(${ECLIPSE_LIBRARY_DIRS})

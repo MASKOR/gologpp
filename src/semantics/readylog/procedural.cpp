@@ -50,13 +50,13 @@ EC_word Semantics<Block>::plterm()
 
 EC_word Semantics<Block>::current_program()
 {
-	return copy_term(current_program_);
+	return current_program_;
 }
 
 
 void Semantics<Block>::set_current_program(EC_word e)
 {
-	current_program_ = copy_term(e);
+	current_program_ = e;
 }
 
 
@@ -97,6 +97,19 @@ EC_word Semantics<Conditional>::plterm()
 		conditional_.block_true().semantics().plterm(),
 		conditional_.block_false().semantics().plterm()
 	);
+}
+
+
+
+Semantics<Concurrent>::Semantics(const Concurrent &c)
+: concurrent_(c)
+{}
+
+
+EC_word Semantics<Concurrent>::plterm()
+{
+	concurrent_.scope().semantics().init_vars();
+	return ::term(EC_functor("pconc", 1), to_ec_list(concurrent_.procs()));
 }
 
 
@@ -161,6 +174,21 @@ EC_word Semantics<While>::plterm()
 template<>
 EC_word Semantics<Return<BooleanExpression>>::plterm()
 { return ret_.expression().semantics().plterm(); }
+
+
+
+Semantics<DurativeCall>::Semantics(const DurativeCall &call)
+: call_(call)
+{}
+
+
+EC_word Semantics<DurativeCall>::plterm()
+{
+	return ::term(EC_functor(to_string(call_.type()).c_str(), 2),
+		call_.semantics().plterm(),
+		EC_atom("now")
+	);
+}
 
 
 

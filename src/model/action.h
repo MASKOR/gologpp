@@ -34,6 +34,10 @@ public:
 
 	virtual ~AbstractAction() override = default;
 
+	virtual bool operator == (const AbstractAction &other) const = 0;
+	bool operator != (const AbstractAction &other) const;
+
+
 	const vector<unique_ptr<AbstractEffectAxiom>> &effects() const;
 	void add_effect(AbstractEffectAxiom *effect);
 
@@ -56,6 +60,8 @@ public:
 	Action(const Action &) = delete;
 	Action(Action &&) = default;
 
+	bool operator == (const AbstractAction &other) const override;
+
 	const BooleanExpression &precondition() const;
 
 	void set_precondition(BooleanExpression *);
@@ -73,21 +79,9 @@ public:
 	const ActionMapping &mapping() const;
 	void set_mapping (ActionMapping *);
 
-	bool blocking() const;
-
-	unique_ptr<Reference<Procedure>> &on_succeed();
-	unique_ptr<Reference<Procedure>> &on_preempted();
-	unique_ptr<Reference<Procedure>> &on_failed();
-
-	enum State { IDLE, RUNNING, SUCCEEDED, PREEMPTED, ABORTED };
-
 private:
 	unique_ptr<BooleanExpression> precondition_;
 	unique_ptr<ActionMapping> mapping_;
-
-	unique_ptr<Reference<Procedure>> on_succeed_;
-	unique_ptr<Reference<Procedure>> on_preempted_;
-	unique_ptr<Reference<Procedure>> on_failed_;
 };
 
 
@@ -97,64 +91,16 @@ public:
 	using AbstractAction::AbstractAction;
 	ExogAction(const Action &) = delete;
 	ExogAction(ExogAction &&) = default;
+	bool operator == (const AbstractAction &other) const override;
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
 };
 
-
-
-class AbstractTransition
-: public NoScopeOwner
-, public virtual AbstractLanguageElement {
-public:
-	AbstractTransition(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args);
-	AbstractTransition(const AbstractTransition &);
-
-	AbstractTransition &operator = (const AbstractTransition &);
-
-	const Action &action() const;
-	const vector<unique_ptr<AbstractConstant>> &args() const;
-	virtual string to_string(const string &pfx) const override;
-
-	virtual Scope &parent_scope() override;
-	virtual const Scope &parent_scope() const override;
-
-protected:
-	shared_ptr<Action> action_;
-	vector<unique_ptr<AbstractConstant>> args_;
-};
-
-
-
-class Transition : public AbstractTransition, public LanguageElement<Transition> {
-public:
-	using AbstractTransition::AbstractTransition;
-	using AbstractTransition::operator =;
-
-	Transition(Transition &&) = default;
-	Transition(const Transition &);
-
-	virtual void attach_semantics(SemanticsFactory &) override;
-
-	Action::State state;
-};
-
-
-
-class ExogTransition : public AbstractTransition, public LanguageElement<ExogTransition> {
-public:
-	using AbstractTransition::AbstractTransition;
-	using AbstractTransition::operator =;
-
-	ExogTransition(ExogTransition &&) = default;
-	ExogTransition(const ExogTransition &);
-
-	virtual void attach_semantics(SemanticsFactory &) override;
-};
 
 
 
 } // namespace gologpp
+
 
 
 

@@ -16,7 +16,6 @@
 
 namespace gologpp {
 
-
 #define GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL(_r, _data, GologT) \
 unique_ptr<AbstractSemantics> ReadylogSemanticsFactory::make_semantics(GologT &obj) \
 { return unique_ptr<AbstractSemantics>(new Semantics<GologT>(obj)); }
