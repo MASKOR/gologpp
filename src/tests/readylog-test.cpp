@@ -103,11 +103,11 @@ void test_objectmodel()
 void test_parser()
 {
 #ifdef GOLOGPP_TEST_PARSER
-	unique_ptr<VoidExpression> mainproc = parser::parse_file(SOURCE_DIR "/examples/blocksworld.gpp");
+	VoidExpression *mainproc = parser::parse_file(SOURCE_DIR "/examples/blocksworld.gpp").release();
 
-	shared_ptr<NumericFluent> on = global_scope().lookup_global<NumericFluent>("on", 1);
-	shared_ptr<Action> put = global_scope().lookup_global<Action>("stack", 2);
-	shared_ptr<BooleanFunction> goal = global_scope().lookup_global<BooleanFunction>("goal", 0);
+	gologpp::shared_ptr<NumericFluent> on = global_scope().lookup_global<NumericFluent>("on", 1);
+	gologpp::shared_ptr<Action> put = global_scope().lookup_global<Action>("stack", 2);
+	gologpp::shared_ptr<BooleanFunction> goal = global_scope().lookup_global<BooleanFunction>("goal", 0);
 
 	if (on && put && goal)
 		std::cout << on->name() << " " << put->name() << " " << goal->name() << std::endl;
@@ -115,6 +115,7 @@ void test_parser()
 #ifdef GOLOGPP_TEST_READYLOG
 	eclipse_opts options;
 	options.trace = false;
+	options.toplevel = false;
 	options.guitrace = false;
 
 	ReadylogContext::init(options);
@@ -122,7 +123,7 @@ void test_parser()
 
 	ctx.run(Block(
 		new Scope(global_scope()),
-		{ mainproc.release() }
+		{ mainproc }
 	));
 
 	ReadylogContext::shutdown();
