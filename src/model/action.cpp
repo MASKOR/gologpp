@@ -49,6 +49,9 @@ Action::Action(Scope *own_scope, const string &name, const vector<shared_ptr<Abs
 		case SYMBOLIC:
 			mapping_args.push_back(new Reference<SymbolicVariable>(std::dynamic_pointer_cast<SymbolicVariable>(arg)));
 			break;
+		case STRING:
+			mapping_args.push_back(new Reference<StringVariable>(std::dynamic_pointer_cast<StringVariable>(arg)));
+			break;
 		case VOID:
 			throw Bug("Variable<Statement> is impossible");
 		}
@@ -91,25 +94,6 @@ void Action::set_mapping(ActionMapping *mapping)
 	mapping_.reset(mapping);
 }
 
-bool Action::blocking() const
-{
-	return !(bool(on_succeed_) || bool(on_preempted_) || bool(on_failed_));
-}
-
-unique_ptr<Reference<Procedure>> &Action::on_succeed()
-{
-	return on_succeed_;
-}
-
-unique_ptr<Reference<Procedure>> &Action::on_preempted()
-{
-	return on_preempted_;
-}
-
-unique_ptr<Reference<Procedure>> &Action::on_failed()
-{
-	return on_failed_;
-}
 
 void Action::attach_semantics(SemanticsFactory &implementor)
 {

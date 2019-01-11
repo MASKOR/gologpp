@@ -79,21 +79,9 @@ public:
 	const ActionMapping &mapping() const;
 	void set_mapping (ActionMapping *);
 
-	bool blocking() const;
-
-	unique_ptr<Reference<Procedure>> &on_succeed();
-	unique_ptr<Reference<Procedure>> &on_preempted();
-	unique_ptr<Reference<Procedure>> &on_failed();
-
-	enum State { IDLE, RUNNING, SUCCEEDED, PREEMPTED, ABORTED };
-
 private:
 	unique_ptr<BooleanExpression> precondition_;
 	unique_ptr<ActionMapping> mapping_;
-
-	unique_ptr<Reference<Procedure>> on_succeed_;
-	unique_ptr<Reference<Procedure>> on_preempted_;
-	unique_ptr<Reference<Procedure>> on_failed_;
 };
 
 
