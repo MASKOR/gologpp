@@ -259,4 +259,37 @@ void AbstractFunction::compile(AExecutionContext &ctx)
 
 
 
+DurativeCall::DurativeCall(DurativeCall::Type type, Reference<Action> *action)
+: type_(type)
+, action_(action)
+{}
+
+DurativeCall::Type DurativeCall::type() const
+{ return type_; }
+
+const Reference<Action> &DurativeCall::action() const
+{ return *action_; }
+
+string DurativeCall::to_string(const string &pfx) const
+{ return linesep + pfx + gologpp::to_string(type()) + "(" + action().str() + ");"; }
+
+
+
+string to_string(DurativeCall::Type type)
+{
+	switch (type) {
+	case DurativeCall::Type::START:
+		return "start";
+	case DurativeCall::Type::FINISH:
+		return "final";
+	case DurativeCall::Type::FAIL:
+		return "failed";
+	case DurativeCall::Type::STOP:
+		return "stop";
+	}
+	throw Bug(string("Unhandled ") + typeid(type).name());
+}
+
+
+
 } // namespace gologpp

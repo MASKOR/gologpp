@@ -12,6 +12,8 @@
 #include "error.h"
 #include "global.h"
 #include "scope.h"
+#include "action.h"
+#include "reference.h"
 
 namespace gologpp {
 
@@ -336,6 +338,34 @@ public:
 			+ ") " + definition().to_string(pfx);
 	}
 };
+
+
+
+class DurativeCall
+: public VoidExpression
+, public NoScopeOwner
+, public LanguageElement<DurativeCall>
+{
+public:
+	enum Type {
+		START, FINISH, FAIL, STOP
+	};
+
+	DurativeCall(Type type, Reference<Action> *action);
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*action_)
+
+	Type type() const;
+	const Reference<Action> &action() const;
+	virtual string to_string(const string &pfx) const override;
+
+private:
+	const Type type_;
+	const unique_ptr<Reference<Action>> action_;
+};
+
+
+string to_string(DurativeCall::Type type);
+
 
 
 } // namespace gologpp
