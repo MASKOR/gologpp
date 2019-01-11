@@ -18,13 +18,13 @@ public:
 	Semantics(const Action &a);
 	virtual ~Semantics() override = default;
 
-	EC_word prim_action();
-
-	vector<EC_word> SSAs();
-
-	EC_word prolog_poss_decl();
-	EC_word prolog_poss();
-	EC_word poss();
+	EC_word durative_action();
+	vector<EC_word> durative_causes_vals();
+	//vector<EC_word> SSAs();
+	//vector<EC_word> prolog_poss_decls();
+	//vector<EC_word> prolog_poss();
+	EC_word durative_poss();
+	//EC_word get_durative_poss(const string &which);
 
 	virtual EC_word plterm() override;
 private:
@@ -49,6 +49,18 @@ private:
 
 
 template<>
+class Semantics<Activity> : public Semantics<AbstractLanguageElement> {
+public:
+	Semantics(const Activity &trans);
+	virtual ~Semantics() override = default;
+
+	virtual EC_word plterm() override;
+private:
+	const Activity &trans_;
+};
+
+
+template<>
 class Semantics<Transition> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Transition &trans);
@@ -57,18 +69,6 @@ public:
 	virtual EC_word plterm() override;
 private:
 	const Transition &trans_;
-};
-
-
-template<>
-class Semantics<ExogTransition> : public Semantics<AbstractLanguageElement> {
-public:
-	Semantics(const ExogTransition &trans);
-	virtual ~Semantics() override = default;
-
-	virtual EC_word plterm() override;
-private:
-	const ExogTransition &trans_;
 };
 
 

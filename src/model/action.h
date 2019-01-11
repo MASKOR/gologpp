@@ -98,58 +98,9 @@ public:
 
 
 
-class AbstractTransition
-: public NoScopeOwner
-, public virtual AbstractLanguageElement {
-public:
-	AbstractTransition(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args);
-	AbstractTransition(const AbstractTransition &);
-
-	AbstractTransition &operator = (const AbstractTransition &);
-
-	const Action &action() const;
-	const vector<unique_ptr<AbstractConstant>> &args() const;
-	virtual string to_string(const string &pfx) const override;
-
-	virtual Scope &parent_scope() override;
-	virtual const Scope &parent_scope() const override;
-
-protected:
-	shared_ptr<Action> action_;
-	vector<unique_ptr<AbstractConstant>> args_;
-};
-
-
-
-class Transition : public AbstractTransition, public LanguageElement<Transition> {
-public:
-	using AbstractTransition::AbstractTransition;
-	using AbstractTransition::operator =;
-
-	Transition(Transition &&) = default;
-	Transition(const Transition &);
-
-	virtual void attach_semantics(SemanticsFactory &) override;
-
-	Action::State state;
-};
-
-
-
-class ExogTransition : public AbstractTransition, public LanguageElement<ExogTransition> {
-public:
-	using AbstractTransition::AbstractTransition;
-	using AbstractTransition::operator =;
-
-	ExogTransition(ExogTransition &&) = default;
-	ExogTransition(const ExogTransition &);
-
-	virtual void attach_semantics(SemanticsFactory &) override;
-};
-
-
 
 } // namespace gologpp
+
 
 
 

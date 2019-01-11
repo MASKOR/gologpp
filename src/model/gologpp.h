@@ -28,8 +28,9 @@ template<class> class LanguageElement;
 class AbstractAction;
 class Action;
 class ExogAction;
+class AbstractTransition;
+class Activity;
 class Transition;
-class ExogTransition;
 
 class Identifier;
 
@@ -102,6 +103,7 @@ class Solve;
 class Test;
 class While;
 template<class> class Return;
+class DurativeCall;
 
 class AbstractFunction;
 template<class> class Function;
@@ -123,6 +125,8 @@ class SemanticsFactory;
 
 class AExecutionContext;
 class ExecutionContext;
+
+class PlatformBackend;
 
 template<class ExprT>
 using FluentAssignment = Assignment<Fluent<ExprT>>;
@@ -162,12 +166,13 @@ using VariableReference = Reference<Variable<ExprT>>;
 	(BOOST_PP_SEQ_ELEM(0, seq)<BOOST_PP_SEQ_ELEM(1, seq)>)
 
 #define GOLOGPP_SEMANTIC_TYPES \
-	(Action)(ExogAction)(Transition)(ExogTransition) \
+	(Action)(ExogAction)(Activity)(Transition) \
 	(Scope)(ArithmeticOperation) \
 	(Negation)(BooleanOperation)(Quantification)(Concurrent) \
 	(Block)(Choose)(Conditional)(Search)(Solve)(Test)(While) \
 	(History)(Reference<Action>) \
 	(StringConcatenation) \
+	(DurativeCall) \
 	BOOST_PP_SEQ_FOR_EACH_PRODUCT(GOLOGPP_TEMPLATE_CLASS, \
 		(GOLOGPP_VALUE_TYPE_TEMPLATES)(GOLOGPP_VALUE_TYPES) \
 	) \

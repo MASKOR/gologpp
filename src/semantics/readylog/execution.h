@@ -14,21 +14,24 @@ namespace gologpp {
 
 
 struct eclipse_opts {
-	bool trace;
-	bool guitrace;
+	bool trace = false;
+	bool guitrace = false;
+	bool toplevel = false;
 };
 
 class ReadylogContext : public ExecutionContext {
 public:
 	virtual ~ReadylogContext() override;
-	static void init(unique_ptr<PlatformBackend> &&, const eclipse_opts &options);
+	static void init(const eclipse_opts &options = {false, false}, unique_ptr<PlatformBackend> &&backend = nullptr);
 	static void shutdown();
 	static ReadylogContext &instance();
 
+	virtual void precompile() override {}
 	virtual void compile(const Block &block) override;
 	virtual void compile(const AbstractAction &action) override;
 	virtual void compile(const AbstractFluent &fluent) override;
 	virtual void compile(const AbstractFunction &function) override;
+	virtual void postcompile() override;
 
     virtual bool final(Block &program, History &history) override;
     virtual bool trans(Block &program, History &history) override;
@@ -38,7 +41,7 @@ public:
 	void ec_write(EC_word t);
 
 private:
-    ReadylogContext(unique_ptr<PlatformBackend> &&exec_backend, const eclipse_opts &options);
+    ReadylogContext(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend);
 
     virtual void compile_term(const EC_word &term);
 
@@ -49,8 +52,8 @@ private:
 };
 
 
-class EclipseError : public std::exception {
-	using std::exception::exception;
+class EclipseError : public std::runtime_error {
+	using std::runtime_error::runtime_error;
 };
 
 

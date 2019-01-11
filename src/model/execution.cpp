@@ -3,23 +3,34 @@
 #include "action.h"
 #include "procedural.h"
 #include "history.h"
+#include "platform_backend.h"
 
 #include <iostream>
-#include <iomanip>
+
 
 namespace gologpp {
 
 
-ExogTransition AExecutionContext::exog_queue_pop()
+AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_backend)
+: platform_backend_(move(platform_backend))
+{
+	if (!platform_backend_)
+		platform_backend_ = std::make_unique<DummyBackend>();
+	platform_backend_->set_context(this);
+	Clock::clock_source = platform_backend_.get();
+}
+
+
+shared_ptr<AbstractTransition> AExecutionContext::exog_queue_pop()
 {
 	std::lock_guard<std::mutex> { exog_mutex_ };
-	ExogTransition rv = std::move(exog_queue_.front());
+	shared_ptr<AbstractTransition> rv = std::move(exog_queue_.front());
 	exog_queue_.pop();
 	return rv;
 }
 
 
-ExogTransition AExecutionContext::exog_queue_poll()
+shared_ptr<AbstractTransition> AExecutionContext::exog_queue_poll()
 {
 	std::unique_lock<std::mutex> queue_empty_lock { queue_empty_mutex_ };
 	queue_empty_condition_.wait(queue_empty_lock, [&] { return !exog_queue_.empty(); });
@@ -27,7 +38,7 @@ ExogTransition AExecutionContext::exog_queue_poll()
 }
 
 
-void AExecutionContext::exog_queue_push(ExogTransition &&exog)
+void AExecutionContext::exog_queue_push(shared_ptr<AbstractTransition> exog)
 {
 	std::lock_guard<std::mutex> { exog_mutex_ };
 	exog_queue_.push(std::move(exog));
@@ -37,20 +48,15 @@ void AExecutionContext::exog_queue_push(ExogTransition &&exog)
 	}
 }
 
+bool AExecutionContext::exog_empty()
+{
+	std::lock_guard<std::mutex> l(exog_mutex_);
+	return exog_queue_.empty();
+}
 
-AExecutionContext::Clock &AExecutionContext::clock()
-{ return clock_; }
+unique_ptr<PlatformBackend> &AExecutionContext::backend()
+{ return platform_backend_;}
 
-AExecutionContext::ExogQueue &AExecutionContext::exog_queue()
-{ return exog_queue_; }
-
-
-PlatformBackend::~PlatformBackend()
-{}
-
-AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_backend)
-: exec_backend_(move(platform_backend))
-{}
 
 
 ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<PlatformBackend> &&exec_backend)
@@ -61,18 +67,8 @@ ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, u
 ExecutionContext::~ExecutionContext()
 {}
 
-
-
-unique_ptr<PlatformBackend> &AExecutionContext::backend()
-{ return exec_backend_;}
-
-std::unordered_set< shared_ptr<Transition> >& PlatformBackend::running_transition()
-{ return running_transitions_; }
-
-void PlatformBackend::set_running_transition(shared_ptr <Transition> trans)
-{ running_transitions_.insert(trans); }
-
-
+Clock::time_point ExecutionContext::context_time() const
+{ return context_time_; }
 
 History ExecutionContext::run(Block &&program)
 {
@@ -84,39 +80,32 @@ History ExecutionContext::run(Block &&program)
 	program.attach_semantics(*implementor_);
 	compile(program);
 
-	Clock::time_point t_loop = clock().now();
-
 	while (!final(program, history)) {
-		while (!exog_queue().empty()) {
-			ExogTransition exog = exog_queue_pop();
-			exog.attach_semantics(*implementor_);
-			history.abstract_impl().append_exog(std::move(exog));
+		context_time_ = backend()->time();
+		while (!exog_empty()) {
+			shared_ptr<AbstractTransition> exog = exog_queue_pop();
+			exog->attach_semantics(*implementor_);
+			history.abstract_impl().append_exog(exog);
 		}
 
-		Clock::time_point t_trans = clock().now();
-
-		if (!trans(program, history)) {
-			ExogTransition exog = exog_queue_poll();
-			exog.attach_semantics(*implementor_);
-			history.abstract_impl().append_exog(std::move(exog));
+		if (trans(program, history)) {
+			shared_ptr<Transition> trans = history.abstract_impl().get_last_transition();
+			if (trans) {
+				std::cout << "<<< trans: " << trans->str() << std::endl;
+				if (trans->hook() == Transition::Hook::STOP)
+					backend()->preempt_activity(trans);
+				else if (trans->hook() == Transition::Hook::START)
+					backend()->start_activity(trans);
+				else
+					backend()->cleanup_activity(trans);
+			}
 		}
 		else {
-			shared_ptr <Transition> trans = history.abstract_impl().get_last_transition();
-			trans->state = Action::IDLE;
-			backend()->set_running_transition(trans);
-			backend()->execute_transition(*trans);
+			shared_ptr<AbstractTransition> exog = exog_queue_poll();
+			exog->attach_semantics(*implementor_);
+			history.abstract_impl().append_exog(exog);
 		}
-
-		std::chrono::duration<double> d_trans = clock().now() - t_trans;
-		std::cout << std::fixed << std::setprecision(9) << "Transition time: "
-			<< d_trans.count() << " s." << std::endl;
-
 	}
-
-	std::chrono::duration<double> d_loop = clock().now() - t_loop;
-
-	std::cout << std::fixed << "Mainloop time: "
-		<< d_loop.count()  << " s." << std::endl;
 
 	return history;
 }

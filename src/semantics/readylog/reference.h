@@ -18,6 +18,7 @@ namespace gologpp {
 template<class GologT> class Reference;
 
 
+
 template<class ExpressionT>
 class Semantics<Reference<Variable<ExpressionT>>> : public ReadylogSemantics {
 public:
@@ -25,12 +26,26 @@ public:
 	: reference_(ref)
 	{}
 
-	EC_word plterm() override
+	virtual EC_word plterm() override
 	{ return reference_.target()->semantics().plterm(); }
 
 private:
 	Reference<Variable<ExpressionT>> &reference_;
 };
+
+
+
+template<class GologT>
+EC_word reference_term(const Reference<GologT> &ref)
+{
+	if (ref.arity() > 0)
+		return ::term(EC_functor(ref.name().c_str(), ref.arity()),
+			to_ec_words(ref.args()).data()
+		);
+	else
+		return EC_atom(ref.name().c_str());
+}
+
 
 
 template<class GologT>
@@ -40,19 +55,18 @@ public:
 	: reference_(ref)
 	{}
 
-	EC_word plterm() override
-	{
-		if (reference_.arity() > 0)
-			return ::term(EC_functor(reference_.name().c_str(), reference_.arity()),
-				to_ec_words(reference_.args()).data()
-			);
-		else
-			return EC_atom(reference_.name().c_str());
-	}
+	virtual EC_word plterm() override
+	{ return reference_term(reference_); }
 
 private:
 	Reference<GologT> &reference_;
 };
+
+
+
+template<>
+EC_word Semantics<Reference<Action>>::plterm();
+
 
 
 } // namespace gologpp

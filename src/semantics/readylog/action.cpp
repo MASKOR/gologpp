@@ -6,6 +6,8 @@
 
 #include <eclipseclass.h>
 
+#include <unordered_map>
+
 namespace gologpp {
 
 
@@ -14,7 +16,7 @@ Semantics<Action>::Semantics(const Action &a)
 {}
 
 
-EC_word Semantics<Action>::prim_action()
+EC_word Semantics<Action>::durative_action()
 {
 	action_.scope().semantics().init_vars();
 
@@ -25,7 +27,7 @@ EC_word Semantics<Action>::prim_action()
 				arg->semantics<AbstractVariable>().member_restriction()
 			);
 
-	EC_word prim_action = ::term(EC_functor("prim_action", 1), plterm());
+	EC_word prim_action = ::term(EC_functor("durative_action", 1), plterm());
 
 	if (arg_domains.size() > 0)
 		return ::term(EC_functor(":-", 2),
@@ -46,59 +48,101 @@ EC_word Semantics<Action>::plterm()
 }
 
 
-EC_word Semantics<Action>::prolog_poss_decl()
+vector<EC_word> Semantics<Action>::durative_causes_vals()
 {
-	action_.scope().semantics().init_vars();
-	return ::term(EC_functor("prolog_poss", 1),
-		plterm()
-	);
+	vector<EC_word> rv;
+	for (const unique_ptr<AbstractEffectAxiom> &effect : action_.effects())
+		rv.push_back(effect->semantics().plterm());
+	return rv;
 }
 
 
-EC_word Semantics<Action>::prolog_poss()
+/*vector<EC_word> Semantics<Action>::prolog_poss_decls()
 {
-	EC_ref NewCondBody, S;
-
 	action_.scope().semantics().init_vars();
+	return {
+		::term(EC_functor("prolog_poss", 1),
+			::term(EC_functor("start", 1),
+				plterm())),
+		::term(EC_functor("prolog_poss", 1),
+			::term(EC_functor("stop", 1),
+				plterm())),
+		::term(EC_functor("prolog_poss", 1),
+			::term(EC_functor("final", 1),
+				plterm())),
+		::term(EC_functor("prolog_poss", 1),
+			::term(EC_functor("failed", 1),
+				plterm())),
+	};
+}//*/
 
-	if ( ! ReadylogContext::instance().ec_query(
-		::term(
-			EC_functor("process_condition", 3),
-			action_.precondition().semantics().plterm(),
-			S,
-			NewCondBody
-		)
-	))
-		throw new std::runtime_error("process_condition failed for " + action_.name());
 
-	return ::term(EC_functor(":-", 2),
-		::term(EC_functor("prolog_poss", 2),
+/*EC_word Semantics<Action>::get_durative_poss(const string &which)
+{
+	EC_ref Cond;
+	EC_word q = ::term(EC_functor("poss", 2),
+		::term(EC_functor(which.c_str(), 2),
 			plterm(),
-			S
+			::newvar()
 		),
-		NewCondBody
+		Cond
 	);
-}
+	if (!ReadylogContext::instance().ec_query(q))
+		throw Bug(("failed to get durative_poss for ") + action_.str());
+
+	return Cond;
+}//*/
 
 
-EC_word Semantics<Action>::poss()
+/*vector<EC_word> Semantics<Action>::prolog_poss()
 {
 	action_.scope().semantics().init_vars();
-	return ::term(EC_functor("poss", 2),
+
+	vector<EC_word> rv;
+
+	for (const string &evt : { "start", "stop", "final", "failed" } ) {
+		EC_ref NewCondBody, S;
+
+		if ( ! ReadylogContext::instance().ec_query(
+			::term(EC_functor("process_condition", 3),
+				get_durative_poss(evt),
+				S,
+				NewCondBody
+			)
+		))
+			throw Bug("process_condition failed for " + action_.name());
+
+		rv.push_back(::term(EC_functor(":-", 2),
+			::term(EC_functor("prolog_poss", 2),
+				plterm(),
+				S
+			),
+			NewCondBody
+		) );
+	}
+
+	return rv;
+}//*/
+
+
+EC_word Semantics<Action>::durative_poss()
+{
+	action_.scope().semantics().init_vars();
+	return ::term(EC_functor("durative_poss", 2),
 		plterm(),
 		action_.precondition().semantics().plterm()
 	);
 }
 
 
-vector<EC_word> Semantics<Action>::SSAs()
+/*vector<EC_word> Semantics<Action>::SSAs()
 {
 	action_.scope().semantics().init_vars();
 	vector<EC_word> rv;
 	for (const unique_ptr<AbstractEffectAxiom> &effect : action_.effects())
 		rv.push_back(effect->semantics().plterm());
 	return rv;
-}
+}//*/
 
 
 Semantics<ExogAction>::Semantics(const ExogAction &a)
@@ -133,14 +177,48 @@ vector<EC_word> Semantics<ExogAction>::SSAs()
 
 
 inline EC_word transition_term(const AbstractTransition &t) {
-	EC_word *args = new EC_word[t.action().arity()];
+	EC_word *args = new EC_word[t.action()->arity()];
 
-	for (arity_t i = 0; i < t.action().arity(); i++)
+	for (arity_t i = 0; i < t.action()->arity(); i++)
 		args[i] = t.args()[i]->semantics().plterm();
 
 	return ::term(
-		EC_functor(t.action().name().c_str(), t.action().arity()),
+		EC_functor(t.action()->name().c_str(), t.action()->arity()),
 		args
+	);
+}
+
+
+Semantics<Activity>::Semantics(const Activity &trans)
+: trans_(trans)
+{}
+
+
+EC_word Semantics<Activity>::plterm()
+{
+	string state;
+
+	switch (trans_.state()) {
+	case Activity::State::IDLE:
+		state = "idle";
+		break;
+	case Activity::State::RUNNING:
+		state = "running";
+		break;
+	case Activity::State::FINAL:
+		state = "final";
+		break;
+	case Activity::State::FAILED:
+		state = "failed";
+		break;
+	case Activity::State::PREEMPTED:
+		state = "preempted";
+	}
+
+	return ::term(EC_functor("exog_state_change", 3),
+		transition_term(trans_),
+		EC_word(ReadylogContext::instance().backend()->time().time_since_epoch().count()),
+		EC_atom(state.c_str())
 	);
 }
 
@@ -150,17 +228,30 @@ Semantics<Transition>::Semantics(const Transition &trans)
 {}
 
 
+
 EC_word Semantics<Transition>::plterm()
-{ return transition_term(trans_); }
+{
+	string name;
 
+	switch (trans_.hook()) {
+	case Transition::Hook::START:
+		name = "start";
+		break;
+	case Transition::Hook::STOP:
+		name = "stop";
+		break;
+	case Transition::Hook::FAIL:
+		name = "fail";
+		break;
+	case Transition::Hook::FINISH:
+		name = "finish";
+	}
 
-Semantics<ExogTransition>::Semantics(const ExogTransition &trans)
-: trans_(trans)
-{}
-
-
-EC_word Semantics<ExogTransition>::plterm()
-{ return transition_term(trans_); }
+	return ::term(EC_functor(name.c_str(), 2),
+		transition_term(trans_),
+		EC_word(ReadylogContext::instance().backend()->time().time_since_epoch().count())
+	);
+}
 
 
 
