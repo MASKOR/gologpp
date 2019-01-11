@@ -191,7 +191,7 @@ protected:
 };
 
 
-class Solve : public Search, public LanguageElement<Solve> {
+class Solve : public VoidExpression, public NoScopeOwner, public LanguageElement<Solve> {
 public:
 	Solve(
 		NumericExpression *horizon,
@@ -199,12 +199,14 @@ public:
 		VoidExpression *statement
 	);
 
+	const VoidExpression &statement() const;
 	const NumericExpression &horizon() const;
 	const Reference<NumericFunction> &reward() const;
 	virtual void attach_semantics(SemanticsFactory &implementor) override;
 	virtual string to_string(const string &pfx) const override;
 
 private:
+	unique_ptr<VoidExpression> statement_;
 	unique_ptr<NumericExpression> horizon_;
 	unique_ptr<Reference<NumericFunction>> reward_;
 };

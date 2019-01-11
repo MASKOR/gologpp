@@ -163,13 +163,16 @@ Solve::Solve(
 	Reference<NumericFunction> *reward,
 	VoidExpression *statement
 )
-: Search(statement)
+: statement_(statement)
 , horizon_(horizon)
 , reward_(reward)
 {
 	horizon_->set_parent(this);
 	reward_->set_parent(this);
 }
+
+const Statement &Solve::statement() const
+{ return *statement_; }
 
 const NumericExpression &Solve::horizon() const
 { return *horizon_; }
