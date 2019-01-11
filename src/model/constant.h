@@ -125,6 +125,11 @@ public:
 };
 
 
+
+vector<unique_ptr<AbstractConstant>> copy(const vector<unique_ptr<AbstractConstant>> &v);
+
+
+
 } // namespace gologpp
 
 

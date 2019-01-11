@@ -59,4 +59,13 @@ Constant<NumericExpression>::Constant(double repr)
 {}
 
 
+vector<unique_ptr<AbstractConstant>> copy(const vector<unique_ptr<AbstractConstant>> &v)
+{
+	vector<unique_ptr<AbstractConstant>> rv;
+	for (const unique_ptr<AbstractConstant> &c : v)
+		rv.emplace_back(c->copy());
+	return rv;
 }
+
+
+} // namespace gologpp
