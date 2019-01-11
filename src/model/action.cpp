@@ -28,6 +28,9 @@ void AbstractAction::compile(AExecutionContext &ctx)
 string AbstractAction::to_string(const string &) const
 { return name() + '(' + concat_list(args(), ", ", "") + ")"; }
 
+bool AbstractAction::operator != (const AbstractAction &other) const
+{ return !(*this == other); }
+
 
 
 Action::Action(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
@@ -56,6 +59,18 @@ Action::Action(Scope *own_scope, const string &name, const vector<shared_ptr<Abs
 Action::Action(Scope &parent_scope, const string &name)
 : Action(new Scope(parent_scope), name, {})
 {}
+
+
+bool Action::operator == (const AbstractAction &other) const
+{
+	try {
+		const Action &a = dynamic_cast<const Action &>(other);
+		return hash() == a.hash();
+	} catch (std::bad_cast &) {
+		return false;
+	}
+}
+
 
 const BooleanExpression &Action::precondition() const
 { return *precondition_; }
@@ -133,6 +148,18 @@ Reference<Action> *Action::make_ref(const vector<Expression *> &args)
 
 Expression *Action::ref(const vector<Expression *> &args)
 { return make_ref(args); }
+
+
+
+bool ExogAction::operator == (const AbstractAction &other) const
+{
+	try {
+		const ExogAction &a = dynamic_cast<const ExogAction &>(other);
+		return hash() == a.hash();
+	} catch (std::bad_cast &) {
+		return false;
+	}
+}
 
 
 void ExogAction::attach_semantics(SemanticsFactory &implementor)

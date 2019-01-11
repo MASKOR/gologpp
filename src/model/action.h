@@ -34,6 +34,10 @@ public:
 
 	virtual ~AbstractAction() override = default;
 
+	virtual bool operator == (const AbstractAction &other) const = 0;
+	bool operator != (const AbstractAction &other) const;
+
+
 	const vector<unique_ptr<AbstractEffectAxiom>> &effects() const;
 	void add_effect(AbstractEffectAxiom *effect);
 
@@ -55,6 +59,8 @@ public:
 
 	Action(const Action &) = delete;
 	Action(Action &&) = default;
+
+	bool operator == (const AbstractAction &other) const override;
 
 	const BooleanExpression &precondition() const;
 
@@ -97,6 +103,7 @@ public:
 	using AbstractAction::AbstractAction;
 	ExogAction(const Action &) = delete;
 	ExogAction(ExogAction &&) = default;
+	bool operator == (const AbstractAction &other) const override;
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
 };

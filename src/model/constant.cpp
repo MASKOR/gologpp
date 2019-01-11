@@ -10,6 +10,9 @@ AbstractConstant::~AbstractConstant()
 size_t AbstractConstant::hash() const
 { return boost::hash_value(representation_); }
 
+bool AbstractConstant::operator != (const AbstractConstant &other) const
+{ return !(*this == other); }
+
 const AbstractConstant::LiteralVariant &AbstractConstant::variant() const
 { return representation_; }
 
