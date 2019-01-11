@@ -18,7 +18,7 @@ class AbstractConstant : public virtual AbstractLanguageElement {
 private:
 	struct to_string_visitor;
 public:
-	typedef boost::variant<int, double, string, bool> LiteralVariant;
+	typedef boost::variant<int, long, double, string, bool> LiteralVariant;
 
 	template<class T>
 	AbstractConstant(const T &representation)
