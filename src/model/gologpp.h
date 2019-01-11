@@ -93,6 +93,7 @@ class Quantification;
 class Block;
 class Choose;
 class Conditional;
+class Concurrent;
 template<class> class Assignment;
 template<class> class Pick;
 class Call;
@@ -163,7 +164,7 @@ using VariableReference = Reference<Variable<ExprT>>;
 #define GOLOGPP_SEMANTIC_TYPES \
 	(Action)(ExogAction)(Transition)(ExogTransition) \
 	(Scope)(ArithmeticOperation) \
-	(Negation)(BooleanOperation)(Quantification) \
+	(Negation)(BooleanOperation)(Quantification)(Concurrent) \
 	(Block)(Choose)(Conditional)(Search)(Solve)(Test)(While) \
 	(History)(Reference<Action>) \
 	(StringConcatenation) \

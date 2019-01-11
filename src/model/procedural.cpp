@@ -113,6 +113,37 @@ string Conditional::to_string(const string &pfx) const
 
 
 
+Concurrent::Concurrent(Scope *own_scope, const vector<VoidExpression *> &procs)
+: ScopeOwner(own_scope)
+{
+	for (VoidExpression *p : procs) {
+		p->set_parent(this);
+		procs_.emplace_back(p);
+	}
+}
+
+
+void Concurrent::attach_semantics(SemanticsFactory &f)
+{
+	semantics_ = f.make_semantics(*this);
+	scope().attach_semantics(f);
+	for (unique_ptr<VoidExpression> &p : procs_)
+		p->attach_semantics(f);
+}
+
+const vector<unique_ptr<VoidExpression>> &Concurrent::procs() const
+{ return procs_; }
+
+
+string Concurrent::to_string(const string &pfx) const
+{
+	return linesep + pfx + "concurrent {" + linesep
+		+ concat_list(procs(), ";" linesep + pfx + indent, pfx + indent) + ";" linesep
+		+ pfx + "}";
+}
+
+
+
 Search::Search(VoidExpression *statement)
 : statement_(statement)
 {

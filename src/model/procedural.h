@@ -71,6 +71,24 @@ protected:
 
 
 
+/**
+ * @brief Execute a set of statements in parallel.
+ */
+class Concurrent : public VoidExpression, public ScopeOwner, public LanguageElement<Concurrent> {
+public:
+	Concurrent(Scope *own_scope, const vector<VoidExpression *> &procs);
+	void attach_semantics(SemanticsFactory &) override;
+
+	const vector<unique_ptr<VoidExpression>> &procs() const;
+
+	virtual string to_string(const string &pfx) const override;
+
+private:
+	vector<unique_ptr<VoidExpression>> procs_;
+};
+
+
+
 template<class LhsT>
 class Assignment : public VoidExpression, public NoScopeOwner, public LanguageElement<Assignment<LhsT>> {
 public:
