@@ -28,6 +28,10 @@ Expression *ref_to_global(
 
 
 
+/**
+ * @brief The NoScopeOwner class: A language element that does not open a new scope,
+ * i.e. its scope and the scope of its children is its parent scope.
+ */
 class NoScopeOwner : public virtual AbstractLanguageElement {
 public:
 	virtual const Scope &scope() const override;
@@ -36,6 +40,10 @@ public:
 
 
 
+/**
+ * @brief The ScopeOwner class: A language element that opens a new scope.
+ * I.e. its scope is the parent scope of its children, which different from its parent scope.
+ */
 class ScopeOwner : public virtual AbstractLanguageElement {
 public:
 	ScopeOwner(Scope *owned_scope);
@@ -51,6 +59,10 @@ protected:
 
 
 
+/**
+ * @brief The Scope class: A container and definition space for language elements.
+ * The global (root) scope is its own parent.
+ */
 class Scope : public LanguageElement<Scope> {
 private:
 	Scope();
