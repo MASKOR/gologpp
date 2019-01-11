@@ -91,6 +91,24 @@ EC_word copy_term(EC_word t);
 
 
 
+class ManagedTerm {
+public:
+	ManagedTerm(EC_word w);
+	ManagedTerm(const ManagedTerm &);
+	ManagedTerm();
+	~ManagedTerm();
+
+	operator EC_word () const;
+	ManagedTerm &operator = (const EC_word &w);
+	ManagedTerm &operator = (const ManagedTerm &);
+
+private:
+	void save(EC_word w);
+	void clear();
+
+	int index_;
+	static int count_;
+};
 
 
 } // namespace gologpp

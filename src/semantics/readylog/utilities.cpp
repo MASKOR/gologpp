@@ -85,4 +85,91 @@ EC_word copy_term(EC_word t)
 		throw std::runtime_error("Unrecognized term type");
 }
 
+
+
+int ManagedTerm::count_ = 0;
+
+ManagedTerm::ManagedTerm()
+: index_(-1)
+{}
+
+ManagedTerm::ManagedTerm(EC_word w)
+: index_(count_++)
+{ save(w); }
+
+ManagedTerm::ManagedTerm(const ManagedTerm &other)
+: index_(count_++)
+{ save(other); }
+
+ManagedTerm::~ManagedTerm()
+{ clear(); }
+
+
+void ManagedTerm::clear()
+{
+	post_goal(::term(EC_functor("retractall", 1),
+		::term(EC_functor("managed_term", 2),
+			EC_word(index_),
+			::newvar()
+		)
+	));
+
+	if (EC_resume() != EC_succeed)
+		throw EngineError("failed to retract term");
+}
+
+
+void ManagedTerm::save(EC_word w)
+{
+	if (index_ < 0)
+		throw EngineError("Uninitialized ManagedTerm");
+
+	clear();
+
+	post_goal(::term(EC_functor("asserta", 1),
+		::term(EC_functor("managed_term", 2),
+			EC_word(index_),
+			w
+		)
+	));
+
+	if (EC_resume() != EC_succeed)
+		throw EngineError("failed to assert term");
+}
+
+
+ManagedTerm::operator EC_word () const
+{
+	if (index_ < 0)
+		throw EngineError("Uninitialized ManagedTerm");
+
+	EC_word t = ::newvar();
+	EC_word q = ::term(EC_functor("managed_term", 2),
+		EC_word(index_),
+		t
+	);
+	post_goal(::term(EC_functor("once", 1), q));
+	if (EC_resume() != EC_succeed)
+		throw EngineError("failed to query ManagedTerm");
+
+	return t;
+}
+
+
+ManagedTerm &ManagedTerm::operator= (const EC_word &other)
+{
+	if (index_ < 0)
+		index_ = count_++;
+
+	save(other);
+	return *this;
+}
+
+
+ManagedTerm &ManagedTerm::operator= (const ManagedTerm &other)
+{ return operator= (EC_word(other)); }
+
+
+
+
 }
