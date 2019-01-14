@@ -185,7 +185,7 @@ Semantics<DurativeCall>::Semantics(const DurativeCall &call)
 EC_word Semantics<DurativeCall>::plterm()
 {
 	return ::term(EC_functor(to_string(call_.type()).c_str(), 2),
-		call_.semantics().plterm(),
+		reference_term(call_.action()),
 		EC_atom("now")
 	);
 }

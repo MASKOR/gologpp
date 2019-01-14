@@ -281,9 +281,9 @@ string to_string(DurativeCall::Type type)
 	case DurativeCall::Type::START:
 		return "start";
 	case DurativeCall::Type::FINISH:
-		return "final";
+		return "finish";
 	case DurativeCall::Type::FAIL:
-		return "failed";
+		return "fail";
 	case DurativeCall::Type::STOP:
 		return "stop";
 	}
