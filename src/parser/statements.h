@@ -35,6 +35,7 @@ struct StatementParser : grammar<VoidExpression *(Scope &)> {
 	ReferenceParser<NumericFunction> reward_fn;
 	rule<Test *(Scope &)> test;
 	rule<While *(Scope &)> r_while;
+	rule<Concurrent *(Scope &), locals<Scope *>> concurrent;
 
 	rule<Return<BooleanExpression> *(Scope &)> boolean_return;
 	rule<Return<NumericExpression> *(Scope &)> numeric_return;

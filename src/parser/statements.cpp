@@ -52,7 +52,8 @@ StatementParser::StatementParser()
 		| numeric_pick(_r1)
 		| symbolic_pick(_r1)
 		| string_pick(_r1)
-		| solve(_r1) | search(_r1) | r_while(_r1);
+		| solve(_r1) | search(_r1) | r_while(_r1)
+		| concurrent(_r1);
 	compound_statement.name("compound_statement");
 
 
@@ -105,6 +106,14 @@ StatementParser::StatementParser()
 		_val = new_<While>(_1, _2)
 	];
 	r_while.name("while");
+
+	concurrent = ((lit("concurrent") > '{') [
+		_a = new_<Scope>(_r1)
+	] > +statement(*_a) > '}') [
+		_val = new_<Concurrent>(_a, _1)
+	];
+	choose.name("concurrent");
+	on_error<rethrow>(concurrent, delete_(_a));
 
 	boolean_return = (lit("return") >> boolean_expression(_r1)) [
 		_val = new_<Return<BooleanExpression>>(_1)
