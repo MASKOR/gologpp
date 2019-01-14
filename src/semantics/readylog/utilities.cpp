@@ -101,8 +101,12 @@ ManagedTerm::ManagedTerm(const ManagedTerm &other)
 : index_(count_++)
 { save(other); }
 
+
 ManagedTerm::~ManagedTerm()
-{ clear(); }
+{
+	if (index_ >= 0)
+		clear();
+}
 
 
 void ManagedTerm::clear()
@@ -160,6 +164,8 @@ ManagedTerm &ManagedTerm::operator= (const EC_word &other)
 {
 	if (index_ < 0)
 		index_ = count_++;
+	else
+		clear();
 
 	save(other);
 	return *this;
