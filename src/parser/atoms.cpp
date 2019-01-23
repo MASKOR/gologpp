@@ -223,9 +223,11 @@ rule<Expression *(Scope &)> &atom() {
 		var<BooleanExpression>()(_r1) [ _val = new_<Reference<BooleanVariable>>(_1) ]
 		| var<NumericExpression>()(_r1) [ _val = new_<Reference<NumericVariable>>(_1) ]
 		| var<SymbolicExpression>()(_r1) [ _val = new_<Reference<SymbolicVariable>>(_1) ]
+		| var<StringExpression>()(_r1) [ _val = new_<Reference<StringVariable>>(_1) ]
 		| constant<BooleanExpression>() [ _val = _1 ]
 		| constant<NumericExpression>() [ _val = _1 ]
 		| constant<SymbolicExpression>() [ _val = _1 ]
+		| constant<StringExpression>() [ _val = _1 ]
 		, "any_atom"
 	};
 	BOOST_SPIRIT_DEBUG_NODE(any_atom);
