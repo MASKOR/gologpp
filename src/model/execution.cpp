@@ -101,7 +101,9 @@ History ExecutionContext::run(Block &&program)
 			}
 		}
 		else {
+			std::cout << "<<< No transition possible: Waiting for exogenous events..." << std::endl;
 			shared_ptr<AbstractTransition> exog = exog_queue_poll();
+			std::cout << ">>> Exogenous event: " << exog << std::endl;
 			exog->attach_semantics(*implementor_);
 			history.abstract_impl().append_exog(exog);
 		}
