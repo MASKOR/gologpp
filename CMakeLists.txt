@@ -65,6 +65,7 @@ set(INTERFACE_SRC
 	src/model/mapping.cpp
 	src/model/platform_backend.cpp
 	src/model/transition.cpp
+	src/model/language.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)

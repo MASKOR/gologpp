@@ -12,7 +12,7 @@ class AbstractLanguageElement {
 public:
 	AbstractLanguageElement() = default;
 
-	// No language element is ever copyable, since it is part of a graph
+	// By default, a language element is not copyable, since it is part of a graph
 	// that may even contain cycles.
 	AbstractLanguageElement(const AbstractLanguageElement &) = delete;
 	AbstractLanguageElement(AbstractLanguageElement &&) = default;
@@ -25,22 +25,21 @@ public:
 	Semantics<GologT> &semantics() const
 	{ return static_cast<Semantics<GologT> &>(*semantics_); }
 
-	void set_implementation(unique_ptr<AbstractSemantics> &&impl)
-	{ semantics_ = std::move(impl); }
-
+	void set_implementation(unique_ptr<AbstractSemantics> &&impl);
 	virtual void attach_semantics(SemanticsFactory &implementor) = 0;
+
 	virtual string to_string(const string &pfx) const = 0;
+	string str() const;
+
 	virtual Scope &scope() = 0;
 	virtual const Scope &scope() const = 0;
 	virtual Scope &parent_scope() = 0;
 	virtual const Scope &parent_scope() const = 0;
 
 	// Unambiguous alias name to simplify type resolution for phoenix::bind in the parser
-	Scope &m_scope()
-	{ return scope(); }
+	Scope &m_scope();
 
-	string str() const
-	{ return to_string(""); }
+	bool is_ref() const;
 
 protected:
 	unique_ptr<AbstractSemantics> semantics_;

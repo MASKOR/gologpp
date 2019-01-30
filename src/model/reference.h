@@ -105,9 +105,6 @@ public:
 	shared_ptr<const TargetT> target() const
 	{ return std::dynamic_pointer_cast<const TargetT>(target_.lock()); }
 
-	virtual bool is_ref() const override
-	{ return true; }
-
 
 	virtual void attach_semantics(SemanticsFactory &implementor) override
 	{
@@ -170,9 +167,6 @@ public:
 
 	shared_ptr<const Variable<ExprT>> target() const
 	{ return std::dynamic_pointer_cast<const Variable<ExprT>>(target_.lock()); }
-
-	virtual bool is_ref() const override
-	{ return true; }
 
 
 	virtual void attach_semantics(SemanticsFactory &implementor) override

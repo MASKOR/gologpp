@@ -33,10 +33,6 @@ Scope &Expression::parent_scope()
 const Scope &Expression::parent_scope() const
 { return parent_->scope(); }
 
-
-bool Expression::is_ref() const
-{ return false; }
-
 AbstractLanguageElement *Expression::parent()
 { return parent_; }
 

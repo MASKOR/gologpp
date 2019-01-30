@@ -37,7 +37,6 @@ public:
 
 	virtual Scope &parent_scope() override;
 	virtual const Scope &parent_scope() const override;
-	virtual bool is_ref() const;
 	AbstractLanguageElement *parent();
 	const AbstractLanguageElement *parent() const;
 	void set_parent(AbstractLanguageElement *parent);
