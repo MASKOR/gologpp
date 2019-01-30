@@ -95,16 +95,15 @@ void ReadylogContext::compile(const AbstractAction &action)
 	try {
 		Semantics<Action> action_impl = action.semantics<Action>();
 		compile_term(action_impl.durative_action());
-		//compile_term(action_impl.prolog_poss_decl());
-		//compile_term(action_impl.prolog_poss());
 		compile_term(action_impl.durative_poss());
 		for (EC_word causes_val : action_impl.durative_causes_vals())
 			compile_term(causes_val);
 	} catch (std::bad_cast &) {
 		Semantics<ExogAction> action_impl = action.semantics<ExogAction>();
 		compile_term(action_impl.exog_action());
-		for (EC_word &ssa : action_impl.SSAs())
-			compile_term(ssa);
+		compile_term(action_impl.poss());
+		for (EC_word &causes_val : action_impl.causes_vals())
+			compile_term(causes_val);
 	}
 }
 

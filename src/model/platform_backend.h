@@ -34,9 +34,9 @@ struct Clock {
 class PlatformBackend {
 public:
 	using ActivitySet = std::unordered_set<
-		shared_ptr<AbstractTransition>,
-		AbstractTransition::Hash,
-		AbstractTransition::Equals
+		shared_ptr<Grounding<Action>>,
+		Grounding<Action>::Hash,
+		Grounding<Action>::Equals
 	>;
 	virtual ~PlatformBackend();
 
@@ -84,8 +84,8 @@ private:
 	};
 
 	std::unordered_map<
-		shared_ptr<AbstractTransition>, shared_ptr<ActivityThread>,
-		AbstractTransition::Hash, AbstractTransition::Equals
+		shared_ptr<Grounding<Action>>, shared_ptr<ActivityThread>,
+		Grounding<Action>::Hash, Grounding<Action>::Equals
 	> activity_threads_;
 };
 

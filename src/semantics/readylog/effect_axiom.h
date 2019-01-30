@@ -21,15 +21,29 @@ class Semantics<EffectAxiom<ExpressionT>> : public ReadylogSemantics {
 public:
 	Semantics(const EffectAxiom<ExpressionT> &eff)
 	: effect_(eff)
-	{}
+	{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-value"
+		try {
+			dynamic_cast<const Action &>(effect_.action());
+			// All golog++ actions are implicitly durative
+			cv_functor = "durative_causes_val";
+		} catch (std::bad_cast &) {
+			try {
+				dynamic_cast<const ExogAction &>(effect_.action());
+				cv_functor = "causes_val";
+			} catch (std::bad_cast &) {
+				throw Bug("Unknown action type");
+			}
+		}
+#pragma GCC diagnostic pop
+	}
 
 	virtual ~Semantics() override = default;
 
 	virtual EC_word plterm() override
-	{ return durative_causes_val(); }
-
-	EC_word durative_causes_val() {
-		return ::term(EC_functor("durative_causes_val", 4),
+	{
+		return ::term(EC_functor(cv_functor.c_str(), 4),
 			effect_.action().semantics().plterm(),
 			effect_.fluent().semantics().plterm(),
 			effect_.value().semantics().plterm(),
@@ -77,6 +91,7 @@ public:
 
 private:
 	const EffectAxiom<ExpressionT> &effect_;
+	string cv_functor;
 };
 
 } /* namespace gologpp */

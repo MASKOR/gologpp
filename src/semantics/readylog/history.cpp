@@ -109,7 +109,7 @@ shared_ptr<Transition> Semantics<History>::get_last_transition()
 }
 
 
-void Semantics<History>::append_exog(shared_ptr<AbstractTransition> trans)
+void Semantics<History>::append_exog(shared_ptr<Grounding<Action>> trans)
 { set_current_history(::list(trans->semantics().plterm(), current_history())); }
 
 EC_word Semantics<History>::current_history()

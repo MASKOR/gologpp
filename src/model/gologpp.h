@@ -28,7 +28,7 @@ template<class> class LanguageElement;
 class AbstractAction;
 class Action;
 class ExogAction;
-class AbstractTransition;
+class ExogEvent;
 class Activity;
 class Transition;
 
@@ -116,6 +116,7 @@ using StringFunction = Function<String>;
 
 class AbstractReference;
 template<class> class Reference;
+template<class> class Grounding;
 
 class History;
 
@@ -166,11 +167,12 @@ using VariableReference = Reference<Variable<ExprT>>;
 	(BOOST_PP_SEQ_ELEM(0, seq)<BOOST_PP_SEQ_ELEM(1, seq)>)
 
 #define GOLOGPP_SEMANTIC_TYPES \
-	(Action)(ExogAction)(Activity)(Transition) \
+	(Action)(Activity)(Transition) \
+	(ExogAction)(ExogEvent) \
 	(Scope)(ArithmeticOperation) \
 	(Negation)(BooleanOperation)(Quantification)(Concurrent) \
 	(Block)(Choose)(Conditional)(Search)(Solve)(Test)(While) \
-	(History)(Reference<Action>) \
+	(History)(Reference<Action>)(Grounding<Action>) \
 	(StringConcatenation) \
 	(DurativeCall) \
 	BOOST_PP_SEQ_FOR_EACH_PRODUCT(GOLOGPP_TEMPLATE_CLASS, \

@@ -22,21 +22,20 @@ template<class GologT> class Reference;
 template<class ExpressionT>
 class Semantics<Reference<Variable<ExpressionT>>> : public ReadylogSemantics {
 public:
-	Semantics(Reference<Variable<ExpressionT>> &ref)
-	: reference_(ref)
+	Semantics(const Reference<Variable<ExpressionT>> &ref)
+	: ref_(ref)
 	{}
 
 	virtual EC_word plterm() override
-	{ return reference_.target()->semantics().plterm(); }
+	{ return ref_.target()->semantics().plterm(); }
 
 private:
-	Reference<Variable<ExpressionT>> &reference_;
+	const Reference<Variable<ExpressionT>> &ref_;
 };
 
 
-
-template<class GologT>
-EC_word reference_term(const Reference<GologT> &ref)
+template<class GologT, class ExprT>
+EC_word reference_term(const ReferenceBase<GologT, ExprT> &ref)
 {
 	if (ref.arity() > 0)
 		return ::term(EC_functor(ref.name().c_str(), ref.arity()),
@@ -48,24 +47,40 @@ EC_word reference_term(const Reference<GologT> &ref)
 
 
 
-template<class GologT>
-class Semantics<Reference<GologT>> : public ReadylogSemantics {
+template<class GologT, class ExprT>
+class Semantics<ReferenceBase<GologT, ExprT>> : public Semantics<AbstractLanguageElement> {
 public:
-	Semantics(Reference<GologT> &ref)
-	: reference_(ref)
+	Semantics(const ReferenceBase<GologT, ExprT> &ref)
+	: ref_(ref)
 	{}
 
 	virtual EC_word plterm() override
-	{ return reference_term(reference_); }
+	{ return reference_term(ref_); }
 
-private:
-	Reference<GologT> &reference_;
+protected:
+	const ReferenceBase<GologT, ExprT> &ref_;
+};
+
+
+template<>
+EC_word Semantics<ReferenceBase<Action, Expression>>::plterm();
+
+
+
+template<class TargetT>
+class Semantics<Grounding<TargetT>> : public Semantics<ReferenceBase<TargetT, AbstractConstant>> {
+public:
+	using Semantics<ReferenceBase<TargetT, AbstractConstant>>::Semantics;
 };
 
 
 
-template<>
-EC_word Semantics<Reference<Action>>::plterm();
+template<class TargetT>
+class Semantics<Reference<TargetT>> : public Semantics<ReferenceBase<TargetT, Expression>> {
+public:
+	using Semantics<ReferenceBase<TargetT, Expression>>::Semantics;
+};
+
 
 
 

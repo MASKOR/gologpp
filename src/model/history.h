@@ -15,7 +15,7 @@ public:
 	virtual ~HistorySemantics();
 
 	virtual shared_ptr<Transition> get_last_transition() = 0;
-	virtual void append_exog(shared_ptr<AbstractTransition>) = 0;
+	virtual void append_exog(shared_ptr<Grounding<Action>>) = 0;
 
 protected:
 	History &history_;

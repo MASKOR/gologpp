@@ -57,74 +57,6 @@ vector<EC_word> Semantics<Action>::durative_causes_vals()
 }
 
 
-/*vector<EC_word> Semantics<Action>::prolog_poss_decls()
-{
-	action_.scope().semantics().init_vars();
-	return {
-		::term(EC_functor("prolog_poss", 1),
-			::term(EC_functor("start", 1),
-				plterm())),
-		::term(EC_functor("prolog_poss", 1),
-			::term(EC_functor("stop", 1),
-				plterm())),
-		::term(EC_functor("prolog_poss", 1),
-			::term(EC_functor("final", 1),
-				plterm())),
-		::term(EC_functor("prolog_poss", 1),
-			::term(EC_functor("failed", 1),
-				plterm())),
-	};
-}//*/
-
-
-/*EC_word Semantics<Action>::get_durative_poss(const string &which)
-{
-	EC_ref Cond;
-	EC_word q = ::term(EC_functor("poss", 2),
-		::term(EC_functor(which.c_str(), 2),
-			plterm(),
-			::newvar()
-		),
-		Cond
-	);
-	if (!ReadylogContext::instance().ec_query(q))
-		throw Bug(("failed to get durative_poss for ") + action_.str());
-
-	return Cond;
-}//*/
-
-
-/*vector<EC_word> Semantics<Action>::prolog_poss()
-{
-	action_.scope().semantics().init_vars();
-
-	vector<EC_word> rv;
-
-	for (const string &evt : { "start", "stop", "final", "failed" } ) {
-		EC_ref NewCondBody, S;
-
-		if ( ! ReadylogContext::instance().ec_query(
-			::term(EC_functor("process_condition", 3),
-				get_durative_poss(evt),
-				S,
-				NewCondBody
-			)
-		))
-			throw Bug("process_condition failed for " + action_.name());
-
-		rv.push_back(::term(EC_functor(":-", 2),
-			::term(EC_functor("prolog_poss", 2),
-				plterm(),
-				S
-			),
-			NewCondBody
-		) );
-	}
-
-	return rv;
-}//*/
-
-
 EC_word Semantics<Action>::durative_poss()
 {
 	action_.scope().semantics().init_vars();
@@ -134,15 +66,6 @@ EC_word Semantics<Action>::durative_poss()
 	);
 }
 
-
-/*vector<EC_word> Semantics<Action>::SSAs()
-{
-	action_.scope().semantics().init_vars();
-	vector<EC_word> rv;
-	for (const unique_ptr<AbstractEffectAxiom> &effect : action_.effects())
-		rv.push_back(effect->semantics().plterm());
-	return rv;
-}//*/
 
 
 Semantics<ExogAction>::Semantics(const ExogAction &a)
@@ -166,7 +89,7 @@ EC_word Semantics<ExogAction>::plterm()
 }
 
 
-vector<EC_word> Semantics<ExogAction>::SSAs()
+vector<EC_word> Semantics<ExogAction>::causes_vals()
 {
 	exog_.scope().semantics().init_vars();
 	vector<EC_word> rv;
@@ -176,29 +99,25 @@ vector<EC_word> Semantics<ExogAction>::SSAs()
 }
 
 
-inline EC_word transition_term(const AbstractTransition &t) {
-	EC_word *args = new EC_word[t.action()->arity()];
-
-	for (arity_t i = 0; i < t.action()->arity(); i++)
-		args[i] = t.args()[i]->semantics().plterm();
-
-	return ::term(
-		EC_functor(t.action()->name().c_str(), t.action()->arity()),
-		args
+EC_word Semantics<ExogAction>::poss()
+{
+	return ::term(EC_functor("poss", 2),
+		plterm(),
+		exog_.precondition().semantics().plterm()
 	);
 }
 
 
-Semantics<Activity>::Semantics(const Activity &trans)
-: trans_(trans)
-{}
+
+const Activity &Semantics<Activity>::activity()
+{ return dynamic_cast<const Activity &>(ref_); }
 
 
 EC_word Semantics<Activity>::plterm()
 {
 	string state;
 
-	switch (trans_.state()) {
+	switch (activity().state()) {
 	case Activity::State::IDLE:
 		state = "idle";
 		break;
@@ -216,24 +135,22 @@ EC_word Semantics<Activity>::plterm()
 	}
 
 	return ::term(EC_functor("exog_state_change", 3),
-		transition_term(trans_),
+		Semantics<Grounding<Action>>::plterm(),
 		EC_word(ReadylogContext::instance().backend()->time().time_since_epoch().count()),
 		EC_atom(state.c_str())
 	);
 }
 
 
-Semantics<Transition>::Semantics(const Transition &trans)
-: trans_(trans)
-{}
 
-
+const Transition &Semantics<Transition>::trans()
+{ return dynamic_cast<const Transition &>(ref_); }
 
 EC_word Semantics<Transition>::plterm()
 {
 	string name;
 
-	switch (trans_.hook()) {
+	switch (trans().hook()) {
 	case Transition::Hook::START:
 		name = "start";
 		break;
@@ -248,7 +165,7 @@ EC_word Semantics<Transition>::plterm()
 	}
 
 	return ::term(EC_functor(name.c_str(), 2),
-		transition_term(trans_),
+		Semantics<Grounding<Action>>::plterm(),
 		EC_word(ReadylogContext::instance().backend()->time().time_since_epoch().count())
 	);
 }

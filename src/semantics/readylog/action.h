@@ -2,6 +2,7 @@
 #define READYLOG_ACTION_H_
 
 #include "semantics.h"
+#include "reference.h"
 
 #include <model/action.h>
 
@@ -39,7 +40,8 @@ public:
 	virtual ~Semantics() override = default;
 
 	EC_word exog_action();
-	vector<EC_word> SSAs();
+	vector<EC_word> causes_vals();
+	EC_word poss();
 
 	virtual EC_word plterm() override;
 
@@ -49,26 +51,34 @@ private:
 
 
 template<>
-class Semantics<Activity> : public Semantics<AbstractLanguageElement> {
+class Semantics<ExogEvent> : public Semantics<Grounding<ExogAction>> {
 public:
-	Semantics(const Activity &trans);
+	using Semantics<Grounding<ExogAction>>::Semantics;
 	virtual ~Semantics() override = default;
-
-	virtual EC_word plterm() override;
-private:
-	const Activity &trans_;
 };
 
 
 template<>
-class Semantics<Transition> : public Semantics<AbstractLanguageElement> {
+class Semantics<Activity> : public Semantics<Grounding<Action>> {
 public:
-	Semantics(const Transition &trans);
+	using Semantics<Grounding<Action>>::Semantics;
 	virtual ~Semantics() override = default;
 
+	const Activity &activity();
+
 	virtual EC_word plterm() override;
-private:
-	const Transition &trans_;
+};
+
+
+template<>
+class Semantics<Transition> : public Semantics<Grounding<Action>> {
+public:
+	using Semantics<Grounding<Action>>::Semantics;
+	virtual ~Semantics() override = default;
+
+	const Transition &trans();
+
+	virtual EC_word plterm() override;
 };
 
 

@@ -10,31 +10,6 @@ namespace gologpp {
 AbstractAction::AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
 : Global(name, args)
 , ScopeOwner(own_scope)
-{}
-
-
-const vector<unique_ptr<AbstractEffectAxiom>> &AbstractAction::effects() const
-{ return effects_; }
-
-void AbstractAction::add_effect(AbstractEffectAxiom *effect)
-{
-	effect->set_action(*this);
-	effects_.emplace_back(effect);
-}
-
-void AbstractAction::compile(AExecutionContext &ctx)
-{ ctx.compile(*this); }
-
-string AbstractAction::to_string(const string &) const
-{ return name() + '(' + concat_list(args(), ", ", "") + ")"; }
-
-bool AbstractAction::operator != (const AbstractAction &other) const
-{ return !(*this == other); }
-
-
-
-Action::Action(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
-: AbstractAction(own_scope, name, args)
 {
 	set_precondition(new BooleanConstant(true));
 	vector<Expression *> mapping_args;
@@ -59,55 +34,67 @@ Action::Action(Scope *own_scope, const string &name, const vector<shared_ptr<Abs
 	mapping_.reset(new ActionMapping(name, mapping_args));
 }
 
-Action::Action(Scope &parent_scope, const string &name)
-: Action(new Scope(parent_scope), name, {})
+
+AbstractAction::AbstractAction(Scope &parent_scope, const string &name)
+: AbstractAction(new Scope(parent_scope), name, {})
 {}
 
 
-bool Action::operator == (const AbstractAction &other) const
+const vector<unique_ptr<AbstractEffectAxiom>> &AbstractAction::effects() const
+{ return effects_; }
+
+void AbstractAction::add_effect(AbstractEffectAxiom *effect)
 {
-	try {
-		const Action &a = dynamic_cast<const Action &>(other);
-		return hash() == a.hash();
-	} catch (std::bad_cast &) {
-		return false;
-	}
+	effect->set_action(*this);
+	effects_.emplace_back(effect);
 }
 
+void AbstractAction::compile(AExecutionContext &ctx)
+{ ctx.compile(*this); }
 
-const BooleanExpression &Action::precondition() const
+string AbstractAction::to_string(const string &pfx) const
+{
+	return name() + '(' + concat_list(args(), ", ", "") + ")" + " {"
+		+ linesep + pfx + "precondition:" + linesep + precondition().to_string(pfx + indent)
+		+ linesep + pfx + "effect:" + linesep + concat_list(effects(), ";" linesep, pfx) + linesep "}";
+}
+
+bool AbstractAction::operator != (const AbstractAction &other) const
+{ return !(*this == other); }
+
+bool AbstractAction::operator == (const AbstractAction &other) const
+{ return typeid(*this) == typeid(other) && hash() == other.hash(); }
+
+const BooleanExpression &AbstractAction::precondition() const
 { return *precondition_; }
 
-void Action::set_precondition(BooleanExpression *cond)
+void AbstractAction::set_precondition(BooleanExpression *cond)
 {
 	precondition_.reset(cond);
 	precondition_->set_parent(this);
 }
 
-const ActionMapping& Action::mapping() const
+const ActionMapping& AbstractAction::mapping() const
 {
 	return *mapping_;
 }
 
-void Action::set_mapping(ActionMapping *mapping)
+void AbstractAction::set_mapping(ActionMapping *mapping)
 {
 	mapping_.reset(mapping);
 }
 
 
-void Action::attach_semantics(SemanticsFactory &implementor)
+void AbstractAction::attach_semantics(SemanticsFactory &implementor)
 {
-	if (!semantics_) {
-		semantics_ = implementor.make_semantics(*this);
-		scope().attach_semantics(implementor);
-		precondition_->attach_semantics(implementor);
-		for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
-			effect->attach_semantics(implementor);
-	}
+	scope().attach_semantics(implementor);
+	precondition_->attach_semantics(implementor);
+	for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
+		effect->attach_semantics(implementor);
 }
 
 
-void Action::define(
+void AbstractAction::define(
 	boost::optional<BooleanExpression *> precondition,
 	boost::optional<vector<AbstractEffectAxiom *>> effects
 ) {
@@ -119,12 +106,17 @@ void Action::define(
 }
 
 
-string Action::to_string(const string &pfx) const
+
+void Action::attach_semantics(SemanticsFactory &f)
 {
-	return linesep + pfx + "action " + AbstractAction::to_string(pfx) + " {"
-		+ linesep + pfx + "precondition:" + linesep + precondition().to_string(pfx + indent)
-		+ linesep + pfx + "effect:" + linesep + concat_list(effects(), ";" linesep, pfx) + linesep "}";
+	if (!semantics_) {
+		semantics_ = f.make_semantics(*this);
+		AbstractAction::attach_semantics(f);
+	}
 }
+
+string Action::to_string(const string &pfx) const
+{ return linesep + pfx + "action " + AbstractAction::to_string(pfx); }
 
 
 Reference<Action> *Action::make_ref(const vector<Expression *> &args)
@@ -135,34 +127,16 @@ Expression *Action::ref(const vector<Expression *> &args)
 
 
 
-bool ExogAction::operator == (const AbstractAction &other) const
-{
-	try {
-		const ExogAction &a = dynamic_cast<const ExogAction &>(other);
-		return hash() == a.hash();
-	} catch (std::bad_cast &) {
-		return false;
-	}
-}
-
-
-void ExogAction::attach_semantics(SemanticsFactory &implementor)
+void ExogAction::attach_semantics(SemanticsFactory &f)
 {
 	if (!semantics_) {
-		semantics_ = implementor.make_semantics(*this);
-		scope().attach_semantics(implementor);
-		for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
-			effect->attach_semantics(implementor);
+		semantics_ = f.make_semantics(*this);
+		AbstractAction::attach_semantics(f);
 	}
 }
 
-
 string ExogAction::to_string(const string &pfx) const
-{
-	return linesep + pfx + "event" + AbstractAction::to_string(pfx) + " {"
-		+ linesep + pfx + "effect:" + linesep + concat_list(effects(), ";" linesep, pfx) + linesep "}";
-}
-
+{ return linesep + pfx + "exog_action " + AbstractAction::to_string(pfx); }
 
 
 
