@@ -105,13 +105,6 @@ void test_parser()
 #ifdef GOLOGPP_TEST_PARSER
 	VoidExpression *mainproc = parser::parse_file(SOURCE_DIR "/examples/blocksworld.gpp").release();
 
-	gologpp::shared_ptr<NumericFluent> on = global_scope().lookup_global<NumericFluent>("on", 1);
-	gologpp::shared_ptr<Action> put = global_scope().lookup_global<Action>("stack", 2);
-	gologpp::shared_ptr<BooleanFunction> goal = global_scope().lookup_global<BooleanFunction>("goal", 0);
-
-	if (on && put && goal)
-		std::cout << on->name() << " " << put->name() << " " << goal->name() << std::endl;
-
 #ifdef GOLOGPP_TEST_READYLOG
 	eclipse_opts options;
 	options.trace = false;
