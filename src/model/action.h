@@ -88,6 +88,8 @@ public:
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
+	virtual Expression *ref(const vector<Expression *> &args) override;
+	Reference<ExogAction> *make_ref(const vector<Expression *> &args);
 };
 
 

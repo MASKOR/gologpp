@@ -118,7 +118,6 @@ void Action::attach_semantics(SemanticsFactory &f)
 string Action::to_string(const string &pfx) const
 { return linesep + pfx + "action " + AbstractAction::to_string(pfx); }
 
-
 Reference<Action> *Action::make_ref(const vector<Expression *> &args)
 { return make_ref_<Action>(args); }
 
@@ -138,6 +137,11 @@ void ExogAction::attach_semantics(SemanticsFactory &f)
 string ExogAction::to_string(const string &pfx) const
 { return linesep + pfx + "exog_action " + AbstractAction::to_string(pfx); }
 
+Reference<ExogAction> *ExogAction::make_ref(const vector<Expression *> &args)
+{ return make_ref_<ExogAction>(args); }
+
+Expression *ExogAction::ref(const vector<Expression *> &args)
+{ return make_ref(args); }
 
 
 } // namespace gologpp

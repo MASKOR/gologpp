@@ -173,6 +173,7 @@ using VariableReference = Reference<Variable<ExprT>>;
 	(Negation)(BooleanOperation)(Quantification)(Concurrent) \
 	(Block)(Choose)(Conditional)(Search)(Solve)(Test)(While) \
 	(History)(Reference<Action>)(Grounding<Action>) \
+	(Reference<ExogAction>) \
 	(StringConcatenation) \
 	(DurativeCall) \
 	BOOST_PP_SEQ_FOR_EACH_PRODUCT(GOLOGPP_TEMPLATE_CLASS, \
