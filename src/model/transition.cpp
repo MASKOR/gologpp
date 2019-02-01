@@ -6,11 +6,47 @@ namespace gologpp {
 
 
 
+Transition::Transition(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args, Hook hook)
+: Grounding<Action>(action, std::move(args))
+, hook_(hook)
+{}
+
+Transition::Hook Transition::hook() const
+{ return hook_; }
+
+void Transition::attach_semantics(SemanticsFactory &implementor)
+{
+	if (!semantics_) {
+		semantics_ = implementor.make_semantics(*this);
+		for (unique_ptr<AbstractConstant> &c : args())
+			c->attach_semantics(implementor);
+	}
+}
+
+string Transition::to_string(const string &pfx) const
+{ return pfx + gologpp::to_string(hook()) + "(" + Grounding<Action>::to_string(pfx) + ")"; }
+
+string to_string(Transition::Hook h)
+{
+	switch (h) {
+	case Transition::Hook::START:
+		return "start";
+	case Transition::Hook::STOP:
+		return "stop";
+	case Transition::Hook::FINISH:
+		return "finish";
+	case Transition::Hook::FAIL:
+		return "fail";
+	}
+	throw Bug(string("Unhandled ") + typeid(h).name());
+}
+
+
+
 Activity::Activity(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args, State state)
 : Grounding<Action>(action, std::move(args))
 , state_(state)
 {}
-
 
 Activity::Activity(const shared_ptr<Transition> &trans)
 : Grounding<Action>(trans->target(), copy(trans->args()))
@@ -19,7 +55,6 @@ Activity::Activity(const shared_ptr<Transition> &trans)
 	if (trans->hook() != Transition::Hook::START)
 		throw Bug("Activity must be constructed from a START Transition");
 }
-
 
 void Activity::set_state(Activity::State state)
 { state_ = state; }
@@ -41,48 +76,6 @@ void Activity::attach_semantics(SemanticsFactory &implementor)
 			c->attach_semantics(implementor);
 	}
 }
-
-
-
-Transition::Transition(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args, Hook hook)
-: Grounding<Action>(action, std::move(args))
-, hook_(hook)
-{}
-
-Transition::Hook Transition::hook() const
-{ return hook_; }
-
-
-
-void Transition::attach_semantics(SemanticsFactory &implementor)
-{
-	if (!semantics_) {
-		semantics_ = implementor.make_semantics(*this);
-		for (unique_ptr<AbstractConstant> &c : args())
-			c->attach_semantics(implementor);
-	}
-}
-
-string Transition::to_string(const string &pfx) const
-{ return pfx + gologpp::to_string(hook()) + "(" + Grounding<Action>::to_string(pfx) + ")"; }
-
-
-
-string to_string(Transition::Hook h)
-{
-	switch (h) {
-	case Transition::Hook::START:
-		return "start";
-	case Transition::Hook::STOP:
-		return "stop";
-	case Transition::Hook::FINISH:
-		return "finish";
-	case Transition::Hook::FAIL:
-		return "fail";
-	}
-	throw Bug(string("Unhandled ") + typeid(h).name());
-}
-
 
 string to_string(Activity::State s)
 {
