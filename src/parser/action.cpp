@@ -20,11 +20,23 @@
 namespace gologpp {
 namespace parser {
 
-ActionParser::ActionParser()
-: ActionParser::base_type(action, "action_declaration")
+template<class ActionT>
+string action_keyword();
+
+template<>
+string action_keyword<Action>()
+{ return "action"; }
+
+template<>
+string action_keyword<ExogAction>()
+{ return "exog_action"; }
+
+template<class ActionT>
+ActionParser<ActionT>::ActionParser()
+: ActionParser<ActionT>::base_type(action, "action_declaration")
 {
 	action = (
-		(("action" > r_name() > '(') [
+		((lit(action_keyword<ActionT>()) > r_name() > '(') [
 			_a = new_<Scope>(_r1),
 			_b = _1
 		])
@@ -59,6 +71,15 @@ ActionParser::ActionParser()
 
 	//BOOST_SPIRIT_DEBUG_NODES((action));
 }
+
+
+template
+struct ActionParser<Action>;
+
+template
+struct ActionParser<ExogAction>;
+
+
 
 } // namespace parser
 } // namespace gologpp

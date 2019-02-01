@@ -27,6 +27,7 @@ struct ProgramParser : grammar<VoidExpression *(Scope &)> {
 		program = expect [ *( omit[ // Discard attributes, they just register themselves as Globals
 			abstract_fluent()(_r1)
 			| action(_r1)
+			| exog_action(_r1)
 			| function(_r1)
 			| numeric_domain_decl(_r1)
 			| symbolic_domain_decl(_r1)
@@ -41,7 +42,8 @@ struct ProgramParser : grammar<VoidExpression *(Scope &)> {
 	}
 
 	rule<VoidExpression *(Scope &)> program;
-	ActionParser action;
+	ActionParser<Action> action;
+	ActionParser<ExogAction> exog_action;
 	AbstractFunctionParser function;
 	StatementParser statement;
 	DomainDeclarationParser<Number> numeric_domain_decl;

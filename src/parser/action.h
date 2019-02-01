@@ -12,8 +12,9 @@ namespace gologpp {
 namespace parser {
 
 
+template<class ActionT>
 struct ActionParser : grammar <
-	Action *(Scope &),
+	ActionT *(Scope &),
 	locals <
 		Scope *,
 		string,
@@ -28,12 +29,19 @@ struct ActionParser : grammar <
 	EffectParser<NumericExpression> numeric_effect;
 	EffectParser<SymbolicExpression> symbolic_effect;
 	AnyDomainAssignmentParser domain_assignment;
-	rule < Action *(Scope &), locals <
+	rule < ActionT *(Scope &), locals <
 		Scope *,
 		string,
 		boost::optional < vector < shared_ptr < AbstractVariable > > >
 	> > action;
 };
+
+
+extern template
+struct ActionParser<Action>;
+
+extern template
+struct ActionParser<ExogAction>;
 
 
 
