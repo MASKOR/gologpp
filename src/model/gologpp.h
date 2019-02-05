@@ -63,6 +63,8 @@ template<class> class InitialValue;
 
 typedef Fluent<BooleanExpression> BooleanFluent;
 typedef Fluent<NumericExpression> NumericFluent;
+typedef Fluent<SymbolicExpression> SymbolicFluent;
+typedef Fluent<StringExpression> StringFluent;
 
 class AbstractVariable;
 template<class> class Variable;
