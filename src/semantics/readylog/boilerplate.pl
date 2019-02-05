@@ -1,5 +1,6 @@
 :- external(exog_fluent_getValue/3, p_exog_fluent_getValue).
 :- dynamic managed_term/2.
+:- dynamic durative_action/1, durative_poss/2, durative_causes_val/4.
 
 function(strcat(X, Y), R, concat_atoms(X, Y, R)).
 
