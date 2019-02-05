@@ -79,6 +79,9 @@ void AbstractAction::set_precondition(BooleanExpression *cond)
 const ActionMapping& AbstractAction::mapping() const
 { return *mapping_; }
 
+ActionMapping& AbstractAction::mapping()
+{ return *mapping_; }
+
 void AbstractAction::set_mapping(ActionMapping *mapping)
 { mapping_.reset(mapping); }
 
