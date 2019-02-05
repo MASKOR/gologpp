@@ -90,16 +90,22 @@ void ReadylogContext::compile(const Block &block)
 }
 
 
-void ReadylogContext::compile(const AbstractAction &action)
+void ReadylogContext::compile(const AbstractAction &aa)
 {
 	try {
-		Semantics<Action> action_impl = action.semantics<Action>();
+		const Action &action = dynamic_cast<const Action &>(aa);
+		Semantics<Action> &action_impl = action.semantics();
 		compile_term(action_impl.durative_action());
 		compile_term(action_impl.durative_poss());
 		for (EC_word causes_val : action_impl.durative_causes_vals())
 			compile_term(causes_val);
+		if (action.senses())
+			compile_term(action_impl.senses());
+			// senses/2 declaration not really needed since golog++ appends
+			// the sensing result to the history, anyways
 	} catch (std::bad_cast &) {
-		Semantics<ExogAction> action_impl = action.semantics<ExogAction>();
+		const ExogAction &action = dynamic_cast<const ExogAction &>(aa);
+		Semantics<ExogAction> &action_impl = action.semantics();
 		compile_term(action_impl.exog_action());
 		compile_term(action_impl.poss());
 		for (EC_word &causes_val : action_impl.causes_vals())

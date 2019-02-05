@@ -27,6 +27,7 @@ class AbstractAction
 , public virtual AbstractLanguageElement {
 public:
 	typedef VoidExpression expression_t;
+	typedef AbstractAction abstract_t;
 
 	AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 	AbstractAction(Scope &parent_scope, const string &name);
@@ -43,11 +44,6 @@ public:
 	BooleanExpression &precondition();
 
 	void set_precondition(BooleanExpression *);
-
-	void define(
-		boost::optional<BooleanExpression *> precondition,
-		boost::optional<vector<AbstractEffectAxiom *>> effects
-	);
 
 	const vector<unique_ptr<AbstractEffectAxiom>> &effects() const;
 	vector<unique_ptr<AbstractEffectAxiom>> &effects();
@@ -74,10 +70,24 @@ class Action : public AbstractAction, public LanguageElement<Action> {
 public:
 	using AbstractAction::AbstractAction;
 
+	void set_senses(Reference<AbstractFluent> *);
+
+	void define(
+		boost::optional<BooleanExpression *> precondition,
+		boost::optional<vector<AbstractEffectAxiom *>> effects,
+		boost::optional<Reference<AbstractFluent> *> senses
+	);
+
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
 	virtual Expression *ref(const vector<Expression *> &args) override;
 	Reference<Action> *make_ref(const vector<Expression *> &args);
+
+	unique_ptr<Reference<AbstractFluent>> &senses();
+	const unique_ptr<Reference<AbstractFluent>> &senses() const;
+
+private:
+	unique_ptr<Reference<AbstractFluent>> senses_;
 };
 
 
@@ -85,6 +95,11 @@ public:
 class ExogAction : public AbstractAction, public LanguageElement<ExogAction> {
 public:
 	using AbstractAction::AbstractAction;
+
+	void define(
+		boost::optional<BooleanExpression *> precondition,
+		boost::optional<vector<AbstractEffectAxiom *>> effects
+	);
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;

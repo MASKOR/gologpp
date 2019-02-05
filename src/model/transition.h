@@ -54,8 +54,13 @@ public:
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 
+	void set_sensing_result(AbstractConstant *);
+	unique_ptr<AbstractConstant> &sensing_result();
+	const unique_ptr<AbstractConstant> &sensing_result() const;
+
 private:
 	State state_;
+	unique_ptr<AbstractConstant> sensing_result_;
 };
 
 

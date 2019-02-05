@@ -22,7 +22,7 @@ namespace gologpp {
 
 class AExecutionContext {
 public:
-	typedef std::queue<shared_ptr<Grounding<Action>>> ExogQueue;
+	typedef std::queue<shared_ptr<Grounding<AbstractAction>>> ExogQueue;
 
 	AExecutionContext(unique_ptr<PlatformBackend> &&platform_backend);
 	virtual ~AExecutionContext() = default;
@@ -42,10 +42,10 @@ public:
 
 	virtual History run(Block &&program) = 0;
 
-	shared_ptr<Grounding<Action>> exog_queue_pop();
-	shared_ptr<Grounding<Action>> exog_queue_poll();
+	shared_ptr<Grounding<AbstractAction>> exog_queue_pop();
+	shared_ptr<Grounding<AbstractAction>> exog_queue_poll();
 	bool exog_empty();
-	void exog_queue_push(shared_ptr<Grounding<Action>> exog);
+	void exog_queue_push(shared_ptr<Grounding<AbstractAction>> exog);
 
 	unique_ptr<PlatformBackend> &backend();
 

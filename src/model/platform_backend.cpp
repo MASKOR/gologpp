@@ -31,7 +31,6 @@ static Activity::State trans2state(Transition::Hook hook) {
 PlatformBackend::~PlatformBackend()
 {}
 
-
 void PlatformBackend::start_activity(shared_ptr<Transition> trans)
 {
 	std::lock_guard<std::mutex> locked(mutex_);
@@ -41,7 +40,7 @@ void PlatformBackend::start_activity(shared_ptr<Transition> trans)
 }
 
 
-void PlatformBackend::cleanup_activity(shared_ptr<Transition> trans)
+shared_ptr<Activity> PlatformBackend::end_activity(shared_ptr<Transition> trans)
 {
 	std::lock_guard<std::mutex> locked(mutex_);
 
@@ -58,10 +57,12 @@ void PlatformBackend::cleanup_activity(shared_ptr<Transition> trans)
 
 	activities_.erase(it);
 	std::cout << "<<< Cleared " << trans->str() << std::endl;
+
+	return dur_running;
 }
 
 
-void PlatformBackend::update_activity(shared_ptr<Transition> trans)
+void PlatformBackend::update_activity(shared_ptr<Transition> trans, AbstractConstant *sensing_result)
 {
 	std::lock_guard<std::mutex> locked(mutex_);
 
@@ -73,10 +74,25 @@ void PlatformBackend::update_activity(shared_ptr<Transition> trans)
 	if (!a)
 		throw LostTransition(trans->str());
 
+	if (trans->hook() == Transition::Hook::FINISH) {
+		if (a->target()->senses() && !sensing_result)
+			throw Bug("PlatformBackend implementation tried to finish the sensing action "
+				+ static_cast<const Grounding<Action> &>(*a).str()
+				+ " without providing a sensing result"
+			);
+		else if (!a->target()->senses() && sensing_result)
+			throw Bug("PlatformBackend implementation gave a sensing result to the action "
+				+ static_cast<const Grounding<Action> &>(*a).str()
+				+ ", but it is not a sensing action"
+			);
+		else if (sensing_result)
+			a->set_sensing_result(sensing_result);
+	}
+
 	a->set_state(trans2state(trans->hook()));
+
 	exec_ctx_->exog_queue_push(a);
 }
-
 
 
 void PlatformBackend::set_context(AExecutionContext *ctx)

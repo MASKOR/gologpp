@@ -328,6 +328,7 @@ class AbstractFunction
 {
 public:
 	typedef Expression expression_t;
+	typedef AbstractFunction abstract_t;
 
 	AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 
@@ -356,7 +357,6 @@ class Function
 , public LanguageElement<Function<ExpressionT>>
 {
 public:
-	typedef AbstractFunction abstract_t;
 	typedef ExpressionT expression_t;
 
 	Function(

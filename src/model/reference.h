@@ -34,7 +34,7 @@ public:
 template<class TargetT, class ExprT >
 class ReferenceBase
 : public TargetT::expression_t
-, public AbstractReference
+, public virtual AbstractReference
 , public NoScopeOwner
 {
 public:
@@ -138,9 +138,30 @@ private:
 
 
 template<class TargetT>
+class Reference;
+
+template<>
+class Reference<AbstractFluent>
+: public virtual AbstractReference
+{};
+
+template<>
+class Reference<AbstractAction>
+: public virtual AbstractReference
+{};
+
+template<>
+class Reference<AbstractFunction>
+: public virtual AbstractReference
+{};
+
+
+
+template<class TargetT>
 class Reference
 : public ReferenceBase<TargetT, Expression>
 , public LanguageElement<Reference<TargetT>>
+, public Reference<typename TargetT::abstract_t>
 {
 public:
 	using ReferenceBase<TargetT, Expression>::ReferenceBase;
@@ -158,8 +179,29 @@ public:
 
 
 template<class TargetT>
+class Grounding;
+
+template<>
+class Grounding<AbstractAction>
+: public virtual AbstractReference
+{};
+
+template<>
+class Grounding<AbstractFunction>
+: public virtual AbstractReference
+{};
+
+template<>
+class Grounding<AbstractFluent>
+: public virtual AbstractReference
+{};
+
+
+
+template<class TargetT>
 class Grounding
 : public ReferenceBase<TargetT, AbstractConstant>
+, public Grounding<typename TargetT::abstract_t>
 {
 public:
 	using ReferenceBase<TargetT, AbstractConstant>::ReferenceBase;

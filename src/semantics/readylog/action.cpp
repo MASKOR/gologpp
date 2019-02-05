@@ -67,6 +67,14 @@ EC_word Semantics<Action>::durative_poss()
 }
 
 
+EC_word Semantics<Action>::senses()
+{
+	return ::term(EC_functor("senses", 2),
+		plterm(),
+		action_.senses()->semantics().plterm()
+	);
+}
+
 
 Semantics<ExogAction>::Semantics(const ExogAction &a)
 : exog_(a)
@@ -138,6 +146,15 @@ EC_word Semantics<Activity>::plterm()
 		Semantics<Grounding<Action>>::plterm(),
 		EC_word(ReadylogContext::instance().backend()->time().time_since_epoch().count()),
 		EC_atom(state.c_str())
+	);
+}
+
+
+EC_word Semantics<Activity>::sensing_result()
+{
+	return ::term(EC_functor("e", 2),
+		activity().target()->senses()->semantics().plterm(),
+		activity().sensing_result()->semantics().plterm()
 	);
 }
 

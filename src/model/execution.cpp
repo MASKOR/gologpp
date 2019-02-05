@@ -21,16 +21,16 @@ AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_back
 }
 
 
-shared_ptr<Grounding<Action>> AExecutionContext::exog_queue_pop()
+shared_ptr<Grounding<AbstractAction>> AExecutionContext::exog_queue_pop()
 {
 	std::lock_guard<std::mutex> { exog_mutex_ };
-	shared_ptr<Grounding<Action>> rv = std::move(exog_queue_.front());
+	shared_ptr<Grounding<AbstractAction>> rv = std::move(exog_queue_.front());
 	exog_queue_.pop();
 	return rv;
 }
 
 
-shared_ptr<Grounding<Action>> AExecutionContext::exog_queue_poll()
+shared_ptr<Grounding<AbstractAction>> AExecutionContext::exog_queue_poll()
 {
 	std::unique_lock<std::mutex> queue_empty_lock { queue_empty_mutex_ };
 	queue_empty_condition_.wait(queue_empty_lock, [&] { return !exog_queue_.empty(); });
@@ -38,7 +38,7 @@ shared_ptr<Grounding<Action>> AExecutionContext::exog_queue_poll()
 }
 
 
-void AExecutionContext::exog_queue_push(shared_ptr<Grounding<Action>> exog)
+void AExecutionContext::exog_queue_push(shared_ptr<Grounding<AbstractAction>> exog)
 {
 	std::lock_guard<std::mutex> { exog_mutex_ };
 	exog_queue_.push(std::move(exog));
@@ -83,7 +83,7 @@ History ExecutionContext::run(Block &&program)
 	while (!final(program, history)) {
 		context_time_ = backend()->time();
 		while (!exog_empty()) {
-			shared_ptr<Grounding<Action>> exog = exog_queue_pop();
+			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_pop();
 			exog->attach_semantics(*implementor_);
 			history.abstract_impl().append_exog(exog);
 		}
@@ -96,13 +96,15 @@ History ExecutionContext::run(Block &&program)
 					backend()->preempt_activity(trans);
 				else if (trans->hook() == Transition::Hook::START)
 					backend()->start_activity(trans);
+				else if (trans->hook() == Transition::Hook::FINISH && trans->target()->senses())
+					history.abstract_impl().append_sensing_result(backend()->end_activity(trans));
 				else
-					backend()->cleanup_activity(trans);
+					backend()->end_activity(trans);
 			}
 		}
 		else {
 			std::cout << "<<< No transition possible: Waiting for exogenous events..." << std::endl;
-			shared_ptr<Grounding<Action>> exog = exog_queue_poll();
+			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_poll();
 			std::cout << ">>> Exogenous event: " << exog << std::endl;
 			exog->attach_semantics(*implementor_);
 			history.abstract_impl().append_exog(exog);

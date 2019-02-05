@@ -100,6 +100,7 @@ class AbstractFluent
 {
 public:
 	typedef Expression expression_t;
+	typedef AbstractFluent abstract_t;
 
 	AbstractFluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 	AbstractFluent(AbstractFluent &&) = default;

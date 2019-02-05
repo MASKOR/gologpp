@@ -109,8 +109,11 @@ shared_ptr<Transition> Semantics<History>::get_last_transition()
 }
 
 
-void Semantics<History>::append_exog(shared_ptr<Grounding<Action>> trans)
+void Semantics<History>::append_exog(shared_ptr<Grounding<AbstractAction>> trans)
 { set_current_history(::list(trans->semantics().plterm(), current_history())); }
+
+void Semantics<History>::append_sensing_result(shared_ptr<Activity> a)
+{ set_current_history(::list(a->semantics().sensing_result(), current_history())); }
 
 EC_word Semantics<History>::current_history()
 { return readylog_history_; }

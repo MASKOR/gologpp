@@ -77,6 +77,16 @@ void Activity::attach_semantics(SemanticsFactory &implementor)
 	}
 }
 
+void Activity::set_sensing_result(AbstractConstant *sr)
+{ sensing_result_.reset(sr); }
+
+unique_ptr<AbstractConstant> &Activity::sensing_result()
+{ return sensing_result_; }
+
+const unique_ptr<AbstractConstant> &Activity::sensing_result() const
+{ return sensing_result_; }
+
+
 string to_string(Activity::State s)
 {
 	switch(s) {

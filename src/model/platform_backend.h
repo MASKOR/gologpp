@@ -40,7 +40,7 @@ public:
 	>;
 	virtual ~PlatformBackend();
 
-	void cleanup_activity(shared_ptr<Transition>);
+	shared_ptr<Activity> end_activity(shared_ptr<Transition>);
 	void start_activity(shared_ptr<Transition>);
 	virtual void preempt_activity(shared_ptr<Transition>) = 0;
 
@@ -48,7 +48,7 @@ public:
 	void set_context(AExecutionContext *ctx);
 
 protected:
-	void update_activity(shared_ptr<Transition>);
+	void update_activity(shared_ptr<Transition>, AbstractConstant *sensing_result = nullptr);
 
 private:
 	virtual void execute_activity(shared_ptr<Activity> a) = 0;

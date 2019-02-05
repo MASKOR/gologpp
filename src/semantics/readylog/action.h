@@ -21,11 +21,8 @@ public:
 
 	EC_word durative_action();
 	vector<EC_word> durative_causes_vals();
-	//vector<EC_word> SSAs();
-	//vector<EC_word> prolog_poss_decls();
-	//vector<EC_word> prolog_poss();
 	EC_word durative_poss();
-	//EC_word get_durative_poss(const string &which);
+	EC_word senses();
 
 	virtual EC_word plterm() override;
 private:
@@ -67,6 +64,7 @@ public:
 	const Activity &activity();
 
 	virtual EC_word plterm() override;
+	EC_word sensing_result();
 };
 
 

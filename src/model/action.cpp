@@ -39,9 +39,9 @@ AbstractAction::AbstractAction(Scope &parent_scope, const string &name)
 : AbstractAction(new Scope(parent_scope), name, {})
 {}
 
-
 const vector<unique_ptr<AbstractEffectAxiom>> &AbstractAction::effects() const
 { return effects_; }
+
 
 void AbstractAction::add_effect(AbstractEffectAxiom *effect)
 {
@@ -51,6 +51,7 @@ void AbstractAction::add_effect(AbstractEffectAxiom *effect)
 
 void AbstractAction::compile(AExecutionContext &ctx)
 { ctx.compile(*this); }
+
 
 string AbstractAction::to_string(const string &pfx) const
 {
@@ -68,6 +69,7 @@ bool AbstractAction::operator == (const AbstractAction &other) const
 const BooleanExpression &AbstractAction::precondition() const
 { return *precondition_; }
 
+
 void AbstractAction::set_precondition(BooleanExpression *cond)
 {
 	precondition_.reset(cond);
@@ -75,14 +77,10 @@ void AbstractAction::set_precondition(BooleanExpression *cond)
 }
 
 const ActionMapping& AbstractAction::mapping() const
-{
-	return *mapping_;
-}
+{ return *mapping_; }
 
 void AbstractAction::set_mapping(ActionMapping *mapping)
-{
-	mapping_.reset(mapping);
-}
+{ mapping_.reset(mapping); }
 
 
 void AbstractAction::attach_semantics(SemanticsFactory &implementor)
@@ -94,17 +92,6 @@ void AbstractAction::attach_semantics(SemanticsFactory &implementor)
 }
 
 
-void AbstractAction::define(
-	boost::optional<BooleanExpression *> precondition,
-	boost::optional<vector<AbstractEffectAxiom *>> effects
-) {
-	if (precondition)
-		set_precondition(precondition.value());
-	if (effects)
-		for (AbstractEffectAxiom *e : *effects)
-			add_effect(e);
-}
-
 
 
 void Action::attach_semantics(SemanticsFactory &f)
@@ -112,6 +99,8 @@ void Action::attach_semantics(SemanticsFactory &f)
 	if (!semantics_) {
 		semantics_ = f.make_semantics(*this);
 		AbstractAction::attach_semantics(f);
+		if (senses_)
+			senses_->attach_semantics(f);
 	}
 }
 
@@ -123,6 +112,30 @@ Reference<Action> *Action::make_ref(const vector<Expression *> &args)
 
 Expression *Action::ref(const vector<Expression *> &args)
 { return make_ref(args); }
+
+void Action::set_senses(Reference<AbstractFluent> *f)
+{ senses_.reset(f); }
+
+unique_ptr<Reference<AbstractFluent>> &Action::senses()
+{ return senses_; }
+
+const unique_ptr<Reference<AbstractFluent>> &Action::senses() const
+{ return senses_; }
+
+
+void Action::define(
+	boost::optional<BooleanExpression *> precondition,
+	boost::optional<vector<AbstractEffectAxiom *>> effects,
+	boost::optional<Reference<AbstractFluent> *> senses
+) {
+	if (precondition)
+		set_precondition(precondition.value());
+	if (effects)
+		for (AbstractEffectAxiom *e : *effects)
+			add_effect(e);
+	if (senses)
+		set_senses(senses.value());
+}
 
 
 
@@ -142,6 +155,19 @@ Reference<ExogAction> *ExogAction::make_ref(const vector<Expression *> &args)
 
 Expression *ExogAction::ref(const vector<Expression *> &args)
 { return make_ref(args); }
+
+
+void ExogAction::define(
+	boost::optional<BooleanExpression *> precondition,
+	boost::optional<vector<AbstractEffectAxiom *>> effects
+) {
+	if (precondition)
+		set_precondition(precondition.value());
+	if (effects)
+		for (AbstractEffectAxiom *e : *effects)
+			add_effect(e);
+}
+
 
 
 } // namespace gologpp

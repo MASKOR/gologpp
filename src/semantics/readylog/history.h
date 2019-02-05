@@ -16,7 +16,8 @@ public:
 	virtual ~Semantics() override = default;
 
 	virtual shared_ptr<Transition> get_last_transition() override;
-	virtual void append_exog(shared_ptr<Grounding<Action>> exog) override;
+	virtual void append_exog(shared_ptr<Grounding<AbstractAction>> exog) override;
+	virtual void append_sensing_result(shared_ptr<Activity>) override;
 	EC_word current_history();
 	void set_current_history(EC_word h);
 	bool has_changed() const;

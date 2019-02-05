@@ -23,7 +23,7 @@ public:
 
 	template<class GologT = AbstractLanguageElement>
 	Semantics<GologT> &semantics() const
-	{ return static_cast<Semantics<GologT> &>(*semantics_); }
+	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
 
 	void set_implementation(unique_ptr<AbstractSemantics> &&impl);
 	virtual void attach_semantics(SemanticsFactory &implementor) = 0;
