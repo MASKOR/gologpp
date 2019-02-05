@@ -41,10 +41,13 @@ EC_word Semantics<Action>::durative_action()
 
 EC_word Semantics<Action>::plterm()
 {
-	return ::term(
-		EC_functor(action_.name().c_str(), action_.arity()),
-		to_ec_words(action_.args()).data()
-	);
+	if (action_.arity() > 0)
+		return ::term(
+			EC_functor(action_.name().c_str(), action_.arity()),
+			to_ec_words(action_.args()).data()
+		);
+	else
+		return EC_atom(action_.name().c_str());
 }
 
 
@@ -90,10 +93,13 @@ EC_word Semantics<ExogAction>::exog_action()
 
 EC_word Semantics<ExogAction>::plterm()
 {
-	return ::term(
-		EC_functor(exog_.name().c_str(), exog_.arity()),
-		to_ec_words(exog_.args()).data()
-	);
+	if (exog_.arity() > 0)
+		return ::term(
+			EC_functor(exog_.name().c_str(), exog_.arity()),
+			to_ec_words(exog_.args()).data()
+		);
+	else
+		return EC_atom(exog_.name().c_str());
 }
 
 
