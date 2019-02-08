@@ -103,9 +103,6 @@ public:
 			variables_[name] = rv;
 		}
 
-		if (!rv)
-			throw InvalidIdentifier(name);
-
 		return rv;
 	}
 

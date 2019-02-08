@@ -22,6 +22,7 @@
 #include <boost/phoenix/operator/comparison.hpp>
 #include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/fusion/at.hpp>
+#include <boost/phoenix/operator/logical.hpp>
 
 #include <model/scope.h>
 #include <model/reference.h>
@@ -45,7 +46,10 @@ rule<shared_ptr<Variable<ExpressionT>>(Scope &)> &var() {
 			_val = phoenix::bind(
 				&Scope::get_var<ExpressionT, only_local, allow_def>,
 				_r1, _1
-			)
+			),
+			if_(!_val) [
+				_pass = false
+			]
 		],
 		type_descr<ExpressionT>() + "_variable"
 	};
