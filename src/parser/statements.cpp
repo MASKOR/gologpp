@@ -129,7 +129,13 @@ StatementParser::StatementParser()
 	symbolic_return = (lit("return") >> symbolic_expression(_r1)) [
 		_val = new_<Return<SymbolicExpression>>(_1)
 	];
-	numeric_return.name("symbolic_return");
+	symbolic_return.name("symbolic_return");
+
+	string_return = (lit("return") >> string_expression(_r1)) [
+		_val = new_<Return<StringExpression>>(_1)
+	];
+	string_return.name("string_return");
+
 
 	durative_call = (
 		( (
