@@ -8,6 +8,7 @@
 #include "arithmetic.h"
 #include "reference.h"
 #include "symbolic_expression.h"
+#include "string_expression.h"
 
 
 namespace gologpp {
@@ -41,6 +42,7 @@ struct ExpressionParser<BooleanExpression> : grammar<BooleanExpression *(Scope &
 	rule<BooleanOperator()> bool_op;
 	ComparisonParser<NumericExpression> numeric_comparison;
 	ComparisonParser<SymbolicExpression> symbolic_comparison;
+	ComparisonParser<StringExpression> string_comparison;
 };
 
 

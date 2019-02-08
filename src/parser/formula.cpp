@@ -53,6 +53,7 @@ ExpressionParser<BooleanExpression>::ExpressionParser()
 
 	unary_expr = quantification(_r1) | negation(_r1) | constant<BooleanExpression>()
 		| bool_var_ref(_r1) | brace(_r1) | numeric_comparison(_r1) | symbolic_comparison(_r1)
+		| string_comparison(_r1)
 		| bool_fluent_ref(_r1) | bool_function_ref(_r1);
 	unary_expr.name("unary_boolean_expression");
 
