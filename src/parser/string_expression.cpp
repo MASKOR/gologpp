@@ -17,8 +17,8 @@ namespace parser {
 ExpressionParser<StringExpression>::ExpressionParser()
 : ExpressionParser::base_type(expression, "string_expression")
 {
-	expression = concatenation(_r1)
-		| var_ref(_r1) | fluent_ref(_r1)
+	expression = concatenation(_r1) | unary_expr(_r1);
+	unary_expr = var_ref(_r1) | fluent_ref(_r1)
 		| function_ref(_r1) | constant<StringExpression>();
 
 	var_ref = var<StringExpression>()(_r1) [
@@ -26,7 +26,7 @@ ExpressionParser<StringExpression>::ExpressionParser()
 	];
 	var_ref.name("reference_to_string_variable");
 
-	concatenation = (expression(_r1) >> "+" >> expression(_r1)) [
+	concatenation = (unary_expr(_r1) >> "+" >> expression(_r1)) [
 		_val = new_<StringConcatenation>(_1, _2)
 	];
 	concatenation.name("string_concatenation");

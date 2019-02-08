@@ -16,6 +16,7 @@ struct ExpressionParser<StringExpression> : grammar<StringExpression *(Scope &)>
 	ExpressionParser();
 
 	rule<StringExpression *(Scope &)> expression;
+	rule<StringExpression *(Scope &)> unary_expr;
 	ReferenceParser<Fluent<StringExpression>> fluent_ref;
 	ReferenceParser<Function<StringExpression>> function_ref;
 	rule<Reference<Variable<StringExpression>> *(Scope &)> var_ref;
