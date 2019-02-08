@@ -85,6 +85,7 @@ StatementParser::StatementParser()
 	boolean_pick = pick_<BooleanExpression>();
 	numeric_pick = pick_<NumericExpression>();
 	symbolic_pick = pick_<SymbolicExpression>();
+	string_pick = pick_<StringExpression>();
 
 	search = (lit("search") > statement(_r1)) [
 		_val = new_<Search>(_1)
