@@ -57,7 +57,7 @@ struct StatementParser : grammar<VoidExpression *(Scope &)> {
 	AssignmentParser<Fluent<StringExpression>> string_fluent_assignment;
 
 	AssignmentParser<Variable<BooleanExpression>> boolean_var_assignment;
-	AssignmentParser<Variable<BooleanExpression>> numeric_var_assignment;
+	AssignmentParser<Variable<NumericExpression>> numeric_var_assignment;
 	AssignmentParser<Variable<SymbolicExpression>> symbolic_var_assignment;
 	AssignmentParser<Variable<StringExpression>> string_var_assignment;
 
