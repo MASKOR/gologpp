@@ -24,7 +24,7 @@ class AExecutionContext {
 public:
 	typedef std::queue<shared_ptr<Grounding<AbstractAction>>> ExogQueue;
 
-	AExecutionContext(unique_ptr<PlatformBackend> &&platform_backend);
+	AExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<PlatformBackend> &&platform_backend);
 	virtual ~AExecutionContext() = default;
 
 	virtual bool final(Block &program, History &h) = 0;
@@ -47,6 +47,8 @@ public:
 	bool exog_empty();
 	void exog_queue_push(shared_ptr<Grounding<AbstractAction>> exog);
 
+	SemanticsFactory &semantics_factory();
+
 	unique_ptr<PlatformBackend> &backend();
 
 private:
@@ -55,6 +57,7 @@ private:
 	std::mutex queue_empty_mutex_;
 	ExogQueue exog_queue_;
 	unique_ptr<PlatformBackend> platform_backend_;
+	unique_ptr<SemanticsFactory> semantics_;
 };
 
 
@@ -71,7 +74,6 @@ public:
 
 private:
 	Clock::time_point context_time_;
-	unique_ptr<SemanticsFactory> implementor_;
 };
 
 

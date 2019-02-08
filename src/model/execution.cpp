@@ -11,8 +11,9 @@
 namespace gologpp {
 
 
-AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_backend)
+AExecutionContext::AExecutionContext(unique_ptr<SemanticsFactory> &&semantics, unique_ptr<PlatformBackend> &&platform_backend)
 : platform_backend_(move(platform_backend))
+, semantics_(std::move(semantics))
 {
 	if (!platform_backend_)
 		platform_backend_ = std::make_unique<DummyBackend>();
@@ -54,14 +55,16 @@ bool AExecutionContext::exog_empty()
 	return exog_queue_.empty();
 }
 
+SemanticsFactory &AExecutionContext::semantics_factory()
+{ return *semantics_; }
+
 unique_ptr<PlatformBackend> &AExecutionContext::backend()
 { return platform_backend_;}
 
 
 
-ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<PlatformBackend> &&exec_backend)
-: AExecutionContext(std::move(exec_backend))
-, implementor_(std::move(implementor))
+ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&semantics, unique_ptr<PlatformBackend> &&exec_backend)
+: AExecutionContext(std::move(semantics), std::move(exec_backend))
 {}
 
 ExecutionContext::~ExecutionContext()
@@ -73,18 +76,18 @@ Clock::time_point ExecutionContext::context_time() const
 History ExecutionContext::run(Block &&program)
 {
 	History history;
-	history.attach_semantics(*implementor_);
+	history.attach_semantics(semantics_factory());
 
-	global_scope().implement_globals(*implementor_, *this);
+	global_scope().implement_globals(semantics_factory(), *this);
 
-	program.attach_semantics(*implementor_);
+	program.attach_semantics(semantics_factory());
 	compile(program);
 
 	while (!final(program, history)) {
 		context_time_ = backend()->time();
 		while (!exog_empty()) {
 			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_pop();
-			exog->attach_semantics(*implementor_);
+			exog->attach_semantics(semantics_factory());
 			history.abstract_impl().append_exog(exog);
 		}
 
@@ -106,7 +109,7 @@ History ExecutionContext::run(Block &&program)
 			std::cout << "<<< No transition possible: Waiting for exogenous events..." << std::endl;
 			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_poll();
 			std::cout << ">>> Exogenous event: " << exog << std::endl;
-			exog->attach_semantics(*implementor_);
+			exog->attach_semantics(semantics_factory());
 			history.abstract_impl().append_exog(exog);
 		}
 	}
