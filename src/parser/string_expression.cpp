@@ -18,13 +18,17 @@ ExpressionParser<StringExpression>::ExpressionParser()
 : ExpressionParser::base_type(expression, "string_expression")
 {
 	expression = concatenation(_r1) | unary_expr(_r1);
+	expression.name("string_expression");
+
 	unary_expr = var_ref(_r1) | fluent_ref(_r1)
 		| function_ref(_r1) | constant<StringExpression>();
+	unary_expr.name("unary_string_expression");
 
 	var_ref = var<StringExpression>()(_r1) [
 		_val = new_<Reference<Variable<StringExpression>>>(_1)
 	];
 	var_ref.name("reference_to_string_variable");
+
 
 	concatenation = (unary_expr(_r1) >> "+" >> expression(_r1)) [
 		_val = new_<StringConcatenation>(_1, _2)
