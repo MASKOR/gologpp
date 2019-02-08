@@ -13,9 +13,6 @@ ArithmeticOperation::ArithmeticOperation(
 , rhs_(rhs)
 , operator_(op)
 {
-	if (&lhs->parent_scope() != &rhs->parent_scope())
-		throw Bug("ArithmeticOperation scope mismatch");
-
 	lhs_->set_parent(this);
 	rhs_->set_parent(this);
 }
