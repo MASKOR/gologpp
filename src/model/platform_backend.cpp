@@ -85,8 +85,10 @@ void PlatformBackend::update_activity(shared_ptr<Transition> trans, AbstractCons
 				+ static_cast<const Grounding<Action> &>(*a).str()
 				+ ", but it is not a sensing action"
 			);
-		else if (sensing_result)
+		else if (sensing_result) {
+			sensing_result->attach_semantics(exec_ctx_->semantics_factory());
 			a->set_sensing_result(sensing_result);
+		}
 	}
 
 	a->set_state(trans2state(trans->hook()));
