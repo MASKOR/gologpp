@@ -139,10 +139,10 @@ StatementParser::StatementParser()
 
 	durative_call = (
 		( (
-			lit("start") [ _a = DurativeCall::Type::START ]
-			| lit("stop") [ _a = DurativeCall::Type::STOP ]
-			| lit("finish") [ _a = DurativeCall::Type::FINISH ]
-			| lit("fail") [ _a = DurativeCall::Type::FAIL ]
+			lit("start") [ _a = DurativeCall::Hook::START ]
+			| lit("stop") [ _a = DurativeCall::Hook::STOP ]
+			| lit("finish") [ _a = DurativeCall::Hook::FINISH ]
+			| lit("fail") [ _a = DurativeCall::Hook::FAIL ]
 		) >> "(" )
 		> action_call(_r1) > ")"
 	) [

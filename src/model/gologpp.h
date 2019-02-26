@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <string>
 
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp>
@@ -35,18 +36,28 @@ class Transition;
 class Identifier;
 
 class Global;
-class Expression;
-class BooleanExpression;
-class NumericExpression;
-class SymbolicExpression;
-class StringExpression;
-class VoidExpression;
 
-typedef BooleanExpression Bool;
-typedef NumericExpression Number;
-typedef SymbolicExpression Symbol;
-typedef StringExpression String;
-typedef VoidExpression Void;
+
+class Type;
+class Bool;
+class Number;
+class String;
+class Symbol;
+class Void;
+class CompoundType;
+
+class Expression;
+
+template<class> class TypedExpression;
+
+using BooleanExpression = TypedExpression<Bool>;
+using NumericExpression = TypedExpression<Number>;
+using SymbolicExpression = TypedExpression<Symbol>;
+using StringExpression = TypedExpression<String>;
+using VoidExpression = TypedExpression<Void>;
+using CompoundExpression = TypedExpression<CompoundType>;
+
+
 typedef VoidExpression Statement;
 
 
@@ -65,6 +76,7 @@ typedef Fluent<BooleanExpression> BooleanFluent;
 typedef Fluent<NumericExpression> NumericFluent;
 typedef Fluent<SymbolicExpression> SymbolicFluent;
 typedef Fluent<StringExpression> StringFluent;
+typedef Fluent<CompoundExpression> CompoundFluent;
 
 class AbstractVariable;
 template<class> class Variable;
@@ -75,15 +87,17 @@ template<class> class Constant;
 class AbstractDomain;
 template<class> class Domain;
 
-typedef Constant<Bool> BooleanConstant;
-typedef Constant<Number> NumericConstant;
-typedef Constant<Symbol> SymbolicConstant;
-typedef Constant<String> StringConstant;
+typedef Constant<BooleanExpression> BooleanConstant;
+typedef Constant<NumericExpression> NumericConstant;
+typedef Constant<SymbolicExpression> SymbolicConstant;
+typedef Constant<StringExpression> StringConstant;
+typedef Constant<CompoundExpression> CompoundConstant;
 
-typedef Variable<Bool> BooleanVariable;
-typedef Variable<Number> NumericVariable;
-typedef Variable<Symbol> SymbolicVariable;
-typedef Variable<String> StringVariable;
+typedef Variable<BooleanExpression> BooleanVariable;
+typedef Variable<NumericExpression> NumericVariable;
+typedef Variable<SymbolicExpression> SymbolicVariable;
+typedef Variable<StringExpression> StringVariable;
+typedef Variable<CompoundExpression> CompoundVariable;
 
 class ArithmeticOperation;
 class StringConcatenation;
@@ -106,15 +120,16 @@ class Test;
 class While;
 template<class> class Return;
 class DurativeCall;
+template<class> class FieldAccess;
 
 class AbstractFunction;
 template<class> class Function;
-using Procedure = Function<Void>;
-using VoidFunction = Function<Void>;
-using BooleanFunction = Function<Bool>;
-using NumericFunction = Function<Number>;
-using SymbolicFunction = Function<Symbol>;
-using StringFunction = Function<String>;
+using Procedure = Function<VoidExpression>;
+using VoidFunction = Function<VoidExpression>;
+using BooleanFunction = Function<BooleanExpression>;
+using NumericFunction = Function<NumericExpression>;
+using SymbolicFunction = Function<SymbolicExpression>;
+using StringFunction = Function<StringExpression>;
 
 class AbstractReference;
 template<class> class Reference;
@@ -151,7 +166,9 @@ using VariableReference = Reference<Variable<ExprT>>;
 	(NumericExpression)(SymbolicExpression)(StringExpression)
 
 #define GOLOGPP_VALUE_TYPES \
-	GOLOGPP_COMPARABLE_TYPES (BooleanExpression)
+	GOLOGPP_COMPARABLE_TYPES \
+	(CompoundExpression) \
+	(BooleanExpression)
 
 #define GOLOGPP_EXPRESSION_TYPES \
 	GOLOGPP_VALUE_TYPES (VoidExpression)
@@ -160,6 +177,7 @@ using VariableReference = Reference<Variable<ExprT>>;
 	(EffectAxiom)(InitialValue)(Fluent)(Variable)(Constant) \
 	(FluentAssignment)(VariableAssignment) \
 	(FluentReference)(VariableReference)(Pick)(Return) \
+	(FieldAccess) \
 	(Domain)
 
 #define GOLOGPP_EXPRESSION_TYPE_TEMPLATES \

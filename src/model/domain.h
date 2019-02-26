@@ -101,7 +101,7 @@ public:
 
 	virtual string to_string(const string &) const override
 	{
-		return gologpp::to_string(ExprT::static_type_tag()) + "domain " + this->name() + " = { "
+		return gologpp::to_string(ExprT::type_t::tag()) + "domain " + this->name() + " = { "
 			+ concat_list(elements_, ", ") + "};";
 	}
 

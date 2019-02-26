@@ -74,6 +74,7 @@ public:
 	using VariablesMap = unordered_map<string, shared_ptr<AbstractVariable>>;
 	using GlobalsMap = unordered_map<Identifier, shared_ptr<Global>>;
 	using DomainsMap = unordered_map<Name, shared_ptr<AbstractDomain>>;
+	using TypesMap = unordered_map<Name, shared_ptr<Type>>;
 
 	Scope(AbstractLanguageElement &owner, const vector<shared_ptr<AbstractVariable>> &lookup_vars = {});
 	Scope(Scope &parent_scope);
@@ -222,6 +223,21 @@ public:
 	}
 
 
+	bool exists_type(const string &name) const;
+
+	template<class TypeT = Type>
+	shared_ptr<TypeT> lookup_type(const string &name)
+	{
+		if (exists_type(name))
+			return std::dynamic_pointer_cast<TypeT>(
+				types_->find(name)->second
+			);
+		else
+			return shared_ptr<TypeT>();
+	}
+
+	void register_type(Type *t);
+
 	void register_global(Global *g);
 	void register_domain(AbstractDomain *d);
 
@@ -257,7 +273,18 @@ private:
 
 	shared_ptr<GlobalsMap> globals_;
 	shared_ptr<DomainsMap> domains_;
+	shared_ptr<TypesMap> types_;
 };
+
+
+
+template<class T>
+T &type()
+{
+	if (!global_scope().exists_type(T::static_name()))
+		global_scope().register_type(new T());
+	return *global_scope().lookup_type<T>(T::static_name());
+}
 
 
 

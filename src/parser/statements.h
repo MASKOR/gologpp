@@ -44,7 +44,7 @@ struct StatementParser : grammar<VoidExpression *(Scope &)> {
 
 	ReferenceParser<Procedure> procedure_call;
 	ReferenceParser<Action> action_call;
-	rule<DurativeCall *(Scope &), locals<DurativeCall::Type>> durative_call;
+	rule<DurativeCall *(Scope &), locals<DurativeCall::Hook>> durative_call;
 
 	ExpressionParser<BooleanExpression> boolean_expression;
 	ExpressionParser<NumericExpression> numeric_expression;

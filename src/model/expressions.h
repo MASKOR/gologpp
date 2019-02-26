@@ -4,25 +4,12 @@
 #include "language.h"
 #include "utilities.h"
 #include "gologpp.h"
+#include "types.h"
 
 #include <memory>
 #include <algorithm>
 
 namespace gologpp {
-
-
-enum ExpressionTypeTag {
-	BOOLEAN,
-	NUMERIC,
-	SYMBOLIC,
-	STRING,
-	VOID,
-};
-
-
-
-string to_string(ExpressionTypeTag t);
-
 
 
 class Expression : public virtual AbstractLanguageElement {
@@ -40,67 +27,42 @@ public:
 	AbstractLanguageElement *parent();
 	const AbstractLanguageElement *parent() const;
 	void set_parent(AbstractLanguageElement *parent);
-
-	virtual ExpressionTypeTag dynamic_type_tag() const = 0;
+	virtual Type::Tag dynamic_type_tag() const;
 
 protected:
 	AbstractLanguageElement *parent_;
 };
 
 
-class BooleanExpression : public Expression {
+
+template<class TypeT>
+class TypedExpression : public Expression {
+public:
+	using expression_t = TypedExpression<TypeT>;
+	using type_t = TypeT;
+
+	virtual const TypeT &type() const override
+	{ return dynamic_cast<const TypeT &>(*type_); }
+
+	static Type::Tag static_type_tag()
+	{ return TypeT::tag(); }
+
 protected:
 	using Expression::Expression;
 
-public:
-	typedef BooleanExpression expression_t;
-	virtual ExpressionTypeTag dynamic_type_tag() const override;
-	static ExpressionTypeTag static_type_tag();
+	TypedExpression()
+	: Expression()
+	{ set_type_by_name(TypeT::static_name()); }
 };
 
 
-class NumericExpression : public Expression {
-protected:
-	using Expression::Expression;
 
-public:
-	typedef NumericExpression expression_t;
-	virtual ExpressionTypeTag dynamic_type_tag() const override;
-	static ExpressionTypeTag static_type_tag();
-};
+template<>
+TypedExpression<CompoundType>::TypedExpression();
 
 
-class SymbolicExpression : public Expression {
-protected:
-	using Expression::Expression;
 
-public:
-	typedef SymbolicExpression expression_t;
-	virtual ExpressionTypeTag dynamic_type_tag() const override;
-	static ExpressionTypeTag static_type_tag();
-};
-
-
-class StringExpression : public Expression {
-protected:
-	using Expression::Expression;
-
-public:
-	typedef StringExpression expression_t;
-	virtual ExpressionTypeTag dynamic_type_tag() const override;
-	static ExpressionTypeTag static_type_tag();
-};
-
-
-class VoidExpression : public Expression {
-protected:
-	using Expression::Expression;
-
-public:
-	typedef VoidExpression expression_t;
-	virtual ExpressionTypeTag dynamic_type_tag() const override;
-	static ExpressionTypeTag static_type_tag();
-};
+void ensure_type_equality(const Expression &e1, const Expression &e2);
 
 
 }

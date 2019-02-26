@@ -15,19 +15,22 @@ AbstractAction::AbstractAction(Scope *own_scope, const string &name, const vecto
 	vector<Expression *> mapping_args;
 	for (const shared_ptr<AbstractVariable> &arg : args) {
 		switch(arg->dynamic_type_tag()) {
-		case BOOLEAN:
+		case Type::Tag::BOOLEAN:
 			mapping_args.push_back(new Reference<BooleanVariable>(std::dynamic_pointer_cast<BooleanVariable>(arg)));
 			break;
-		case NUMERIC:
+		case Type::Tag::NUMERIC:
 			mapping_args.push_back(new Reference<NumericVariable>(std::dynamic_pointer_cast<NumericVariable>(arg)));
 			break;
-		case SYMBOLIC:
+		case Type::Tag::SYMBOLIC:
 			mapping_args.push_back(new Reference<SymbolicVariable>(std::dynamic_pointer_cast<SymbolicVariable>(arg)));
 			break;
-		case STRING:
+		case Type::Tag::STRING:
 			mapping_args.push_back(new Reference<StringVariable>(std::dynamic_pointer_cast<StringVariable>(arg)));
 			break;
-		case VOID:
+		case Type::Tag::COMPOUND:
+			mapping_args.push_back(new Reference<Variable<CompoundExpression>>(std::dynamic_pointer_cast<Variable<CompoundExpression>>(arg)));
+			break;
+		case Type::Tag::VOID:
 			throw Bug("Variable<Statement> is impossible");
 		}
 	}

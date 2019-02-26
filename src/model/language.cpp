@@ -16,6 +16,29 @@ string AbstractLanguageElement::str() const
 void AbstractLanguageElement::set_implementation(unique_ptr<AbstractSemantics> &&impl)
 { semantics_ = std::move(impl); }
 
+const Type &AbstractLanguageElement::type() const
+{ return *type_; }
+
+
+bool AbstractLanguageElement::set_type_by_name(const string &name)
+{
+	shared_ptr<Type> desired_type = global_scope().lookup_type(name);
+
+	if (!type_)
+		type_ = desired_type;
+
+	return *type_ == *desired_type;
+}
+
+
+bool AbstractLanguageElement::set_type(const Type &t)
+{
+	if (!type_)
+		type_ = t.shared_from_this();
+
+	return *type_ == t;
+}
+
 
 
 } // namespace gologpp

@@ -5,8 +5,10 @@
 #include "formula.h"
 #include "execution.h"
 #include "reference.h"
+#include "expressions.h"
 
 #include "user_error.h"
+#include "error.h"
 
 namespace gologpp {
 
@@ -259,35 +261,35 @@ void AbstractFunction::compile(AExecutionContext &ctx)
 
 
 
-DurativeCall::DurativeCall(DurativeCall::Type type, Reference<Action> *action)
-: type_(type)
+DurativeCall::DurativeCall(DurativeCall::Hook type, Reference<Action> *action)
+: hook_(type)
 , action_(action)
 {}
 
-DurativeCall::Type DurativeCall::type() const
-{ return type_; }
+DurativeCall::Hook DurativeCall::hook() const
+{ return hook_; }
 
 const Reference<Action> &DurativeCall::action() const
 { return *action_; }
 
 string DurativeCall::to_string(const string &pfx) const
-{ return linesep + pfx + gologpp::to_string(type()) + "(" + action().str() + ");"; }
+{ return linesep + pfx + gologpp::to_string(hook()) + "(" + action().str() + ");"; }
 
 
 
-string to_string(DurativeCall::Type type)
+string to_string(DurativeCall::Hook hook)
 {
-	switch (type) {
-	case DurativeCall::Type::START:
+	switch (hook) {
+	case DurativeCall::Hook::START:
 		return "start";
-	case DurativeCall::Type::FINISH:
+	case DurativeCall::Hook::FINISH:
 		return "finish";
-	case DurativeCall::Type::FAIL:
+	case DurativeCall::Hook::FAIL:
 		return "fail";
-	case DurativeCall::Type::STOP:
+	case DurativeCall::Hook::STOP:
 		return "stop";
 	}
-	throw Bug(string("Unhandled ") + typeid(type).name());
+	throw Bug(string("Unhandled ") + typeid(hook).name());
 }
 
 

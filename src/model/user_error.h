@@ -33,6 +33,12 @@ public:
 
 
 
+class NoSuchFieldError : public SemanticError {
+public:
+	NoSuchFieldError(const string &field_name, const string &type_name);
+};
+
+
 } // namespace gologpp
 
 

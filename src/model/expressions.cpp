@@ -4,24 +4,8 @@
 
 namespace gologpp {
 
-
-string to_string(ExpressionTypeTag t)
-{
-	switch (t) {
-	case BOOLEAN:
-		return "?";
-	case NUMERIC:
-		return "%";
-	case SYMBOLIC:
-		return "§";
-	case STRING:
-		return "$";
-	case VOID:
-		return "";
-	}
-	return "[Unknown ExpressionTypeTag]";
-}
-
+Type::Tag Expression::dynamic_type_tag() const
+{ return type_->dynamic_tag(); }
 
 Expression::Expression()
 : parent_(nullptr)
@@ -44,41 +28,18 @@ void Expression::set_parent(AbstractLanguageElement *parent)
 
 
 
-ExpressionTypeTag BooleanExpression::dynamic_type_tag() const
-{ return BOOLEAN; }
-
-ExpressionTypeTag BooleanExpression::static_type_tag()
-{ return BOOLEAN; }
-
-
-
-ExpressionTypeTag NumericExpression::dynamic_type_tag() const
-{ return NUMERIC; }
-
-ExpressionTypeTag NumericExpression::static_type_tag()
-{ return NUMERIC; }
+void ensure_type_equality(const Expression &e1, const Expression &e2)
+{
+	if (e1.type() != e2.type())
+		throw ExpressionTypeMismatch(e1, e2);
+}
 
 
 
-ExpressionTypeTag SymbolicExpression::dynamic_type_tag() const
-{ return SYMBOLIC; }
-
-ExpressionTypeTag SymbolicExpression::static_type_tag()
-{ return SYMBOLIC; }
-
-
-ExpressionTypeTag StringExpression::dynamic_type_tag() const
-{ return STRING; }
-
-ExpressionTypeTag StringExpression::static_type_tag()
-{ return STRING; }
-
-
-ExpressionTypeTag VoidExpression::dynamic_type_tag() const
-{ return VOID; }
-
-ExpressionTypeTag VoidExpression::static_type_tag()
-{ return VOID; }
+template<>
+TypedExpression<CompoundType>::TypedExpression()
+: Expression()
+{}
 
 
 }

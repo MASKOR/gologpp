@@ -18,6 +18,7 @@
 #include "scope.h"
 #include "action.h"
 #include "reference.h"
+#include "fluent.h"
 
 namespace gologpp {
 
@@ -120,6 +121,7 @@ public:
 	Assignment(Reference<LhsT> *lhs, typename LhsT::expression_t *rhs)
 	: lhs_(lhs), rhs_(rhs)
 	{
+		ensure_type_equality(*lhs, *rhs);
 		lhs_->set_parent(this);
 		rhs_->set_parent(this);
 	}
@@ -410,24 +412,58 @@ class DurativeCall
 , public LanguageElement<DurativeCall>
 {
 public:
-	enum Type {
+	enum Hook {
 		START, FINISH, FAIL, STOP
 	};
 
-	DurativeCall(Type type, Reference<Action> *action);
+	DurativeCall(Hook hook, Reference<Action> *action);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*action_)
 
-	Type type() const;
+	Hook hook() const;
 	const Reference<Action> &action() const;
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	const Type type_;
+	const Hook hook_;
 	const unique_ptr<Reference<Action>> action_;
 };
 
 
-string to_string(DurativeCall::Type type);
+string to_string(DurativeCall::Hook);
+
+
+
+template<class ExprT>
+class FieldAccess
+: public ExprT
+, public NoScopeOwner
+, public LanguageElement<FieldAccess<ExprT>>
+{
+public:
+	FieldAccess(CompoundExpression *subject, const string &field_name)
+	: field_name_(field_name)
+	{
+		subject_.reset(subject);
+		if (!set_type(subject->type().field_type(field_name)))
+			throw Bug("Failed to set type");
+	}
+
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*subject_)
+
+	const CompoundExpression &subject() const
+	{ return *subject_; }
+
+	const string &field_name() const
+	{ return field_name_; }
+
+	string to_string(const string &pfx) const override
+	{ return pfx + subject().str() + "." + gologpp::to_string(ExprT::type_t::tag()) + field_name(); }
+
+
+private:
+	unique_ptr<CompoundExpression> subject_;
+	const string field_name_;
+};
 
 
 

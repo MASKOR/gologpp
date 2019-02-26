@@ -10,7 +10,7 @@ Name::Name(Name &&other)
 : name_(std::move(other.name_))
 {}
 
-const string &Name::name() const
+Name::operator string () const
 { return name_; }
 
 bool Name::operator == (const Name &other) const
@@ -21,6 +21,10 @@ bool Name::operator != (const Name &other) const
 
 size_t Name::hash() const
 { return std::hash<string>{}(name()); }
+
+const string &Name::name() const
+{ return name_; }
+
 
 
 Identifier::Identifier(const string &name, arity_t arity)

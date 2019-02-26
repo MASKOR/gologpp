@@ -38,6 +38,7 @@ Scope::Scope()
 , owner_(nullptr)
 , globals_(new GlobalsMap())
 , domains_(new DomainsMap())
+, types_(new TypesMap())
 {}
 
 
@@ -46,6 +47,7 @@ Scope::Scope(AbstractLanguageElement &owner, const vector<shared_ptr<AbstractVar
 , owner_(&owner)
 , globals_(owner.scope().globals_)
 , domains_(owner.scope().domains_)
+, types_(owner.scope().types_)
 {
 	for (const shared_ptr<AbstractVariable> &v : variables)
 		variables_.emplace(v->name(), v);
@@ -57,6 +59,7 @@ Scope::Scope(Scope &parent_scope)
 , owner_(nullptr)
 , globals_(parent_scope.globals_)
 , domains_(parent_scope.domains_)
+, types_(parent_scope.types_)
 {}
 
 
@@ -66,6 +69,7 @@ Scope::Scope(Scope &&other)
 , variables_(std::move(other.variables_))
 , globals_(std::move(other.globals_))
 , domains_(std::move(other.domains_))
+, types_(std::move(other.types_))
 {}
 
 Scope::~Scope()
@@ -180,6 +184,9 @@ bool Scope::exists_global(const string &name, arity_t arity) const
 bool Scope::exists_domain(const string &name) const
 { return domains_->find(name) != domains_->end(); }
 
+bool Scope::exists_type(const string &name) const
+{ return types_->find(name) != types_->end(); }
+
 string Scope::to_string(const string &) const
 { return "[" + concat_list(vars(), ", ") + "]"; }
 
@@ -199,6 +206,13 @@ void Scope::register_domain(AbstractDomain *d)
 	(*domains_)[*d].reset(d);
 }
 
+
+void Scope::register_type(Type *t)
+{
+	if (exists_type(t->name()))
+		throw RedefinitionError(t->name());
+	(*types_)[*t].reset(t);
+}
 
 Constant<SymbolicExpression> *Scope::get_symbol(const string &name)
 {

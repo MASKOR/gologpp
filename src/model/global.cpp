@@ -2,6 +2,7 @@
 #include "global.h"
 #include "scope.h"
 #include "variable.h"
+#include "reference.h"
 
 
 namespace gologpp {
@@ -34,6 +35,24 @@ void Global::set_args(const vector<shared_ptr<AbstractVariable>> &args)
 	}
 	set_arity(static_cast<arity_t>(args.size()));
 }
+
+
+template<class ExprT>
+Reference<Variable<ExprT>> *Global::arg_ref(const string &name)
+{
+	for (shared_ptr<AbstractVariable> &var : args_)
+		if (var->name() == name)
+			return std::dynamic_pointer_cast<Variable<ExprT>>(var)->ref();
+
+	return nullptr;
+}
+
+#define GOLOGPP_GLOBAL_INSTANTIATE_ARG_REF(_r, _, T) \
+	template \
+	Reference<Variable<T>> *Global::arg_ref(const string &name);
+
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_GLOBAL_INSTANTIATE_ARG_REF, (), GOLOGPP_VALUE_TYPES)
+
 
 Scope &Global::parent_scope()
 { return global_scope(); }

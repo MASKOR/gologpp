@@ -102,7 +102,7 @@ public:
 		auto it_rarg = args().begin();
 		auto it_targ = target()->args().begin();
 		for (; it_rarg < args().end() && it_targ < target()->args().end(); ++it_rarg, ++it_targ) {
-			if ((*it_rarg)->dynamic_type_tag() != (*it_targ)->dynamic_type_tag())
+			if (dynamic_cast<const Expression &>(**it_rarg).type() != dynamic_cast<const Expression &>(**it_targ).type())
 				return false;
 
 			if ((*it_rarg)->is_ref() && !dynamic_cast<AbstractReference &>(**it_rarg).consistent())

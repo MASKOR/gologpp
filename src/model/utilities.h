@@ -16,6 +16,7 @@ public:
     Name(const Name &other) = default;
     virtual ~Name() = default;
     
+    operator string () const;
     const string &name() const;
     virtual bool operator == (const Name &other) const;
     bool operator != (const Name &other) const;

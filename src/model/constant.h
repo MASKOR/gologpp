@@ -8,6 +8,8 @@
 #include "error.h"
 
 #include <boost/variant.hpp>
+#include <boost/fusion/include/vector.hpp>
+#include <unordered_map>
 
 
 namespace gologpp {
@@ -15,27 +17,12 @@ namespace gologpp {
 
 
 class AbstractConstant : public virtual AbstractLanguageElement {
-private:
-	struct to_string_visitor;
 public:
-	typedef boost::variant<int, long, double, string, bool> LiteralVariant;
-
-	template<class T>
-	AbstractConstant(const T &representation)
-	: representation_(representation)
-	{}
-
 	virtual ~AbstractConstant() override;
 
 	virtual ExpressionTypeTag dynamic_type_tag() const = 0;
 
-	template<class T>
-	const T &representation() const
-	{ return boost::get<T>(representation_); }
-
-	const LiteralVariant &variant() const;
-
-	size_t hash() const;
+	virtual size_t hash() const = 0;
 
 	template<class ExpressionT>
 	operator Constant<ExpressionT> *() {
@@ -47,22 +34,39 @@ public:
 		return static_cast<ExpressionT *>(dynamic_cast<Constant<ExpressionT> *>(this));
 	}
 
-	virtual string to_string(const string &) const override
-	{ return boost::apply_visitor(to_string_visitor(), representation_); }
-
 	virtual bool operator == (const AbstractConstant &) const = 0;
 	bool operator != (const AbstractConstant &) const;
 
 	virtual AbstractConstant *copy() const = 0;
+};
+
+
+
+class SimpleConstant : public AbstractConstant {
+public:
+	using LiteralVariant = boost::variant<int, long, double, string, bool>;
+
+	virtual size_t hash() const override;
+
+	template<class T>
+	const T &representation() const
+	{ return boost::get<T>(variant()); }
+
+	LiteralVariant &variant()
+	{ return representation_; }
+
+	const LiteralVariant &variant() const
+	{ return representation_; }
+
+	virtual string to_string(const string &) const override
+	{ return boost::apply_visitor(to_string_visitor(), representation_); }
 
 protected:
-	const LiteralVariant representation_;
-
-	AbstractConstant(const LiteralVariant &v)
-	: representation_(v)
-	{}
+	SimpleConstant(const LiteralVariant &repr);
 
 private:
+	LiteralVariant representation_;
+
 	struct to_string_visitor {
 		string operator() (const string &s) const
 		{ return s; }
@@ -78,18 +82,20 @@ private:
 template<class ExpressionT>
 class Constant
 : public ExpressionT
-, public AbstractConstant
+, public SimpleConstant
 , public NoScopeOwner
 , public LanguageElement<Constant<ExpressionT>>
 {
+private:
+	struct to_string_visitor;
 public:
-	template<class T>
-	Constant(T repr);
+	template<class ReprT>
+	Constant(ReprT repr);
 
 	Constant(Constant<ExpressionT> &&) = default;
 
 	Constant(const Constant<ExpressionT> &c)
-	: AbstractConstant(c.variant())
+	: SimpleConstant(c.variant())
 	{
 		if (semantics_)
 			throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
@@ -101,29 +107,63 @@ public:
 	{
 		if (semantics_)
 			throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
-		representation_ = c.representation_;
+		variant() = c.variant();
 		return *this;
 	}
 
 	virtual ~Constant() override = default;
 
 	virtual ExpressionTypeTag dynamic_type_tag() const override
-	{ return ExpressionT::dynamic_type_tag(); }
+	{ return this->type().dynamic_tag(); }
 
 	virtual bool operator == (const AbstractConstant &c) const override
 	{
-		if (dynamic_type_tag() != c.dynamic_type_tag())
+		if (this->type() != c.type())
 			return false;
 		else
-			return variant() == c.variant();
+			return variant() == dynamic_cast<const Constant<ExpressionT> &>(c).variant();
 	}
 
 	virtual Constant<ExpressionT> *copy() const override
 	{ return new Constant(*this); }
 
 	DEFINE_IMPLEMENT
+
 };
 
+
+
+template<>
+class Constant<CompoundExpression>
+: public CompoundExpression
+, public AbstractConstant
+, public NoScopeOwner
+, public LanguageElement<Constant<CompoundExpression>>
+{
+public:
+	Constant(const vector<boost::fusion::vector<string, AbstractConstant *>> &repr);
+	Constant(Constant<CompoundExpression> &&) = default;
+	Constant(const Constant<CompoundExpression> &);
+
+	virtual ~Constant() override = default;
+
+	Constant<CompoundExpression> &operator = (Constant<CompoundExpression> &&) = default;
+	Constant<CompoundExpression> &operator = (const Constant<CompoundExpression> &c);
+
+	virtual size_t hash() const override;
+
+	virtual ExpressionTypeTag dynamic_type_tag() const override;
+	virtual bool operator == (const AbstractConstant &c) const override;
+
+	virtual Constant<CompoundExpression> *copy() const override;
+
+	virtual string to_string(const string &pfx) const override;
+
+	DEFINE_IMPLEMENT
+
+private:
+	std::unordered_map<string, unique_ptr<AbstractConstant>> representation_;
+};
 
 
 vector<unique_ptr<AbstractConstant>> copy(const vector<unique_ptr<AbstractConstant>> &v);

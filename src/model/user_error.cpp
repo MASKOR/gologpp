@@ -28,4 +28,10 @@ RedefinitionError::RedefinitionError(const string &name, arity_t arity)
 
 
 
+NoSuchFieldError::NoSuchFieldError(const string &field_name, const string &type_name)
+: SemanticError("No field `" + field_name + "\' in type `" + type_name + "\'")
+{}
+
+
+
 } // namespace gologpp

@@ -1,9 +1,9 @@
 #ifndef GOLOGPP_GLOBAL_H_
 #define GOLOGPP_GLOBAL_H_
 
+#include "gologpp.h"
 #include "utilities.h"
 #include "language.h"
-#include "variable.h"
 
 
 namespace gologpp {
@@ -36,14 +36,7 @@ public:
 	void set_args(const vector<shared_ptr<AbstractVariable>> &args);
 
 	template<class ExprT>
-	Reference<Variable<ExprT>> *arg_ref(const string &name)
-	{
-		for (shared_ptr<AbstractVariable> &var : args_)
-			if (var->name() == name)
-				return std::dynamic_pointer_cast<Variable<ExprT>>(var)->ref();
-
-		return nullptr;
-	}
+	Reference<Variable<ExprT>> *arg_ref(const string &name);
 
 	virtual void compile(AExecutionContext &ctx) = 0;
 	virtual Expression *ref(const vector<Expression *> &args = {}) = 0;
