@@ -1,8 +1,11 @@
+#include <string>
+
 #include "atoms.h"
 #include "types.h"
 
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
+#include <boost/spirit/include/qi_expect.hpp>
 #include <boost/spirit/include/qi_attr.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_int.hpp>
@@ -23,10 +26,13 @@
 #include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/fusion/at.hpp>
 #include <boost/phoenix/operator/logical.hpp>
+#include <boost/phoenix/object/dynamic_cast.hpp>
+#include <boost/phoenix/core/value.hpp>
 
 #include <model/scope.h>
 #include <model/reference.h>
-
+#include <model/variable.h>
+#include <model/constant.h>
 
 
 namespace gologpp {
@@ -39,15 +45,18 @@ namespace parser {
 
 
 template<class ExpressionT, bool only_local, bool allow_def>
-rule<shared_ptr<Variable<ExpressionT>>(Scope &)> &var() {
-	static rule<shared_ptr<Variable<ExpressionT>>(Scope &)> variable;
+rule<shared_ptr<Variable<ExpressionT>>(Scope &), locals<string>> &
+var() {
+	static rule<shared_ptr<Variable<ExpressionT>>(Scope &), locals<string>> variable;
 	variable = {
 		type_mark<ExpressionT>() >> r_name() [
 			_val = phoenix::bind(
 				&Scope::get_var<ExpressionT, only_local, allow_def>,
 				_r1, _1
-			),
-			if_(!_val) [
+			)
+		] > type_specifier<ExpressionT>() [
+			_a = _1, // can't use _1 directly, have to assign it to a local first (wtf?)
+			if_(!_val || !phoenix::bind(&Variable<ExpressionT>::set_type_by_name, *_val, _a)) [
 				_pass = false
 			]
 		],
@@ -58,15 +67,18 @@ rule<shared_ptr<Variable<ExpressionT>>(Scope &)> &var() {
 	return variable;
 }
 
+
 #define GOLOGPP_INSTANTIATE_TEMPLATE_VAR(_, seq) \
 	template \
-	rule < shared_ptr < Variable < BOOST_PP_SEQ_ELEM(0, seq) > > (Scope &) > & \
+	rule < shared_ptr < Variable < BOOST_PP_SEQ_ELEM(0, seq) > > (Scope &), locals<string> > & \
 	var < BOOST_PP_SEQ_ELEM(0, seq), BOOST_PP_SEQ_ELEM(1, seq), BOOST_PP_SEQ_ELEM(2, seq) > ();
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(
 	GOLOGPP_INSTANTIATE_TEMPLATE_VAR,
 	(GOLOGPP_VALUE_TYPES) ((true)(false)) ((true)(false))
 )
+
+
 
 
 template<bool only_local>
@@ -86,6 +98,10 @@ rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var() {
 		) ]
 		| var<StringExpression, only_local>()(_r1) [ _val = phoenix::bind(
 			&std::dynamic_pointer_cast<AbstractVariable, StringVariable>,
+			_1
+		) ]
+		| var<CompoundExpression, only_local>()(_r1) [ _val = phoenix::bind(
+			&std::dynamic_pointer_cast<AbstractVariable, CompoundVariable>,
 			_1
 		) ],
 		"any_variable"
@@ -195,6 +211,27 @@ rule<Constant<StringExpression> *()> &constant<StringExpression, false>()
 
 
 
+template<>
+rule<Constant<CompoundExpression> *> &constant<CompoundExpression, true>()
+{
+	static rule<Constant<CompoundExpression> *> compound_constant {
+		( qi::lit('{') >> *(
+			r_name() >> '=' >> abstract_constant<false>()
+		) >> qi::lit('}') ) [
+			_val = new_<Constant<CompoundExpression>>(_1)
+		]
+	};
+	return compound_constant;
+}
+
+// Ignore allow_symbol_definition parameter
+template<>
+rule<Constant<CompoundExpression> *> &constant<CompoundExpression, false>()
+{ return constant<CompoundExpression, true>(); }
+
+
+
+
 template<bool allow_symbol_def>
 rule<AbstractConstant *()> &abstract_constant() {
 	static rule<AbstractConstant *()> any_constant {
@@ -203,6 +240,7 @@ rule<AbstractConstant *()> &abstract_constant() {
 			| constant<NumericExpression>() // allow_symbol_def is ignored and defaults to false
 			| constant<SymbolicExpression, allow_symbol_def>()
 			| constant<StringExpression>()
+			| constant<CompoundExpression>()
 		),
 		"any_constant"
 	};
@@ -228,10 +266,12 @@ rule<Expression *(Scope &)> &atom() {
 		| var<NumericExpression>()(_r1) [ _val = new_<Reference<NumericVariable>>(_1) ]
 		| var<SymbolicExpression>()(_r1) [ _val = new_<Reference<SymbolicVariable>>(_1) ]
 		| var<StringExpression>()(_r1) [ _val = new_<Reference<StringVariable>>(_1) ]
+		| var<CompoundExpression>()(_r1) [ _val = new_<Reference<CompoundVariable>>(_1) ]
 		| constant<BooleanExpression>() [ _val = _1 ]
 		| constant<NumericExpression>() [ _val = _1 ]
 		| constant<SymbolicExpression>() [ _val = _1 ]
 		| constant<StringExpression>() [ _val = _1 ]
+		| constant<CompoundExpression>() [ _val = _1 ]
 		, "any_atom"
 	};
 	BOOST_SPIRIT_DEBUG_NODE(any_atom);

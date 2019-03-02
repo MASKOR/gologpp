@@ -1,3 +1,4 @@
+#include "field_access.h"
 #include "statements.h"
 #include "types.h"
 
@@ -7,6 +8,14 @@
 #include <boost/spirit/include/qi_plus.hpp>
 #include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_string.hpp>
+#include <boost/spirit/include/qi_action.hpp>
+#include <boost/spirit/include/qi_optional.hpp>
+#include <boost/spirit/include/qi_lit.hpp>
+#include <boost/spirit/include/qi_list.hpp>
+
+#include <boost/phoenix/object/new.hpp>
+#include <boost/phoenix/object/delete.hpp>
+#include <boost/phoenix/operator/self.hpp>
 
 #include <model/action.h>
 
@@ -40,10 +49,13 @@ StatementParser::StatementParser()
 
 	simple_statement = (test(_r1)
 		| boolean_return(_r1) | numeric_return(_r1) | symbolic_return(_r1) | string_return(_r1)
+		| compound_return(_r1)
 		| numeric_var_assignment(_r1) | boolean_var_assignment(_r1)
 		| symbolic_var_assignment(_r1) | string_var_assignment(_r1)
+		| compound_var_assignment(_r1)
 		| numeric_fluent_assignment(_r1) | boolean_fluent_assignment(_r1)
 		| symbolic_fluent_assignment(_r1) | string_fluent_assignment(_r1)
+		| compound_fluent_assignment(_r1)
 		| action_call(_r1) | procedure_call(_r1) | durative_call(_r1)) > ';';
 	simple_statement.name("simple_statement");
 

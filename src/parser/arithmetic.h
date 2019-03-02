@@ -2,8 +2,6 @@
 #define GOLOGPP_PARSER_ARITHMETIC_H_
 
 #include "utilities.h"
-#include "atoms.h"
-#include "reference.h"
 #include "expressions.h"
 
 #include <model/arithmetic.h>
@@ -27,8 +25,9 @@ struct ExpressionParser<NumericExpression> : grammar<NumericExpression *(Scope &
 	rule<NumericExpression *(Scope &)> num_var_ref;
 	rule<NumericExpression *(Scope &)> unary_expr;
 	rule<ArithmeticOperation::Operator()> arith_operator;
-	ReferenceParser<NumericFluent> num_fluent_ref;
-	ReferenceParser<NumericFunction> num_function_ref;
+	unique_ptr<ReferenceParser<NumericFluent>> num_fluent_ref;
+	unique_ptr<ReferenceParser<NumericFunction>> num_function_ref;
+	unique_ptr<FieldAccessParser<NumericExpression>> field_access;
 };
 
 

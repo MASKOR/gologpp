@@ -44,9 +44,9 @@ struct AnyDomainAssignmentParser : grammar<void(Scope &)> {
 	AnyDomainAssignmentParser();
 
 	rule<void(Scope &)> domain_assignment;
-	DomainAssignmentParser<Number> numeric_domain_assignment;
-	DomainAssignmentParser<Symbol> symbolic_domain_assignment;
-	DomainAssignmentParser<String> string_domain_assignment;
+	DomainAssignmentParser<NumericExpression> numeric_domain_assignment;
+	DomainAssignmentParser<SymbolicExpression> symbolic_domain_assignment;
+	DomainAssignmentParser<StringExpression> string_domain_assignment;
 };
 
 

@@ -1,9 +1,10 @@
 #include <fstream>
 
-#include <boost/phoenix/core/reference.hpp>
-
 #include "grammar.h"
 #include "parser.h"
+
+#include <boost/phoenix/core/reference.hpp>
+
 
 namespace gologpp {
 namespace parser {

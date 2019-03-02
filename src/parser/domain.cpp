@@ -75,13 +75,13 @@ DomainDeclarationParser<ExprT>::DomainDeclarationParser()
 }
 
 template
-struct DomainDeclarationParser<Number>;
+struct DomainDeclarationParser<NumericExpression>;
 
 template
-struct DomainDeclarationParser<Symbol>;
+struct DomainDeclarationParser<SymbolicExpression>;
 
 template
-struct DomainDeclarationParser<String>;
+struct DomainDeclarationParser<StringExpression>;
 
 
 

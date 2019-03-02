@@ -3,21 +3,21 @@
 
 #include "expressions.h"
 #include "utilities.h"
-#include "fluent.h"
-#include "reference.h"
 
 #include <model/expressions.h>
 
 namespace gologpp {
 namespace parser {
 
+
 template<>
 struct ExpressionParser<SymbolicExpression> : grammar<SymbolicExpression *(Scope &)> {
 	ExpressionParser();
 
 	rule<SymbolicExpression *(Scope &)> expression;
-	ReferenceParser<Fluent<SymbolicExpression>> fluent_ref;
-	ReferenceParser<Function<SymbolicExpression>> function_ref;
+	unique_ptr<ReferenceParser<Fluent<SymbolicExpression>>> fluent_ref;
+	unique_ptr<ReferenceParser<Function<SymbolicExpression>>> function_ref;
+	unique_ptr<FieldAccessParser<SymbolicExpression>> field_access;
 	rule<Reference<Variable<SymbolicExpression>> *(Scope &)> var_ref;
 };
 

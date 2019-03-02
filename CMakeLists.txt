@@ -131,12 +131,16 @@ if (${BUILD_PARSER})
 		src/parser/functions.cpp
 		src/parser/utilities.cpp
 		src/parser/statements.cpp
+		src/parser/types.cpp
 		src/parser/parser.cpp
 		src/parser/assignment.cpp
+		src/parser/reference.cpp
 		src/parser/fluent.cpp
 		src/parser/symbolic_expression.cpp
 		src/parser/string_expression.cpp
 		src/parser/domain.cpp
+		src/parser/compound_expression.cpp
+		src/parser/field_access.cpp
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
@@ -165,6 +169,8 @@ if (${BUILD_PARSER})
 		src/parser/expressions.h
 		src/parser/symbolic_expression.h
 		src/parser/domain.h
+		src/parser/compound_expression.h
+		src/parser/field_access.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)
 

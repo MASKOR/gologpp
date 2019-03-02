@@ -16,7 +16,10 @@
 
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/object/new.hpp>
+#include <boost/phoenix/object/dynamic_cast.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/operator/logical.hpp>
+#include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
 
 #include <boost/optional/optional_io.hpp>
@@ -44,6 +47,9 @@ FluentParser<ExprT>::FluentParser()
 		> ( -(variable(*_a) % ',') > lit(')')) [
 			_c = _1
 		]
+		> type_specifier<ExprT>() [
+			_d = _1
+		]
 	)
 	> (
 		lit(';') [ // forward declaration
@@ -51,7 +57,10 @@ FluentParser<ExprT>::FluentParser()
 				&Scope::declare_global<Fluent<ExprT>>,
 				_r1,
 				_a, _b, _c
-			)
+			),
+			if_(!phoenix::bind(&Fluent<ExprT>::set_type_by_name, *_val, _d)) [
+				_pass = false
+			]
 		]
 		| ( lit('{') > (// definition
 			("initially:" > +initially)
@@ -64,7 +73,10 @@ FluentParser<ExprT>::FluentParser()
 				>,
 				_r1,
 				_a, _b, _c, _1
-			)
+			),
+			if_(!phoenix::bind(&Fluent<ExprT>::set_type_by_name, *_val, _d)) [
+				_pass = false
+			]
 		]
 	);
 	fluent.name(type_descr<ExprT>() + "fluent_definition");
@@ -83,12 +95,14 @@ FluentParser<NumericExpression> numeric_fluent;
 FluentParser<BooleanExpression> boolean_fluent;
 FluentParser<SymbolicExpression> symbolic_fluent;
 FluentParser<StringExpression> string_fluent;
+FluentParser<CompoundExpression> compound_fluent;
 
 
 rule<AbstractFluent *(Scope &)> &abstract_fluent() {
 	static rule<AbstractFluent *(Scope &)> any_fluent {
 		numeric_fluent(_r1) | boolean_fluent(_r1)
-		| symbolic_fluent(_r1) | string_fluent(_r1),
+		| symbolic_fluent(_r1) | string_fluent(_r1)
+		| compound_fluent(_r1),
 		"any_fluent"
 	};
 	return any_fluent;

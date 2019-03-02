@@ -1,6 +1,7 @@
 #ifndef GOLOGPP_GRAMMAR_H_
 #define GOLOGPP_GRAMMAR_H_
 
+#include "field_access.h"
 #include "utilities.h"
 #include "statements.h"
 #include "fluent.h"
@@ -15,6 +16,8 @@
 #include <boost/spirit/include/qi_expect.hpp>
 #include <boost/spirit/include/qi_eoi.hpp>
 #include <boost/spirit/home/qi/nonterminal/error_handler.hpp>
+
+#include <boost/phoenix/bind/bind_function.hpp>
 
 namespace gologpp {
 namespace parser {
@@ -46,9 +49,9 @@ struct ProgramParser : grammar<VoidExpression *(Scope &)> {
 	ActionParser<ExogAction> exog_action;
 	AbstractFunctionParser function;
 	StatementParser statement;
-	DomainDeclarationParser<Number> numeric_domain_decl;
-	DomainDeclarationParser<Symbol> symbolic_domain_decl;
-	DomainDeclarationParser<String> string_domain_decl;
+	DomainDeclarationParser<NumericExpression> numeric_domain_decl;
+	DomainDeclarationParser<SymbolicExpression> symbolic_domain_decl;
+	DomainDeclarationParser<StringExpression> string_domain_decl;
 };
 
 

@@ -3,15 +3,21 @@
 
 #include "formula.h"
 #include "types.h"
+#include "reference.h"
+#include "field_access.h"
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_expect.hpp>
 #include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_string.hpp>
+#include <boost/spirit/include/qi_action.hpp>
 
 #include <boost/phoenix/fusion/at.hpp>
 #include <boost/phoenix/object/new.hpp>
+#include <boost/phoenix/object/delete.hpp>
+#include <boost/phoenix/object/dynamic_cast.hpp>
+#include <boost/phoenix/operator/self.hpp>
 
 
 namespace gologpp {
@@ -47,14 +53,18 @@ ComparisonParser<ExprT>::ComparisonParser()
 
 ExpressionParser<BooleanExpression>::ExpressionParser()
 : ExpressionParser::base_type(expression, "boolean_expression")
+, bool_fluent_ref(new ReferenceParser<BooleanFluent>())
+, bool_function_ref(new ReferenceParser<BooleanFunction>())
+, field_access(new FieldAccessParser<BooleanExpression>())
 {
 	expression = binary_expr(_r1) | unary_expr(_r1);
 	expression.name("boolean_expression");
 
 	unary_expr = quantification(_r1) | negation(_r1) | constant<BooleanExpression>()
+		| (*field_access)(_r1)
 		| bool_var_ref(_r1) | brace(_r1) | numeric_comparison(_r1) | symbolic_comparison(_r1)
 		| string_comparison(_r1)
-		| bool_fluent_ref(_r1) | bool_function_ref(_r1);
+		| (*bool_fluent_ref)(_r1) | (*bool_function_ref)(_r1);
 	unary_expr.name("unary_boolean_expression");
 
 	binary_expr = (

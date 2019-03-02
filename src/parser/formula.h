@@ -6,7 +6,6 @@
 #include "utilities.h"
 #include "expressions.h"
 #include "arithmetic.h"
-#include "reference.h"
 #include "symbolic_expression.h"
 #include "string_expression.h"
 
@@ -37,8 +36,9 @@ struct ExpressionParser<BooleanExpression> : grammar<BooleanExpression *(Scope &
 	rule<BooleanExpression *(Scope &)> bool_var_ref;
 	rule<BooleanExpression *(Scope &), locals<Scope *>> quantification;
 	rule<QuantificationOperator()> quantification_op;
-	ReferenceParser<BooleanFluent> bool_fluent_ref;
-	ReferenceParser<BooleanFunction> bool_function_ref;
+	unique_ptr<ReferenceParser<BooleanFluent>> bool_fluent_ref;
+	unique_ptr<ReferenceParser<BooleanFunction>> bool_function_ref;
+	unique_ptr<FieldAccessParser<BooleanExpression>> field_access;
 	rule<BooleanOperator()> bool_op;
 	ComparisonParser<NumericExpression> numeric_comparison;
 	ComparisonParser<SymbolicExpression> symbolic_comparison;

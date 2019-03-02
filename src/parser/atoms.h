@@ -13,11 +13,11 @@ namespace parser {
  ******************/
 
 template<class ExpressionT, bool only_local = false, bool allow_def = true>
-rule<shared_ptr<Variable<ExpressionT>>(Scope &)> &var();
+rule<shared_ptr<Variable<ExpressionT>>(Scope &), locals<string>> &var();
 
 #define GOLOGPP_PARSER_DECLARE_TEMPLATE_VAR(_, seq) \
 	extern template \
-	rule < shared_ptr < Variable < BOOST_PP_SEQ_ELEM(0, seq) > >(Scope &)> & \
+	rule < shared_ptr < Variable < BOOST_PP_SEQ_ELEM(0, seq) > >(Scope &), locals<string>> & \
 	var < BOOST_PP_SEQ_ELEM(0, seq), BOOST_PP_SEQ_ELEM(1, seq), BOOST_PP_SEQ_ELEM(2, seq) > ();
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(

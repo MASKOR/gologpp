@@ -1,3 +1,4 @@
+#include "field_access.h"
 #include "assignment.h"
 #include "atoms.h"
 #include "arithmetic.h"
@@ -5,12 +6,16 @@
 #include "types.h"
 #include "symbolic_expression.h"
 #include "string_expression.h"
+#include "compound_expression.h"
 
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_string.hpp>
+#include <boost/spirit/include/qi_action.hpp>
 
 #include <boost/phoenix/object/new.hpp>
+#include <boost/phoenix/object/dynamic_cast.hpp>
+#include <boost/phoenix/operator/self.hpp>
 
 
 namespace gologpp {

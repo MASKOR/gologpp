@@ -6,6 +6,7 @@
 #include "domain.h"
 #include "string_expression.h"
 #include "symbolic_expression.h"
+#include "compound_expression.h"
 #include "effect_axiom.h"
 #include "reference.h"
 
@@ -43,12 +44,14 @@ struct ActionDefinitionParser<Action>
 	EffectParser<NumericExpression> numeric_effect;
 	EffectParser<SymbolicExpression> symbolic_effect;
 	EffectParser<StringExpression> string_effect;
+	EffectParser<CompoundExpression> compound_effect;
 	AnyDomainAssignmentParser domain_assignment;
 
 	ReferenceParser<BooleanFluent>boolean_senses;
 	ReferenceParser<NumericFluent> numeric_senses;
 	ReferenceParser<SymbolicFluent> symbolic_senses;
 	ReferenceParser<StringFluent> string_senses;
+	ReferenceParser<CompoundFluent> compound_senses;
 	rule<Reference<AbstractFluent> *(Scope &)> senses;
 };
 
@@ -77,6 +80,7 @@ struct ActionDefinitionParser<ExogAction>
 	EffectParser<NumericExpression> numeric_effect;
 	EffectParser<SymbolicExpression> symbolic_effect;
 	EffectParser<StringExpression> string_effect;
+	EffectParser<CompoundExpression> compound_effect;
 	AnyDomainAssignmentParser domain_assignment;
 };
 

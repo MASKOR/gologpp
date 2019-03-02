@@ -1,3 +1,4 @@
+#include "field_access.h"
 #include "action.h"
 
 #include <boost/spirit/home/qi/nonterminal/error_handler.hpp>
@@ -54,8 +55,8 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 		)
 	];
 
-	effect = boolean_effect(_r1) | numeric_effect(_r1) | symbolic_effect(_r1) | string_effect(_r1);
-	senses = boolean_senses(_r1) | numeric_senses(_r1) | symbolic_senses(_r1) | string_senses(_r1);
+	effect = boolean_effect(_r1) | numeric_effect(_r1) | symbolic_effect(_r1) | string_effect(_r1) | compound_effect(_r1);
+	senses = boolean_senses(_r1) | numeric_senses(_r1) | symbolic_senses(_r1) | string_senses(_r1) | compound_senses(_r1);
 }
 
 
@@ -80,7 +81,7 @@ ActionDefinitionParser<ExogAction>::ActionDefinitionParser()
 		)
 	];
 
-	effect = boolean_effect(_r1) | numeric_effect(_r1) | symbolic_effect(_r1) | string_effect(_r1);
+	effect = boolean_effect(_r1) | numeric_effect(_r1) | symbolic_effect(_r1) | string_effect(_r1) | compound_effect(_r1);
 }
 
 

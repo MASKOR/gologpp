@@ -1,29 +1,39 @@
-#include <model/fluent.h>
-#include <model/procedural.h>
-
 #include "arithmetic.h"
 #include "reference.h"
+#include "field_access.h"
+#include "atoms.h"
+
+#include <model/fluent.h>
+#include <model/procedural.h>
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_expect.hpp>
 #include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_string.hpp>
+#include <boost/spirit/include/qi_action.hpp>
 
 #include <boost/phoenix/fusion/at.hpp>
 #include <boost/phoenix/object/new.hpp>
+#include <boost/phoenix/object/dynamic_cast.hpp>
+#include <boost/phoenix/operator/self.hpp>
 
 namespace gologpp {
 namespace parser {
 
 ExpressionParser<NumericExpression>::ExpressionParser()
 : ExpressionParser::base_type(expression, "numeric_expression")
+, num_fluent_ref(new ReferenceParser<NumericFluent>())
+, num_function_ref(new ReferenceParser<NumericFunction>())
+, field_access(new FieldAccessParser<NumericExpression>())
 {
 	expression = binary_expr(_r1) | unary_expr(_r1);
 	expression.name("numeric_expression");
 
-	unary_expr = brace(_r1) | constant<NumericExpression>() | num_var_ref(_r1)
-		| num_fluent_ref(_r1) | num_function_ref(_r1);
+	unary_expr = brace(_r1) | constant<NumericExpression>()
+		| (*field_access)(_r1)
+		| num_var_ref(_r1)
+		| (*num_fluent_ref)(_r1) | (*num_function_ref)(_r1);
 	unary_expr.name("unary_numeric_expression");
 
 	binary_expr = (

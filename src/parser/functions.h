@@ -15,7 +15,8 @@ struct FunctionParser
 	locals <
 		Scope *,
 		string,
-		boost::optional<vector<shared_ptr<AbstractVariable>>>
+		boost::optional<vector<shared_ptr<AbstractVariable>>>,
+		string
 	>
 > {
 	FunctionParser();
@@ -25,11 +26,13 @@ struct FunctionParser
 		locals <
 			Scope *,
 			string,
-			boost::optional<vector<shared_ptr<AbstractVariable>>>
+			boost::optional<vector<shared_ptr<AbstractVariable>>>,
+			string
 		>
 	> function;
 	StatementParser statement;
 };
+
 
 
 struct AbstractFunctionParser : grammar<AbstractFunction *(Scope &)> {
@@ -40,6 +43,7 @@ struct AbstractFunctionParser : grammar<AbstractFunction *(Scope &)> {
 	FunctionParser<BooleanExpression> bool_func;
 	FunctionParser<SymbolicExpression> sym_func;
 	FunctionParser<StringExpression> string_func;
+	FunctionParser<CompoundExpression> compound_func;
 	FunctionParser<VoidExpression> procedure;
 };
 

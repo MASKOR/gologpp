@@ -16,7 +16,8 @@ struct FluentParser
 	locals <
 		Scope *,
 		string,
-		boost::optional < vector < shared_ptr < AbstractVariable > > >
+		boost::optional < vector < shared_ptr < AbstractVariable > > >,
+		string
 	>
 > {
 	FluentParser();
@@ -26,7 +27,8 @@ struct FluentParser
 		locals <
 			Scope *,
 			string,
-			boost::optional < vector < shared_ptr < AbstractVariable > > >
+			boost::optional < vector < shared_ptr < AbstractVariable > > >,
+			string
 		>
 	> fluent;
 	rule<InitialValue<ExprT> *()> initially;
@@ -39,6 +41,7 @@ extern FluentParser<NumericExpression> numeric_fluent;
 extern FluentParser<BooleanExpression> boolean_fluent;
 extern FluentParser<SymbolicExpression> symbolic_fluent;
 extern FluentParser<StringExpression> string_fluent;
+extern FluentParser<CompoundExpression> compound_fluent;
 
 
 rule<AbstractFluent *(Scope &)> &abstract_fluent();

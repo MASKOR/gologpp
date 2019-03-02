@@ -8,6 +8,7 @@
 #include "assignment.h"
 #include "symbolic_expression.h"
 #include "string_expression.h"
+#include "compound_expression.h"
 
 
 namespace gologpp {
@@ -41,6 +42,7 @@ struct StatementParser : grammar<VoidExpression *(Scope &)> {
 	rule<Return<NumericExpression> *(Scope &)> numeric_return;
 	rule<Return<SymbolicExpression> *(Scope &)> symbolic_return;
 	rule<Return<StringExpression> *(Scope &)> string_return;
+	rule<Return<CompoundExpression> *(Scope &)> compound_return;
 
 	ReferenceParser<Procedure> procedure_call;
 	ReferenceParser<Action> action_call;
@@ -50,16 +52,19 @@ struct StatementParser : grammar<VoidExpression *(Scope &)> {
 	ExpressionParser<NumericExpression> numeric_expression;
 	ExpressionParser<SymbolicExpression> symbolic_expression;
 	ExpressionParser<StringExpression> string_expression;
+	ExpressionParser<CompoundExpression> compound_expression;
 
 	AssignmentParser<Fluent<BooleanExpression>> boolean_fluent_assignment;
 	AssignmentParser<Fluent<NumericExpression>> numeric_fluent_assignment;
 	AssignmentParser<Fluent<SymbolicExpression>> symbolic_fluent_assignment;
 	AssignmentParser<Fluent<StringExpression>> string_fluent_assignment;
+	AssignmentParser<Fluent<CompoundExpression>> compound_fluent_assignment;
 
 	AssignmentParser<Variable<BooleanExpression>> boolean_var_assignment;
 	AssignmentParser<Variable<NumericExpression>> numeric_var_assignment;
 	AssignmentParser<Variable<SymbolicExpression>> symbolic_var_assignment;
 	AssignmentParser<Variable<StringExpression>> string_var_assignment;
+	AssignmentParser<Variable<CompoundExpression>> compound_var_assignment;
 
 	template<class ExprT>
 	inline rule<Pick<ExprT> *(Scope &), locals<Scope *>> pick_();

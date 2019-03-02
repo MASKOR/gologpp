@@ -2,6 +2,7 @@
 #define GOLOGPP_PARSER_EXPRESSIONS_H_
 
 #include <model/expressions.h>
+#include "utilities.h"
 
 namespace gologpp {
 namespace parser {
@@ -19,6 +20,10 @@ struct ExpressionParser;
 template<> struct ExpressionParser<T>;
 
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_SPECIALIZE_EXPRESSION_PARSER, (), GOLOGPP_VALUE_TYPES)
+
+
+template<class> struct ReferenceParser;
+template<class> struct FieldAccessParser;
 
 
 } // namespace parser
