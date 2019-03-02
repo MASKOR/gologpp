@@ -263,10 +263,10 @@ if (${BUILD_TESTS})
 	set(TEST_SRC
 		src/tests/readylog-test.cpp)
 	add_executable(readylog-test ${TEST_SRC})
+	set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} golog++)
 
 	if (${TEST_OBJECTMODEL})
 		target_compile_definitions(readylog-test PRIVATE -DGOLOGPP_TEST_OBJECTMODEL)
-		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} golog++)
 	endif()
 
 	if (${TEST_PARSER})
