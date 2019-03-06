@@ -27,7 +27,7 @@ template<class ExpressionT>
 AssignmentParser<Fluent<ExpressionT>>::AssignmentParser()
 : AssignmentParser<Fluent<ExpressionT>>::base_type(assignment, string("assignment_to_") + type_descr<ExpressionT>() + "_fluent")
 {
-	assignment = (fluent_ref(_r1) >> "=" > expression(_r1)) [
+	assignment = ((fluent_ref(_r1) >> "=") > expression(_r1)) [
 		_val = new_<Assignment<Fluent<ExpressionT>>>(_1, _2)
 	];
 	assignment.name(string("assignment_to_") + type_descr<ExpressionT>() + "_fluent");

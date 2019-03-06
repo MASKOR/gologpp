@@ -11,18 +11,23 @@ namespace gologpp {
 namespace parser {
 
 
+extern ReferenceParser<Fluent<SymbolicExpression>> symbolic_fluent_ref;
+extern ReferenceParser<Function<SymbolicExpression>> symbolic_function_ref;
+extern FieldAccessParser<SymbolicExpression> symbolic_field_access;
+extern ConstantParser<SymbolicExpression> symbolic_constant;
+extern ConstantParser<SymbolicExpression> symbolic_constant_def;
+
+
 template<>
 struct ExpressionParser<SymbolicExpression> : grammar<SymbolicExpression *(Scope &)> {
 	ExpressionParser();
 
 	rule<SymbolicExpression *(Scope &)> expression;
-	unique_ptr<ReferenceParser<Fluent<SymbolicExpression>>> fluent_ref;
-	unique_ptr<ReferenceParser<Function<SymbolicExpression>>> function_ref;
-	unique_ptr<FieldAccessParser<SymbolicExpression>> field_access;
 	rule<Reference<Variable<SymbolicExpression>> *(Scope &)> var_ref;
-	ConstantParser<SymbolicExpression> constant;
 };
 
+
+extern ExpressionParser<SymbolicExpression> symbolic_expression;
 
 
 } // namespace parser

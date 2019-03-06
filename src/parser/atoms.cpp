@@ -208,14 +208,6 @@ ConstantParser<CompoundExpression>::ConstantParser(bool)
 }
 
 
-ConstantParser<BooleanExpression> boolean_constant;
-ConstantParser<NumericExpression> numeric_constant;
-ConstantParser<StringExpression> string_constant;
-ConstantParser<SymbolicExpression> symbolic_constant(false);
-ConstantParser<SymbolicExpression> symbolic_constant_def(true);
-ConstantParser<CompoundExpression> compound_constant;
-
-
 
 template<bool allow_symbol_def>
 rule<AbstractConstant *()> &abstract_constant() {

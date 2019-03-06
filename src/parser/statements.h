@@ -3,12 +3,7 @@
 
 #include "utilities.h"
 #include "reference.h"
-#include "formula.h"
-#include "arithmetic.h"
 #include "assignment.h"
-#include "symbolic_expression.h"
-#include "string_expression.h"
-#include "compound_expression.h"
 #include "atoms.h"
 
 
@@ -56,12 +51,6 @@ struct StatementParser : grammar<VoidExpression *(Scope &)> {
 	ReferenceParser<Procedure> procedure_call;
 	ReferenceParser<Action> action_call;
 	rule<DurativeCall *(Scope &), locals<DurativeCall::Hook>> durative_call;
-
-	ExpressionParser<BooleanExpression> boolean_expression;
-	ExpressionParser<NumericExpression> numeric_expression;
-	ExpressionParser<SymbolicExpression> symbolic_expression;
-	ExpressionParser<StringExpression> string_expression;
-	ExpressionParser<CompoundExpression> compound_expression;
 
 	AssignmentParser<Fluent<BooleanExpression>> boolean_fluent_assignment;
 	AssignmentParser<Fluent<NumericExpression>> numeric_fluent_assignment;

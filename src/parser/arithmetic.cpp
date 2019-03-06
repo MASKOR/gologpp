@@ -21,19 +21,25 @@
 namespace gologpp {
 namespace parser {
 
+
+ReferenceParser<NumericFluent> numeric_fluent_ref;
+ReferenceParser<NumericFunction> numeric_function_ref;
+FieldAccessParser<NumericExpression> numeric_field_access;
+ConstantParser<NumericExpression> numeric_constant;
+ExpressionParser<NumericExpression> numeric_expression;
+
+
 ExpressionParser<NumericExpression>::ExpressionParser()
 : ExpressionParser::base_type(expression, "numeric_expression")
-, num_fluent_ref(new ReferenceParser<NumericFluent>())
-, num_function_ref(new ReferenceParser<NumericFunction>())
-, field_access(new FieldAccessParser<NumericExpression>())
 {
 	expression = binary_expr(_r1) | unary_expr(_r1);
 	expression.name("numeric_expression");
 
 	unary_expr = brace(_r1) | numeric_constant
-		| (*field_access)(_r1)
 		| num_var_ref(_r1)
-		| (*num_fluent_ref)(_r1) | (*num_function_ref)(_r1);
+		| numeric_fluent_ref(_r1) | numeric_function_ref(_r1)
+		| numeric_field_access(_r1)
+	;
 	unary_expr.name("unary_numeric_expression");
 
 	binary_expr = (
@@ -64,6 +70,9 @@ ExpressionParser<NumericExpression>::ExpressionParser()
 	BOOST_SPIRIT_DEBUG_NODES((expression)(binary_expr)(unary_expr)
 	(operation)(brace)(num_var_ref)(arith_operator));
 }
+
+
+
 
 } // namespace parser
 } // namespace gologpp

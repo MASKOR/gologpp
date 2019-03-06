@@ -23,18 +23,23 @@ namespace gologpp {
 namespace parser {
 
 
+ReferenceParser<Fluent<StringExpression>> string_fluent_ref;
+ReferenceParser<Function<StringExpression>> string_function_ref;
+FieldAccessParser<StringExpression> string_field_access;
+ConstantParser<StringExpression> string_constant;
+
+ExpressionParser<StringExpression> string_expression;
+
+
 ExpressionParser<StringExpression>::ExpressionParser()
 : ExpressionParser::base_type(expression, "string_expression")
-, fluent_ref(new ReferenceParser<Fluent<StringExpression>>())
-, function_ref(new ReferenceParser<Function<StringExpression>>())
-, field_access(new FieldAccessParser<StringExpression>())
 {
 	expression = concatenation(_r1) | unary_expr(_r1);
 	expression.name("string_expression");
 
-	unary_expr = string_constant | var_ref(_r1) | (*fluent_ref)(_r1)
-		| (*function_ref)(_r1)
-		| (*field_access)(_r1);
+	unary_expr = string_constant | var_ref(_r1) | string_fluent_ref(_r1)
+		| string_function_ref(_r1)
+		| string_field_access(_r1);
 	unary_expr.name("unary_string_expression");
 
 	var_ref = var<StringExpression>()(_r1) [

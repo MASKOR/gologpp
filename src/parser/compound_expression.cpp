@@ -1,5 +1,4 @@
 #include "compound_expression.h"
-#include "atoms.h"
 #include "field_access.h"
 #include "reference.h"
 
@@ -19,20 +18,25 @@ namespace gologpp {
 namespace parser {
 
 
+ReferenceParser<Fluent<CompoundExpression>> compound_fluent_ref;
+ReferenceParser<Function<CompoundExpression>> compound_function_ref;
+FieldAccessParser<CompoundExpression> compound_field_access;
+ConstantParser<CompoundExpression> compound_constant;
+
+
 ExpressionParser<CompoundExpression>::ExpressionParser()
 : ExpressionParser::base_type(expression, "compound_expression")
-, fluent_ref(new ReferenceParser<Fluent<CompoundExpression>>())
-, function_ref(new ReferenceParser<Function<CompoundExpression>>())
-, field_access(new FieldAccessParser<CompoundExpression>())
 {
 	expression = compound_constant | var_ref(_r1)
-		| (*fluent_ref)(_r1) | (*function_ref)(_r1)
-		| (*field_access)(_r1);
+		| compound_fluent_ref(_r1) | compound_function_ref(_r1)
+		| compound_field_access(_r1);
 
 	var_ref = var<CompoundExpression>()(_r1) [
 		_val = new_<Reference<Variable<CompoundExpression>>>(_1)
 	];
 }
+
+ExpressionParser<CompoundExpression> compound_expression;
 
 
 } // namespace parser

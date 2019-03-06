@@ -50,21 +50,29 @@ ComparisonParser<ExprT>::ComparisonParser()
 }
 
 
+ReferenceParser<BooleanFluent> boolean_fluent_ref;
+ReferenceParser<BooleanFunction> boolean_function_ref;
+FieldAccessParser<BooleanExpression> boolean_field_access;
+ConstantParser<BooleanExpression> boolean_constant;
+ComparisonParser<NumericExpression> numeric_comparison;
+ComparisonParser<SymbolicExpression> symbolic_comparison;
+ComparisonParser<StringExpression> string_comparison;
+
+ExpressionParser<BooleanExpression> boolean_expression;
+
 
 ExpressionParser<BooleanExpression>::ExpressionParser()
 : ExpressionParser::base_type(expression, "boolean_expression")
-, bool_fluent_ref(new ReferenceParser<BooleanFluent>())
-, bool_function_ref(new ReferenceParser<BooleanFunction>())
-, field_access(new FieldAccessParser<BooleanExpression>())
 {
 	expression = binary_expr(_r1) | unary_expr(_r1);
 	expression.name("boolean_expression");
 
-	unary_expr = quantification(_r1) | negation(_r1) | bool_constant
-		| (*field_access)(_r1)
+	unary_expr = quantification(_r1) | negation(_r1) | boolean_constant
 		| bool_var_ref(_r1) | brace(_r1) | numeric_comparison(_r1) | symbolic_comparison(_r1)
 		| string_comparison(_r1)
-		| (*bool_fluent_ref)(_r1) | (*bool_function_ref)(_r1);
+		| boolean_fluent_ref(_r1) | boolean_function_ref(_r1)
+		| boolean_field_access(_r1)
+	;
 	unary_expr.name("unary_boolean_expression");
 
 	binary_expr = (

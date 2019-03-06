@@ -1,6 +1,9 @@
 #include "field_access.h"
 #include "statements.h"
 #include "types.h"
+#include "formula.h"
+#include "symbolic_expression.h"
+#include "string_expression.h"
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
@@ -18,6 +21,7 @@
 #include <boost/phoenix/operator/self.hpp>
 
 #include <model/action.h>
+
 
 namespace gologpp {
 namespace parser {

@@ -11,8 +11,12 @@
 namespace gologpp {
 namespace parser {
 
-template<class> struct ReferenceParser;
-template<class> struct FieldAccessParser;
+
+extern ReferenceParser<Fluent<StringExpression>> string_fluent_ref;
+extern ReferenceParser<Function<StringExpression>> string_function_ref;
+extern FieldAccessParser<StringExpression> string_field_access;
+extern ConstantParser<StringExpression> string_constant;
+
 
 template<>
 struct ExpressionParser<StringExpression> : grammar<StringExpression *(Scope &)> {
@@ -20,13 +24,12 @@ struct ExpressionParser<StringExpression> : grammar<StringExpression *(Scope &)>
 
 	rule<StringExpression *(Scope &)> expression;
 	rule<StringExpression *(Scope &)> unary_expr;
-	unique_ptr<ReferenceParser<Fluent<StringExpression>>> fluent_ref;
-	unique_ptr<ReferenceParser<Function<StringExpression>>> function_ref;
 	rule<Reference<Variable<StringExpression>> *(Scope &)> var_ref;
-	unique_ptr<FieldAccessParser<StringExpression>> field_access;
 	rule<StringExpression *(Scope &)> concatenation;
-	ConstantParser<StringExpression> string_constant;
 };
+
+
+extern ExpressionParser<StringExpression> string_expression;
 
 
 } // namespace parser
