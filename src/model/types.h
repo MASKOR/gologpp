@@ -53,7 +53,6 @@ public:
 	static Tag tag();
 	virtual Tag dynamic_tag() const override;
 	static string static_name();
-	static const Bool &instance();
 };
 
 
@@ -65,7 +64,6 @@ public:
 	static Tag tag();
 	virtual Tag dynamic_tag() const override;
 	static string static_name();
-	static const Number &instance();
 };
 
 
@@ -77,7 +75,6 @@ public:
 	static Tag tag();
 	virtual Tag dynamic_tag() const override;
 	static string static_name();
-	static const String &instance();
 };
 
 
@@ -89,7 +86,6 @@ public:
 	static Tag tag();
 	virtual Tag dynamic_tag() const override;
 	static string static_name();
-	static const Symbol &instance();
 };
 
 
@@ -101,7 +97,6 @@ public:
 	static Tag tag();
 	virtual Tag dynamic_tag() const override;
 	static string static_name();
-	static const Void &instance();
 };
 
 

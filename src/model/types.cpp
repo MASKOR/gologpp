@@ -27,7 +27,7 @@ string to_string(Type::Tag t)
 
 Type::Type(const string &name)
 : Name(name)
-{ global_scope().register_type(this); }
+{}
 
 bool Type::operator == (const Type &other) const
 {
@@ -61,9 +61,6 @@ Type::Tag Bool::dynamic_tag() const
 string Bool::static_name()
 { return "bool"; }
 
-const Bool &Bool::instance()
-{ return type<Bool>(); }
-
 
 
 Number::Number()
@@ -78,9 +75,6 @@ Type::Tag Number::dynamic_tag() const
 
 string Number::static_name()
 { return "number"; }
-
-const Number &Number::instance()
-{ return type<Number>(); }
 
 
 
@@ -97,9 +91,6 @@ Type::Tag String::dynamic_tag() const
 string String::static_name()
 { return "string"; }
 
-const String &String::instance()
-{ return type<String>(); }
-
 
 
 Symbol::Symbol()
@@ -115,9 +106,6 @@ Type::Tag Symbol::dynamic_tag() const
 string Symbol::static_name()
 { return "symbol"; }
 
-const Symbol &Symbol::instance()
-{ return type<Symbol>(); }
-
 
 
 Void::Void()
@@ -132,9 +120,6 @@ Type::Tag Void::dynamic_tag() const
 
 string Void::static_name()
 { return "void"; }
-
-const Void &Void::instance()
-{ return type<Void>(); }
 
 
 
