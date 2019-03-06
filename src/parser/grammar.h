@@ -8,6 +8,7 @@
 #include "action.h"
 #include "functions.h"
 #include "domain.h"
+#include "types.h"
 
 #include <boost/spirit/include/qi_kleene.hpp>
 #include <boost/spirit/include/qi_omit.hpp>
@@ -35,6 +36,7 @@ struct ProgramParser : grammar<VoidExpression *(Scope &)> {
 			| numeric_domain_decl(_r1)
 			| symbolic_domain_decl(_r1)
 			| string_domain_decl(_r1)
+			| type_definition(_r1)
 		] ) > statement(_r1) > eoi;
 
 		on_error<rethrow>(program,
@@ -52,6 +54,7 @@ struct ProgramParser : grammar<VoidExpression *(Scope &)> {
 	DomainDeclarationParser<NumericExpression> numeric_domain_decl;
 	DomainDeclarationParser<SymbolicExpression> symbolic_domain_decl;
 	DomainDeclarationParser<StringExpression> string_domain_decl;
+	CompoundTypeParser type_definition;
 };
 
 

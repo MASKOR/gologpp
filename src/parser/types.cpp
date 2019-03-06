@@ -9,8 +9,11 @@
 
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/dynamic_cast.hpp>
+#include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/operator/self.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
+
+#include <model/scope.h>
 
 
 
@@ -41,7 +44,11 @@ CompoundTypeParser::CompoundTypeParser()
 		| field_definition<StringExpression>()(_val)
 		| field_definition<SymbolicExpression>()(_val)
 		| field_definition<CompoundExpression>()(_val)
-	) > '}';
+	) > lit('}') [
+		phoenix::bind(&Scope::register_type, _r1, _val)
+	];
+	type_definition.name("compound_type_definition");
+	on_error<rethrow>(type_definition, delete_(_val));
 }
 
 
