@@ -3,6 +3,7 @@
 
 #include "expressions.h"
 #include "utilities.h"
+#include "atoms.h"
 
 #include <model/expressions.h>
 
@@ -19,6 +20,7 @@ struct ExpressionParser<SymbolicExpression> : grammar<SymbolicExpression *(Scope
 	unique_ptr<ReferenceParser<Function<SymbolicExpression>>> function_ref;
 	unique_ptr<FieldAccessParser<SymbolicExpression>> field_access;
 	rule<Reference<Variable<SymbolicExpression>> *(Scope &)> var_ref;
+	ConstantParser<SymbolicExpression> constant;
 };
 
 

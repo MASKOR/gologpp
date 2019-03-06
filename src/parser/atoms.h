@@ -41,25 +41,32 @@ rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<false>();
 * Constants
 ******************/
 
-template<class ExprT, bool allow_symbol_def = false>
-rule<Constant<ExprT> *()> &constant();
+template<class ExprT>
+struct ConstantParser : public grammar<Constant<ExprT> *()> {
+	ConstantParser(bool allow_symbol_def = false /* ignored except for symbols */);
 
-#define GOLOGPP_PARSER_DECLARE_CONSTANTS(r, allow_symbol_def, T) \
-	template<> \
-	rule<Constant<T> *()> &constant<T, allow_symbol_def>();
+	rule<Constant<ExprT> *()> constant;
+};
 
-BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_DECLARE_CONSTANTS, false, GOLOGPP_EXPRESSION_TYPES)
-BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_DECLARE_CONSTANTS, true, GOLOGPP_EXPRESSION_TYPES)
+template<>
+struct ConstantParser<CompoundExpression> : public grammar<Constant<CompoundExpression> *()> {
+	ConstantParser(bool = false);
+
+	rule<Constant<CompoundExpression> *()> constant;
+	rule<AbstractConstant *()> abstract_constant;
+};
 
 
-template<bool allow_symbol_def = false>
+extern ConstantParser<BooleanExpression> boolean_constant;
+extern ConstantParser<NumericExpression> numeric_constant;
+extern ConstantParser<StringExpression> string_constant;
+extern ConstantParser<SymbolicExpression> symbolic_constant;
+extern ConstantParser<SymbolicExpression> symbolic_constant_def;
+extern ConstantParser<CompoundExpression> compound_constant;
+
+
+template<bool allow_symbol_def>
 rule<AbstractConstant *()> &abstract_constant();
-
-extern template
-rule<AbstractConstant *()> &abstract_constant<false>();
-
-extern template
-rule<AbstractConstant *()> &abstract_constant<true>();
 
 
 

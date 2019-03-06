@@ -8,6 +8,7 @@
 #include "arithmetic.h"
 #include "symbolic_expression.h"
 #include "string_expression.h"
+#include "atoms.h"
 
 
 namespace gologpp {
@@ -34,6 +35,7 @@ struct ExpressionParser<BooleanExpression> : grammar<BooleanExpression *(Scope &
 	rule<BooleanExpression *(Scope &)> negation;
 	rule<BooleanExpression *(Scope &)> brace;
 	rule<BooleanExpression *(Scope &)> bool_var_ref;
+	ConstantParser<BooleanExpression> bool_constant;
 	rule<BooleanExpression *(Scope &), locals<Scope *>> quantification;
 	rule<QuantificationOperator()> quantification_op;
 	unique_ptr<ReferenceParser<BooleanFluent>> bool_fluent_ref;

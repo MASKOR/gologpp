@@ -9,11 +9,20 @@
 #include "symbolic_expression.h"
 #include "string_expression.h"
 #include "compound_expression.h"
+#include "atoms.h"
 
 
 namespace gologpp {
 namespace parser {
 
+
+template<class ExprT>
+struct PickParser : grammar<Pick<ExprT> *(Scope &), locals<Scope *>> {
+	PickParser();
+
+	rule<Pick<ExprT> *(Scope &), locals<Scope *>> pick;
+	ConstantParser<ExprT> constant;
+};
 
 
 struct StatementParser : grammar<VoidExpression *(Scope &)> {
@@ -26,10 +35,10 @@ struct StatementParser : grammar<VoidExpression *(Scope &)> {
 	rule<Choose *(Scope &), locals<Scope *>> choose;
 	rule<Conditional *(Scope &)> conditional;
 
-	rule<Pick<BooleanExpression> *(Scope &), locals<Scope *>> boolean_pick;
-	rule<Pick<NumericExpression> *(Scope &), locals<Scope *>> numeric_pick;
-	rule<Pick<SymbolicExpression> *(Scope &), locals<Scope *>> symbolic_pick;
-	rule<Pick<StringExpression> *(Scope &), locals<Scope *>> string_pick;
+	PickParser<BooleanExpression> boolean_pick;
+	PickParser<NumericExpression> numeric_pick;
+	PickParser<SymbolicExpression> symbolic_pick;
+	PickParser<StringExpression> string_pick;
 
 	rule<Search *(Scope &)> search;
 	rule<Solve *(Scope &)> solve;
@@ -65,10 +74,10 @@ struct StatementParser : grammar<VoidExpression *(Scope &)> {
 	AssignmentParser<Variable<SymbolicExpression>> symbolic_var_assignment;
 	AssignmentParser<Variable<StringExpression>> string_var_assignment;
 	AssignmentParser<Variable<CompoundExpression>> compound_var_assignment;
-
-	template<class ExprT>
-	inline rule<Pick<ExprT> *(Scope &), locals<Scope *>> pick_();
 };
+
+
+extern StatementParser statement;
 
 
 

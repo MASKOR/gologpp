@@ -25,8 +25,9 @@ ExpressionParser<CompoundExpression>::ExpressionParser()
 , function_ref(new ReferenceParser<Function<CompoundExpression>>())
 , field_access(new FieldAccessParser<CompoundExpression>())
 {
-	expression = constant<CompoundExpression>() | (*field_access)(_r1) | var_ref(_r1)
-		| (*fluent_ref)(_r1) | (*function_ref)(_r1);
+	expression = compound_constant | var_ref(_r1)
+		| (*fluent_ref)(_r1) | (*function_ref)(_r1)
+		| (*field_access)(_r1);
 
 	var_ref = var<CompoundExpression>()(_r1) [
 		_val = new_<Reference<Variable<CompoundExpression>>>(_1)

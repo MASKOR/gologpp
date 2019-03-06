@@ -4,6 +4,7 @@
 #include "expressions.h"
 #include "utilities.h"
 #include "fluent.h"
+#include "atoms.h"
 
 #include <model/expressions.h>
 
@@ -24,6 +25,7 @@ struct ExpressionParser<StringExpression> : grammar<StringExpression *(Scope &)>
 	rule<Reference<Variable<StringExpression>> *(Scope &)> var_ref;
 	unique_ptr<FieldAccessParser<StringExpression>> field_access;
 	rule<StringExpression *(Scope &)> concatenation;
+	ConstantParser<StringExpression> string_constant;
 };
 
 

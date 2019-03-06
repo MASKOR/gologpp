@@ -32,8 +32,9 @@ ExpressionParser<StringExpression>::ExpressionParser()
 	expression = concatenation(_r1) | unary_expr(_r1);
 	expression.name("string_expression");
 
-	unary_expr = (*field_access)(_r1) | var_ref(_r1) | (*fluent_ref)(_r1)
-		| (*function_ref)(_r1) | constant<StringExpression>();
+	unary_expr = string_constant | var_ref(_r1) | (*fluent_ref)(_r1)
+		| (*function_ref)(_r1)
+		| (*field_access)(_r1);
 	unary_expr.name("unary_string_expression");
 
 	var_ref = var<StringExpression>()(_r1) [

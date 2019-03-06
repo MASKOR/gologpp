@@ -23,15 +23,18 @@ namespace gologpp {
 namespace parser {
 
 
+StatementParser statement;
+
 
 template<class ExprT>
-inline rule<Pick<ExprT> *(Scope &), locals<Scope *>> StatementParser::pick_()
+PickParser<ExprT>::PickParser()
+: PickParser<ExprT>::base_type(pick, type_descr<ExprT>() + "_pick")
 {
-	return {
+	pick = {
 		((lit("pick") >> '(') [
 			_a = new_<Scope>(_r1)
 		] >> var<ExprT, true>()(*_a)
-		> -(lit("in") > '{' > constant<ExprT>() % ',' > '}')
+		> -(lit("in") > '{' > constant % ',' > '}')
 		> ')' > statement(*_a)) [
 			_val = new_<Pick<ExprT>>(_a, _1, _2, _3)
 		],
@@ -93,11 +96,6 @@ StatementParser::StatementParser()
 		_val = new_<Conditional>(_1, _2, _3)
 	];
 	conditional.name("conditional");
-
-	boolean_pick = pick_<BooleanExpression>();
-	numeric_pick = pick_<NumericExpression>();
-	symbolic_pick = pick_<SymbolicExpression>();
-	string_pick = pick_<StringExpression>();
 
 	search = (lit("search") > statement(_r1)) [
 		_val = new_<Search>(_1)

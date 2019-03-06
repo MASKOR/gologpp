@@ -24,8 +24,8 @@ ExpressionParser<SymbolicExpression>::ExpressionParser()
 , function_ref(new ReferenceParser<Function<SymbolicExpression>>())
 , field_access(new FieldAccessParser<SymbolicExpression>())
 {
-	expression = (*field_access)(_r1) | var_ref(_r1) | (*fluent_ref)(_r1)
-		| (*function_ref)(_r1) | constant<SymbolicExpression>();
+	expression = constant | var_ref(_r1) | (*fluent_ref)(_r1)
+		| (*function_ref)(_r1) | (*field_access)(_r1);
 
 	var_ref = var<SymbolicExpression>()(_r1) [
 		_val = new_<Reference<Variable<SymbolicExpression>>>(_1)

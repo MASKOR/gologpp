@@ -60,7 +60,7 @@ ExpressionParser<BooleanExpression>::ExpressionParser()
 	expression = binary_expr(_r1) | unary_expr(_r1);
 	expression.name("boolean_expression");
 
-	unary_expr = quantification(_r1) | negation(_r1) | constant<BooleanExpression>()
+	unary_expr = quantification(_r1) | negation(_r1) | bool_constant
 		| (*field_access)(_r1)
 		| bool_var_ref(_r1) | brace(_r1) | numeric_comparison(_r1) | symbolic_comparison(_r1)
 		| string_comparison(_r1)

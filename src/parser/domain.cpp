@@ -25,13 +25,14 @@ namespace parser {
 template<class ExprT>
 DomainExpressionParser<ExprT>::DomainExpressionParser()
 : DomainExpressionParser<ExprT>::base_type(domain_expr, "domain_expression")
+, constant(true)
 {
 	domain_expr = binary_domain_expr(_r1) | unary_domain_expr(_r1);
 	domain_expr.name("domain_expression");
 
 	unary_domain_expr =
 		r_name() [ _val = *phoenix::bind(&Scope::lookup_domain<ExprT>, _r1, _1) ]
-		| (lit('{') > (constant<ExprT, true>() % ',') > '}') [
+		| (lit('{') > (constant % ',') > '}') [
 			_val = construct<Domain<ExprT>>(val(""), _1)
 		]
 	;

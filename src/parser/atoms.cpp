@@ -122,138 +122,119 @@ rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<false>();
 ******************/
 
 template<>
-rule<Constant<BooleanExpression> *()> &constant<BooleanExpression, false>() {
-	static rule<Constant<BooleanExpression> *()> bool_constant {
+ConstantParser<BooleanExpression>::ConstantParser(bool)
+: ConstantParser<BooleanExpression>::base_type(constant, type_descr<BooleanExpression>() + "_constant")
+{
+	constant =
 		lit("true") [
 			_val = new_<Constant<BooleanExpression>>(true)
 		]
 		| lit("false") [
 			_val = new_<Constant<BooleanExpression>>(false)
-		],
-		type_descr<BooleanExpression>() + "_constant"
-	};
+		]
+	;
+	constant.name(type_descr<BooleanExpression>() + "_constant");
 	//BOOST_SPIRIT_DEBUG_NODE(bool_constant);
-	return bool_constant;
 }
 
-// Ignore allow_symbol_definition parameter
-template<>
-rule<Constant<BooleanExpression> *()> &constant<BooleanExpression, true>()
-{ return constant<BooleanExpression, false>(); }
-
 
 template<>
-rule<Constant<NumericExpression> *()> &constant<NumericExpression, false>() {
-	static rule<Constant<NumericExpression> *()> num_constant {
+ConstantParser<NumericExpression>::ConstantParser(bool)
+: ConstantParser<NumericExpression>::base_type(constant, type_descr<NumericExpression>() + "_constant")
+{
+	constant =
 		double_ [
 			_val = new_<Constant<NumericExpression>>(_1)
 		]
 		| int_ [
 			_val = new_<Constant<NumericExpression>>(_1)
-		],
-		type_descr<NumericExpression>() + "_constant"
-	};
+		]
+	;
+	constant.name(type_descr<NumericExpression>() + "_constant");
 	//BOOST_SPIRIT_DEBUG_NODE(num_constant);
-	return num_constant;
 }
 
-// Ignore allow_symbol_definition parameter
-template<>
-rule<Constant<NumericExpression> *()> &constant<NumericExpression, true>()
-{ return constant<NumericExpression, false>(); }
-
 
 template<>
-rule<Constant<SymbolicExpression> *()> &constant<SymbolicExpression, false>() {
-	static rule<Constant<SymbolicExpression> *()> symbol_usage {
-		r_name() [
+ConstantParser<SymbolicExpression>::ConstantParser(bool allow_symbol_def)
+: ConstantParser<SymbolicExpression>::base_type(constant, type_descr<SymbolicExpression>() + "_constant")
+{
+	if (allow_symbol_def) {
+		constant = r_name() [ _val = new_<Constant<SymbolicExpression>>(_1) ];
+		constant.name(type_descr<SymbolicExpression>() + "_constant_definition");
+	}
+	else {
+		constant = r_name() [
 			_val = phoenix::bind(&Scope::get_symbol, phoenix::bind(&global_scope), _1),
 			if_(_val == nullptr) [
 				_pass = false
 			]
-		],
-		"symbolic_constant_usage"
-	};
+		];
+		constant.name(type_descr<SymbolicExpression>() + "_constant_usage");
+	}
 	//BOOST_SPIRIT_DEBUG_NODE(symbol_usage);
-	return symbol_usage;
 }
 
 
 template<>
-rule<Constant<SymbolicExpression> *()> &constant<SymbolicExpression, true>() {
-	static rule<Constant<SymbolicExpression> *()> symbol_definition {
-		r_name() [ _val = new_<Constant<SymbolicExpression>>(_1) ],
-		"symbolic_constant_definition"
-	};
-	//BOOST_SPIRIT_DEBUG_NODE(symbol_definition);
-	return symbol_definition;
-}
-
-
-
-template<>
-rule<Constant<StringExpression> *()> &constant<StringExpression, true>() {
-	static rule<Constant<StringExpression> *()> string_constant {
+ConstantParser<StringExpression>::ConstantParser(bool)
+: ConstantParser<StringExpression>::base_type(constant, type_descr<StringExpression>() + "_constant")
+{
+	constant =
 		qi::as_string [ qi::lexeme [
 			lit('"') > *(char_ - '"') > lit('"')
 		] ] [
 			_val = new_<Constant<StringExpression>>(_1)
-		],
-		"string_constant"
-	};
-	return string_constant;
+		]
+	;
+	constant.name(type_descr<StringExpression>() + "_constant");
 }
 
-// Ignore allow_symbol_definition parameter
-template<>
-rule<Constant<StringExpression> *()> &constant<StringExpression, false>()
-{ return constant<StringExpression, true>(); }
 
-
-
-template<>
-rule<Constant<CompoundExpression> *> &constant<CompoundExpression, true>()
+ConstantParser<CompoundExpression>::ConstantParser(bool)
+: ConstantParser<CompoundExpression>::base_type(constant, type_descr<CompoundExpression>() + "_constant")
 {
-	static rule<Constant<CompoundExpression> *> compound_constant {
+	constant =
 		( qi::lit('{') >> *(
-			r_name() >> '=' >> abstract_constant<false>()
+			r_name() >> '=' >> abstract_constant
 		) >> qi::lit('}') ) [
 			_val = new_<Constant<CompoundExpression>>(_1)
 		]
-	};
-	return compound_constant;
+	;
+	constant.name(type_descr<CompoundExpression>() + "_constant");
+
+	abstract_constant = boolean_constant | numeric_constant | symbolic_constant | string_constant | constant;
+	abstract_constant.name("any_constant");
 }
 
-// Ignore allow_symbol_definition parameter
-template<>
-rule<Constant<CompoundExpression> *> &constant<CompoundExpression, false>()
-{ return constant<CompoundExpression, true>(); }
 
+ConstantParser<BooleanExpression> boolean_constant;
+ConstantParser<NumericExpression> numeric_constant;
+ConstantParser<StringExpression> string_constant;
+ConstantParser<SymbolicExpression> symbolic_constant(false);
+ConstantParser<SymbolicExpression> symbolic_constant_def(true);
+ConstantParser<CompoundExpression> compound_constant;
 
 
 
 template<bool allow_symbol_def>
 rule<AbstractConstant *()> &abstract_constant() {
 	static rule<AbstractConstant *()> any_constant {
-		(
-			constant<BooleanExpression>() // allow_symbol_def is ignored and defaults to false
-			| constant<NumericExpression>() // allow_symbol_def is ignored and defaults to false
-			| constant<SymbolicExpression, allow_symbol_def>()
-			| constant<StringExpression>()
-			| constant<CompoundExpression>()
-		),
+		boolean_constant | numeric_constant
+		| (allow_symbol_def ? symbolic_constant_def : symbolic_constant)
+		| string_constant | compound_constant,
 		"any_constant"
 	};
 	BOOST_SPIRIT_DEBUG_NODE(any_constant);
 	return any_constant;
 };
 
-
-template
+template<>
 rule<AbstractConstant *()> &abstract_constant<false>();
 
-template
+template<>
 rule<AbstractConstant *()> &abstract_constant<true>();
+
 
 
 /******************
@@ -267,11 +248,7 @@ rule<Expression *(Scope &)> &atom() {
 		| var<SymbolicExpression>()(_r1) [ _val = new_<Reference<SymbolicVariable>>(_1) ]
 		| var<StringExpression>()(_r1) [ _val = new_<Reference<StringVariable>>(_1) ]
 		| var<CompoundExpression>()(_r1) [ _val = new_<Reference<CompoundVariable>>(_1) ]
-		| constant<BooleanExpression>() [ _val = _1 ]
-		| constant<NumericExpression>() [ _val = _1 ]
-		| constant<SymbolicExpression>() [ _val = _1 ]
-		| constant<StringExpression>() [ _val = _1 ]
-		| constant<CompoundExpression>() [ _val = _1 ]
+		| abstract_constant<false>() [ _val = _1 ]
 		, "any_atom"
 	};
 	BOOST_SPIRIT_DEBUG_NODE(any_atom);

@@ -2,6 +2,7 @@
 #define GOLOGPP_PARSER_DOMAIN_H_
 
 #include "utilities.h"
+#include "atoms.h"
 
 #include <model/domain.h>
 
@@ -15,7 +16,8 @@ struct DomainExpressionParser : grammar<Domain<ExprT>(Scope &)> {
 	rule<Domain<ExprT>(Scope &)> domain_expr;
 	rule<Domain<ExprT>(Scope &)> unary_domain_expr;
 	rule<Domain<ExprT>(Scope &)> binary_domain_expr;
-	rule<DomainOperator()> domain_operator;
+	rule<DomainOperator> domain_operator;
+	ConstantParser<ExprT> constant;
 };
 
 

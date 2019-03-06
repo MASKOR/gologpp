@@ -30,7 +30,7 @@ ExpressionParser<NumericExpression>::ExpressionParser()
 	expression = binary_expr(_r1) | unary_expr(_r1);
 	expression.name("numeric_expression");
 
-	unary_expr = brace(_r1) | constant<NumericExpression>()
+	unary_expr = brace(_r1) | numeric_constant
 		| (*field_access)(_r1)
 		| num_var_ref(_r1)
 		| (*num_fluent_ref)(_r1) | (*num_function_ref)(_r1);

@@ -37,6 +37,7 @@ FluentParser<ExprT>::FluentParser()
 : FluentParser::base_type(fluent)
 , fluent_name(r_name())
 , variable(abstract_var<true>())
+, constant(true)
 {
 
 	fluent = (
@@ -82,7 +83,7 @@ FluentParser<ExprT>::FluentParser()
 	fluent.name(type_descr<ExprT>() + "fluent_definition");
 	on_error<rethrow>(fluent, delete_(_a));
 
-	initially = (lit('(') > -(abstract_constant<true>() % ',') > ')' > '=' > constant<ExprT, true>() > ';') [
+	initially = (lit('(') > -(abstract_constant<true>() % ',') > ')' > '=' > constant > ';') [
 		_val = new_<InitialValue<ExprT>>(_1, _2)
 	];
 	initially.name("initial_value_mapping");
