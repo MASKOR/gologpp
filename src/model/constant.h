@@ -16,11 +16,9 @@ namespace gologpp {
 
 
 
-class AbstractConstant : public virtual AbstractLanguageElement {
+class AbstractConstant : public virtual Expression {
 public:
 	virtual ~AbstractConstant() override;
-
-	virtual ExpressionTypeTag dynamic_type_tag() const = 0;
 
 	virtual size_t hash() const = 0;
 

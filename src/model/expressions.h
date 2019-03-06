@@ -36,7 +36,7 @@ protected:
 
 
 template<class TypeT>
-class TypedExpression : public Expression {
+class TypedExpression : public virtual Expression {
 public:
 	using expression_t = TypedExpression<TypeT>;
 	using type_t = TypeT;

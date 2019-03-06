@@ -11,7 +11,7 @@
 namespace gologpp {
 
 
-class AbstractVariable : public Identifier, public virtual AbstractLanguageElement {
+class AbstractVariable : public Identifier, public virtual Expression {
 public:
 	AbstractVariable(const string &name);
 
