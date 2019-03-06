@@ -8,6 +8,7 @@
 #include "constant.h"
 #include "execution.h"
 
+
 namespace gologpp {
 
 Scope Scope::global_scope_;
@@ -39,7 +40,12 @@ Scope::Scope()
 , globals_(new GlobalsMap())
 , domains_(new DomainsMap())
 , types_(new TypesMap())
-{}
+{
+#define GOLOGPP_REGISTER_SIMPLE_TYPE(_r, _data, T) \
+	register_type(new T());
+
+	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_REGISTER_SIMPLE_TYPE, (), GOLOGPP_SIMPLE_TYPES)
+}
 
 
 Scope::Scope(AbstractLanguageElement &owner, const vector<shared_ptr<AbstractVariable>> &variables)

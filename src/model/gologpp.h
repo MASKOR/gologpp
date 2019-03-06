@@ -173,6 +173,9 @@ using VariableReference = Reference<Variable<ExprT>>;
 #define GOLOGPP_EXPRESSION_TYPES \
 	GOLOGPP_VALUE_TYPES (VoidExpression)
 
+#define GOLOGPP_SIMPLE_TYPES \
+	(Number)(Bool)(String)(Symbol)(Void)
+
 #define GOLOGPP_VALUE_TYPE_TEMPLATES \
 	(EffectAxiom)(InitialValue)(Fluent)(Variable)(Constant) \
 	(FluentAssignment)(VariableAssignment) \
