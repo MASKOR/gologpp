@@ -4,15 +4,12 @@
 #include "utilities.h"
 #include "expressions.h"
 #include "atoms.h"
+#include "reference.h"
+#include "field_access.h"
 
 
 namespace gologpp {
 namespace parser {
-
-
-extern ReferenceParser<Fluent<CompoundExpression>> compound_fluent_ref;
-extern ReferenceParser<Function<CompoundExpression>> compound_function_ref;
-extern FieldAccessParser<CompoundExpression> compound_field_access;
 
 
 template<>
@@ -21,9 +18,12 @@ struct ExpressionParser<CompoundExpression> : public grammar<CompoundExpression 
 
 	rule<CompoundExpression *(Scope &)> expression;
 	rule<Reference<Variable<CompoundExpression>> *(Scope &)> var_ref;
+	ReferenceParser<Fluent<CompoundExpression>> compound_fluent_ref;
+	ReferenceParser<Function<CompoundExpression>> compound_function_ref;
+	FieldAccessParser<CompoundExpression> compound_field_access;
 };
 
-extern ExpressionParser<CompoundExpression> compound_expression;
+extern rule<CompoundExpression *(Scope &)> compound_expression;
 
 
 } // namespace parser

@@ -50,15 +50,13 @@ ComparisonParser<ExprT>::ComparisonParser()
 }
 
 
-ReferenceParser<BooleanFluent> boolean_fluent_ref;
-ReferenceParser<BooleanFunction> boolean_function_ref;
-FieldAccessParser<BooleanExpression> boolean_field_access;
-ConstantParser<BooleanExpression> boolean_constant;
-ComparisonParser<NumericExpression> numeric_comparison;
-ComparisonParser<SymbolicExpression> symbolic_comparison;
-ComparisonParser<StringExpression> string_comparison;
+ExpressionParser<BooleanExpression> &boolean_expression_()
+{
+	static ExpressionParser<BooleanExpression> boolean_expression_;
+	return boolean_expression_;
+}
 
-ExpressionParser<BooleanExpression> boolean_expression;
+rule<BooleanExpression *(Scope &)> boolean_expression = boolean_expression_()(_r1);
 
 
 ExpressionParser<BooleanExpression>::ExpressionParser()

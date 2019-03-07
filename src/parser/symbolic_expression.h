@@ -4,6 +4,8 @@
 #include "expressions.h"
 #include "utilities.h"
 #include "atoms.h"
+#include "reference.h"
+#include "field_access.h"
 
 #include <model/expressions.h>
 
@@ -11,11 +13,6 @@ namespace gologpp {
 namespace parser {
 
 
-extern ReferenceParser<Fluent<SymbolicExpression>> symbolic_fluent_ref;
-extern ReferenceParser<Function<SymbolicExpression>> symbolic_function_ref;
-extern FieldAccessParser<SymbolicExpression> symbolic_field_access;
-extern ConstantParser<SymbolicExpression> symbolic_constant;
-extern ConstantParser<SymbolicExpression> symbolic_constant_def;
 
 
 template<>
@@ -24,10 +21,13 @@ struct ExpressionParser<SymbolicExpression> : grammar<SymbolicExpression *(Scope
 
 	rule<SymbolicExpression *(Scope &)> expression;
 	rule<Reference<Variable<SymbolicExpression>> *(Scope &)> var_ref;
+	ReferenceParser<Fluent<SymbolicExpression>> symbolic_fluent_ref;
+	ReferenceParser<Function<SymbolicExpression>> symbolic_function_ref;
+	FieldAccessParser<SymbolicExpression> symbolic_field_access;
 };
 
 
-extern ExpressionParser<SymbolicExpression> symbolic_expression;
+extern rule<SymbolicExpression *(Scope &)> symbolic_expression;
 
 
 } // namespace parser

@@ -35,7 +35,7 @@ struct FluentParser
 	decltype(r_name()) fluent_name;
 	decltype(abstract_var<true>()) variable;
 	AnyDomainAssignmentParser domain_assignment;
-	ConstantParser<ExprT> constant;
+	ConstantParser<ExprT, true> constant;
 };
 
 extern FluentParser<NumericExpression> numeric_fluent;

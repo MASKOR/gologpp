@@ -1,7 +1,5 @@
 #include "symbolic_expression.h"
 #include "atoms.h"
-#include "reference.h"
-#include "field_access.h"
 
 #include <model/fluent.h>
 #include <model/procedural.h>
@@ -18,13 +16,6 @@ namespace gologpp {
 namespace parser {
 
 
-ReferenceParser<Fluent<SymbolicExpression>> symbolic_fluent_ref;
-ReferenceParser<Function<SymbolicExpression>> symbolic_function_ref;
-FieldAccessParser<SymbolicExpression> symbolic_field_access;
-ConstantParser<SymbolicExpression> symbolic_constant;
-ConstantParser<SymbolicExpression> symbolic_constant_def(true);
-
-
 ExpressionParser<SymbolicExpression>::ExpressionParser()
 : ExpressionParser::base_type(expression, "symbolic_expression")
 {
@@ -38,7 +29,13 @@ ExpressionParser<SymbolicExpression>::ExpressionParser()
 }
 
 
-ExpressionParser<SymbolicExpression> symbolic_expression;
+ExpressionParser<SymbolicExpression> &symbolic_expression_()
+{
+	static ExpressionParser<SymbolicExpression> rv;
+	return rv;
+}
+
+rule<SymbolicExpression *(Scope &)> symbolic_expression = symbolic_expression_()(_r1);
 
 
 } // namespace parser

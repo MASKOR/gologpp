@@ -25,7 +25,6 @@ namespace parser {
 template<class ExprT>
 DomainExpressionParser<ExprT>::DomainExpressionParser()
 : DomainExpressionParser<ExprT>::base_type(domain_expr, "domain_expression")
-, constant(true)
 {
 	domain_expr = binary_domain_expr(_r1) | unary_domain_expr(_r1);
 	domain_expr.name("domain_expression");

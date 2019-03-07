@@ -25,14 +25,6 @@ struct ComparisonParser : grammar<Comparison<ExprT> *(Scope &)> {
 };
 
 
-extern ReferenceParser<BooleanFluent> boolean_fluent_ref;
-extern ReferenceParser<BooleanFunction> boolean_function_ref;
-extern FieldAccessParser<BooleanExpression> boolean_field_access;
-extern ConstantParser<BooleanExpression> boolean_constant;
-extern ComparisonParser<NumericExpression> numeric_comparison;
-extern ComparisonParser<SymbolicExpression> symbolic_comparison;
-extern ComparisonParser<StringExpression> string_comparison;
-
 
 template<>
 struct ExpressionParser<BooleanExpression> : grammar<BooleanExpression *(Scope &)> {
@@ -47,10 +39,16 @@ struct ExpressionParser<BooleanExpression> : grammar<BooleanExpression *(Scope &
 	rule<BooleanExpression *(Scope &), locals<Scope *>> quantification;
 	rule<QuantificationOperator()> quantification_op;
 	rule<BooleanOperator()> bool_op;
+	ReferenceParser<BooleanFluent> boolean_fluent_ref;
+	ReferenceParser<BooleanFunction> boolean_function_ref;
+	FieldAccessParser<BooleanExpression> boolean_field_access;
+	ComparisonParser<NumericExpression> numeric_comparison;
+	ComparisonParser<SymbolicExpression> symbolic_comparison;
+	ComparisonParser<StringExpression> string_comparison;
 };
 
 
-extern ExpressionParser<BooleanExpression> boolean_expression;
+extern rule<BooleanExpression *(Scope &)> boolean_expression;
 
 
 } // namespace parser

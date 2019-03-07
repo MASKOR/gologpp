@@ -5,6 +5,11 @@
 #include "reference.h"
 #include "assignment.h"
 #include "atoms.h"
+#include "formula.h"
+#include "arithmetic.h"
+#include "string_expression.h"
+#include "symbolic_expression.h"
+#include "compound_expression.h"
 
 
 namespace gologpp {
@@ -66,7 +71,7 @@ struct StatementParser : grammar<VoidExpression *(Scope &)> {
 };
 
 
-extern StatementParser statement;
+extern rule<Statement *(Scope &)> statement;
 
 
 

@@ -1,6 +1,4 @@
 #include "arithmetic.h"
-#include "reference.h"
-#include "field_access.h"
 #include "atoms.h"
 
 #include <model/fluent.h>
@@ -22,11 +20,14 @@ namespace gologpp {
 namespace parser {
 
 
-ReferenceParser<NumericFluent> numeric_fluent_ref;
-ReferenceParser<NumericFunction> numeric_function_ref;
-FieldAccessParser<NumericExpression> numeric_field_access;
-ConstantParser<NumericExpression> numeric_constant;
-ExpressionParser<NumericExpression> numeric_expression;
+
+ExpressionParser<NumericExpression> &numeric_expression_()
+{
+	static ExpressionParser<NumericExpression> numeric_expression_;
+	return numeric_expression_;
+}
+
+rule<NumericExpression *(Scope &)> numeric_expression = numeric_expression_()(_r1);
 
 
 ExpressionParser<NumericExpression>::ExpressionParser()

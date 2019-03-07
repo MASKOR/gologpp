@@ -37,7 +37,6 @@ FluentParser<ExprT>::FluentParser()
 : FluentParser::base_type(fluent)
 , fluent_name(r_name())
 , variable(abstract_var<true>())
-, constant(true)
 {
 
 	fluent = (

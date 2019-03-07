@@ -4,6 +4,8 @@
 #include "utilities.h"
 #include "expressions.h"
 #include "atoms.h"
+#include "field_access.h"
+#include "reference.h"
 
 #include <model/arithmetic.h>
 
@@ -14,12 +16,6 @@ namespace parser {
 /*********************
 * Numeric expressions
 *********************/
-
-
-extern ReferenceParser<NumericFluent> numeric_fluent_ref;
-extern ReferenceParser<NumericFunction> numeric_function_ref;
-extern FieldAccessParser<NumericExpression> numeric_field_access;
-extern ConstantParser<NumericExpression> numeric_constant;
 
 template<>
 struct ExpressionParser<NumericExpression> : grammar<NumericExpression *(Scope &)> {
@@ -32,9 +28,12 @@ struct ExpressionParser<NumericExpression> : grammar<NumericExpression *(Scope &
 	rule<NumericExpression *(Scope &)> num_var_ref;
 	rule<NumericExpression *(Scope &)> unary_expr;
 	rule<ArithmeticOperation::Operator()> arith_operator;
+	ReferenceParser<NumericFluent> numeric_fluent_ref;
+	ReferenceParser<NumericFunction> numeric_function_ref;
+	FieldAccessParser<NumericExpression> numeric_field_access;
 };
 
-extern ExpressionParser<NumericExpression> numeric_expression;
+extern rule<NumericExpression *(Scope &)> numeric_expression;
 
 
 

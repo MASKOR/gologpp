@@ -1,6 +1,11 @@
 #include "field_access.h"
 #include "reference.h"
 #include "utilities.h"
+#include "string_expression.h"
+#include "symbolic_expression.h"
+#include "compound_expression.h"
+#include "formula.h"
+#include "arithmetic.h"
 
 #include <model/action.h>
 #include <model/procedural.h>
@@ -14,10 +19,12 @@
 #include <boost/spirit/include/qi_attr.hpp>
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_char.hpp>
+#include <boost/spirit/include/qi_lazy.hpp>
 
 #include <boost/phoenix/object/dynamic_cast.hpp>
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/object/new.hpp>
+#include <boost/phoenix/core/value.hpp>
 #include <boost/phoenix/operator/self.hpp>
 #include <boost/phoenix/operator/logical.hpp>
 #include <boost/phoenix/statement/if.hpp>
@@ -45,17 +52,16 @@ ReferenceParser<GologT>::ReferenceParser()
 	];
 	pred_ref.name(string("reference_to_") + typeid(GologT).name());
 
-	any_expr = boolean_expr(_r1)
-		| numeric_expr(_r1)
-		| string_expr(_r1)
-		| symbolic_expr(_r1)
-		| compound_expr(_r1)
+	any_expr = boolean_expression(_r1)
+		| numeric_expression(_r1)
+		| string_expression(_r1)
+		| symbolic_expression(_r1)
+		| compound_expression(_r1)
 	;
-	any_expr.name("any_value_expression");
 
-
-	BOOST_SPIRIT_DEBUG_NODES((pred_ref)(any_expr));
+	BOOST_SPIRIT_DEBUG_NODES((pred_ref));
 }
+
 
 
 template struct ReferenceParser<Action>;

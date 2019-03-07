@@ -1,6 +1,4 @@
 #include "string_expression.h"
-#include "reference.h"
-#include "field_access.h"
 
 #include "atoms.h"
 
@@ -23,12 +21,13 @@ namespace gologpp {
 namespace parser {
 
 
-ReferenceParser<Fluent<StringExpression>> string_fluent_ref;
-ReferenceParser<Function<StringExpression>> string_function_ref;
-FieldAccessParser<StringExpression> string_field_access;
-ConstantParser<StringExpression> string_constant;
+ExpressionParser<StringExpression> &string_expression_()
+{
+	static ExpressionParser<StringExpression> rv;
+	return rv;
+}
 
-ExpressionParser<StringExpression> string_expression;
+rule<StringExpression *(Scope &)> string_expression = string_expression_()(_r1);
 
 
 ExpressionParser<StringExpression>::ExpressionParser()

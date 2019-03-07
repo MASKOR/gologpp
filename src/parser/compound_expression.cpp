@@ -1,6 +1,4 @@
 #include "compound_expression.h"
-#include "field_access.h"
-#include "reference.h"
 
 #include <model/fluent.h>
 #include <model/procedural.h>
@@ -18,11 +16,13 @@ namespace gologpp {
 namespace parser {
 
 
-ReferenceParser<Fluent<CompoundExpression>> compound_fluent_ref;
-ReferenceParser<Function<CompoundExpression>> compound_function_ref;
-FieldAccessParser<CompoundExpression> compound_field_access;
-ConstantParser<CompoundExpression> compound_constant;
+ExpressionParser<CompoundExpression> &compound_expression_()
+{
+	static ExpressionParser<CompoundExpression> rv;
+	return rv;
+}
 
+rule<CompoundExpression *(Scope &)> compound_expression = compound_expression_()(_r1);
 
 ExpressionParser<CompoundExpression>::ExpressionParser()
 : ExpressionParser::base_type(expression, "compound_expression")
@@ -36,7 +36,6 @@ ExpressionParser<CompoundExpression>::ExpressionParser()
 	];
 }
 
-ExpressionParser<CompoundExpression> compound_expression;
 
 
 } // namespace parser

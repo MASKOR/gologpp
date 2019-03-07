@@ -1,3 +1,6 @@
+#ifndef GOLOGPP_PARSER_FIELD_ACCESS_H_
+#define GOLOGPP_PARSER_FIELD_ACCESS_H_
+
 #include "utilities.h"
 
 namespace gologpp {
@@ -14,3 +17,5 @@ struct FieldAccessParser : public grammar<FieldAccess<ExprT> *(Scope &)> {
 
 } // namespace parser
 } // namespace gologpp
+
+#endif // GOLOGPP_PARSER_FIELD_ACCESS_H_

@@ -22,31 +22,31 @@ namespace parser {
 
 
 template<class ExpressionT>
-inline rule<void ()>
+inline auto
 type_mark();
 
 template<>
-inline rule<void ()>
+inline auto
 type_mark<BooleanExpression>()
 { return boost::spirit::qi::lit('?'); }
 
 template<>
-inline rule<void ()>
+inline auto
 type_mark<NumericExpression>()
 { return boost::spirit::qi::lit('%'); }
 
 template<>
-inline rule<void ()>
+inline auto
 type_mark<SymbolicExpression>()
 { return boost::spirit::qi::lit("§"); }
 
 template<>
-inline rule<void ()>
+inline auto
 type_mark<StringExpression>()
 { return boost::spirit::qi::lit('$'); }
 
 template<>
-inline rule<void ()>
+inline auto
 type_mark<CompoundExpression>()
 { return boost::spirit::qi::lit('@'); }
 

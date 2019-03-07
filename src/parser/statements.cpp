@@ -27,7 +27,13 @@ namespace gologpp {
 namespace parser {
 
 
-StatementParser statement;
+StatementParser &statement_()
+{
+	static StatementParser rv;
+	return rv;
+}
+
+rule<Statement *(Scope &)> statement = statement_()(_r1);
 
 
 template<class ExprT>
