@@ -54,7 +54,7 @@ FunctionParser<ExpressionT>::FunctionParser()
 		> ( -(abstract_var<true>()(*_a) % ',') > ')' ) [
 			_c = _1
 		]
-		> ':' > type_specifier<ExpressionT>() [
+		> type_specifier<ExpressionT>() [
 			_d = _1
 		]
 		> (
