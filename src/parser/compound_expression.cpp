@@ -30,10 +30,13 @@ ExpressionParser<CompoundExpression>::ExpressionParser()
 	expression = compound_constant | var_ref(_r1)
 		| compound_fluent_ref(_r1) | compound_function_ref(_r1)
 		| compound_field_access(_r1);
+	expression.name("compound_expression");
 
 	var_ref = var<CompoundExpression>()(_r1) [
 		_val = new_<Reference<Variable<CompoundExpression>>>(_1)
 	];
+
+	BOOST_SPIRIT_DEBUG_NODES((expression)(var_ref));
 }
 
 

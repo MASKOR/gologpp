@@ -58,8 +58,9 @@ ReferenceParser<GologT>::ReferenceParser()
 		| symbolic_expression(_r1)
 		| compound_expression(_r1)
 	;
+	any_expr.name("any_expression");
 
-	BOOST_SPIRIT_DEBUG_NODES((pred_ref));
+	BOOST_SPIRIT_DEBUG_NODES((pred_ref)(any_expr));
 }
 
 
