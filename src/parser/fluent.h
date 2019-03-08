@@ -29,7 +29,7 @@ struct FluentParser
 			boost::optional < vector < shared_ptr < AbstractVariable > > >
 		>
 	> fluent;
-	rule<InitialValue<ExprT> *> initially;
+	rule<InitialValue<ExprT> *()> initially;
 	decltype(r_name()) fluent_name;
 	decltype(abstract_var<true>()) variable;
 	AnyDomainAssignmentParser domain_assignment;

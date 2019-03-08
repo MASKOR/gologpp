@@ -106,8 +106,8 @@ rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<false>();
 ******************/
 
 template<>
-rule<Constant<BooleanExpression> *> &constant<BooleanExpression, false>() {
-	static rule<Constant<BooleanExpression> *> bool_constant {
+rule<Constant<BooleanExpression> *()> &constant<BooleanExpression, false>() {
+	static rule<Constant<BooleanExpression> *()> bool_constant {
 		lit("true") [
 			_val = new_<Constant<BooleanExpression>>(true)
 		]
@@ -122,13 +122,13 @@ rule<Constant<BooleanExpression> *> &constant<BooleanExpression, false>() {
 
 // Ignore allow_symbol_definition parameter
 template<>
-rule<Constant<BooleanExpression> *> &constant<BooleanExpression, true>()
+rule<Constant<BooleanExpression> *()> &constant<BooleanExpression, true>()
 { return constant<BooleanExpression, false>(); }
 
 
 template<>
-rule<Constant<NumericExpression> *> &constant<NumericExpression, false>() {
-	static rule<Constant<NumericExpression> *> num_constant {
+rule<Constant<NumericExpression> *()> &constant<NumericExpression, false>() {
+	static rule<Constant<NumericExpression> *()> num_constant {
 		double_ [
 			_val = new_<Constant<NumericExpression>>(_1)
 		]
@@ -143,13 +143,13 @@ rule<Constant<NumericExpression> *> &constant<NumericExpression, false>() {
 
 // Ignore allow_symbol_definition parameter
 template<>
-rule<Constant<NumericExpression> *> &constant<NumericExpression, true>()
+rule<Constant<NumericExpression> *()> &constant<NumericExpression, true>()
 { return constant<NumericExpression, false>(); }
 
 
 template<>
-rule<Constant<SymbolicExpression> *> &constant<SymbolicExpression, false>() {
-	static rule<Constant<SymbolicExpression> *> symbol_usage {
+rule<Constant<SymbolicExpression> *()> &constant<SymbolicExpression, false>() {
+	static rule<Constant<SymbolicExpression> *()> symbol_usage {
 		r_name() [
 			_val = phoenix::bind(&Scope::get_symbol, phoenix::bind(&global_scope), _1),
 			if_(_val == nullptr) [
@@ -164,8 +164,8 @@ rule<Constant<SymbolicExpression> *> &constant<SymbolicExpression, false>() {
 
 
 template<>
-rule<Constant<SymbolicExpression> *> &constant<SymbolicExpression, true>() {
-	static rule<Constant<SymbolicExpression> *> symbol_definition {
+rule<Constant<SymbolicExpression> *()> &constant<SymbolicExpression, true>() {
+	static rule<Constant<SymbolicExpression> *()> symbol_definition {
 		r_name() [ _val = new_<Constant<SymbolicExpression>>(_1) ],
 		"symbolic_constant_definition"
 	};
@@ -176,8 +176,8 @@ rule<Constant<SymbolicExpression> *> &constant<SymbolicExpression, true>() {
 
 
 template<>
-rule<Constant<StringExpression> *> &constant<StringExpression, true>() {
-	static rule<Constant<StringExpression> *> string_constant {
+rule<Constant<StringExpression> *()> &constant<StringExpression, true>() {
+	static rule<Constant<StringExpression> *()> string_constant {
 		qi::as_string [ qi::lexeme [
 			lit('"') > *(char_ - '"') > lit('"')
 		] ] [
@@ -190,14 +190,14 @@ rule<Constant<StringExpression> *> &constant<StringExpression, true>() {
 
 // Ignore allow_symbol_definition parameter
 template<>
-rule<Constant<StringExpression> *> &constant<StringExpression, false>()
+rule<Constant<StringExpression> *()> &constant<StringExpression, false>()
 { return constant<StringExpression, true>(); }
 
 
 
 template<bool allow_symbol_def>
-rule<AbstractConstant *> &abstract_constant() {
-	static rule<AbstractConstant *> any_constant {
+rule<AbstractConstant *()> &abstract_constant() {
+	static rule<AbstractConstant *()> any_constant {
 		(
 			constant<BooleanExpression>() // allow_symbol_def is ignored and defaults to false
 			| constant<NumericExpression>() // allow_symbol_def is ignored and defaults to false
@@ -212,10 +212,10 @@ rule<AbstractConstant *> &abstract_constant() {
 
 
 template
-rule<AbstractConstant *> &abstract_constant<false>();
+rule<AbstractConstant *()> &abstract_constant<false>();
 
 template
-rule<AbstractConstant *> &abstract_constant<true>();
+rule<AbstractConstant *()> &abstract_constant<true>();
 
 
 /******************
