@@ -51,7 +51,7 @@ procedure bla() {
 
 
 {
-	solve(6, reward())
+	solve(8, reward())
 		while (!goal())
 			pick (§x in {a, b, c})
 				pick(§y in {table, a, b, c})
