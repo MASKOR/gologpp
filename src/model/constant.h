@@ -140,6 +140,7 @@ class Constant<CompoundExpression>
 {
 public:
 	Constant(const vector<boost::fusion::vector<string, AbstractConstant *>> &repr);
+	using Value = std::unordered_map<string, unique_ptr<AbstractConstant>>;
 	Constant(Constant<CompoundExpression> &&) = default;
 	Constant(const Constant<CompoundExpression> &);
 
@@ -149,6 +150,7 @@ public:
 	Constant<CompoundExpression> &operator = (const Constant<CompoundExpression> &c);
 
 	virtual size_t hash() const override;
+	const Value &value() const;
 
 	virtual ExpressionTypeTag dynamic_type_tag() const override;
 	virtual bool operator == (const AbstractConstant &c) const override;
@@ -157,10 +159,11 @@ public:
 
 	virtual string to_string(const string &pfx) const override;
 
+
 	DEFINE_IMPLEMENT
 
 private:
-	std::unordered_map<string, unique_ptr<AbstractConstant>> representation_;
+	Value representation_;
 };
 
 

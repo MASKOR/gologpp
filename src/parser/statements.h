@@ -57,17 +57,17 @@ struct StatementParser : grammar<VoidExpression *(Scope &)> {
 	ReferenceParser<Action> action_call;
 	rule<DurativeCall *(Scope &), locals<DurativeCall::Hook>> durative_call;
 
-	AssignmentParser<Fluent<BooleanExpression>> boolean_fluent_assignment;
-	AssignmentParser<Fluent<NumericExpression>> numeric_fluent_assignment;
-	AssignmentParser<Fluent<SymbolicExpression>> symbolic_fluent_assignment;
-	AssignmentParser<Fluent<StringExpression>> string_fluent_assignment;
-	AssignmentParser<Fluent<CompoundExpression>> compound_fluent_assignment;
+	AssignmentParser<Reference<BooleanFluent>> boolean_fluent_assignment;
+	AssignmentParser<Reference<NumericFluent>> numeric_fluent_assignment;
+	AssignmentParser<Reference<SymbolicFluent>> symbolic_fluent_assignment;
+	AssignmentParser<Reference<StringFluent>> string_fluent_assignment;
+	AssignmentParser<Reference<CompoundFluent>> compound_fluent_assignment;
 
-	AssignmentParser<Variable<BooleanExpression>> boolean_var_assignment;
-	AssignmentParser<Variable<NumericExpression>> numeric_var_assignment;
-	AssignmentParser<Variable<SymbolicExpression>> symbolic_var_assignment;
-	AssignmentParser<Variable<StringExpression>> string_var_assignment;
-	AssignmentParser<Variable<CompoundExpression>> compound_var_assignment;
+	AssignmentParser<Reference<BooleanVariable>> boolean_var_assignment;
+	AssignmentParser<Reference<NumericVariable>> numeric_var_assignment;
+	AssignmentParser<Reference<SymbolicVariable>> symbolic_var_assignment;
+	AssignmentParser<Reference<StringVariable>> string_var_assignment;
+	AssignmentParser<Reference<CompoundVariable>> compound_var_assignment;
 };
 
 

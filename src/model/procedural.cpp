@@ -294,4 +294,20 @@ string to_string(DurativeCall::Hook hook)
 
 
 
+AbstractFieldAccess::AbstractFieldAccess(CompoundExpression *subject, const string &field_name)
+: field_name_(field_name)
+{
+	subject_.reset(subject);
+	if (!set_type(subject->type().field_type(field_name)))
+		throw Bug("Failed to set type");
+}
+
+const CompoundExpression &AbstractFieldAccess::subject() const
+{ return *subject_; }
+
+const string &AbstractFieldAccess::field_name() const
+{ return field_name_; }
+
+
+
 } // namespace gologpp

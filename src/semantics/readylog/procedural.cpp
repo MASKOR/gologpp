@@ -33,7 +33,7 @@ EC_word Semantics<Block>::plterm()
 	EC_word rv;
 
 	const AbstractFunction *parent_fn = dynamic_cast<const AbstractFunction *>(block_.parent());
-	if (parent_fn && !dynamic_cast<const Function<Void> *>(parent_fn)) {
+	if (parent_fn && !dynamic_cast<const Function<VoidExpression> *>(parent_fn)) {
 		if (block_.elements().size() == 1)
 			rv = block_.elements()[0]->semantics().plterm();
 		else
@@ -184,7 +184,7 @@ Semantics<DurativeCall>::Semantics(const DurativeCall &call)
 
 EC_word Semantics<DurativeCall>::plterm()
 {
-	return ::term(EC_functor(to_string(call_.type()).c_str(), 2),
+	return ::term(EC_functor(to_string(call_.hook()).c_str(), 2),
 		reference_term(call_.action()),
 		EC_atom("now")
 	);

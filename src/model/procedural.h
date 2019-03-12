@@ -104,6 +104,17 @@ private:
 
 
 
+class AbstractAssignment
+: public VoidExpression
+, public NoScopeOwner
+, public virtual AbstractLanguageElement {
+public:
+	virtual const AbstractReference &lhs() const = 0;
+	virtual const Expression &rhs() const = 0;
+};
+
+
+
 /**
  * @class Assignment
  * @tparam LhsT The type of the left hand side expression.
@@ -113,12 +124,14 @@ private:
  * @see Assignment::Assignment.
  */
 template<class LhsT>
-class Assignment : public VoidExpression, public NoScopeOwner, public LanguageElement<Assignment<LhsT>> {
+class Assignment
+: public AbstractAssignment
+, public LanguageElement<Assignment<LhsT>> {
 public:
 	static_assert(!std::is_base_of<VoidExpression, LhsT>::value, "Cannot assign to a statement");
 	static_assert(!std::is_base_of<AbstractFunction, LhsT>::value, "Cannot assign to a function");
 
-	Assignment(Reference<LhsT> *lhs, typename LhsT::expression_t *rhs)
+	Assignment(LhsT *lhs, typename LhsT::expression_t *rhs)
 	: lhs_(lhs), rhs_(rhs)
 	{
 		ensure_type_equality(*lhs, *rhs);
@@ -128,17 +141,17 @@ public:
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 
-	const Reference<LhsT> &lhs() const
+	const LhsT &lhs() const override
 	{ return *lhs_; }
 
-	const typename LhsT::expression_t &rhs() const
+	const typename LhsT::expression_t &rhs() const override
 	{ return *rhs_; }
 
 	virtual string to_string(const string &pfx) const override
 	{ return lhs().to_string(pfx) + " = " + rhs().to_string(""); }
 
 private:
-    unique_ptr<Reference<LhsT>> lhs_;
+    unique_ptr<LhsT> lhs_;
     unique_ptr<typename LhsT::expression_t> rhs_;
 };
 
@@ -433,36 +446,35 @@ string to_string(DurativeCall::Hook);
 
 
 
+class AbstractFieldAccess
+: public virtual Expression
+, public NoScopeOwner
+, public virtual AbstractLanguageElement
+{
+public:
+	AbstractFieldAccess(CompoundExpression *subject, const string &field_name);
+	const CompoundExpression &subject() const;
+	const string &field_name() const;
+
+protected:
+	unique_ptr<CompoundExpression> subject_;
+	const string field_name_;
+};
+
+
 template<class ExprT>
 class FieldAccess
 : public ExprT
-, public NoScopeOwner
+, public AbstractFieldAccess
 , public LanguageElement<FieldAccess<ExprT>>
 {
 public:
-	FieldAccess(CompoundExpression *subject, const string &field_name)
-	: field_name_(field_name)
-	{
-		subject_.reset(subject);
-		if (!set_type(subject->type().field_type(field_name)))
-			throw Bug("Failed to set type");
-	}
+	using AbstractFieldAccess::AbstractFieldAccess;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*subject_)
 
-	const CompoundExpression &subject() const
-	{ return *subject_; }
-
-	const string &field_name() const
-	{ return field_name_; }
-
 	string to_string(const string &pfx) const override
 	{ return pfx + subject().str() + "." + gologpp::to_string(ExprT::type_t::tag()) + field_name(); }
-
-
-private:
-	unique_ptr<CompoundExpression> subject_;
-	const string field_name_;
 };
 
 

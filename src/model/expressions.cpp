@@ -38,7 +38,6 @@ void ensure_type_equality(const Expression &e1, const Expression &e2)
 
 template<>
 TypedExpression<CompoundType>::TypedExpression()
-: Expression()
 {}
 
 

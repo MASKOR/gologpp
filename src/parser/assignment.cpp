@@ -24,29 +24,29 @@ namespace parser {
 
 
 template<class ExpressionT>
-AssignmentParser<Fluent<ExpressionT>>::AssignmentParser()
-: AssignmentParser<Fluent<ExpressionT>>::base_type(assignment, string("assignment_to_") + type_descr<ExpressionT>() + "_fluent")
+AssignmentParser<Reference<Fluent<ExpressionT>>>::AssignmentParser()
+: AssignmentParser<Reference<Fluent<ExpressionT>>>::base_type(assignment, string("assignment_to_") + type_descr<ExpressionT>() + "_fluent")
 {
 	assignment = ((fluent_ref(_r1) >> "=") > expression(_r1)) [
-		_val = new_<Assignment<Fluent<ExpressionT>>>(_1, _2)
+		_val = new_<Assignment<Reference<Fluent<ExpressionT>>>>(_1, _2)
 	];
 	assignment.name(string("assignment_to_") + type_descr<ExpressionT>() + "_fluent");
 }
 
 #define GOLOGPP_PARSER_INSTANTIATE_FLUENT_ASSIGNMENT(r, data, T) \
 	template \
-	AssignmentParser<Fluent<T>>::AssignmentParser();
+	AssignmentParser<Reference<Fluent<T>>>::AssignmentParser();
 
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_INSTANTIATE_FLUENT_ASSIGNMENT, (), GOLOGPP_VALUE_TYPES)
 
 
 
 template<class ExpressionT>
-AssignmentParser<Variable<ExpressionT>>::AssignmentParser()
-: AssignmentParser<Variable<ExpressionT>>::base_type(assignment, string("assignment_to_") + type_descr<ExpressionT>() + "_variable")
+AssignmentParser<Reference<Variable<ExpressionT>>>::AssignmentParser()
+: AssignmentParser<Reference<Variable<ExpressionT>>>::base_type(assignment, string("assignment_to_") + type_descr<ExpressionT>() + "_variable")
 {
 	assignment = (var_ref(_r1) >> "=" > expression(_r1)) [
-		_val = new_<Assignment<Variable<ExpressionT>>>(_1, _2)
+		_val = new_<Assignment<Reference<Variable<ExpressionT>>>>(_1, _2)
 	];
 
 	var_ref = var<ExpressionT>()(_r1) [ _val = new_<Reference<Variable<ExpressionT>>>(_1) ];
@@ -55,7 +55,7 @@ AssignmentParser<Variable<ExpressionT>>::AssignmentParser()
 
 #define GOLOGPP_PARSER_INSTANTIATE_VARIABLE_ASSIGNMENT(r, data, T) \
 	template \
-	AssignmentParser<Variable<T>>::AssignmentParser();
+	AssignmentParser<Reference<Variable<T>>>::AssignmentParser();
 
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_INSTANTIATE_VARIABLE_ASSIGNMENT, (), GOLOGPP_VALUE_TYPES)
 

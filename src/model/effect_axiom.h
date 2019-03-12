@@ -11,6 +11,8 @@
 
 #include <boost/optional.hpp>
 
+#include <type_traits>
+
 namespace gologpp {
 
 class Expression;
@@ -36,21 +38,21 @@ protected:
 };
 
 
-template<class ExpressionT>
-class EffectAxiom : public AbstractEffectAxiom, public NoScopeOwner, public LanguageElement<EffectAxiom<ExpressionT>> {
+template<class LhsT>
+class EffectAxiom : public AbstractEffectAxiom, public NoScopeOwner, public LanguageElement<EffectAxiom<LhsT>> {
 public:
 	EffectAxiom()
 	{}
 
-	EffectAxiom(EffectAxiom<ExpressionT> &&o) = default;
+	EffectAxiom(EffectAxiom<LhsT> &&o) = default;
 
 	virtual ~EffectAxiom() override
 	{}
 
-	const Reference<Fluent<ExpressionT>> &fluent() const
+	const LhsT &lhs() const
 	{ return assignment_->lhs(); }
 
-	const ExpressionT &value() const
+	const typename LhsT::expression_t &value() const
 	{ return assignment_->rhs(); }
 
 
@@ -60,12 +62,18 @@ public:
 			+ pfx + indent + assignment_->to_string("") + ";";
 	}
 
-	void define(boost::optional<BooleanExpression *> condition, Reference<Fluent<ExpressionT>> *fluent, ExpressionT *value)
+	void define(boost::optional<BooleanExpression *> condition, LhsT *lhs, typename LhsT::expression_t *value)
 	{
+		if (!lhs->template is_a<Reference<AbstractFluent>>()) {
+			AbstractFieldAccess *fa = dynamic_cast<AbstractFieldAccess *>(lhs);
+			if (!fa || !fa->subject().is_a<CompoundFluent>())
+				throw std::runtime_error("Effect must assign to a fluent or to a compound fluent's field");
+		}
+
 		if (condition)
 			set_condition(*condition);
 
-		assignment_ = std::make_unique<Assignment<Fluent<ExpressionT>>>(fluent, value);
+		assignment_ = std::make_unique<Assignment<LhsT>>(lhs, value);
 		assignment_->set_parent(this);
 	}
 
@@ -79,7 +87,7 @@ public:
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, *assignment_)
 
 protected:
-	unique_ptr<Assignment<Fluent<ExpressionT>>> assignment_;
+	unique_ptr<Assignment<LhsT>> assignment_;
 };
 
 

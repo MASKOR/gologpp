@@ -40,11 +40,11 @@ struct ActionDefinitionParser<Action>
 
 	ExpressionParser<BooleanExpression> formula_parser;
 	rule<AbstractEffectAxiom *(Scope &)> effect;
-	EffectParser<BooleanExpression> boolean_effect;
-	EffectParser<NumericExpression> numeric_effect;
-	EffectParser<SymbolicExpression> symbolic_effect;
-	EffectParser<StringExpression> string_effect;
-	EffectParser<CompoundExpression> compound_effect;
+	EffectParser<Reference<BooleanFluent>> boolean_effect;
+	EffectParser<Reference<NumericFluent>> numeric_effect;
+	EffectParser<Reference<SymbolicFluent>> symbolic_effect;
+	EffectParser<Reference<StringFluent>> string_effect;
+	EffectParser<Reference<CompoundFluent>> compound_effect;
 	AnyDomainAssignmentParser domain_assignment;
 
 	ReferenceParser<BooleanFluent>boolean_senses;
@@ -76,11 +76,11 @@ struct ActionDefinitionParser<ExogAction>
 
 	ExpressionParser<BooleanExpression> formula_parser;
 	rule<AbstractEffectAxiom *(Scope &)> effect;
-	EffectParser<BooleanExpression> boolean_effect;
-	EffectParser<NumericExpression> numeric_effect;
-	EffectParser<SymbolicExpression> symbolic_effect;
-	EffectParser<StringExpression> string_effect;
-	EffectParser<CompoundExpression> compound_effect;
+	EffectParser<Reference<BooleanFluent>> boolean_effect;
+	EffectParser<Reference<NumericFluent>> numeric_effect;
+	EffectParser<Reference<SymbolicFluent>> symbolic_effect;
+	EffectParser<Reference<StringFluent>> string_effect;
+	EffectParser<Reference<CompoundFluent>> compound_effect;
 	AnyDomainAssignmentParser domain_assignment;
 };
 

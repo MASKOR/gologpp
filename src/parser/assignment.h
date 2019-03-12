@@ -18,20 +18,20 @@ struct AssignmentParser;
 
 
 template<class ExpressionT>
-struct AssignmentParser<Fluent<ExpressionT>> : grammar<Assignment<Fluent<ExpressionT>> *(Scope &)> {
+struct AssignmentParser<Reference<Fluent<ExpressionT>>> : grammar<Assignment<Reference<Fluent<ExpressionT>>> *(Scope &)> {
 	AssignmentParser();
 
-	rule<Assignment<Fluent<ExpressionT>> *(Scope &)> assignment;
+	rule<Assignment<Reference<Fluent<ExpressionT>>> *(Scope &)> assignment;
 	ReferenceParser<Fluent<ExpressionT>> fluent_ref;
 	ExpressionParser<ExpressionT> expression;
 };
 
 
 template<class ExpressionT>
-struct AssignmentParser<Variable<ExpressionT>> : grammar<Assignment<Variable<ExpressionT>> *(Scope &)> {
+struct AssignmentParser<Reference<Variable<ExpressionT>>> : grammar<Assignment<Reference<Variable<ExpressionT>>> *(Scope &)> {
 	AssignmentParser();
 
-	rule<Assignment<Variable<ExpressionT>> *(Scope &)> assignment;
+	rule<Assignment<Reference<Variable<ExpressionT>>> *(Scope &)> assignment;
 	rule<Reference<Variable<ExpressionT>> *(Scope &)> var_ref;
 	ExpressionParser<ExpressionT> expression;
 };

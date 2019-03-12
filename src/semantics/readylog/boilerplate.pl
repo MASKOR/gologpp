@@ -5,6 +5,34 @@
 function(strcat(X, Y), R, concat_atoms(X, Y, R)).
 
 
+function(gpp_field_value(Name, gpp_compound(Fields)), Value,
+	and([
+		atom(Name), var(Value)
+		, Field_term =.. [Name, Value]
+		, member(Field_term, Fields)
+	])
+).
+
+function(gpp_field_assign(Name, Value, gpp_compound(Fields)), Result,
+	and([
+		atom(Name), var(Result), ground(Value)
+		, Field_current =.. [Name, _]
+		, delete(Field_current, Fields, Fields_without)
+		, Field_new =.. [Name, Value]
+		, Result = [Field_new | Fields_without]
+	])
+).
+
+function(gpp_field_value(Name, Compound), _, _) :-
+	sprintf(Msg, "Invalid field access: %w", gpp_field_value(Name, Compound))
+	, throw(Msg)
+.
+
+function(gpp_field_assign(Name, Value, Compound), _, _) :-
+	sprintf(Msg, "Invalid field assignment: %w", gpp_field_assign(Name, Value, Compound))
+	, throw(Msg)
+.
+
 /********************************
  * Durative Action semantics
  * ******************************/

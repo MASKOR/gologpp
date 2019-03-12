@@ -93,8 +93,15 @@ size_t Constant<CompoundExpression>::hash() const
 	return rv;
 }
 
+const Constant<CompoundExpression>::Value &Constant<CompoundExpression>::value() const
+{ return representation_; }
+
 Type::Tag Constant<CompoundExpression>::dynamic_type_tag() const
 { return type().dynamic_tag(); }
+
+Constant<CompoundExpression> *Constant<CompoundExpression>::copy() const
+{ return new Constant<CompoundExpression>(*this); }
+
 
 bool Constant<CompoundExpression>::operator == (const AbstractConstant &c) const
 {
@@ -109,8 +116,6 @@ bool Constant<CompoundExpression>::operator == (const AbstractConstant &c) const
 	return true;
 }
 
-Constant<CompoundExpression> *Constant<CompoundExpression>::copy() const
-{ return new Constant<CompoundExpression>(*this); }
 
 string Constant<CompoundExpression>::to_string(const string &pfx) const
 {

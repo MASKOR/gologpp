@@ -147,10 +147,10 @@ class ExecutionContext;
 class PlatformBackend;
 
 template<class ExprT>
-using FluentAssignment = Assignment<Fluent<ExprT>>;
+using FluentAssignment = Assignment<Reference<Fluent<ExprT>>>;
 
 template<class ExprT>
-using VariableAssignment = Assignment<Variable<ExprT>>;
+using VariableAssignment = Assignment<Reference<Variable<ExprT>>>;
 
 template<class ExprT>
 using FluentReference = Reference<Fluent<ExprT>>;
@@ -160,6 +160,9 @@ using FunctionReference = Reference<Function<ExprT>>;
 
 template<class ExprT>
 using VariableReference = Reference<Variable<ExprT>>;
+
+template<class ExprT>
+using FluentEffectAxiom = EffectAxiom<Reference<Fluent<ExprT>>>;
 
 
 #define GOLOGPP_COMPARABLE_TYPES \
@@ -177,7 +180,7 @@ using VariableReference = Reference<Variable<ExprT>>;
 	(Number)(Bool)(String)(Symbol)(Void)
 
 #define GOLOGPP_VALUE_TYPE_TEMPLATES \
-	(EffectAxiom)(InitialValue)(Fluent)(Variable)(Constant) \
+	(FluentEffectAxiom)(InitialValue)(Fluent)(Variable)(Constant) \
 	(FluentAssignment)(VariableAssignment) \
 	(FluentReference)(VariableReference)(Pick)(Return) \
 	(FieldAccess) \

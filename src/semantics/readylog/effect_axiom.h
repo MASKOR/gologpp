@@ -16,82 +16,51 @@
 namespace gologpp {
 
 
-template<class ExpressionT>
-class Semantics<EffectAxiom<ExpressionT>> : public ReadylogSemantics {
+template<>
+class Semantics<AbstractEffectAxiom> : public ReadylogSemantics {
 public:
-	Semantics(const EffectAxiom<ExpressionT> &eff)
-	: effect_(eff)
-	{
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-value"
-		try {
-			dynamic_cast<const Action &>(effect_.action());
-			// All golog++ actions are implicitly durative
-			cv_functor = "durative_causes_val";
-		} catch (std::bad_cast &) {
-			try {
-				dynamic_cast<const ExogAction &>(effect_.action());
-				cv_functor = "causes_val";
-			} catch (std::bad_cast &) {
-				throw Bug("Unknown action type");
-			}
-		}
-#pragma GCC diagnostic pop
-	}
+	Semantics(const AbstractEffectAxiom &eff);
 
-	virtual ~Semantics() override = default;
+protected:
+	const AbstractEffectAxiom &effect_;
+	string cv_functor;
+};
+
+
+template<class ExprT>
+class Semantics<EffectAxiom<Reference<Fluent<ExprT>>>> : public Semantics<AbstractEffectAxiom> {
+public:
+	using Semantics<AbstractEffectAxiom>::Semantics;
+
+	const EffectAxiom<Reference<Fluent<ExprT>>> &effect() const
+	{ return dynamic_cast<const EffectAxiom<Reference<Fluent<ExprT>>> &>(effect_); }
 
 	virtual EC_word plterm() override
 	{
 		return ::term(EC_functor(cv_functor.c_str(), 4),
-			effect_.action().semantics().plterm(),
-			effect_.fluent().semantics().plterm(),
-			effect_.value().semantics().plterm(),
-			effect_.condition().semantics().plterm()
+			effect().action().semantics().plterm(),
+			effect().lhs().semantics().plterm(),
+			effect().value().semantics().plterm(),
+			effect().condition().semantics().plterm()
 		);
 	}
+};
 
-	/*EC_word ssa()
+
+template<class ExprT>
+class Semantics<EffectAxiom<FieldAccess<ExprT>>> : public Semantics<AbstractEffectAxiom> {
+	const EffectAxiom<FieldAccess<ExprT>> &effect() const
+	{ return dynamic_cast<const EffectAxiom<FieldAccess<ExprT>> &>(effect_); }
+
+	virtual EC_word plterm() override
 	{
-		effect_.action().scope().semantics().init_vars();
-
-		EC_ref Srest, Body_cond, Eval_val, Body_subf, New_body;
-
-		if ( ! ReadylogContext::instance().ec_query(
-			::term(EC_functor("process_condition", 3),
-				effect_.condition().semantics().plterm(),
-				Srest,
-				Body_cond
-			)
-			&& ::term(EC_functor("process_subf", 5),
-				effect_.value().semantics().plterm(),
-				Eval_val,
-				Body_subf,
-				::newvar(),
-				Srest
-			)
-			&& ::term(EC_functor("conjunct", 3),
-				Body_cond,
-				Body_subf,
-				New_body
-			)
-		))
-			throw std::runtime_error("Failed to generate SSA for " + effect_.action().name());
-
-		return ::term(EC_functor(":-", 2),
-			::term(EC_functor("ssa", 3),
-				effect_.fluent().semantics().plterm(),
-				Eval_val,
-				::list(effect_.action().semantics().plterm(), Srest)
-			),
-			New_body
+		return ::term(EC_functor(cv_functor.c_str(), 4),
+			effect().action().semantics().plterm(),
+			effect().lhs().subject().semantics().plterm(),
+			effect().lhs().semantics().field_assign(effect().value()),
+			effect().condition().semantics().plterm()
 		);
-	}*/
-
-
-private:
-	const EffectAxiom<ExpressionT> &effect_;
-	string cv_functor;
+	}
 };
 
 } /* namespace gologpp */

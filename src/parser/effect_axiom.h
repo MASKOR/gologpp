@@ -5,6 +5,7 @@
 #include "utilities.h"
 #include "reference.h"
 #include "formula.h"
+#include "field_access.h"
 
 #include <boost/spirit/home/qi/nonterminal/error_handler.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>
@@ -25,17 +26,21 @@ namespace gologpp {
 namespace parser {
 
 
+template<class LhsT>
+struct EffectParser;
+
+
 template<class ExprT>
-struct EffectParser : grammar<EffectAxiom<ExprT> *(Scope &)> {
+struct EffectParser<Reference<Fluent<ExprT>>> : grammar<EffectAxiom<Reference<Fluent<ExprT>>> *(Scope &)> {
 	EffectParser()
-	: EffectParser::base_type(effect, "effect_axiom")
+	: EffectParser::base_type(effect, "fluent_effect_axiom")
 	{
-		effect = ( eps [ _val = new_<EffectAxiom<ExprT>>() ] >> (
+		effect = ( eps [ _val = new_<EffectAxiom<Reference<Fluent<ExprT>>>>() ] >> (
 			-(condition(_r1) >> "->")
 			>> fluent_ref(_r1)
 			>> '=' >> expression(_r1)
 		)) [
-			phoenix::bind(&EffectAxiom<ExprT>::define, *_val, _1, _2, _3)
+			phoenix::bind(&EffectAxiom<Reference<Fluent<ExprT>>>::define, *_val, _1, _2, _3)
 		];
 		effect.name("boolean_effect_axiom");
 		on_error<rethrow>(effect, delete_(_val));
@@ -46,7 +51,32 @@ struct EffectParser : grammar<EffectAxiom<ExprT> *(Scope &)> {
 	ExpressionParser<BooleanExpression> condition;
 	ExpressionParser<ExprT> expression;
 	ReferenceParser<Fluent<ExprT>> fluent_ref;
-	rule<EffectAxiom<ExprT> *(Scope &)> effect;
+	rule<EffectAxiom<Reference<Fluent<ExprT>>> *(Scope &)> effect;
+};
+
+
+template<class ExprT>
+struct EffectParser<FieldAccess<ExprT>> : grammar<EffectAxiom<FieldAccess<ExprT>> *(Scope &)> {
+	EffectParser()
+	: EffectParser::base_type(effect, "fluent_field_effect_axiom")
+	{
+		effect = ( eps [ _val = new_<EffectAxiom<FieldAccess<ExprT>>>() ] >> (
+			-(condition(_r1) >> "->")
+			>> field_access(_r1)
+			>> '=' >> expression(_r1)
+		)) [
+			phoenix::bind(&EffectAxiom<FieldAccess<ExprT>>::define, *_val, _1, _2, _3)
+		];
+		effect.name("boolean_effect_axiom");
+		on_error<rethrow>(effect, delete_(_val));
+
+		BOOST_SPIRIT_DEBUG_NODE(effect);
+	}
+
+	ExpressionParser<BooleanExpression> condition;
+	ExpressionParser<ExprT> expression;
+	FieldAccessParser<ExprT> field_access;
+	rule<EffectAxiom<FieldAccess<ExprT>> *(Scope &)> effect;
 };
 
 

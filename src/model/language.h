@@ -45,6 +45,11 @@ public:
 
 	bool is_ref() const;
 
+	template<class T>
+	bool is_a() const
+	{ return dynamic_cast<const T *>(this); }
+
+
 protected:
 
 	unique_ptr<AbstractSemantics> semantics_;

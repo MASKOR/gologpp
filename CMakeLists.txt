@@ -212,6 +212,7 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/string_concatenation.cpp
 		src/semantics/readylog/history.cpp
 		src/semantics/readylog/reference.cpp
+		src/semantics/readylog/effect_axiom.cpp
 	)
 
 	link_directories(${ECLIPSE_LIBRARY_DIRS})

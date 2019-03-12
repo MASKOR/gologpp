@@ -76,7 +76,7 @@ public:
 	using DomainsMap = unordered_map<Name, shared_ptr<AbstractDomain>>;
 	using TypesMap = unordered_map<Name, shared_ptr<Type>>;
 
-	Scope(AbstractLanguageElement &owner, const vector<shared_ptr<AbstractVariable>> &lookup_vars = {});
+	explicit Scope(AbstractLanguageElement &owner, const vector<shared_ptr<AbstractVariable>> &lookup_vars = {});
 	Scope(Scope &parent_scope);
 
 	Scope(Scope &&);

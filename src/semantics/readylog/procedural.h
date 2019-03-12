@@ -5,6 +5,7 @@
 #include "scope.h"
 #include "variable.h"
 #include "utilities.h"
+#include "fluent.h"
 
 #include <model/semantics.h>
 #include <model/expressions.h>
@@ -73,14 +74,14 @@ public:
  * 3. Map ReadylogProcedure class to to Function types that should use it.
  */
 template<>
-class Semantics<Function<Void>> : public ReadylogProcedure<Void> {
+class Semantics<Function<Void>> : public ReadylogProcedure<VoidExpression> {
 public:
 	using ReadylogProcedure<VoidExpression>::ReadylogProcedure;
 };
 
 
 template<>
-class Semantics<Function<BooleanExpression>> : public ReadylogProcedure<Bool> {
+class Semantics<Function<BooleanExpression>> : public ReadylogProcedure<BooleanExpression> {
 public:
 	using ReadylogProcedure<BooleanExpression>::ReadylogProcedure;
 };
@@ -334,6 +335,40 @@ public:
 
 private:
 	const DurativeCall &call_;
+};
+
+
+
+template<class ExprT>
+class Semantics<FieldAccess<ExprT>> : public ReadylogSemantics {
+public:
+	Semantics(const FieldAccess<ExprT> &field_access)
+	: field_access_(field_access)
+	, is_lvalue_(false)
+	{}
+
+	virtual EC_word plterm() override
+	{
+		return ::term(EC_functor("gpp_field_value", 2),
+			EC_atom(field_access_.field_name().c_str()),
+			field_access_.subject().semantics().plterm()
+		);
+	}
+
+	EC_word field_assign(const ExprT &value) {
+		return ::term(EC_functor("gpp_field_assign", 3),
+			EC_atom(field_access_.field_name().c_str()),
+			value.semantics().plterm(),
+			field_access_.subject().semantics().plterm()
+		);
+	}
+
+	void set_lvalue(bool lvalue)
+	{ is_lvalue_ = lvalue; }
+
+private:
+	const FieldAccess<ExprT> &field_access_;
+	bool is_lvalue_;
 };
 
 
