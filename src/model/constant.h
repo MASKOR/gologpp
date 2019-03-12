@@ -130,6 +130,13 @@ public:
 };
 
 
+template<class T1, class T2>
+#ifdef BOOST_FUSION_HAS_VARIADIC_VECTOR
+using fusion_wtf_vector = boost::fusion::vector<T1, T2>;
+#else
+using fusion_wtf_vector = boost::fusion::vector2<T1, T2>;
+#endif
+
 
 template<>
 class Constant<CompoundExpression>
@@ -139,7 +146,7 @@ class Constant<CompoundExpression>
 , public LanguageElement<Constant<CompoundExpression>>
 {
 public:
-	Constant(const vector<boost::fusion::vector<string, AbstractConstant *>> &repr);
+	Constant(const vector<fusion_wtf_vector<string, AbstractConstant *>> &repr);
 	using Value = std::unordered_map<string, unique_ptr<AbstractConstant>>;
 	Constant(Constant<CompoundExpression> &&) = default;
 	Constant(const Constant<CompoundExpression> &);

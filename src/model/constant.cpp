@@ -52,7 +52,7 @@ template
 Constant<NumericExpression>::Constant(double repr);
 
 
-Constant<CompoundExpression>::Constant(const vector<boost::fusion::vector<string, AbstractConstant *>> &definition)
+Constant<CompoundExpression>::Constant(const vector<fusion_wtf_vector<string, AbstractConstant *>> &definition)
 {
 	for (const boost::fusion::vector<string, AbstractConstant *> &v : definition) {
 		const string &field_name = boost::fusion::at_c<0>(v);
