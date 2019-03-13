@@ -15,6 +15,36 @@
 namespace gologpp {
 
 
+template<class PodT>
+struct pod_type {
+};
+
+template<>
+struct pod_type<int> {
+	typedef Constant<NumericExpression> constant_type;
+};
+
+template<>
+struct pod_type<long> {
+	typedef Constant<NumericExpression> constant_type;
+};
+
+template<>
+struct pod_type<double> {
+	typedef Constant<NumericExpression> constant_type;
+};
+
+template<>
+struct pod_type<string> {
+	typedef Constant<StringExpression> constant_type;
+};
+
+template<>
+struct pod_type<bool> {
+	typedef Constant<BooleanExpression> constant_type;
+};
+
+
 
 class AbstractConstant : public virtual Expression {
 public:
@@ -31,6 +61,13 @@ public:
 	operator ExpressionT *() {
 		return static_cast<ExpressionT *>(dynamic_cast<Constant<ExpressionT> *>(this));
 	}
+
+	template<class PodT>
+	operator PodT () {
+		return dynamic_cast<typename pod_type<PodT>::constant_type *>(this)
+			->template representation<PodT>();
+	}
+
 
 	virtual bool operator == (const AbstractConstant &) const = 0;
 	bool operator != (const AbstractConstant &) const;
