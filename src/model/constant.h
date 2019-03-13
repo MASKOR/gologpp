@@ -69,6 +69,9 @@ private:
 		string operator() (const string &s) const
 		{ return s; }
 
+		string operator() (bool b) const
+		{ return b ? "true" : "false"; }
+
 		template<class T>
 		string operator() (const T &o) const
 		{ return std::to_string(o); }
