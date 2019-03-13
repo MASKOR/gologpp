@@ -19,9 +19,14 @@ struct ExpressionParser<StringExpression> : grammar<StringExpression *(Scope &)>
 	ExpressionParser();
 
 	rule<StringExpression *(Scope &)> expression;
+	rule<StringExpression *(Scope &)> nested_expression;
+	rule<StringExpression *(Scope &)> nested_unary;
 	rule<StringExpression *(Scope &)> unary_expr;
 	rule<Reference<Variable<StringExpression>> *(Scope &)> var_ref;
 	rule<StringExpression *(Scope &)> concatenation;
+	rule<StringExpression *(Scope &)> conversion;
+	rule<Expression *(Scope &)> any_simple_expr;
+	rule<StringExpression *(Scope &)> implicit_conversion;
 	ReferenceParser<Fluent<StringExpression>> string_fluent_ref;
 	ReferenceParser<Function<StringExpression>> string_function_ref;
 	FieldAccessParser<StringExpression> string_field_access;

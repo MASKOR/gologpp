@@ -5,9 +5,22 @@
 
 #include <eclipseclass.h>
 
-#include <model/string_concatenation.h>
+#include <model/string.h>
 
 namespace gologpp {
+
+
+template<>
+class Semantics<ToString> : public ReadylogSemantics {
+public:
+	Semantics(const ToString &subject);
+
+	EC_word plterm() override;
+
+private:
+	const ToString &to_string_;
+};
+
 
 template<>
 class Semantics<StringConcatenation> : public ReadylogSemantics {

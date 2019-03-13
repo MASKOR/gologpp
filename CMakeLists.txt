@@ -60,7 +60,7 @@ set(INTERFACE_SRC
 	src/model/reference.cpp
 	src/model/global.cpp
 	src/model/domain.cpp
-	src/model/string_concatenation.cpp
+	src/model/string.cpp
 	src/model/history.cpp
 	src/model/mapping.cpp
 	src/model/platform_backend.cpp
@@ -97,7 +97,7 @@ install(FILES
 	src/model/expressions.h
 	src/model/gologpp.h
 	src/model/domain.h
-	src/model/string_concatenation.h
+	src/model/string.h
 	src/model/history.h
 	src/model/mapping.h
 	src/model/platform_backend.h
@@ -136,6 +136,7 @@ if (${BUILD_PARSER})
 		src/parser/assignment.cpp
 		src/parser/reference.cpp
 		src/parser/fluent.cpp
+		src/parser/expressions.cpp
 		src/parser/symbolic_expression.cpp
 		src/parser/string_expression.cpp
 		src/parser/domain.cpp
@@ -209,7 +210,7 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/scope.cpp
 		src/semantics/readylog/semantics.cpp
 		src/semantics/readylog/utilities.cpp
-		src/semantics/readylog/string_concatenation.cpp
+		src/semantics/readylog/string.cpp
 		src/semantics/readylog/history.cpp
 		src/semantics/readylog/reference.cpp
 		src/semantics/readylog/effect_axiom.cpp
@@ -240,7 +241,7 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/utilities.h
 		src/semantics/readylog/reference.h
 		src/semantics/readylog/config.h
-		src/semantics/readylog/string_concatenation.h
+		src/semantics/readylog/string.h
 		src/semantics/readylog/history.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/readylog
 	)

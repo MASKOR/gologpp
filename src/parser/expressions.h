@@ -26,6 +26,10 @@ template<class> struct ReferenceParser;
 template<class> struct FieldAccessParser;
 
 
+template<class ExprT>
+rule<ExprT *(Scope &)> &expression();
+
+
 } // namespace parser
 } // namespace gologpp
 

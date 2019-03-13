@@ -9,9 +9,29 @@
 namespace gologpp {
 
 
+class ToString
+: public StringExpression
+, public NoScopeOwner
+, public LanguageElement<ToString> {
+public:
+	ToString(Expression *expr);
+
+	const Expression &expression() const;
+
+	DEFINE_IMPLEMENT_WITH_MEMBERS(*expr_)
+
+	virtual string to_string(const string &pfx) const override;
+
+private:
+	unique_ptr<Expression> expr_;
+};
+
+
+
 class StringConcatenation : public StringExpression, public NoScopeOwner, public LanguageElement<StringConcatenation> {
 public:
 	StringConcatenation(StringExpression *lhs, StringExpression *rhs);
+	StringConcatenation(Expression *lhs, StringExpression *rhs);
 
 	const StringExpression &rhs() const;
 	const StringExpression &lhs() const;

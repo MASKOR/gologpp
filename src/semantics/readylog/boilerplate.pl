@@ -3,6 +3,9 @@
 :- dynamic durative_action/1, durative_poss/2, durative_causes_val/4.
 
 function(strcat(X, Y), R, concat_atoms(X, Y, R)).
+function(to_string(V), R,
+	and(sprintf(S, "%w", V), atom_string(R, S))
+).
 
 
 function(gpp_field_value(Name, gpp_compound(Fields)), Value,

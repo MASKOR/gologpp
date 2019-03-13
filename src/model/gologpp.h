@@ -101,6 +101,7 @@ typedef Variable<CompoundExpression> CompoundVariable;
 
 class ArithmeticOperation;
 class StringConcatenation;
+class ToString;
 
 class Negation;
 template<class> class Comparison;
@@ -201,6 +202,7 @@ using FluentEffectAxiom = EffectAxiom<Reference<Fluent<ExprT>>>;
 	(History)(Reference<Action>)(Grounding<Action>) \
 	(Reference<ExogAction>) \
 	(StringConcatenation) \
+	(ToString) \
 	(DurativeCall) \
 	BOOST_PP_SEQ_FOR_EACH_PRODUCT(GOLOGPP_TEMPLATE_CLASS, \
 		(GOLOGPP_VALUE_TYPE_TEMPLATES)(GOLOGPP_VALUE_TYPES) \
