@@ -11,8 +11,6 @@ namespace gologpp {
 
 EC_word operator && (const EC_word &lhs, const EC_word &rhs);
 
-using namespace std;
-
 
 template<class T> inline
 T &access(T *ptr)
@@ -23,7 +21,7 @@ T &access(const unique_ptr<T> &ptr)
 { return *ptr; }
 
 template<class T> inline
-typename enable_if<!is_pointer<T>::value, T>::type
+typename std::enable_if<!std::is_pointer<T>::value, T>::type
 &access(T &&ptr)
 { return std::forward<T>(ptr); }
 
