@@ -79,7 +79,7 @@ ExpressionParser<StringExpression>::ExpressionParser()
 	implicit_conversion.name("implicit_string_conversion");
 
 	BOOST_SPIRIT_DEBUG_NODES(
-		(expression)(unary_expr)(var_ref)(conversion)
+		(expression)(nested_expression)(nested_unary)(unary_expr)(var_ref)(conversion)
 		(any_simple_expr)(concatenation)(implicit_conversion)
 	);
 }

@@ -66,10 +66,11 @@ StatementParser::StatementParser()
 		| numeric_var_assignment(_r1) | boolean_var_assignment(_r1)
 		| symbolic_var_assignment(_r1) | string_var_assignment(_r1)
 		| compound_var_assignment(_r1)
+		| durative_call(_r1)
 		| numeric_fluent_assignment(_r1) | boolean_fluent_assignment(_r1)
 		| symbolic_fluent_assignment(_r1) | string_fluent_assignment(_r1)
 		| compound_fluent_assignment(_r1)
-		| action_call(_r1) | procedure_call(_r1) | durative_call(_r1)) > ';';
+		| action_call(_r1) | procedure_call(_r1)) > ';';
 	simple_statement.name("simple_statement");
 
 	compound_statement = block(_r1) | choose(_r1) | conditional(_r1)
