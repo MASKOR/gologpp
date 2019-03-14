@@ -28,28 +28,28 @@ Constant<ExprT>::Constant(ReprT repr)
 {}
 
 template
-Constant<SymbolicExpression>::Constant(const string &repr);
+Constant<SymbolicExpression>::Constant(const string &);
 
 template
-Constant<SymbolicExpression>::Constant(string repr);
+Constant<SymbolicExpression>::Constant(string);
 
 template
-Constant<StringExpression>::Constant(const string &repr);
+Constant<StringExpression>::Constant(const string &);
 
 template
-Constant<StringExpression>::Constant(string repr);
+Constant<StringExpression>::Constant(string);
 
 template
-Constant<BooleanExpression>::Constant(bool repr);
+Constant<BooleanExpression>::Constant(bool);
 
 template
-Constant<NumericExpression>::Constant(int repr);
+Constant<NumericExpression>::Constant(int);
 
 template
-Constant<NumericExpression>::Constant(long repr);
+Constant<NumericExpression>::Constant(long);
 
 template
-Constant<NumericExpression>::Constant(double repr);
+Constant<NumericExpression>::Constant(double);
 
 
 Constant<CompoundExpression>::Constant(const vector<fusion_wtf_vector<string, AbstractConstant *>> &definition)
