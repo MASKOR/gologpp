@@ -109,7 +109,7 @@ class AbstractAssignment
 , public NoScopeOwner
 , public virtual AbstractLanguageElement {
 public:
-	virtual const AbstractReference &lhs() const = 0;
+	virtual const Expression &lhs() const = 0;
 	virtual const Expression &rhs() const = 0;
 };
 
