@@ -63,7 +63,7 @@ void test_objectmodel()
 	shared_ptr<Action> put = global_scope().lookup_global<Action>("put", 2);
 
 	{ vector<unique_ptr<Expression>> arg;
-		EffectAxiom<NumericExpression> *effect = new EffectAxiom<NumericExpression>();
+		EffectAxiom<Reference<NumericFluent>> *effect = new EffectAxiom<Reference<NumericFluent>>();
 		effect->define(
 			new BooleanConstant(true),
 			on->make_ref({
