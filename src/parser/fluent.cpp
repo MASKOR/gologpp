@@ -35,12 +35,11 @@ namespace parser {
 template<class ExprT>
 FluentParser<ExprT>::FluentParser()
 : FluentParser::base_type(fluent)
-, fluent_name(r_name())
 , variable(abstract_var<true>())
 {
 
 	fluent = (
-		(((type_mark<ExprT>() >> "fluent") > fluent_name > '(') [
+		(((type_mark<ExprT>() >> "fluent") > r_name() > '(') [
 			_a = new_<Scope>(_r1),
 			_b = _1
 		] )
