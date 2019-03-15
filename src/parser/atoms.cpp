@@ -141,12 +141,13 @@ void ConstantParser<BooleanExpression, true>::init(rule<Constant<BooleanExpressi
 { ConstantParser<BooleanExpression, false>::init(constant); }
 
 
+static real_parser<double, strict_real_policies<double>> strict_double;
 
 template<>
 void ConstantParser<NumericExpression, false>::init(rule<Constant<NumericExpression> *()> &constant)
 {
 	constant =
-		double_ [
+		strict_double [
 			_val = new_<Constant<NumericExpression>>(_1)
 		]
 		| int_ [
