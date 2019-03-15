@@ -17,6 +17,8 @@ include_directories(${Boost_INCLUDE_DIR} src)
 
 add_compile_options(-Wall)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -fno-omit-frame-pointer -DDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O2")
 
 add_definitions(-DSOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\")
 
@@ -31,6 +33,12 @@ option(USE_LIBASAN "Enable the AddressSanitizer to detect memory management bugs
 if (${USE_LIBASAN})
 	add_compile_options(-fsanitize=address)
 endif()
+
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Options are: Debug Release RelWithDebInfo MinSizeRel."
+	FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
 
 
 set(GOLOGPP_VERSION 0.0.1)
