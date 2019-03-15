@@ -86,7 +86,7 @@ FluentParser<ExprT>::FluentParser()
 	];
 	initially.name("initial_value_mapping");
 
-	BOOST_SPIRIT_DEBUG_NODES((fluent_name)(variable)(fluent)(initially));
+	BOOST_SPIRIT_DEBUG_NODES((variable)(fluent)(initially));
 }
 
 
