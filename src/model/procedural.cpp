@@ -94,6 +94,8 @@ Conditional::Conditional(
 {
 	condition_->set_parent(this);
 	block_true_->set_parent(this);
+	if (!block_false_)
+		block_false_ = std::make_unique<Block>(new Scope(parent_scope()), vector<Statement *>{});
 	block_false_->set_parent(this);
 }
 
