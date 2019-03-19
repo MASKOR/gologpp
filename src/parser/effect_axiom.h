@@ -36,7 +36,7 @@ struct EffectParser<Reference<Fluent<ExprT>>> : grammar<EffectAxiom<Reference<Fl
 	: EffectParser::base_type(effect, type_descr<ExprT>()() + "_effect_axiom")
 	{
 		effect = ( eps [ _val = new_<EffectAxiom<Reference<Fluent<ExprT>>>>() ] >> (
-			-(condition(_r1) >> "->")
+			-(lit("if") > '(' > condition(_r1) > ')')
 			>> effect_fluent_ref(_r1)
 			>> '=' >> effect_value(_r1)
 		)) [
