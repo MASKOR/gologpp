@@ -174,15 +174,12 @@ class Semantics<Assignment<LhsT>> : public ReadylogSemantics {
 public:
 	Semantics(const Assignment<LhsT> &ass)
 	: assignment_(ass)
-	{}
+	{
+		throw std::runtime_error(string("Assignment to ") + typeid(LhsT).name() + " is not implemented");
+	}
 
 	virtual EC_word plterm() override
-	{
-		return ::term(EC_functor("=", 2),
-			assignment_.lhs().semantics().plterm(),
-			assignment_.rhs().semantics().plterm()
-		);
-	}
+	{ return EC_atom("fail"); }
 
 private:
 	const Assignment<LhsT> &assignment_;
@@ -190,25 +187,23 @@ private:
 
 
 
-template<class ExpressionT>
-class Semantics<Assignment<Variable<ExpressionT>>> : public ReadylogSemantics {
+template<class ExprT>
+class Semantics<Assignment<Reference<Fluent<ExprT>>>> : public ReadylogSemantics {
 public:
-	Semantics(const Assignment<Variable<ExpressionT>> &ass)
+	Semantics(const Assignment<Reference<Fluent<ExprT>>> &ass)
 	: assignment_(ass)
-	{
-		assignment_.lhs().target()->semantics().translate_as_golog_var(true);
-	}
+	{}
 
 	virtual EC_word plterm() override
 	{
-		return ::term(EC_functor("=", 2),
+		return ::term(EC_functor("set", 2),
 			assignment_.lhs().semantics().plterm(),
 			assignment_.rhs().semantics().plterm()
 		);
 	}
 
 private:
-	const Assignment<Variable<ExpressionT>> &assignment_;
+	const Assignment<Reference<Fluent<ExprT>>> &assignment_;
 };
 
 
