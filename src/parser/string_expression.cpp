@@ -39,17 +39,12 @@ ExpressionParser<StringExpression>::ExpressionParser()
 	expression = concatenation(_r1) | unary_expr(_r1);
 	expression.name("string_expression");
 
-	nested_expression = concatenation(_r1) | implicit_conversion(_r1) | nested_unary(_r1);
-
-	nested_unary = unary_expr(_r1)
-		| any_simple_expr(_r1) [
-			_val = new_<ToString>(_1)
-		];
-
-	unary_expr = string_constant | var_ref(_r1) | string_fluent_ref(_r1)
+	unary_expr =
+		conversion(_r1)
+		| string_constant | var_ref(_r1) | string_fluent_ref(_r1)
 		| string_function_ref(_r1)
 		| string_field_access(_r1)
-		| conversion(_r1);
+	;
 	unary_expr.name("unary_string_expression");
 
 	var_ref = var<StringExpression>()(_r1) [
@@ -57,30 +52,24 @@ ExpressionParser<StringExpression>::ExpressionParser()
 	];
 	var_ref.name("reference_to_string_variable");
 
-	conversion = ( lit("to_string") > '(' > any_simple_expr(_r1) > ')' ) [
+	conversion = ( lit("to_string") > '(' > convertible_expr(_r1) > ')' ) [
 		_val = new_<ToString>(_1)
 	];
 
-	any_simple_expr =
+	convertible_expr =
 		numeric_expression(_r1)
 		| boolean_expression(_r1)
 		| symbolic_expression(_r1);
-	any_simple_expr.name("simple_value_expression");
+	convertible_expr.name("implicitly_convertible_expression");
 
-
-	concatenation = (unary_expr(_r1) >> "+" >> nested_expression(_r1)) [
+	concatenation = (unary_expr(_r1) >> "+" >> expression(_r1)) [
 		_val = new_<StringConcatenation>(_1, _2)
 	];
 	concatenation.name("string_concatenation");
 
-	implicit_conversion = ( any_simple_expr(_r1) >> '+' >> expression(_r1) ) [
-		_val = new_<StringConcatenation>(_1, _2)
-	];
-	implicit_conversion.name("implicit_string_conversion");
-
 	GOLOGPP_DEBUG_NODES(
-		(expression)(nested_expression)(nested_unary)(unary_expr)(var_ref)(conversion)
-		(any_simple_expr)(concatenation)(implicit_conversion)
+		(expression)(unary_expr)(var_ref)(conversion)
+		(convertible_expr)(concatenation)(implicit_conversion)
 	);
 }
 
