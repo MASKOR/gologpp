@@ -160,6 +160,9 @@ public:
 		if (initial_values) {
 			// TODO: fail if already defined
 			for (InitialValue<ExpressionT> *ival : initial_values.get()) {
+				if (arity() != ival->args().size())
+					throw UserError("Fluent " + str() + ": Arity mismatch with initial value " + ival->str());
+
 				for (arity_t arg_idx = 0; arg_idx < arity(); ++arg_idx) {
 					AbstractVariable &arg = *args()[arg_idx];
 					AbstractConstant &arg_value = *ival->args()[arg_idx];
