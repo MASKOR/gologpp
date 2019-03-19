@@ -35,7 +35,6 @@ namespace parser {
 template<class ExprT>
 FluentParser<ExprT>::FluentParser()
 : FluentParser::base_type(fluent)
-, variable(abstract_var<true>())
 {
 
 	fluent = (
@@ -43,7 +42,7 @@ FluentParser<ExprT>::FluentParser()
 			_a = new_<Scope>(_r1),
 			_b = _1
 		] )
-		> ( -(variable(*_a) % ',') > lit(')')) [
+		> ( -(abstract_var<VarDefinitionMode::ALLOW>()(*_a) % ',') > lit(')')) [
 			_c = _1
 		]
 		> type_specifier<ExprT>() [

@@ -85,7 +85,7 @@ public:
 
 	~Scope() override;
 
-	template<class ExpressionT, bool only_local = false, bool allow_def = true>
+	template<class ExpressionT, VarDefinitionMode var_def_mode>
 	shared_ptr<Variable<ExpressionT>> get_var(const string &name)
 	{
 		shared_ptr<Variable<ExpressionT>> rv;
@@ -94,12 +94,12 @@ public:
 		if (it != variables_.end())
 			rv = std::dynamic_pointer_cast<Variable<ExpressionT>>(it->second);
 
-		if (!rv && !only_local && &parent_scope() != this)
+		if (!rv && var_def_mode != VarDefinitionMode::FORCE && &parent_scope() != this)
 			rv = std::dynamic_pointer_cast<Variable<ExpressionT>>(
-				parent_scope().get_var<ExpressionT, false, false>(name)
+				parent_scope().get_var<ExpressionT, VarDefinitionMode::DENY>(name)
 			);
 
-		if (!rv && allow_def) {
+		if (!rv && var_def_mode != VarDefinitionMode::DENY) {
 			rv.reset(new Variable<ExpressionT>(name));
 			variables_[name] = rv;
 		}

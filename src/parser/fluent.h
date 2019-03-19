@@ -32,7 +32,6 @@ struct FluentParser
 		>
 	> fluent;
 	rule<InitialValue<ExprT> *()> initially;
-	decltype(abstract_var<true>()) variable;
 	AnyDomainAssignmentParser domain_assignment;
 	ConstantParser<ExprT, true> constant;
 };

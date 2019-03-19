@@ -44,14 +44,14 @@ namespace parser {
  ******************/
 
 
-template<class ExpressionT, bool only_local, bool allow_def>
+template<class ExpressionT, VarDefinitionMode var_def_mode>
 rule<shared_ptr<Variable<ExpressionT>>(Scope &), locals<string>> &
 var() {
 	static rule<shared_ptr<Variable<ExpressionT>>(Scope &), locals<string>> variable;
 	variable = {
 		type_mark<ExpressionT>() >> r_name() [
 			_val = phoenix::bind(
-				&Scope::get_var<ExpressionT, only_local, allow_def>,
+				&Scope::get_var<ExpressionT, var_def_mode>,
 				_r1, _1
 			)
 		] > type_specifier<ExpressionT>() [
@@ -71,36 +71,36 @@ var() {
 #define GOLOGPP_INSTANTIATE_TEMPLATE_VAR(_, seq) \
 	template \
 	rule < shared_ptr < Variable < BOOST_PP_SEQ_ELEM(0, seq) > > (Scope &), locals<string> > & \
-	var < BOOST_PP_SEQ_ELEM(0, seq), BOOST_PP_SEQ_ELEM(1, seq), BOOST_PP_SEQ_ELEM(2, seq) > ();
+	var < BOOST_PP_SEQ_ELEM(0, seq), BOOST_PP_SEQ_ELEM(1, seq) > ();
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(
 	GOLOGPP_INSTANTIATE_TEMPLATE_VAR,
-	(GOLOGPP_VALUE_TYPES) ((true)(false)) ((true)(false))
+	(GOLOGPP_VALUE_TYPES) ((VarDefinitionMode::DENY)(VarDefinitionMode::ALLOW)(VarDefinitionMode::FORCE))
 )
 
 
 
 
-template<bool only_local>
+template<VarDefinitionMode var_def_mode>
 rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var() {
 	static rule<shared_ptr<AbstractVariable> (Scope &)> any_var {
-		var<BooleanExpression, only_local>()(_r1) [ _val = phoenix::bind(
+		var<BooleanExpression, var_def_mode>()(_r1) [ _val = phoenix::bind(
 			&std::dynamic_pointer_cast<AbstractVariable, BooleanVariable>,
 			_1
 		) ]
-		| var<NumericExpression, only_local>()(_r1) [ _val = phoenix::bind(
+		| var<NumericExpression, var_def_mode>()(_r1) [ _val = phoenix::bind(
 			&std::dynamic_pointer_cast<AbstractVariable, NumericVariable>,
 			_1
 		) ]
-		| var<SymbolicExpression, only_local>()(_r1) [ _val = phoenix::bind(
+		| var<SymbolicExpression, var_def_mode>()(_r1) [ _val = phoenix::bind(
 			&std::dynamic_pointer_cast<AbstractVariable, SymbolicVariable>,
 			_1
 		) ]
-		| var<StringExpression, only_local>()(_r1) [ _val = phoenix::bind(
+		| var<StringExpression, var_def_mode>()(_r1) [ _val = phoenix::bind(
 			&std::dynamic_pointer_cast<AbstractVariable, StringVariable>,
 			_1
 		) ]
-		| var<CompoundExpression, only_local>()(_r1) [ _val = phoenix::bind(
+		| var<CompoundExpression, var_def_mode>()(_r1) [ _val = phoenix::bind(
 			&std::dynamic_pointer_cast<AbstractVariable, CompoundVariable>,
 			_1
 		) ],
@@ -111,10 +111,13 @@ rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var() {
 }
 
 template
-rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<true>();
+rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<VarDefinitionMode::DENY>();
 
 template
-rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<false>();
+rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<VarDefinitionMode::ALLOW>();
+
+template
+rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<VarDefinitionMode::FORCE>();
 
 
 /******************

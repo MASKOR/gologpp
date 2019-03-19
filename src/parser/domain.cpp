@@ -89,7 +89,7 @@ template<class ExprT>
 DomainAssignmentParser<ExprT>::DomainAssignmentParser()
 : DomainAssignmentParser<ExprT>::base_type(domain_assignment, type_descr<ExprT>()() + "_domain_assignment")
 {
-	domain_assignment = (var<ExprT, true, false>()(_r1) > "in" > domain_expr(_r1) > ';') [
+	domain_assignment = (var<ExprT, VarDefinitionMode::DENY>()(_r1) > "in" > domain_expr(_r1) > ';') [
 		phoenix::bind(&Variable<ExprT>::set_domain_copy, _1, _2)
 	];
 	GOLOGPP_DEBUG_NODE(domain_assignment);

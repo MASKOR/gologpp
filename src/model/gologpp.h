@@ -13,6 +13,10 @@
 
 namespace gologpp {
 
+enum VarDefinitionMode {
+	DENY, ALLOW, FORCE
+};
+
 typedef unsigned char arity_t;
 
 template<class T>      using shared_ptr  = std::shared_ptr<T>;

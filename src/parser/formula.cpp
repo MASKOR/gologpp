@@ -82,7 +82,7 @@ ExpressionParser<BooleanExpression>::ExpressionParser()
 
 	quantification = ( (quantification_op > '(') [
 		_a = new_<Scope>(_r1)
-	] > abstract_var<true>()(*_a) > ')' > expression(*_a)) [
+	] > abstract_var<VarDefinitionMode::FORCE>()(*_a) > ')' > expression(*_a)) [
 		_val = new_<Quantification>(_a, _1, _2, _3)
 	];
 	quantification.name("quantification");

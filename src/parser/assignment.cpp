@@ -49,7 +49,7 @@ AssignmentParser<Reference<Variable<ExpressionT>>>::AssignmentParser()
 		_val = new_<Assignment<Reference<Variable<ExpressionT>>>>(_1, _2)
 	];
 
-	var_ref = var<ExpressionT>()(_r1) [ _val = new_<Reference<Variable<ExpressionT>>>(_1) ];
+	var_ref = var<ExpressionT, VarDefinitionMode::ALLOW>()(_r1) [ _val = new_<Reference<Variable<ExpressionT>>>(_1) ];
 	var_ref.name("reference_to_" + type_descr<ExpressionT>()() + "_variable");
 }
 

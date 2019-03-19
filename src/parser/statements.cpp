@@ -45,7 +45,7 @@ PickParser<ExprT>::PickParser()
 	pick = {
 		((lit("pick") >> '(') [
 			_a = new_<Scope>(_r1)
-		] >> var<ExprT, true>()(*_a)
+		] >> var<ExprT, VarDefinitionMode::FORCE>()(*_a)
 		> -(lit("in") > '{' > constant % ',' > '}')
 		> ')' > statement(*_a)) [
 			_val = new_<Pick<ExprT>>(_a, _1, _2, _3)

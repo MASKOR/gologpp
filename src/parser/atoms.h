@@ -13,29 +13,32 @@ namespace parser {
  * Variables
  ******************/
 
-template<class ExpressionT, bool only_local = false, bool allow_def = true>
+template<class ExpressionT, VarDefinitionMode var_def_mode = VarDefinitionMode::DENY>
 rule<shared_ptr<Variable<ExpressionT>>(Scope &), locals<string>> &var();
 
 #define GOLOGPP_PARSER_DECLARE_TEMPLATE_VAR(_, seq) \
 	extern template \
 	rule < shared_ptr < Variable < BOOST_PP_SEQ_ELEM(0, seq) > >(Scope &), locals<string>> & \
-	var < BOOST_PP_SEQ_ELEM(0, seq), BOOST_PP_SEQ_ELEM(1, seq), BOOST_PP_SEQ_ELEM(2, seq) > ();
+	var < BOOST_PP_SEQ_ELEM(0, seq), BOOST_PP_SEQ_ELEM(1, seq) > ();
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(
 	GOLOGPP_PARSER_DECLARE_TEMPLATE_VAR,
-	(GOLOGPP_VALUE_TYPES) ((true)(false)) ((true)(false))
+	(GOLOGPP_VALUE_TYPES) ((VarDefinitionMode::DENY)(VarDefinitionMode::ALLOW)(VarDefinitionMode::FORCE))
 )
 
 
 
-template<bool only_local = false>
+template<VarDefinitionMode var_def_mode>
 rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var();
 
 extern template
-rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<true>();
+rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<VarDefinitionMode::DENY>();
 
 extern template
-rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<false>();
+rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<VarDefinitionMode::ALLOW>();
+
+extern template
+rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<VarDefinitionMode::FORCE>();
 
 
 /******************
