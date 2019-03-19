@@ -37,8 +37,8 @@ struct EffectParser<Reference<Fluent<ExprT>>> : grammar<EffectAxiom<Reference<Fl
 	{
 		effect = ( eps [ _val = new_<EffectAxiom<Reference<Fluent<ExprT>>>>() ] >> (
 			-(condition(_r1) >> "->")
-			>> fluent_ref(_r1)
-			>> '=' >> expression(_r1)
+			>> effect_fluent_ref(_r1)
+			>> '=' >> effect_value(_r1)
 		)) [
 			phoenix::bind(&EffectAxiom<Reference<Fluent<ExprT>>>::define, *_val, _1, _2, _3)
 		];
@@ -49,8 +49,8 @@ struct EffectParser<Reference<Fluent<ExprT>>> : grammar<EffectAxiom<Reference<Fl
 	}
 
 	ExpressionParser<BooleanExpression> condition;
-	ExpressionParser<ExprT> expression;
-	ReferenceParser<Fluent<ExprT>> fluent_ref;
+	ExpressionParser<ExprT> effect_value;
+	ReferenceParser<Fluent<ExprT>> effect_fluent_ref;
 	rule<EffectAxiom<Reference<Fluent<ExprT>>> *(Scope &)> effect;
 };
 
@@ -63,7 +63,7 @@ struct EffectParser<FieldAccess<ExprT>> : grammar<EffectAxiom<FieldAccess<ExprT>
 		effect = ( eps [ _val = new_<EffectAxiom<FieldAccess<ExprT>>>() ] >> (
 			-(condition(_r1) >> "->")
 			>> field_access(_r1)
-			>> '=' >> expression(_r1)
+			>> '=' >> effect_value(_r1)
 		)) [
 			phoenix::bind(&EffectAxiom<FieldAccess<ExprT>>::define, *_val, _1, _2, _3)
 		];
@@ -74,7 +74,7 @@ struct EffectParser<FieldAccess<ExprT>> : grammar<EffectAxiom<FieldAccess<ExprT>
 	}
 
 	ExpressionParser<BooleanExpression> condition;
-	ExpressionParser<ExprT> expression;
+	ExpressionParser<ExprT> effect_value;
 	FieldAccessParser<ExprT> field_access;
 	rule<EffectAxiom<FieldAccess<ExprT>> *(Scope &)> effect;
 };
