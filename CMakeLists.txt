@@ -157,7 +157,7 @@ if (${BUILD_PARSER})
 	set_property(TARGET parsegolog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
 	target_compile_options(parsegolog++ PRIVATE -Wno-undefined-func-template)
 	if (${DEBUG_PARSER})
-		target_compile_definitions(parsegolog++ PRIVATE -DBOOST_SPIRIT_DEBUG)
+		target_compile_definitions(parsegolog++ PRIVATE -DBOOST_SPIRIT_DEBUG -DGOLOGPP_DEBUG_PARSER)
 	endif()
 	install(TARGETS parsegolog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
 	install(FILES

@@ -33,7 +33,7 @@ struct EffectParser;
 template<class ExprT>
 struct EffectParser<Reference<Fluent<ExprT>>> : grammar<EffectAxiom<Reference<Fluent<ExprT>>> *(Scope &)> {
 	EffectParser()
-	: EffectParser::base_type(effect, "fluent_effect_axiom")
+	: EffectParser::base_type(effect, type_descr<ExprT>()() + "_effect_axiom")
 	{
 		effect = ( eps [ _val = new_<EffectAxiom<Reference<Fluent<ExprT>>>>() ] >> (
 			-(condition(_r1) >> "->")
@@ -42,10 +42,10 @@ struct EffectParser<Reference<Fluent<ExprT>>> : grammar<EffectAxiom<Reference<Fl
 		)) [
 			phoenix::bind(&EffectAxiom<Reference<Fluent<ExprT>>>::define, *_val, _1, _2, _3)
 		];
-		effect.name("boolean_effect_axiom");
+		effect.name(type_descr<ExprT>()() + "_effect_axiom");
 		on_error<rethrow>(effect, delete_(_val));
 
-		BOOST_SPIRIT_DEBUG_NODE(effect);
+		GOLOGPP_DEBUG_NODE(effect);
 	}
 
 	ExpressionParser<BooleanExpression> condition;
@@ -70,7 +70,7 @@ struct EffectParser<FieldAccess<ExprT>> : grammar<EffectAxiom<FieldAccess<ExprT>
 		effect.name("boolean_effect_axiom");
 		on_error<rethrow>(effect, delete_(_val));
 
-		BOOST_SPIRIT_DEBUG_NODE(effect);
+		GOLOGPP_DEBUG_NODE(effect);
 	}
 
 	ExpressionParser<BooleanExpression> condition;

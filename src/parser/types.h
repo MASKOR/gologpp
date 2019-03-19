@@ -53,31 +53,67 @@ type_mark<CompoundExpression>()
 
 
 template<class ExpressionT>
-string type_descr();
+struct type_descr;
 
 template<>
-inline string type_descr<BooleanExpression>()
-{ return "boolean"; }
+struct type_descr<BooleanExpression> {
+	inline string operator () ()
+	{ return "boolean"; }
+};
 
 template<>
-inline string type_descr<NumericExpression>()
-{ return "numeric"; }
+struct type_descr<NumericExpression> {
+	inline string operator () ()
+	{ return "numeric"; }
+};
 
 template<>
-inline string type_descr<SymbolicExpression>()
-{ return "symbolic"; }
+struct type_descr<SymbolicExpression> {
+	inline string operator () ()
+	{ return "symbolic"; }
+};
 
 template<>
-inline string type_descr<StringExpression>()
-{ return "string"; }
+struct type_descr<StringExpression> {
+	inline string operator () ()
+	{ return "string"; }
+};
 
 template<>
-inline string type_descr<VoidExpression>()
-{ return "void"; }
+struct type_descr<VoidExpression> {
+	inline string operator () ()
+	{ return "void"; }
+};
 
 template<>
-inline string type_descr<CompoundExpression>()
-{ return "compound"; }
+struct type_descr<CompoundExpression> {
+	inline string operator () ()
+	{ return "compound"; }
+};
+
+template<class ExprT>
+struct type_descr<Function<ExprT>> {
+	inline string operator () ()
+	{ return type_descr<ExprT>()() + "_function"; }
+};
+
+template<class ExprT>
+struct type_descr<Fluent<ExprT>> {
+	inline string operator () ()
+	{ return type_descr<ExprT>()() + "_fluent"; }
+};
+
+template<>
+struct type_descr<ExogAction> {
+	inline string operator () ()
+	{ return "exog_action"; }
+};
+
+template<>
+struct type_descr<Action> {
+	inline string operator () ()
+	{ return "action"; }
+};
 
 
 

@@ -49,7 +49,7 @@ DomainExpressionParser<ExprT>::DomainExpressionParser()
 	;
 	domain_operator.name("domain_operator");
 
-	BOOST_SPIRIT_DEBUG_NODES((domain_expr)(unary_domain_expr)(binary_domain_expr))
+	GOLOGPP_DEBUG_NODES((domain_expr)(unary_domain_expr)(binary_domain_expr))
 }
 
 
@@ -71,7 +71,7 @@ DomainDeclarationParser<ExprT>::DomainDeclarationParser()
 	);
 	domain.name("domain_declaration");
 
-	BOOST_SPIRIT_DEBUG_NODE(domain);
+	GOLOGPP_DEBUG_NODE(domain);
 }
 
 template
@@ -87,12 +87,12 @@ struct DomainDeclarationParser<StringExpression>;
 
 template<class ExprT>
 DomainAssignmentParser<ExprT>::DomainAssignmentParser()
-: DomainAssignmentParser<ExprT>::base_type(domain_assignment, type_descr<ExprT>() + "_domain_assignment")
+: DomainAssignmentParser<ExprT>::base_type(domain_assignment, type_descr<ExprT>()() + "_domain_assignment")
 {
 	domain_assignment = (var<ExprT, true, false>()(_r1) > "in" > domain_expr(_r1) > ';') [
 		phoenix::bind(&Variable<ExprT>::set_domain_copy, _1, _2)
 	];
-	BOOST_SPIRIT_DEBUG_NODE(domain_assignment);
+	GOLOGPP_DEBUG_NODE(domain_assignment);
 }
 
 

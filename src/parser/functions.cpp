@@ -44,7 +44,7 @@ rule<> &decl_prefix<VoidExpression>()
 
 template<class ExpressionT>
 FunctionParser<ExpressionT>::FunctionParser()
-: FunctionParser::base_type(function, type_descr<ExpressionT>() + "_function_definition")
+: FunctionParser::base_type(function, type_descr<ExpressionT>()() + "_function_definition")
 {
 	function =
 		(decl_prefix<ExpressionT>() > r_name() > '(') [
@@ -78,9 +78,9 @@ FunctionParser<ExpressionT>::FunctionParser()
 			]
 		)
 	;
-	function.name(type_descr<ExpressionT>() + "_function_definition");
+	function.name(type_descr<ExpressionT>()() + "_function_definition");
 	on_error<rethrow>(function, delete_(_a));
-	BOOST_SPIRIT_DEBUG_NODE(function);
+	GOLOGPP_DEBUG_NODE(function);
 }
 
 
@@ -95,7 +95,7 @@ AbstractFunctionParser::AbstractFunctionParser()
 		| compound_func(_r1)
 		| procedure(_r1);
 	function.name("any_function_definition");
-	BOOST_SPIRIT_DEBUG_NODE(function);
+	GOLOGPP_DEBUG_NODE(function);
 }
 
 

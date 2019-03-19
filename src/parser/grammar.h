@@ -43,7 +43,7 @@ struct ProgramParser : grammar<VoidExpression *(Scope &)> {
 			phoenix::bind(&handle_error, _1, _3, _2, _4)
 		);
 
-		BOOST_SPIRIT_DEBUG_NODE(program);
+		GOLOGPP_DEBUG_NODE(program);
 	}
 
 	rule<VoidExpression *(Scope &)> program;

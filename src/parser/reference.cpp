@@ -39,7 +39,7 @@ namespace parser {
 
 template<class GologT>
 ReferenceParser<GologT>::ReferenceParser()
-: ReferenceParser::base_type(pred_ref, string("reference_to_") + typeid(GologT).name())
+: ReferenceParser::base_type(pred_ref, string("reference_to_") + type_descr<GologT>()())
 {
 	pred_ref = (((r_name() >> "(") > -(
 		any_expr(_r1) %  ","
@@ -50,7 +50,7 @@ ReferenceParser<GologT>::ReferenceParser()
 			delete_(_val)
 		]
 	];
-	pred_ref.name(string("reference_to_") + typeid(GologT).name());
+	pred_ref.name(string("reference_to_") + type_descr<GologT>()());
 
 	any_expr = boolean_expression(_r1)
 		| numeric_expression(_r1)
@@ -60,7 +60,7 @@ ReferenceParser<GologT>::ReferenceParser()
 	;
 	any_expr.name("any_expression");
 
-	BOOST_SPIRIT_DEBUG_NODES((pred_ref)(any_expr));
+	GOLOGPP_DEBUG_NODES((pred_ref)(any_expr));
 }
 
 

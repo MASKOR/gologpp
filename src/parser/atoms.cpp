@@ -60,10 +60,10 @@ var() {
 				_pass = false
 			]
 		],
-		type_descr<ExpressionT>() + "_variable"
+		type_descr<ExpressionT>()() + "_variable"
 	};
 
-	//BOOST_SPIRIT_DEBUG_NODE(variable);
+	//GOLOGPP_DEBUG_NODE(variable);
 	return variable;
 }
 
@@ -106,7 +106,7 @@ rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var() {
 		) ],
 		"any_variable"
 	};
-	//BOOST_SPIRIT_DEBUG_NODE(any_var);
+	//GOLOGPP_DEBUG_NODE(any_var);
 	return any_var;
 }
 
@@ -132,8 +132,8 @@ void ConstantParser<BooleanExpression, false>::init(rule<Constant<BooleanExpress
 			_val = new_<Constant<BooleanExpression>>(false)
 		]
 	;
-	constant.name(type_descr<BooleanExpression>() + "_constant");
-	//BOOST_SPIRIT_DEBUG_NODE(bool_constant);
+	constant.name(type_descr<BooleanExpression>()() + "_constant");
+	//GOLOGPP_DEBUG_NODE(bool_constant);
 }
 
 template<>
@@ -154,8 +154,8 @@ void ConstantParser<NumericExpression, false>::init(rule<Constant<NumericExpress
 			_val = new_<Constant<NumericExpression>>(_1)
 		]
 	;
-	constant.name(type_descr<NumericExpression>() + "_constant");
-	//BOOST_SPIRIT_DEBUG_NODE(num_constant);
+	constant.name(type_descr<NumericExpression>()() + "_constant");
+	//GOLOGPP_DEBUG_NODE(num_constant);
 }
 
 template<>
@@ -168,7 +168,7 @@ template<>
 void ConstantParser<SymbolicExpression, true>::init(rule<Constant<SymbolicExpression> *()> &constant)
 {
 	constant = r_name() [ _val = new_<Constant<SymbolicExpression>>(_1) ];
-	constant.name(type_descr<SymbolicExpression>() + "_constant_definition");
+	constant.name(type_descr<SymbolicExpression>()() + "_constant_definition");
 }
 
 template<>
@@ -180,8 +180,8 @@ void ConstantParser<SymbolicExpression, false>::init(rule<Constant<SymbolicExpre
 			_pass = false
 		]
 	];
-	constant.name(type_descr<SymbolicExpression>() + "_constant_usage");
-	//BOOST_SPIRIT_DEBUG_NODE(symbol_usage);
+	constant.name(type_descr<SymbolicExpression>()() + "_constant_usage");
+	//GOLOGPP_DEBUG_NODE(symbol_usage);
 }
 
 
@@ -196,7 +196,7 @@ void ConstantParser<StringExpression, false>::init(rule<Constant<StringExpressio
 			_val = new_<Constant<StringExpression>>(_1)
 		]
 	;
-	constant.name(type_descr<StringExpression>() + "_constant");
+	constant.name(type_descr<StringExpression>()() + "_constant");
 }
 
 template<>
@@ -207,7 +207,7 @@ void ConstantParser<StringExpression, true>::init(rule<Constant<StringExpression
 
 template<bool allow_symbol_def>
 ConstantParser<CompoundExpression, allow_symbol_def>::ConstantParser()
-: ConstantParser<CompoundExpression, allow_symbol_def>::base_type(constant, type_descr<CompoundExpression>() + "_constant")
+: ConstantParser<CompoundExpression, allow_symbol_def>::base_type(constant, type_descr<CompoundExpression>()() + "_constant")
 {
 	constant =
 		( qi::lit('{') > *(
@@ -216,12 +216,12 @@ ConstantParser<CompoundExpression, allow_symbol_def>::ConstantParser()
 			_val = new_<Constant<CompoundExpression>>(_1)
 		]
 	;
-	constant.name(type_descr<CompoundExpression>() + "_constant");
+	constant.name(type_descr<CompoundExpression>()() + "_constant");
 
 	abstract_constant = boolean_constant | numeric_constant | symbolic_constant | string_constant | constant;
 	abstract_constant.name("any_constant");
 
-	BOOST_SPIRIT_DEBUG_NODES((constant)(abstract_constant));
+	GOLOGPP_DEBUG_NODES((constant)(abstract_constant));
 }
 
 template
@@ -248,7 +248,7 @@ rule<AbstractConstant *()> &abstract_constant<true>() {
 		| string_constant | compound_constant,
 		"any_constant"
 	};
-	BOOST_SPIRIT_DEBUG_NODE(any_constant);
+	GOLOGPP_DEBUG_NODE(any_constant);
 	return any_constant;
 };
 
@@ -262,7 +262,7 @@ rule<AbstractConstant *()> &abstract_constant<false>() {
 		| string_constant | compound_constant,
 		"any_constant"
 	};
-	BOOST_SPIRIT_DEBUG_NODE(any_constant);
+	GOLOGPP_DEBUG_NODE(any_constant);
 	return any_constant;
 };
 
@@ -282,7 +282,7 @@ rule<Expression *(Scope &)> &atom() {
 		| abstract_constant<false>() [ _val = _1 ]
 		, "any_atom"
 	};
-	BOOST_SPIRIT_DEBUG_NODE(any_atom);
+	GOLOGPP_DEBUG_NODE(any_atom);
 	return any_atom;
 }
 

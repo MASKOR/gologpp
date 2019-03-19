@@ -45,7 +45,7 @@ rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<false>();
 template<class ExprT, bool allow_symbol_def = false>
 struct ConstantParser : public grammar<Constant<ExprT> *()> {
 	ConstantParser()
-	: ConstantParser<ExprT, allow_symbol_def>::base_type(constant, type_descr<ExprT>() + "_constant")
+	: ConstantParser<ExprT, allow_symbol_def>::base_type(constant, type_descr<ExprT>()() + "_constant")
 	{ init(constant); }
 
 	static void init(rule<Constant<ExprT> *()> &constant);

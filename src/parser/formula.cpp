@@ -27,7 +27,7 @@ namespace parser {
 
 template<class ExprT>
 ComparisonParser<ExprT>::ComparisonParser()
-: ComparisonParser<ExprT>::base_type(comparison, type_descr<ExprT>() + "_comparison")
+: ComparisonParser<ExprT>::base_type(comparison, type_descr<ExprT>()() + "_comparison")
 {
 	cmp_op =
 		qi::string(">") [ _val = val(ComparisonOperator::GT) ]
@@ -46,7 +46,7 @@ ComparisonParser<ExprT>::ComparisonParser()
 	];
 	comparison.name("numeric_comparison");
 
-	BOOST_SPIRIT_DEBUG_NODE(comparison);
+	GOLOGPP_DEBUG_NODE(comparison);
 }
 
 
@@ -115,7 +115,7 @@ ExpressionParser<BooleanExpression>::ExpressionParser()
 	];
 	bool_var_ref.name("reference_to_boolean_variable");
 
-	BOOST_SPIRIT_DEBUG_NODES((expression)(unary_expr)(binary_expr)
+	GOLOGPP_DEBUG_NODES((expression)(unary_expr)(binary_expr)
 	(negation)(brace)(bool_var_ref)(quantification)
 	(quantification_op)(bool_op));
 }

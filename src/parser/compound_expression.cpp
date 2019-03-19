@@ -36,7 +36,7 @@ ExpressionParser<CompoundExpression>::ExpressionParser()
 		_val = new_<Reference<Variable<CompoundExpression>>>(_1)
 	];
 
-	BOOST_SPIRIT_DEBUG_NODES((expression)(var_ref));
+	GOLOGPP_DEBUG_NODES((expression)(var_ref));
 }
 
 

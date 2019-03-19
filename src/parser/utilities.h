@@ -6,6 +6,8 @@
 #include <boost/spirit/include/support_line_pos_iterator.hpp>
 #include <boost/spirit/include/qi_nonterminal.hpp>
 
+#include <boost/preprocessor/seq/for_each.hpp>
+
 
 namespace gologpp {
 namespace parser {
@@ -61,6 +63,15 @@ void handle_error(
 	const boost::spirit::info &expected
 );
 
+
+#ifdef GOLOGPP_DEBUG_PARSER
+#define GOLOGPP_DEBUG_NODE(n) debug(n);
+#define GOLOGPP_DEBUG_NODE_A(_r, _data, node) GOLOGPP_DEBUG_NODE(node)
+#define GOLOGPP_DEBUG_NODES(n) BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEBUG_NODE_A, (), n)
+#else
+#define GOLOGPP_DEBUG_NODE(n)
+#define GOLOGPP_DEBUG_NODES(n)
+#endif
 
 
 } // namespace parser

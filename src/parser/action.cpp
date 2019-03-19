@@ -107,7 +107,7 @@ ActionParser<ActionT>::ActionParser()
 	);
 	action.name("action_declaration");
 
-	//BOOST_SPIRIT_DEBUG_NODES((action));
+	//GOLOGPP_DEBUG_NODES((action));
 }
 
 

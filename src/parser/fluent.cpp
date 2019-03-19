@@ -78,7 +78,7 @@ FluentParser<ExprT>::FluentParser()
 			]
 		]
 	);
-	fluent.name(type_descr<ExprT>() + "fluent_definition");
+	fluent.name(type_descr<ExprT>()() + "_fluent_definition");
 	on_error<rethrow>(fluent, delete_(_a));
 
 	initially = (lit('(') > -(abstract_constant<true>() % ',') > ')' > '=' > constant > ';') [
@@ -86,7 +86,7 @@ FluentParser<ExprT>::FluentParser()
 	];
 	initially.name("initial_value_mapping");
 
-	BOOST_SPIRIT_DEBUG_NODES((variable)(fluent)(initially));
+	GOLOGPP_DEBUG_NODES((variable)(fluent)(initially));
 }
 
 

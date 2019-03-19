@@ -68,7 +68,7 @@ ExpressionParser<NumericExpression>::ExpressionParser()
 	];
 	num_var_ref.name("reference_to_numeric_variable");
 
-	BOOST_SPIRIT_DEBUG_NODES((expression)(binary_expr)(unary_expr)
+	GOLOGPP_DEBUG_NODES((expression)(binary_expr)(unary_expr)
 	(operation)(brace)(num_var_ref)(arith_operator));
 }
 

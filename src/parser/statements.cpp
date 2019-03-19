@@ -40,7 +40,7 @@ rule<Statement *(Scope &)> statement = statement_()(_r1);
 
 template<class ExprT>
 PickParser<ExprT>::PickParser()
-: PickParser<ExprT>::base_type(pick, type_descr<ExprT>() + "_pick")
+: PickParser<ExprT>::base_type(pick, type_descr<ExprT>()() + "_pick")
 {
 	pick = {
 		((lit("pick") >> '(') [
@@ -50,7 +50,7 @@ PickParser<ExprT>::PickParser()
 		> ')' > statement(*_a)) [
 			_val = new_<Pick<ExprT>>(_a, _1, _2, _3)
 		],
-		type_descr<ExprT>() + "_pick"
+		type_descr<ExprT>()() + "_pick"
 	};
 }
 
@@ -181,7 +181,7 @@ StatementParser::StatementParser()
 	durative_call.name("durative_action_call");
 
 
-	BOOST_SPIRIT_DEBUG_NODES((statement)(simple_statement)(compound_statement)
+	GOLOGPP_DEBUG_NODES((statement)(simple_statement)(compound_statement)
 		(block)(choose)(conditional)(search)(solve)(test)(r_while)
 		(boolean_return)(numeric_return));
 }
