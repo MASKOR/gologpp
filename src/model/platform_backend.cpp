@@ -56,7 +56,6 @@ shared_ptr<Activity> PlatformBackend::end_activity(shared_ptr<Transition> trans)
 			throw InconsistentTransition(trans->str());
 
 	activities_.erase(it);
-	std::cout << "<<< Cleared " << trans->str() << std::endl;
 
 	return dur_running;
 }
@@ -114,11 +113,11 @@ void DummyBackend::ActivityThread::end_activity(std::chrono::duration<double> wh
 	bool canceled = cancel_cond.wait_for(cancel_lock, when, [&] { return bool(cancel); });
 
 	if (canceled) {
-		std::cout << "<<< Activity " << a->str() << " STOPPED >>" << std::endl;
+		std::cout << "DummyBackend: Activity " << a->str() << " STOPPED" << std::endl;
 		b.update_activity(a->transition(Transition::Hook::STOP));
 	}
 	else {
-		std::cout << "<<< Activity " << a->str() << " FINAL >>>" << std::endl;
+		std::cout << "DummyBackend: Activity " << a->str() << " FINAL" << std::endl;
 		b.update_activity(a->transition(Transition::Hook::FINISH));
 	}
 
@@ -131,7 +130,7 @@ void DummyBackend::ActivityThread::end_activity(std::chrono::duration<double> wh
 void DummyBackend::execute_activity(shared_ptr<Activity> a)
 {
 	std::chrono::duration<double> rnd_dur { uniform_dist_(prng_) };
-	std::cout << "<<< Activity " << a->str() << " START, duration: " << rnd_dur.count() << " >>>" << std::endl;
+	std::cout << "DummyBackend: Activity " << a->str() << " START, duration: " << rnd_dur.count() << std::endl;
 
 	std::lock_guard<std::mutex> locked(thread_mtx_);
 
