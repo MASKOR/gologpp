@@ -86,16 +86,14 @@ string Choose::to_string(const string &pfx) const
 Conditional::Conditional(
 	BooleanExpression *condition,
 	VoidExpression *block_true,
-	const boost::optional<VoidExpression *> &block_false
+	VoidExpression *block_false
 )
 : condition_(condition)
 , block_true_(block_true)
-, block_false_(block_false.value_or(nullptr))
+, block_false_(block_false)
 {
 	condition_->set_parent(this);
 	block_true_->set_parent(this);
-	if (!block_false_)
-		block_false_ = std::make_unique<Block>(new Scope(parent_scope()), vector<Statement *>{});
 	block_false_->set_parent(this);
 }
 

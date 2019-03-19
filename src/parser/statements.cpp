@@ -15,10 +15,12 @@
 #include <boost/spirit/include/qi_optional.hpp>
 #include <boost/spirit/include/qi_lit.hpp>
 #include <boost/spirit/include/qi_list.hpp>
+#include <boost/spirit/include/qi_attr.hpp>
 
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/object/construct.hpp>
 
 #include <model/action.h>
 
@@ -102,11 +104,18 @@ StatementParser::StatementParser()
 
 
 	conditional = (lit("if") > '(' > boolean_expression(_r1) > ')'
-		> statement(_r1) > -("else" > statement(_r1))
+		> statement(_r1)
+		> (
+			("else" > statement(_r1))
+			| empty_statement(_r1)
+		)
 	) [
 		_val = new_<Conditional>(_1, _2, _3)
 	];
 	conditional.name("conditional");
+
+	empty_statement = qi::attr(new_<Block>(new_<Scope>(_r1), construct<vector<Statement *>>()));
+	empty_statement.name("empty_statement");
 
 	search = (lit("search") > statement(_r1)) [
 		_val = new_<Search>(_1)

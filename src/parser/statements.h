@@ -47,6 +47,8 @@ struct StatementParser : grammar<VoidExpression *(Scope &)> {
 	rule<While *(Scope &)> r_while;
 	rule<Concurrent *(Scope &), locals<Scope *>> concurrent;
 
+	rule<Statement *(Scope &)> empty_statement;
+
 	rule<Return<BooleanExpression> *(Scope &)> boolean_return;
 	rule<Return<NumericExpression> *(Scope &)> numeric_return;
 	rule<Return<SymbolicExpression> *(Scope &)> symbolic_return;

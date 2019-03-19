@@ -67,7 +67,7 @@ public:
 	Conditional(
 		BooleanExpression *condition,
 		VoidExpression *block_true,
-		const boost::optional<VoidExpression *> &block_false
+		VoidExpression *block_false
 	);
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, *block_true_, *block_false_)
