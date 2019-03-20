@@ -128,10 +128,10 @@ public:
 	{ return global_scope_; }
 
 	virtual Scope &scope() override;
-	const Scope &scope() const override;
+	virtual const Scope &scope() const override;
 
 	virtual Scope &parent_scope() override;
-	const Scope &parent_scope() const override;
+	virtual const Scope &parent_scope() const override;
 
 	void set_owner(AbstractLanguageElement *owner);
 	const AbstractLanguageElement *owner() const;
