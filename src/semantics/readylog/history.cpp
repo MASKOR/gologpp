@@ -53,10 +53,10 @@ vector<unique_ptr<AbstractConstant>> get_args(EC_word head) {
 
 	for (int j = 1; j <= head.arity(); j++) {
 		head.arg(j,term);
-		if (EC_succeed == term.is_double(&d))
-			args.emplace_back(new NumericConstant(d));
-		else if (EC_succeed == term.is_long(&i))
+		if (EC_succeed == term.is_long(&i))
 			args.emplace_back(new NumericConstant(i));
+		else if (EC_succeed == term.is_double(&d))
+			args.emplace_back(new NumericConstant(d));
 		else if (EC_succeed == term.is_atom(&did)) {
 			if (did == EC_atom("true"))
 				args.emplace_back(new BooleanConstant(true));

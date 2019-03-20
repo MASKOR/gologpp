@@ -20,6 +20,8 @@ EC_word Semantics<Constant<NumericExpression>>::plterm()
 		return EC_word(value_.representation<double>());
 	else if (value_.variant().type() == boost::typeindex::type_id<int>())
 		return EC_word(value_.representation<int>());
+	else if (value_.variant().type() == boost::typeindex::type_id<long>())
+		return EC_word(value_.representation<long>());
 	else
 		throw std::runtime_error("Unknown Constant type");
 }
