@@ -2,9 +2,6 @@
 #define GOLOGPP_EXECUTION_H_
 
 #include "utilities.h"
-#include "fluent.h"
-#include "action.h"
-#include "procedural.h"
 #include "gologpp.h"
 #include "platform_backend.h"
 
@@ -15,6 +12,7 @@
 #include <mutex>
 #include <queue>
 #include <condition_variable>
+#include <chrono>
 
 namespace gologpp {
 

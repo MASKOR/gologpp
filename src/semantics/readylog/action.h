@@ -5,6 +5,8 @@
 #include "reference.h"
 
 #include <model/action.h>
+#include <model/transition.h>
+#include <model/reference.h>
 
 #include <eclipseclass.h>
 

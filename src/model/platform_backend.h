@@ -3,7 +3,7 @@
 
 #include "gologpp.h"
 #include "action.h"
-#include "transition.h"
+#include "reference.h"
 
 #include <random>
 #include <chrono>

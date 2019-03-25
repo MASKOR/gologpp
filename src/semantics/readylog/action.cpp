@@ -4,6 +4,8 @@
 #include "execution.h"
 #include "variable.h"
 
+#include <model/transition.h>
+
 #include <eclipseclass.h>
 
 #include <unordered_map>

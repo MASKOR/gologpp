@@ -4,6 +4,7 @@
 #include "procedural.h"
 #include "history.h"
 #include "platform_backend.h"
+#include "transition.h"
 
 #include <iostream>
 
