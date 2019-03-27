@@ -309,5 +309,25 @@ const string &AbstractFieldAccess::field_name() const
 { return field_name_; }
 
 
+FieldAccess<CompoundExpression> *nested_field_access_(
+	CompoundExpression *subject,
+	vector<string>::const_iterator it,
+	vector<string>::const_iterator end)
+{
+	if (it + 1 < end)
+		return new FieldAccess<CompoundExpression>(
+			nested_field_access_(subject, it + 1, end),
+			*it
+		);
+	else
+		return new FieldAccess<CompoundExpression>(subject, *it);
+}
+
+
+FieldAccess<CompoundExpression> *nested_field_access(CompoundExpression *subject, const vector<string> &fields)
+{ return nested_field_access_(subject, fields.begin(), fields.end()); }
+
+
 
 } // namespace gologpp
+

@@ -2,7 +2,7 @@
 #define GOLOGPP_PARSER_FIELD_ACCESS_H_
 
 #include "utilities.h"
-#include "reference.h"
+#include "compound_expression.h"
 
 namespace gologpp {
 namespace parser {
@@ -13,9 +13,7 @@ struct FieldAccessParser : public grammar<FieldAccess<ExprT> *(Scope &)> {
 	FieldAccessParser();
 
 	rule<FieldAccess<ExprT> *(Scope &)> field_access;
-	rule<CompoundExpression *(Scope &)> unary_compound_expr;
-	ReferenceParser<Fluent<CompoundExpression>> compound_fluent_ref;
-	ReferenceParser<Function<CompoundExpression>> compound_function_ref;
+	ExpressionParser<CompoundExpression> compound_expr;
 };
 
 

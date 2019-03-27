@@ -5,7 +5,6 @@
 #include "expressions.h"
 #include "atoms.h"
 #include "reference.h"
-#include "field_access.h"
 
 
 namespace gologpp {
@@ -17,10 +16,13 @@ struct ExpressionParser<CompoundExpression> : public grammar<CompoundExpression 
 	ExpressionParser();
 
 	rule<CompoundExpression *(Scope &)> expression;
+	rule<CompoundExpression *(Scope &)> compound_atom;
 	rule<Reference<Variable<CompoundExpression>> *(Scope &)> var_ref;
 	ReferenceParser<Fluent<CompoundExpression>> compound_fluent_ref;
 	ReferenceParser<Function<CompoundExpression>> compound_function_ref;
-	FieldAccessParser<CompoundExpression> compound_field_access;
+
+	rule<CompoundExpression *(Scope &)> field_access;
+	rule<string()> field_name;
 };
 
 extern rule<CompoundExpression *(Scope &)> compound_expression;

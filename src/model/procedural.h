@@ -479,6 +479,9 @@ public:
 
 
 
+FieldAccess<CompoundExpression> *nested_field_access(CompoundExpression *subject, const vector<string> &fields);
+
+
 } // namespace gologpp
 
 
