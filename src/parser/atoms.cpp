@@ -17,6 +17,7 @@
 #include <boost/spirit/include/qi_kleene.hpp>
 #include <boost/spirit/include/qi_no_skip.hpp>
 #include <boost/spirit/include/qi_as_string.hpp>
+#include <boost/spirit/include/qi_list.hpp>
 
 #include <boost/phoenix/bind/bind_function.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
@@ -213,10 +214,12 @@ ConstantParser<CompoundExpression, allow_symbol_def>::ConstantParser()
 : ConstantParser<CompoundExpression, allow_symbol_def>::base_type(constant, type_descr<CompoundExpression>()() + "_constant")
 {
 	constant =
-		( qi::lit('{') > *(
-			r_name() > '=' > abstract_constant
-		) > qi::lit('}') ) [
-			_val = new_<Constant<CompoundExpression>>(_1)
+		( (r_name() >> '{')
+			> (
+				r_name() > '=' > abstract_constant
+			) % ','
+		> '}' ) [
+			_val = new_<Constant<CompoundExpression>>(_1, _2)
 		]
 	;
 	constant.name(type_descr<CompoundExpression>()() + "_constant");

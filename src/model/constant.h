@@ -186,9 +186,10 @@ class Constant<CompoundExpression>
 , public LanguageElement<Constant<CompoundExpression>>
 {
 public:
-	Constant(const vector<fusion_wtf_vector<string, AbstractConstant *>> &repr);
 	using Value = std::unordered_map<string, unique_ptr<AbstractConstant>>;
 	Constant(Constant<CompoundExpression> &&) = default;
+
+	Constant(const string &type_name, const vector<fusion_wtf_vector<string, AbstractConstant *>> &repr);
 	Constant(const Constant<CompoundExpression> &);
 
 	virtual ~Constant() override = default;

@@ -52,8 +52,9 @@ template
 Constant<NumericExpression>::Constant(double);
 
 
-Constant<CompoundExpression>::Constant(const vector<fusion_wtf_vector<string, AbstractConstant *>> &definition)
+Constant<CompoundExpression>::Constant(const string &type_name, const vector<fusion_wtf_vector<string, AbstractConstant *>> &definition)
 {
+	set_type_by_name(type_name);
 	for (const boost::fusion::vector<string, AbstractConstant *> &v : definition) {
 		const string &field_name = boost::fusion::at_c<0>(v);
 		const Type &field_type = type().field_type(field_name);
