@@ -142,6 +142,15 @@ string Constant<CompoundExpression>::to_string(const string &pfx) const
 }
 
 
+void Constant<CompoundExpression>::attach_semantics(SemanticsFactory &f)
+{
+	for (auto &pair : representation_)
+		pair.second->attach_semantics(f);
+
+	if (!semantics_)
+		set_implementation(f.make_semantics(*this));
+}
+
 
 vector<unique_ptr<AbstractConstant>> copy(const vector<unique_ptr<AbstractConstant>> &v)
 {

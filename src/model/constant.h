@@ -213,8 +213,7 @@ public:
 
 	virtual string to_string(const string &pfx) const override;
 
-
-	DEFINE_IMPLEMENT
+	virtual void attach_semantics(SemanticsFactory &) override;
 
 private:
 	Value representation_;
