@@ -373,6 +373,7 @@ class Function
 {
 public:
 	typedef ExpressionT expression_t;
+	typedef typename ExpressionT::type_t type_t;
 
 	Function(
 		Scope *own_scope,

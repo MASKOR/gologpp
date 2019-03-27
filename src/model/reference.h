@@ -129,6 +129,8 @@ public:
 	virtual string to_string(const string &pfx) const override
 	{ return pfx + name() + '(' + concat_list(args(), ", ", "") + ')'; }
 
+	virtual const typename TargetT::type_t &type() const override
+	{ return dynamic_cast<const typename TargetT::type_t &>(this->target()->type()); }
 
 private:
 	vector<unique_ptr<ExprT>> args_;

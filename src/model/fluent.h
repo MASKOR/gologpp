@@ -119,6 +119,7 @@ class Fluent
 public:
 	typedef ExpressionT expression_t;
 	typedef AbstractFluent abstract_t;
+	typedef typename ExpressionT::type_t type_t;
 
 	Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
 	: AbstractFluent(own_scope, name, args)

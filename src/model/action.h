@@ -28,6 +28,7 @@ class AbstractAction
 public:
 	typedef VoidExpression expression_t;
 	typedef AbstractAction abstract_t;
+	typedef Void type_t;
 
 	AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 	AbstractAction(Scope &parent_scope, const string &name);
