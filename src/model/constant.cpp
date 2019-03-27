@@ -94,12 +94,27 @@ Constant<CompoundExpression>::Constant(Constant<CompoundExpression> &&c)
 
 Constant<CompoundExpression> &Constant<CompoundExpression>::operator = (const Constant<CompoundExpression> &c)
 {
+	if (semantics_)
+		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
+
 	representation_.clear();
 	for (const auto &v : c.representation_)
 		representation_[v.first].reset(v.second->copy());
 	set_type_by_name(c.type());
+
 	return *this;
 }
+
+
+Constant<CompoundExpression> &Constant<CompoundExpression>::operator = (Constant<CompoundExpression> &&c)
+{
+	representation_ = std::move(c.representation_);
+	type_ = std::move(c.type_);
+	semantics_ = std::move(c.semantics_);
+
+	return *this;
+}
+
 
 size_t Constant<CompoundExpression>::hash() const
 {
