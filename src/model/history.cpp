@@ -12,9 +12,10 @@ HistorySemantics::~HistorySemantics()
 {}
 
 
-
-History::History()
-{}
+History::History(History &&other)
+{
+	semantics_ = std::move(other.semantics_);
+}
 
 Scope &History::parent_scope()
 { return global_scope(); }

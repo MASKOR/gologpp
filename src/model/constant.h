@@ -98,6 +98,7 @@ public:
 
 protected:
 	SimpleConstant(const LiteralVariant &repr);
+	SimpleConstant(LiteralVariant &&repr);
 
 private:
 	LiteralVariant representation_;
@@ -130,7 +131,12 @@ public:
 	template<class ReprT>
 	Constant(ReprT repr);
 
-	Constant(Constant<ExpressionT> &&) = default;
+	Constant(Constant<ExpressionT> &&c)
+	: SimpleConstant(std::move(c.representation_))
+	{
+		semantics_ = std::move(c.semantics_);
+		type_ = std::move(c.type_);
+	}
 
 	Constant(const Constant<ExpressionT> &c)
 	: SimpleConstant(c.variant())
@@ -187,14 +193,14 @@ class Constant<CompoundExpression>
 {
 public:
 	using Value = std::unordered_map<string, unique_ptr<AbstractConstant>>;
-	Constant(Constant<CompoundExpression> &&) = default;
 
 	Constant(const string &type_name, const vector<fusion_wtf_vector<string, AbstractConstant *>> &repr);
+	Constant(Constant<CompoundExpression> &&);
 	Constant(const Constant<CompoundExpression> &);
 
 	virtual ~Constant() override = default;
 
-	Constant<CompoundExpression> &operator = (Constant<CompoundExpression> &&) = default;
+	Constant<CompoundExpression> &operator = (Constant<CompoundExpression> &&);
 	Constant<CompoundExpression> &operator = (const Constant<CompoundExpression> &c);
 
 	virtual size_t hash() const override;

@@ -68,16 +68,6 @@ Scope::Scope(Scope &parent_scope)
 , types_(parent_scope.types_)
 {}
 
-
-Scope::Scope(Scope &&other)
-: parent_scope_(other.parent_scope_)
-, owner_(other.owner_)
-, variables_(std::move(other.variables_))
-, globals_(std::move(other.globals_))
-, domains_(std::move(other.domains_))
-, types_(std::move(other.types_))
-{}
-
 Scope::~Scope()
 {}
 

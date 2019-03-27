@@ -15,9 +15,9 @@ public:
 	// By default, a language element is not copyable, since it is part of a graph
 	// that may even contain cycles.
 	AbstractLanguageElement(const AbstractLanguageElement &) = delete;
-	AbstractLanguageElement(AbstractLanguageElement &&) = default;
+	AbstractLanguageElement(AbstractLanguageElement &&) = delete;
 	AbstractLanguageElement &operator = (const AbstractLanguageElement &) = delete;
-	//AbstractLanguageElement &operator = (AbstractLanguageElement &&) = default;
+	AbstractLanguageElement &operator = (AbstractLanguageElement &&) = delete;
 
 	virtual ~AbstractLanguageElement() = default;
 
@@ -51,7 +51,6 @@ public:
 
 
 protected:
-
 	unique_ptr<AbstractSemantics> semantics_;
 	shared_ptr<const Type> type_;
 };
@@ -62,13 +61,7 @@ class LanguageElement : public virtual AbstractLanguageElement {
 public:
 	typedef GologT golog_t;
 
-	LanguageElement() = default;
 	virtual ~LanguageElement() = default;
-
-	LanguageElement(LanguageElement &&other) = default;
-	LanguageElement(const LanguageElement &) = delete;
-	//LanguageElement &operator = (LanguageElement &&) = default;
-	LanguageElement &operator = (const LanguageElement &) = delete;
 
 	template<class = GologT>
 	Semantics<GologT> &semantics() const

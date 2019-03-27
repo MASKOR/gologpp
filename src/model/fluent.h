@@ -103,7 +103,6 @@ public:
 	typedef AbstractFluent abstract_t;
 
 	AbstractFluent(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
-	AbstractFluent(AbstractFluent &&) = default;
 
 	virtual ~AbstractFluent() override = default;
 	virtual ExpressionTypeTag expression_type_tag() const = 0;
@@ -133,8 +132,6 @@ public:
 	Fluent(Scope &parent_scope, const string &name)
 	: AbstractFluent(new Scope(parent_scope), name, {})
 	{}
-
-	Fluent(Fluent &&) = default;
 
 	virtual ~Fluent() override = default;
 

@@ -15,9 +15,6 @@ namespace gologpp {
 class Expression : public virtual AbstractLanguageElement {
 protected:
 	Expression();
-	Expression(const Expression &) = delete;
-	Expression(Expression &&) = default;
-	Expression &operator = (const Expression &) = delete;
 
 public:
 	virtual ~Expression() override = default;

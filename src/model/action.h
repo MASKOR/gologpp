@@ -32,9 +32,6 @@ public:
 	AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
 	AbstractAction(Scope &parent_scope, const string &name);
 
-	AbstractAction(const AbstractAction &) = delete;
-	AbstractAction(AbstractAction &&other) = default;
-
 	virtual ~AbstractAction() override = default;
 
 	virtual bool operator == (const AbstractAction &other) const;

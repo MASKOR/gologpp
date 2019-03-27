@@ -79,10 +79,6 @@ public:
 	explicit Scope(AbstractLanguageElement &owner, const vector<shared_ptr<AbstractVariable>> &lookup_vars = {});
 	Scope(Scope &parent_scope);
 
-	Scope(Scope &&);
-	Scope(const Scope &) = delete;
-	Scope &operator = (const Scope &) = delete;
-
 	~Scope() override;
 
 	template<class ExpressionT, VarDefinitionMode var_def_mode>

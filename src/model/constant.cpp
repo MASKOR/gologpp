@@ -17,6 +17,10 @@ SimpleConstant::SimpleConstant(const LiteralVariant &l)
 : representation_(l)
 {}
 
+SimpleConstant::SimpleConstant(LiteralVariant &&l)
+: representation_(std::move(l))
+{}
+
 size_t SimpleConstant::hash() const
 { return boost::hash_value(variant()); }
 
@@ -72,10 +76,21 @@ Constant<CompoundExpression>::Constant(const string &type_name, const vector<fus
 
 Constant<CompoundExpression>::Constant(const Constant<CompoundExpression> &c)
 {
+	if (semantics_)
+		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
 	for (const auto &v : c.representation_)
 		representation_[v.first].reset(v.second->copy());
 	set_type_by_name(c.type());
 }
+
+
+Constant<CompoundExpression>::Constant(Constant<CompoundExpression> &&c)
+{
+	representation_ = std::move(c.representation_);
+	semantics_ = std::move(c.semantics_);
+	type_ = std::move(c.type_);
+}
+
 
 Constant<CompoundExpression> &Constant<CompoundExpression>::operator = (const Constant<CompoundExpression> &c)
 {
