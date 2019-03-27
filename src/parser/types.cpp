@@ -6,6 +6,7 @@
 #include <boost/spirit/include/qi_kleene.hpp>
 #include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_action.hpp>
+#include <boost/spirit/include/qi_list.hpp>
 
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/dynamic_cast.hpp>
@@ -38,13 +39,13 @@ CompoundTypeParser::CompoundTypeParser()
 {
 	type_definition = (lit("compound") > r_name() > '{') [
 		_val = new_<CompoundType>(_1)
-	] > *(
+	] > ((
 		field_definition<NumericExpression>()(_val)
 		| field_definition<BooleanExpression>()(_val)
 		| field_definition<StringExpression>()(_val)
 		| field_definition<SymbolicExpression>()(_val)
 		| field_definition<CompoundExpression>()(_val)
-	) > lit('}') [
+	) % ',' > lit('}')) [
 		phoenix::bind(&Scope::register_type, _r1, _val)
 	];
 	type_definition.name("compound_type_definition");
