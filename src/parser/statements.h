@@ -65,11 +65,11 @@ struct StatementParser : grammar<VoidExpression *(Scope &)> {
 	AssignmentParser<Reference<StringFluent>> string_fluent_assignment;
 	AssignmentParser<Reference<CompoundFluent>> compound_fluent_assignment;
 
-	AssignmentParser<Reference<BooleanVariable>> boolean_var_assignment;
-	AssignmentParser<Reference<NumericVariable>> numeric_var_assignment;
-	AssignmentParser<Reference<SymbolicVariable>> symbolic_var_assignment;
-	AssignmentParser<Reference<StringVariable>> string_var_assignment;
-	AssignmentParser<Reference<CompoundVariable>> compound_var_assignment;
+	AssignmentParser<FieldAccess<BooleanExpression>> boolean_field_assignment;
+	AssignmentParser<FieldAccess<NumericExpression>> numeric_field_assignment;
+	AssignmentParser<FieldAccess<SymbolicExpression>> symbolic_field_assignment;
+	AssignmentParser<FieldAccess<StringExpression>> string_field_assignment;
+	AssignmentParser<FieldAccess<CompoundExpression>> compound_field_assignment;
 };
 
 

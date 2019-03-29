@@ -36,5 +36,6 @@ FieldAccessParser<ExprT>::FieldAccessParser()
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_INSTANTIATE_FIELD_ACCESS_PARSER, (), GOLOGPP_VALUE_TYPES)
 
 
+
 } // namespace parser
 } // namespace gologpp

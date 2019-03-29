@@ -61,6 +61,23 @@ BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_INSTANTIATE_VARIABLE_ASSIGNMENT, (), GOLOGP
 
 
 
+template<class ExprT>
+AssignmentParser<FieldAccess<ExprT>>::AssignmentParser()
+: AssignmentParser<FieldAccess<ExprT>>::base_type(assignment, string("assignment_to_") + type_descr<ExprT>()() + "_field")
+{
+	assignment = ((field_access(_r1) >> "=") > expression(_r1)) [
+		_val = new_<Assignment<FieldAccess<ExprT>>>(_1, _2)
+	];
+	assignment.name(string("assignment_to_") + type_descr<ExprT>()() + "_field");
+}
+
+#define GOLOGPP_PARSER_INSTANTIATE_FIELD_ASSIGNMENT(r, data, T) \
+	template \
+	AssignmentParser<FieldAccess<T>>::AssignmentParser();
+
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_INSTANTIATE_FIELD_ASSIGNMENT, (), GOLOGPP_VALUE_TYPES)
+
+
 } // namespace parser
 } // namespace gologpp
 

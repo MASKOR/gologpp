@@ -65,9 +65,9 @@ StatementParser::StatementParser()
 	simple_statement = (test(_r1)
 		| boolean_return(_r1) | numeric_return(_r1) | symbolic_return(_r1) | string_return(_r1)
 		| compound_return(_r1)
-		| numeric_var_assignment(_r1) | boolean_var_assignment(_r1)
-		| symbolic_var_assignment(_r1) | string_var_assignment(_r1)
-		| compound_var_assignment(_r1)
+		| numeric_field_assignment(_r1) | boolean_field_assignment(_r1)
+		| symbolic_field_assignment(_r1) | string_field_assignment(_r1)
+		| compound_field_assignment(_r1)
 		| durative_call(_r1)
 		| numeric_fluent_assignment(_r1) | boolean_fluent_assignment(_r1)
 		| symbolic_fluent_assignment(_r1) | string_fluent_assignment(_r1)
@@ -83,7 +83,6 @@ StatementParser::StatementParser()
 		| solve(_r1) | search(_r1) | r_while(_r1)
 		| concurrent(_r1);
 	compound_statement.name("compound_statement");
-
 
 	block = (lit('{') [
 		_a = new_<Scope>(_r1)

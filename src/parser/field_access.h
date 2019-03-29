@@ -3,6 +3,7 @@
 
 #include "utilities.h"
 #include "compound_expression.h"
+#include "reference.h"
 
 namespace gologpp {
 namespace parser {

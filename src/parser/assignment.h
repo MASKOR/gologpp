@@ -37,6 +37,16 @@ struct AssignmentParser<Reference<Variable<ExpressionT>>> : grammar<Assignment<R
 };
 
 
+template<class ExprT>
+struct AssignmentParser<FieldAccess<ExprT>> : grammar<Assignment<FieldAccess<ExprT>> *(Scope &)> {
+	AssignmentParser();
+
+	rule<Assignment<FieldAccess<ExprT>> *(Scope &)> assignment;
+	FieldAccessParser<ExprT> field_access;
+	ExpressionParser<ExprT> expression;
+};
+
+
 
 } // namespace parser
 } // namespace gologpp
