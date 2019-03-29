@@ -16,25 +16,24 @@ function(gpp_field_value(Name, gpp_compound(Fields)), Value,
 	])
 ).
 
-function(gpp_field_assign(Name, Value, gpp_compound(Fields)), Result,
+function(gpp_field_assign(Names, Value, gpp_compound(Fields)), Result,
 	and([
-		atom(Name), var(Result), ground(Value)
-		, Field_current =.. [Name, _]
+		Names = [Name|Rest_names]
+		, atom(Name), var(Result), ground(Value)
+		, Field_current =.. [Name, Field_cur_value]
 		, delete(Field_current, Fields, Fields_without)
-		, Field_new =.. [Name, Value]
-		, Result = [Field_new | Fields_without]
+		,
+		lif(Field_cur_value = gpp_compound(_),
+			% Nested compound, so recurse down
+			% hoping the length of Names matches the nesting depth
+			Field_new =.. [Name, gpp_field_assign(Rest_names, Value, Field_cur_value)]
+		,
+			Field_new =.. [Name, Value]
+		)
+		, Result = gpp_compound([Field_new | Fields_without])
 	])
 ).
 
-function(gpp_field_value(Name, Compound), _, _) :-
-	sprintf(Msg, "Invalid field access: %w", gpp_field_value(Name, Compound))
-	, throw(Msg)
-.
-
-function(gpp_field_assign(Name, Value, Compound), _, _) :-
-	sprintf(Msg, "Invalid field assignment: %w", gpp_field_assign(Name, Value, Compound))
-	, throw(Msg)
-.
 
 /********************************
  * Durative Action semantics

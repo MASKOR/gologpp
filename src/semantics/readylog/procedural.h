@@ -6,6 +6,7 @@
 #include "variable.h"
 #include "utilities.h"
 #include "fluent.h"
+#include "reference.h"
 
 #include <model/semantics.h>
 #include <model/expressions.h>
@@ -204,6 +205,46 @@ public:
 
 private:
 	const Assignment<Reference<Fluent<ExprT>>> &assignment_;
+};
+
+
+
+template<class ExprT>
+class Semantics<Assignment<FieldAccess<ExprT>>> : public ReadylogSemantics {
+public:
+	Semantics(const Assignment<FieldAccess<ExprT>> &ass)
+	: assignment_(ass)
+	, field_access_(ass.lhs())
+	{}
+
+	virtual EC_word plterm() override
+	{
+		const AbstractFieldAccess *fa = &assignment_.lhs();
+		const Reference<CompoundFluent> *fluent = nullptr;
+		const CompoundExpression *sub;
+		EC_word field_list = ::nil();
+
+		do {
+			field_list = ::list(EC_atom(fa->field_name().c_str()), field_list);
+			sub = &fa->subject();
+			fa = dynamic_cast<const FieldAccess<CompoundExpression> *>(sub);
+		} while (fa);
+
+		fluent = dynamic_cast<const Reference<CompoundFluent> *>(sub);
+
+		return ::term(EC_functor("set", 2),
+			fluent->semantics().plterm(),
+			::term(EC_functor("gpp_field_assign", 3),
+				field_list,
+				assignment_.rhs().semantics().plterm(),
+				fluent->semantics().plterm()
+			)
+		);
+	}
+
+private:
+	const Assignment<FieldAccess<ExprT>> &assignment_;
+	const FieldAccess<ExprT> &field_access_;
 };
 
 

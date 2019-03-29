@@ -125,6 +125,7 @@ class Test;
 class While;
 template<class> class Return;
 class DurativeCall;
+class AbstractFieldAccess;
 template<class> class FieldAccess;
 
 class AbstractFunction;
@@ -158,6 +159,9 @@ template<class ExprT>
 using VariableAssignment = Assignment<Reference<Variable<ExprT>>>;
 
 template<class ExprT>
+using FieldAssignment = Assignment<FieldAccess<ExprT>>;
+
+template<class ExprT>
 using FluentReference = Reference<Fluent<ExprT>>;
 
 template<class ExprT>
@@ -189,6 +193,7 @@ using FluentEffectAxiom = EffectAxiom<Reference<Fluent<ExprT>>>;
 	(FluentAssignment)(VariableAssignment) \
 	(FluentReference)(VariableReference)(Pick)(Return) \
 	(FieldAccess) \
+	(FieldAssignment) \
 	(Domain)
 
 #define GOLOGPP_EXPRESSION_TYPE_TEMPLATES \
