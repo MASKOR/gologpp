@@ -39,6 +39,7 @@ public:
 	bool ec_query(EC_word t);
 	void ec_cut();
 	void ec_write(EC_word t);
+	string to_string(EC_word t);
 
 private:
     ReadylogContext(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend);

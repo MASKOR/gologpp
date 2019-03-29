@@ -68,7 +68,7 @@ vector<unique_ptr<AbstractConstant>> get_args(EC_word head) {
 		else if (EC_succeed == term.is_string(&s))
 			args.emplace_back(new StringConstant(string(s)));
 		else
-			throw Bug("Argument #" + std::to_string(j) + " is not a simple type");
+			throw Bug("Invalid argument #" + std::to_string(j) + " in expression " + ReadylogContext::instance().to_string(head));
 	}
 
 	return args;

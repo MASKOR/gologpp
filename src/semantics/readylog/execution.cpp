@@ -148,6 +148,19 @@ void ReadylogContext::ec_write(EC_word t)
 	ec_query(::term(EC_functor("writeln", 1), t));
 }
 
+string ReadylogContext::to_string(EC_word t)
+{
+	EC_word S = ::newvar();
+	EC_word q = ::term(EC_functor("sprintf", 3),
+		S, "%w", t
+	);
+	char *rv;
+	if(ec_query(q) && S.is_string(&rv))
+		return rv;
+	else
+		throw Bug("Error converting eclipse term to string");
+}
+
 
 void ReadylogContext::ec_cut()
 {
