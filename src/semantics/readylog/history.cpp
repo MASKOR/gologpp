@@ -91,13 +91,10 @@ shared_ptr<Transition> Semantics<History>::get_last_transition()
 	EC_word head = get_history_head();
 	string headname = get_head_name(head);
 
-	if (headname == "set" && head.arity() == 2)
-		return nullptr;
-
 	auto state_it = name2state.find(headname);
 
 	if (state_it == name2state.end())
-		throw EngineError("Unhandled transition: " + headname);
+		return nullptr;
 
 	if (head.arity() != 2)
 		throw EngineError("Transition arity must be 2: " + headname);
