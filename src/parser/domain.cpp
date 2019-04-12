@@ -17,6 +17,9 @@
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/scope/let.hpp>
+#include <boost/phoenix/statement/if.hpp>
+#include <boost/phoenix/scope/local_variable.hpp>
 
 namespace gologpp {
 namespace parser {
@@ -24,13 +27,22 @@ namespace parser {
 
 template<class ExprT>
 DomainExpressionParser<ExprT>::DomainExpressionParser()
-: DomainExpressionParser<ExprT>::base_type(domain_expr, "domain_expression")
+: DomainExpressionParser<ExprT>::base_type(domain_expr, type_descr<ExprT>()() + "_domain_expression")
 {
 	domain_expr = binary_domain_expr(_r1) | unary_domain_expr(_r1);
-	domain_expr.name("domain_expression");
+	domain_expr.name(type_descr<ExprT>()() + "_domain_expression");
 
+	typename expression::local_variable<shared_ptr<Domain<ExprT>>>::type p_domain;
 	unary_domain_expr =
-		r_name() [ _val = *phoenix::bind(&Scope::lookup_domain<ExprT>, _r1, _1) ]
+		r_name() [
+			let(p_domain = phoenix::bind(&Scope::lookup_domain<ExprT>, _r1, _1)) [
+				if_(p_domain) [
+					_val = *p_domain
+				].else_ [
+					_pass = false
+				]
+			]
+		]
 		| (lit('{') > (constant % ',') > '}') [
 			_val = construct<Domain<ExprT>>(val(""), _1)
 		]
