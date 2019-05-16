@@ -17,7 +17,7 @@ UserError::UserError(const string &msg)
 {}
 
 
-ExpressionTypeMismatch::ExpressionTypeMismatch(const Expression &expr1, const Expression &expr2)
+ExpressionTypeMismatch::ExpressionTypeMismatch(const AbstractLanguageElement &expr1, const AbstractLanguageElement &expr2)
 : UserError("Type of `" + expr1.str() + "' doesn't match type of `" + expr2.str() + "'")
 {}
 
@@ -27,7 +27,7 @@ ExpressionTypeMismatch::ExpressionTypeMismatch(const string &msg)
 {}
 
 
-TypeError::TypeError(const Expression &expr, const Type &t)
+TypeError::TypeError(const AbstractLanguageElement &expr, const Type &t)
 : UserError("Expression `" + expr.str() + "` is not of type " + t.name())
 {}
 

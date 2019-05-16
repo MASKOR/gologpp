@@ -7,33 +7,14 @@
 namespace gologpp {
 
 
-AbstractAction::AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
+AbstractAction::AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<Variable>> &args)
 : Global(name, args)
 , ScopeOwner(own_scope)
 {
-	set_precondition(new BooleanConstant(true));
+	set_precondition(new Constant(Bool::static_name(), true));
 	vector<Expression *> mapping_args;
-	for (const shared_ptr<AbstractVariable> &arg : args) {
-		switch(arg->dynamic_type_tag()) {
-		case Type::Tag::BOOLEAN:
-			mapping_args.push_back(new Reference<BooleanVariable>(std::dynamic_pointer_cast<BooleanVariable>(arg)));
-			break;
-		case Type::Tag::NUMERIC:
-			mapping_args.push_back(new Reference<NumericVariable>(std::dynamic_pointer_cast<NumericVariable>(arg)));
-			break;
-		case Type::Tag::SYMBOLIC:
-			mapping_args.push_back(new Reference<SymbolicVariable>(std::dynamic_pointer_cast<SymbolicVariable>(arg)));
-			break;
-		case Type::Tag::STRING:
-			mapping_args.push_back(new Reference<StringVariable>(std::dynamic_pointer_cast<StringVariable>(arg)));
-			break;
-		case Type::Tag::COMPOUND:
-			mapping_args.push_back(new Reference<Variable<CompoundExpression>>(std::dynamic_pointer_cast<Variable<CompoundExpression>>(arg)));
-			break;
-		case Type::Tag::VOID:
-			throw Bug("Variable<Statement> is impossible");
-		}
-	}
+	for (const shared_ptr<Variable> &arg : args)
+		mapping_args.push_back(new Reference<Variable>(arg));
 	mapping_.reset(new ActionMapping(name, mapping_args));
 }
 
@@ -73,9 +54,9 @@ const BooleanExpression &AbstractAction::precondition() const
 { return *precondition_; }
 
 
-void AbstractAction::set_precondition(BooleanExpression *cond)
+void AbstractAction::set_precondition(Expression *cond)
 {
-	precondition_.reset(cond);
+	precondition_ = cond;
 	precondition_->set_parent(this);
 }
 
@@ -119,20 +100,20 @@ Reference<Action> *Action::make_ref(const vector<Expression *> &args)
 Expression *Action::ref(const vector<Expression *> &args)
 { return make_ref(args); }
 
-void Action::set_senses(Reference<AbstractFluent> *f)
+void Action::set_senses(Reference<Fluent> *f)
 { senses_.reset(f); }
 
-unique_ptr<Reference<AbstractFluent>> &Action::senses()
+unique_ptr<Reference<Fluent>> &Action::senses()
 { return senses_; }
 
-const unique_ptr<Reference<AbstractFluent>> &Action::senses() const
+const unique_ptr<Reference<Fluent>> &Action::senses() const
 { return senses_; }
 
 
 void Action::define(
-	boost::optional<BooleanExpression *> precondition,
+	boost::optional<Expression *> precondition,
 	boost::optional<vector<AbstractEffectAxiom *>> effects,
-	boost::optional<Reference<AbstractFluent> *> senses
+	boost::optional<Reference<Fluent> *> senses
 ) {
 	if (precondition)
 		set_precondition(precondition.value());
@@ -164,7 +145,7 @@ Expression *ExogAction::ref(const vector<Expression *> &args)
 
 
 void ExogAction::define(
-	boost::optional<BooleanExpression *> precondition,
+	boost::optional<Expression *> precondition,
 	boost::optional<vector<AbstractEffectAxiom *>> effects
 ) {
 	if (precondition)

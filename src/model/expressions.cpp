@@ -4,9 +4,6 @@
 
 namespace gologpp {
 
-Type::Tag Expression::dynamic_type_tag() const
-{ return type_->dynamic_tag(); }
-
 Expression::Expression()
 : parent_(nullptr)
 {}
@@ -27,18 +24,6 @@ void Expression::set_parent(AbstractLanguageElement *parent)
 { parent_ = parent; }
 
 
-
-void ensure_type_equality(const Expression &e1, const Expression &e2)
-{
-	if (e1.type() != e2.type())
-		throw ExpressionTypeMismatch(e1, e2);
-}
-
-
-
-template<>
-TypedExpression<CompoundType>::TypedExpression()
-{}
 
 
 }

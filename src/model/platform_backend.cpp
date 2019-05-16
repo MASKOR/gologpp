@@ -62,7 +62,7 @@ shared_ptr<Activity> PlatformBackend::end_activity(shared_ptr<Transition> trans)
 }
 
 
-void PlatformBackend::update_activity(shared_ptr<Transition> trans, AbstractConstant *sensing_result)
+void PlatformBackend::update_activity(shared_ptr<Transition> trans, Constant *sensing_result)
 {
 	std::lock_guard<std::mutex> locked(mutex_);
 

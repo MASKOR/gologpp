@@ -4,6 +4,14 @@
 namespace gologpp {
 
 
+void ensure_type_equality(const AbstractLanguageElement &e1, const AbstractLanguageElement &e2)
+{
+	if (e1.type() != e2.type())
+		throw ExpressionTypeMismatch(e1, e2);
+}
+
+
+
 string to_string(Type::Tag t)
 {
 	switch (t) {
@@ -44,6 +52,12 @@ bool Type::is_compound() const
 
 bool Type::is_simple() const
 { return !is_compound(); }
+
+void Type::ensure_match(const AbstractLanguageElement &e) const
+{
+	if (e.type() == *this)
+		throw ExpressionTypeMismatch(e.str() + " does not match type " + name());
+}
 
 
 

@@ -48,14 +48,14 @@ Scope::Scope()
 }
 
 
-Scope::Scope(AbstractLanguageElement &owner, const vector<shared_ptr<AbstractVariable>> &variables)
+Scope::Scope(AbstractLanguageElement &owner, const vector<shared_ptr<Variable>> &variables)
 : parent_scope_(owner.scope())
 , owner_(&owner)
 , globals_(owner.scope().globals_)
 , domains_(owner.scope().domains_)
 , types_(owner.scope().types_)
 {
-	for (const shared_ptr<AbstractVariable> &v : variables)
+	for (const shared_ptr<Variable> &v : variables)
 		variables_.emplace(v->name(), v);
 }
 
@@ -75,10 +75,32 @@ bool Scope::has_var(const string &name) const
 { return variables_.find(name) != variables_.end(); }
 
 
-shared_ptr<AbstractVariable> Scope::lookup_var(const string &name) const
+shared_ptr<Variable> Scope::get_var(VarDefinitionMode var_def_mode, const string &type_name, const string &name)
+{
+	shared_ptr<Variable> rv;
+
+	auto it = variables_.find(name);
+	if (it != variables_.end())
+		rv = std::dynamic_pointer_cast<Variable>(it->second);
+
+	if (!rv && var_def_mode != VarDefinitionMode::FORCE && &parent_scope() != this)
+		rv = std::dynamic_pointer_cast<Variable>(
+			parent_scope().get_var(VarDefinitionMode::DENY, type_name, name)
+		);
+
+	if (!rv && var_def_mode != VarDefinitionMode::DENY) {
+		rv.reset(new Variable(type_name, name));
+		variables_[name] = rv;
+	}
+
+	return rv;
+}
+
+
+shared_ptr<Variable> Scope::lookup_var(const string &name) const
 {
 	auto it = variables_.find(name);
-	shared_ptr<AbstractVariable> rv;
+	shared_ptr<Variable> rv;
 	if (it != variables_.end())
 		rv = it->second;
 	else if (&parent_scope() != this) {
@@ -89,18 +111,29 @@ shared_ptr<AbstractVariable> Scope::lookup_var(const string &name) const
 }
 
 
-vector<shared_ptr<AbstractVariable>> Scope::lookup_vars(const vector<string> &names)
+vector<shared_ptr<Variable>> Scope::lookup_vars(const vector<string> &names)
 {
-	vector<shared_ptr<AbstractVariable>> rv;
+	vector<shared_ptr<Variable>> rv;
 	for (const string &name : names)
 		rv.push_back(lookup_var(name));
 	return rv;
 }
 
 
-vector<shared_ptr<AbstractVariable>> Scope::vars() const
+shared_ptr<Domain> Scope::lookup_domain(const string &name)
 {
-	vector<shared_ptr<AbstractVariable>> rv;
+	if (exists_domain(name))
+		return std::dynamic_pointer_cast<Domain>(
+			domains_->find(name)->second
+		);
+	else
+		return shared_ptr<Domain>();
+}
+
+
+vector<shared_ptr<Variable>> Scope::vars() const
+{
+	vector<shared_ptr<Variable>> rv;
 	for (auto &entry : variables_)
 		rv.push_back(entry.second);
 	return rv;
@@ -202,6 +235,12 @@ void Scope::register_domain(AbstractDomain *d)
 	(*domains_)[*d].reset(d);
 }
 
+void Scope::register_domain(const shared_ptr<Domain> &d)
+{ domains_->emplace(*d, d); }
+
+void Scope::declare_domain(const string &name)
+{ domains_->emplace(name, std::make_shared<Domain>(name)); }
+
 
 void Scope::register_type(Type *t)
 {
@@ -210,19 +249,27 @@ void Scope::register_type(Type *t)
 	(*types_)[*t].reset(t);
 }
 
-Constant<SymbolicExpression> *Scope::get_symbol(const string &name)
+Constant *Scope::get_symbol(const string &name)
 {
 	for (const DomainsMap::value_type &entry : *domains_) {
 		try {
-			const Domain<SymbolicExpression> &domain = dynamic_cast<const Domain<SymbolicExpression> &>(*entry.second);
-			if (domain.elements().find(std::make_unique<Constant<SymbolicExpression>>(name)) != domain.elements().end())
-				return new Constant<SymbolicExpression>(name);
+			const Domain &domain = dynamic_cast<const Domain &>(*entry.second);
+			if (domain.elements().find(unique_ptr<Constant>(new Constant(Symbol::static_name(), name))) != domain.elements().end())
+				return new Constant(Symbol::static_name(), name);
 		} catch (std::bad_cast &)
 		{}
 	}
 	return nullptr;
 }
 
+void Scope::define_domain(const string &name, const Domain &input)
+{
+	shared_ptr<Domain> d = lookup_domain(name);
+	if (d)
+		d->define(input);
+	else
+		register_domain(std::make_shared<Domain>(name, input));
+}
 
 
 ScopeOwner::ScopeOwner(Scope *owned_scope)

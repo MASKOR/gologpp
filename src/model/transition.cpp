@@ -6,7 +6,7 @@ namespace gologpp {
 
 
 
-Transition::Transition(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args, Hook hook)
+Transition::Transition(const shared_ptr<Action> &action, vector<unique_ptr<Constant>> &&args, Hook hook)
 : Grounding<Action>(action, std::move(args))
 , hook_(hook)
 {}
@@ -18,7 +18,7 @@ void Transition::attach_semantics(SemanticsFactory &implementor)
 {
 	if (!semantics_) {
 		semantics_ = implementor.make_semantics(*this);
-		for (unique_ptr<AbstractConstant> &c : args())
+		for (unique_ptr<Constant> &c : args())
 			c->attach_semantics(implementor);
 	}
 }
@@ -43,7 +43,7 @@ string to_string(Transition::Hook h)
 
 
 
-Activity::Activity(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args, State state)
+Activity::Activity(const shared_ptr<Action> &action, vector<unique_ptr<Constant>> &&args, State state)
 : Grounding<Action>(action, std::move(args))
 , state_(state)
 {}
@@ -72,18 +72,18 @@ void Activity::attach_semantics(SemanticsFactory &implementor)
 {
 	if (!semantics_) {
 		semantics_ = implementor.make_semantics(*this);
-		for (unique_ptr<AbstractConstant> &c : args())
+		for (unique_ptr<Constant> &c : args())
 			c->attach_semantics(implementor);
 	}
 }
 
-void Activity::set_sensing_result(AbstractConstant *sr)
+void Activity::set_sensing_result(Constant *sr)
 { sensing_result_.reset(sr); }
 
-unique_ptr<AbstractConstant> &Activity::sensing_result()
+unique_ptr<Constant> &Activity::sensing_result()
 { return sensing_result_; }
 
-const unique_ptr<AbstractConstant> &Activity::sensing_result() const
+const unique_ptr<Constant> &Activity::sensing_result() const
 { return sensing_result_; }
 
 

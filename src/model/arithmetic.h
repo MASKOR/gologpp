@@ -15,7 +15,7 @@ public:
 	enum Operator {
 		ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, POWER, MODULO
 	};
-	ArithmeticOperation(NumericExpression *lhs, Operator op, NumericExpression *rhs);
+	ArithmeticOperation(Expression *lhs, Operator op, Expression *rhs);
 
 	const NumericExpression &lhs() const;
 	const NumericExpression &rhs() const;

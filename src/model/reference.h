@@ -27,13 +27,15 @@ public:
 
 	virtual bool bound() const = 0;
 	virtual bool consistent() const = 0;
+
+	void ensure_consistent();
 };
 
 
 
-template<class TargetT, class ExprT >
+template<class TargetT, class ExprT>
 class ReferenceBase
-: public TargetT::expression_t
+: public Expression
 , public virtual AbstractReference
 , public NoScopeOwner
 {
@@ -44,6 +46,7 @@ public:
 	{
 		for (unique_ptr<ExprT> &a : args_)
 			dynamic_cast<Expression *>(a.get())->set_parent(this);
+		ensure_consistent();
 	}
 
 
@@ -66,7 +69,7 @@ public:
 	ReferenceBase(ReferenceBase<TargetT, ExprT> &&other)
 	: args_(std::move(other.args_))
 	, target_(std::move(other.target_))
-	{}
+	{ ensure_consistent(); }
 
 
 	virtual ~ReferenceBase() override = default;
@@ -129,8 +132,8 @@ public:
 	virtual string to_string(const string &pfx) const override
 	{ return pfx + name() + '(' + concat_list(args(), ", ", "") + ')'; }
 
-	virtual const typename TargetT::type_t &type() const override
-	{ return dynamic_cast<const typename TargetT::type_t &>(this->target()->type()); }
+	virtual const Type &type() const override
+	{ return this->target()->type(); }
 
 private:
 	vector<unique_ptr<ExprT>> args_;
@@ -140,30 +143,9 @@ private:
 
 
 template<class TargetT>
-class Reference;
-
-template<>
-class Reference<AbstractFluent>
-: public virtual AbstractReference
-{};
-
-template<>
-class Reference<AbstractAction>
-: public virtual AbstractReference
-{};
-
-template<>
-class Reference<AbstractFunction>
-: public virtual AbstractReference
-{};
-
-
-
-template<class TargetT>
 class Reference
 : public ReferenceBase<TargetT, Expression>
 , public LanguageElement<Reference<TargetT>>
-, public Reference<typename TargetT::abstract_t>
 {
 public:
 	using ReferenceBase<TargetT, Expression>::ReferenceBase;
@@ -179,37 +161,34 @@ public:
 };
 
 
-
-template<class TargetT>
-class Grounding;
+template<class> class Grounding;
 
 template<>
 class Grounding<AbstractAction>
 : public virtual AbstractReference
 {};
 
-template<>
-class Grounding<AbstractFunction>
+
+class AbstractGrounding
 : public virtual AbstractReference
 {};
-
-template<>
-class Grounding<AbstractFluent>
-: public virtual AbstractReference
-{};
-
 
 
 template<class TargetT>
 class Grounding
-: public ReferenceBase<TargetT, AbstractConstant>
-, public Grounding<typename TargetT::abstract_t>
+: public std::conditional<
+	std::is_base_of<AbstractAction, TargetT>::value,
+	Grounding<AbstractAction>, // Have a specific superclass for all Action groundings
+	                           // (used for the exogenous event queue)
+	AbstractGrounding          // All others use some placeholder
+  >::type
+, public ReferenceBase<TargetT, Constant>
 {
 public:
-	using ReferenceBase<TargetT, AbstractConstant>::ReferenceBase;
+	using ReferenceBase<TargetT, Constant>::ReferenceBase;
 
 	Grounding(const Grounding<TargetT> &other)
-	: ReferenceBase<TargetT, AbstractConstant>(other.target(), copy(other.args()))
+	: ReferenceBase<TargetT, Constant>(other.target(), copy(other.args()))
 	{}
 
 	virtual ~Grounding() override = default;
@@ -240,7 +219,7 @@ public:
 	size_t hash() const
 	{
 		size_t rv = this->target()->hash();
-		for (const unique_ptr<AbstractConstant> &c : this->args())
+		for (const unique_ptr<Constant> &c : this->args())
 			boost::hash_combine(rv, c->hash());
 
 		return rv;
@@ -251,7 +230,7 @@ public:
 	{
 		if (!this->semantics_) {
 			this->semantics_ = f.make_semantics(*this);
-			ReferenceBase<TargetT, AbstractConstant>::attach_semantics(f);
+			ReferenceBase<TargetT, Constant>::attach_semantics(f);
 		}
 	}
 
@@ -273,46 +252,45 @@ public:
 
 
 
-template<class ExprT>
-class Reference<Variable<ExprT>>
-: public ExprT
+template<>
+class Reference<Variable>
+: public Expression
 , public AbstractReference
 , public NoScopeOwner
-, public LanguageElement<Reference<Variable<ExprT>>>
+, public LanguageElement<Reference<Variable>>
 {
 public:
-	Reference(const shared_ptr<Variable<ExprT>> &target)
+	Reference(const shared_ptr<Variable> &target)
 	: target_(target)
 	{}
 
-	Reference(Reference<Variable<ExprT>> &&other)
-	: AbstractReference(std::move(other.args_))
-	, target_(std::move(other.target_))
+	Reference(Reference<Variable> &&other)
+	: target_(std::move(other.target_))
 	{}
 
 	Reference(const string &var_name)
-	: target_(global_scope().get_var<ExprT>(var_name))
+	: target_(global_scope().get_var(VarDefinitionMode::DENY, "", var_name))
 	{}
 
 	virtual ~Reference() override = default;
 
-	Variable<ExprT> &operator * () const
-	{ return target(); }
+	const Variable &operator * () const
+	{ return *target(); }
 
-	Variable<ExprT> *operator -> () const
-	{ return &target(); }
+	const Variable *operator -> () const
+	{ return target().get(); }
 
 	const string &name() const
-	{ return target_.lock()->name(); }
+	{ return target()->name(); }
 
 	virtual bool bound() const override
-	{ return !target_.expired(); }
+	{ return target_.get(); }
 
-	shared_ptr<Variable<ExprT>> target()
-	{ return target_.lock(); }
+	shared_ptr<Variable> target()
+	{ return target_; }
 
-	shared_ptr<const Variable<ExprT>> target() const
-	{ return std::dynamic_pointer_cast<const Variable<ExprT>>(target_.lock()); }
+	shared_ptr<const Variable> target() const
+	{ return std::dynamic_pointer_cast<const Variable>(target_); }
 
 
 	virtual void attach_semantics(SemanticsFactory &implementor) override
@@ -332,7 +310,7 @@ public:
 
 
 private:
-	weak_ptr<Variable<ExprT>> target_;
+	shared_ptr<Variable> target_;
 };
 
 

@@ -14,7 +14,7 @@ namespace gologpp {
 
 class Negation : public BooleanExpression, public NoScopeOwner, public LanguageElement<Negation> {
 public:
-	Negation(BooleanExpression *expression);
+	Negation(Expression *expression);
 	Negation(Negation &&) = default;
 	virtual ~Negation() override = default;
 
@@ -37,14 +37,14 @@ enum ComparisonOperator {
 string to_string(ComparisonOperator op);
 
 
-template<class ExprT>
-class Comparison : public BooleanExpression, public NoScopeOwner, public LanguageElement<Comparison<ExprT>> {
+class Comparison : public BooleanExpression, public NoScopeOwner, public LanguageElement<Comparison> {
 public:
-	Comparison(ExprT *lhs, ComparisonOperator op, ExprT *rhs)
+	Comparison(Expression *lhs, ComparisonOperator op, Expression *rhs)
 	: lhs_(lhs)
 	, op_(op)
 	, rhs_(rhs)
 	{
+		ensure_type_equality(*lhs, *rhs);
 		lhs_->set_parent(this);
 		rhs_->set_parent(this);
 	}
@@ -52,10 +52,10 @@ public:
 	ComparisonOperator op() const
 	{ return op_; }
 
-	const ExprT &lhs() const
+	const Expression &lhs() const
 	{ return *lhs_; }
 
-	const ExprT &rhs() const
+	const Expression &rhs() const
 	{ return *rhs_; }
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
@@ -64,9 +64,9 @@ public:
 	{ return '(' + lhs().to_string(pfx) + ' ' + gologpp::to_string(op()) + ' ' + rhs().to_string(pfx) + ')'; }
 
 protected:
-	unique_ptr<ExprT> lhs_;
+	unique_ptr<Expression> lhs_;
 	ComparisonOperator op_;
-	unique_ptr<ExprT> rhs_;
+	unique_ptr<Expression> rhs_;
 };
 
 
@@ -82,7 +82,7 @@ enum BooleanOperator {
 string to_string(BooleanOperator op);
 
 
-class BooleanOperation : public BooleanExpression, public NoScopeOwner, public LanguageElement<BooleanOperation> {
+class BooleanOperation : public Expression, public NoScopeOwner, public LanguageElement<BooleanOperation> {
 public:
 	BooleanOperation(
 		BooleanExpression *lhs,
@@ -110,8 +110,6 @@ protected:
 \*--------------------------------------------*/
 
 
-class AbstractVariable;
-
 enum QuantificationOperator {
 	EXISTS = 1, FORALL
 };
@@ -124,12 +122,12 @@ public:
 	Quantification(
 		Scope *own_scope,
 		QuantificationOperator op,
-		const shared_ptr<AbstractVariable> &variable,
-		BooleanExpression *expression
+		const shared_ptr<Variable> &variable,
+		Expression *expression
 	);
 
 	QuantificationOperator op() const;
-	const AbstractVariable &variable() const;
+	const Variable &variable() const;
 	const BooleanExpression &expression() const;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *expression_)
@@ -138,7 +136,7 @@ public:
 
 protected:
 	QuantificationOperator op_;
-	shared_ptr<AbstractVariable> variable_;
+	shared_ptr<Variable> variable_;
 	unique_ptr<BooleanExpression> expression_;
 };
 

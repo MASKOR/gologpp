@@ -5,9 +5,9 @@ namespace gologpp {
 
 
 ArithmeticOperation::ArithmeticOperation(
-	NumericExpression *lhs,
+	Expression *lhs,
 	Operator op,
-	NumericExpression *rhs
+	Expression *rhs
 )
 : lhs_(lhs)
 , rhs_(rhs)

@@ -10,6 +10,9 @@
 namespace gologpp {
 
 
+void ensure_type_equality(const AbstractLanguageElement &e1, const AbstractLanguageElement &e2);
+
+
 class Type
 : public std::enable_shared_from_this<Type>
 , public Name {
@@ -32,6 +35,8 @@ public:
 	bool is_simple() const;
 
 	virtual Tag dynamic_tag() const = 0;
+
+	void ensure_match(const AbstractLanguageElement &e) const;
 
 protected:
 	Type(const string &name);
@@ -103,6 +108,8 @@ public:
 
 class CompoundType : public Type {
 public:
+	using Representation = std::unordered_map<string, unique_ptr<Constant>>;
+
 	CompoundType(const string &name);
 
 	template<class T = Type>
@@ -133,6 +140,7 @@ public:
 private:
 	std::unordered_map<string, shared_ptr<Type>> fields_;
 };
+
 
 
 

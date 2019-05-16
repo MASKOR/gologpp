@@ -4,7 +4,7 @@
 namespace gologpp {
 
 AbstractEffectAxiom::AbstractEffectAxiom()
-: condition_(new BooleanConstant(true))
+: condition_(new Constant(Bool::static_name(), true))
 {}
 
 AbstractEffectAxiom::~AbstractEffectAxiom()
@@ -26,9 +26,9 @@ const BooleanExpression &AbstractEffectAxiom::condition() const
 BooleanExpression &AbstractEffectAxiom::condition()
 { return *condition_; }
 
-void AbstractEffectAxiom::set_condition(BooleanExpression *condition)
+void AbstractEffectAxiom::set_condition(Expression *condition)
 {
-	condition_.reset(condition);
+	condition_ = condition;
 	condition_->set_parent(this);
 }
 

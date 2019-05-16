@@ -33,7 +33,7 @@ public:
 	 */
 	virtual void precompile() = 0;
 	virtual void compile(const Block &program) = 0;
-	virtual void compile(const AbstractFluent &fluent) = 0;
+	virtual void compile(const Fluent &fluent) = 0;
 	virtual void compile(const AbstractAction &action) = 0;
 	virtual void compile(const AbstractFunction &function) = 0;
 	virtual void postcompile() = 0;

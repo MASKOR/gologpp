@@ -7,7 +7,7 @@
 namespace gologpp {
 
 
-Negation::Negation(BooleanExpression *expression)
+Negation::Negation(Expression *expression)
 : expression_(expression)
 { expression_->set_parent(this); }
 
@@ -104,15 +104,15 @@ string to_string(QuantificationOperator op)
 Quantification::Quantification(
 	Scope *own_scope,
 	QuantificationOperator op,
-	const shared_ptr<AbstractVariable> &variable,
-	BooleanExpression *expression
+	const shared_ptr<Variable> &variable,
+	Expression *expression
 )
 :  ScopeOwner(own_scope)
 , op_(op)
 , variable_(variable)
 , expression_(expression)
 {
-	std::dynamic_pointer_cast<Expression>(variable_)->set_parent(this);
+	variable_->set_parent(this);
 	expression_->set_parent(this);
 }
 
@@ -120,7 +120,7 @@ Quantification::Quantification(
 QuantificationOperator Quantification::op() const
 { return op_; }
 
-const AbstractVariable &Quantification::variable() const
+const Variable &Quantification::variable() const
 { return *variable_; }
 
 const BooleanExpression &Quantification::expression() const

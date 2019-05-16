@@ -14,7 +14,7 @@ class Transition : public Grounding<Action>, public LanguageElement<Transition> 
 public:
 	enum Hook { START, STOP, FINISH, FAIL };
 
-	Transition(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args, Hook hook);
+	Transition(const shared_ptr<Action> &action, vector<unique_ptr<Constant>> &&args, Hook hook);
 
 	Transition(Transition &&) = default;
 	Transition(const Transition &) = default;
@@ -39,7 +39,7 @@ class Activity : public Grounding<Action>, public LanguageElement<Activity> {
 public:
 	enum State { IDLE, RUNNING, FINAL, PREEMPTED, FAILED };
 
-	Activity(const shared_ptr<Action> &action, vector<unique_ptr<AbstractConstant>> &&args, State state = IDLE);
+	Activity(const shared_ptr<Action> &action, vector<unique_ptr<Constant>> &&args, State state = IDLE);
 	Activity(const shared_ptr<Transition> &);
 
 	Activity(Activity &&) = default;
@@ -54,13 +54,13 @@ public:
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 
-	void set_sensing_result(AbstractConstant *);
-	unique_ptr<AbstractConstant> &sensing_result();
-	const unique_ptr<AbstractConstant> &sensing_result() const;
+	void set_sensing_result(Constant *);
+	unique_ptr<Constant> &sensing_result();
+	const unique_ptr<Constant> &sensing_result() const;
 
 private:
 	State state_;
-	unique_ptr<AbstractConstant> sensing_result_;
+	unique_ptr<Constant> sensing_result_;
 };
 
 

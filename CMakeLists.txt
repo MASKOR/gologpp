@@ -59,7 +59,6 @@ set(INTERFACE_SRC
 	src/model/formula.cpp
 	src/model/procedural.cpp
 	src/model/scope.cpp
-	src/model/situation.cpp
 	src/model/utilities.cpp
 	src/model/arithmetic.cpp
 	src/model/error.cpp
@@ -89,7 +88,6 @@ install(FILES
 	src/model/effect_axiom.h
 	src/model/variable.h
 	src/model/constant.h
-	src/model/situation.h
 	src/model/arithmetic.h
 	src/model/procedural.h
 	src/model/error.h

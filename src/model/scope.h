@@ -71,52 +71,21 @@ private:
 	using unordered_map = std::unordered_map<K, V>;
 
 public:
-	using VariablesMap = unordered_map<string, shared_ptr<AbstractVariable>>;
+	using VariablesMap = unordered_map<string, shared_ptr<Variable>>;
 	using GlobalsMap = unordered_map<Identifier, shared_ptr<Global>>;
 	using DomainsMap = unordered_map<Name, shared_ptr<AbstractDomain>>;
 	using TypesMap = unordered_map<Name, shared_ptr<Type>>;
 
-	explicit Scope(AbstractLanguageElement &owner, const vector<shared_ptr<AbstractVariable>> &lookup_vars = {});
+	explicit Scope(AbstractLanguageElement &owner, const vector<shared_ptr<Variable>> &lookup_vars = {});
 	Scope(Scope &parent_scope);
 
 	~Scope() override;
 
-	template<class ExpressionT, VarDefinitionMode var_def_mode>
-	shared_ptr<Variable<ExpressionT>> get_var(const string &name)
-	{
-		shared_ptr<Variable<ExpressionT>> rv;
-
-		auto it = variables_.find(name);
-		if (it != variables_.end())
-			rv = std::dynamic_pointer_cast<Variable<ExpressionT>>(it->second);
-
-		if (!rv && var_def_mode != VarDefinitionMode::FORCE && &parent_scope() != this)
-			rv = std::dynamic_pointer_cast<Variable<ExpressionT>>(
-				parent_scope().get_var<ExpressionT, VarDefinitionMode::DENY>(name)
-			);
-
-		if (!rv && var_def_mode != VarDefinitionMode::DENY) {
-			rv.reset(new Variable<ExpressionT>(name));
-			variables_[name] = rv;
-		}
-
-		return rv;
-	}
-
-	template<class ExpressionT>
-	shared_ptr<Variable<ExpressionT>> get_local_var(const string &name)
-	{ return get_var<ExpressionT, true, true>(name); }
-
-	template<class ExpressionT>
-	shared_ptr<Variable<ExpressionT>> lookup_local_var(const string &name) const
-	{ return get_var<ExpressionT, true, false>(name); }
-
-	shared_ptr<AbstractVariable> lookup_var(const string &name) const;
-
+	shared_ptr<Variable> get_var(VarDefinitionMode var_def_mode, const string &type_name, const string &name);
+	shared_ptr<Variable> lookup_var(const string &name) const;
 	bool has_var(const string &name) const;
-
-	vector<shared_ptr<AbstractVariable>> lookup_vars(const vector<string> &names);
-	vector<shared_ptr<AbstractVariable>> vars() const;
+	vector<shared_ptr<Variable>> lookup_vars(const vector<string> &names);
+	vector<shared_ptr<Variable>> vars() const;
 
 	void attach_semantics(SemanticsFactory &implementor) override;
 
@@ -156,7 +125,7 @@ public:
 	GologT *declare_global(
 		Scope *own_scope,
 		const string &name,
-		const boost::optional<vector<shared_ptr<AbstractVariable>>> &args
+		const boost::optional<vector<shared_ptr<Variable>>> &args
 	) {
 		GologT *rv = nullptr;
 		arity_t arity = static_cast<arity_t>(args.get_value_or({}).size());
@@ -181,7 +150,7 @@ public:
 	template<class GologT, class... DefinitionTs>
 	GologT *define_global(
 		Scope *own_scope, const string &name,
-		const boost::optional<vector<shared_ptr<AbstractVariable>>> &args,
+		const boost::optional<vector<shared_ptr<Variable>>> &args,
 		DefinitionTs... definition_args
 	) {
 		GologT *rv = nullptr;
@@ -206,17 +175,7 @@ public:
 
 
 	bool exists_domain(const string &name) const;
-
-	template<class ExprT>
-	shared_ptr<Domain<ExprT>> lookup_domain(const string &name)
-	{
-		if (exists_domain(name))
-			return std::dynamic_pointer_cast<Domain<ExprT>>(
-				domains_->find(name)->second
-			);
-		else
-			return shared_ptr<Domain<ExprT>>();
-	}
+	shared_ptr<Domain> lookup_domain(const string &name);
 
 
 	bool exists_type(const string &name) const;
@@ -235,28 +194,13 @@ public:
 	void register_type(Type *t);
 
 	void register_global(Global *g);
+
 	void register_domain(AbstractDomain *d);
+	void register_domain(const shared_ptr<Domain> &d);
+	void declare_domain(const string &name);
+	void define_domain(const string &name, const Domain &input);
 
-	template<class ExprT>
-	void register_domain(const shared_ptr<Domain<ExprT>> &d)
-	{ domains_->emplace(*d, d); }
-
-	template<class ExprT>
-	void declare_domain(const string &name)
-	{ domains_->emplace(name, std::make_shared<Domain<ExprT>>(name)); }
-
-
-	template<class ExprT>
-	void define_domain(const string &name, const Domain<ExprT> input)
-	{
-		shared_ptr<Domain<ExprT>> d = lookup_domain<ExprT>(name);
-		if (d)
-			d->define(input);
-		else
-			register_domain<ExprT>(std::make_shared<Domain<ExprT>>(name, input));
-	}
-
-	Constant<SymbolicExpression> *get_symbol(const string &name);
+	Constant *get_symbol(const string &name);
 
 	virtual string to_string(const string &pfx) const override;
 

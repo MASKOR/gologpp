@@ -28,7 +28,7 @@ namespace gologpp {
  */
 class Block : public VoidExpression, public ScopeOwner, public LanguageElement<Block> {
 public:
-	Block(Scope *own_scope, const vector<VoidExpression *> &elements);
+	Block(Scope *own_scope, const vector<Expression *> &elements);
 	virtual void attach_semantics(SemanticsFactory &) override;
 
 	const vector<unique_ptr<VoidExpression>> &elements() const;
@@ -46,7 +46,7 @@ private:
  */
 class Choose : public VoidExpression, public ScopeOwner, public LanguageElement<Choose> {
 public:
-	Choose(Scope *own_scope, const vector<VoidExpression *> &alternatives);
+	Choose(Scope *own_scope, const vector<Expression *> &alternatives);
 	void attach_semantics(SemanticsFactory &) override;
 
 	const vector<unique_ptr<VoidExpression>> &alternatives() const;
@@ -65,9 +65,9 @@ private:
 class Conditional : public VoidExpression, public NoScopeOwner, public LanguageElement<Conditional> {
 public:
 	Conditional(
-		BooleanExpression *condition,
-		VoidExpression *block_true,
-		VoidExpression *block_false
+		Expression *condition,
+		Expression *block_true,
+		Expression *block_false
 	);
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, *block_true_, *block_false_)
@@ -91,7 +91,7 @@ protected:
  */
 class Concurrent : public VoidExpression, public ScopeOwner, public LanguageElement<Concurrent> {
 public:
-	Concurrent(Scope *own_scope, const vector<VoidExpression *> &procs);
+	Concurrent(Scope *own_scope, const vector<Expression *> &procs);
 	void attach_semantics(SemanticsFactory &) override;
 
 	const vector<unique_ptr<VoidExpression>> &procs() const;
@@ -128,10 +128,10 @@ class Assignment
 : public AbstractAssignment
 , public LanguageElement<Assignment<LhsT>> {
 public:
-	static_assert(!std::is_base_of<VoidExpression, LhsT>::value, "Cannot assign to a statement");
+	static_assert(!std::is_base_of<Expression, LhsT>::value, "Cannot assign to a statement");
 	static_assert(!std::is_base_of<AbstractFunction, LhsT>::value, "Cannot assign to a function");
 
-	Assignment(LhsT *lhs, typename LhsT::expression_t *rhs)
+	Assignment(LhsT *lhs, Expression *rhs)
 	: lhs_(lhs), rhs_(rhs)
 	{
 		ensure_type_equality(*lhs, *rhs);
@@ -144,7 +144,7 @@ public:
 	const LhsT &lhs() const override
 	{ return *lhs_; }
 
-	const typename LhsT::expression_t &rhs() const override
+	const Expression &rhs() const override
 	{ return *rhs_; }
 
 	virtual string to_string(const string &pfx) const override
@@ -152,32 +152,31 @@ public:
 
 private:
     unique_ptr<LhsT> lhs_;
-    unique_ptr<typename LhsT::expression_t> rhs_;
+    unique_ptr<Expression> rhs_;
 };
 
 
 
 /**
  * @class Pick
- * @tparam ExprT The expression type of the variable and of the elements to pick from.
  *
  * @brief Nondeterministically pick a variable assignment.
  */
-template<class ExprT>
-class Pick : public VoidExpression, public ScopeOwner, public LanguageElement<Pick<ExprT>> {
+class Pick : public VoidExpression, public ScopeOwner, public LanguageElement<Pick> {
 public:
 	Pick(
 		Scope *own_scope,
-		const shared_ptr<Variable<ExprT>> &variable,
-		const boost::optional<std::vector<Constant<ExprT> *>> &domain,
-		VoidExpression *statement
+		const shared_ptr<Variable> &variable,
+		const boost::optional<std::vector<Constant *>> &domain,
+		Expression *statement
 	)
 	: ScopeOwner(own_scope)
 	, variable_(variable)
 	, statement_(statement)
 	{
 		if (domain)
-			for (Constant<ExprT> *c : *domain) {
+			for (Constant *c : *domain) {
+				ensure_type_equality(*variable, *c);
 				c->set_parent(this);
 				domain_.emplace_back(c);
 			}
@@ -186,13 +185,13 @@ public:
 	}
 
 
-	const vector<unique_ptr<Constant<ExprT>>> &domain() const
+	const vector<unique_ptr<Constant>> &domain() const
 	{ return domain_; }
 
-	const Variable<ExprT> &variable() const
+	const Variable &variable() const
 	{ return *variable_; }
 
-	const VoidExpression &statement() const
+	const Expression &statement() const
 	{ return *statement_; }
 
 
@@ -201,7 +200,7 @@ public:
 		if (semantics_)
 			return;
 
-		for (unique_ptr<Constant<ExprT>> & c : domain_)
+		for (unique_ptr<Constant> & c : domain_)
 			c->attach_semantics(f);
 		variable_->attach_semantics(f);
 		statement_->attach_semantics(f);
@@ -214,8 +213,8 @@ public:
 	{ return linesep + pfx + "pick (" + variable().to_string("") + "): " + statement().to_string(pfx); }
 
 private:
-	vector<unique_ptr<Constant<ExprT>>> domain_;
-	shared_ptr<Variable<ExprT>> variable_;
+	vector<unique_ptr<Constant>> domain_;
+	shared_ptr<Variable> variable_;
 	unique_ptr<VoidExpression> statement_;
 };
 
@@ -229,7 +228,7 @@ private:
  */
 class Search : public VoidExpression, public NoScopeOwner, public LanguageElement<Search> {
 public:
-	Search(VoidExpression *statement);
+	Search(Expression *statement);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*statement_)
 
 	const VoidExpression &statement() const;
@@ -251,21 +250,21 @@ protected:
 class Solve : public VoidExpression, public NoScopeOwner, public LanguageElement<Solve> {
 public:
 	Solve(
-		NumericExpression *horizon,
-		Reference<NumericFunction> *reward,
-		VoidExpression *statement
+		Expression *horizon,
+		Reference<Function> *reward,
+		Expression *statement
 	);
 
 	const VoidExpression &statement() const;
 	const NumericExpression &horizon() const;
-	const Reference<NumericFunction> &reward() const;
+	const Reference<Function> &reward() const;
 	virtual void attach_semantics(SemanticsFactory &implementor) override;
 	virtual string to_string(const string &pfx) const override;
 
 private:
 	unique_ptr<VoidExpression> statement_;
 	unique_ptr<NumericExpression> horizon_;
-	unique_ptr<Reference<NumericFunction>> reward_;
+	unique_ptr<Reference<Function>> reward_;
 };
 
 
@@ -275,7 +274,7 @@ private:
  */
 class Test : public VoidExpression, public NoScopeOwner, public LanguageElement<Test> {
 public:
-	Test(BooleanExpression *expression);
+	Test(Expression *expression);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_)
 
 	const BooleanExpression &expression() const;
@@ -293,7 +292,7 @@ protected:
  */
 class While : public VoidExpression, public NoScopeOwner, public LanguageElement<While> {
 public:
-	While(BooleanExpression *expression, VoidExpression *stmt);
+	While(Expression *expression, Expression *stmt);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_, *statement_)
 
 	const BooleanExpression &expression() const;
@@ -310,25 +309,23 @@ protected:
 
 /**
  * @brief Return a value from a function.
- * @tparam ExpressionT the type of the returned value. Must match the type of the function.
  */
-template<class ExpressionT>
-class Return : public VoidExpression, public NoScopeOwner, public LanguageElement<Return<ExpressionT>> {
+class Return : public VoidExpression, public NoScopeOwner, public LanguageElement<Return> {
 public:
-	Return(ExpressionT *expr)
+	Return(Expression *expr)
 	: expr_(expr)
 	{ expr_->set_parent(this); }
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expr_)
 
-	const ExpressionT &expression() const
+	const Expression &expression() const
 	{ return *expr_; }
 
 	virtual string to_string(const string &pfx) const override
 	{ return linesep + pfx + "return " + expression().to_string(""); }
 
 private:
-	unique_ptr<ExpressionT> expr_;
+	unique_ptr<Expression> expr_;
 };
 
 
@@ -341,76 +338,73 @@ class AbstractFunction
 , public ScopeOwner
 , public virtual AbstractLanguageElement
 {
+protected:
+	AbstractFunction(
+		Scope *own_scope,
+		const string &type_name,
+		const string &name,
+		const vector<shared_ptr<Variable>> &args
+	);
+
 public:
-	typedef Expression expression_t;
 	typedef AbstractFunction abstract_t;
 
-	AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
-
 	virtual ~AbstractFunction() override;
-	virtual ExpressionTypeTag expression_type_tag() const = 0;
 
 	const VoidExpression &definition() const;
-	void define(VoidExpression *definition);
+	void define(Expression *definition);
 	virtual void compile(AExecutionContext &ctx) override;
 
 protected:
 	unique_ptr<VoidExpression> definition_;
-	vector<shared_ptr<AbstractVariable>> args_;
+	vector<shared_ptr<Variable>> args_;
 };
 
 
 
 /**
  * @brief A function, also called a subroutine.
- * @tparam ExpressionT The type returned by the function.
- * A function that returns a @ref VoidExpression is also called a @ref Procedure.
+ * A function that returns a @ref Expression is also called a @ref Procedure.
  */
-template<class ExpressionT>
 class Function
 : public AbstractFunction
-, public LanguageElement<Function<ExpressionT>>
+, public LanguageElement<Function>
 {
 public:
-	typedef ExpressionT expression_t;
-	typedef typename ExpressionT::type_t type_t;
-
 	Function(
 		Scope *own_scope,
+		const string &type_name,
 		const string &name,
-		const vector<shared_ptr<AbstractVariable>> &args
+		const vector<shared_ptr<Variable>> &args
 	)
-	: AbstractFunction(own_scope, name, args)
+	: AbstractFunction(own_scope, type_name, name, args)
 	{}
 
 	Function(
 		Scope *own_scope,
+		const string &type_name,
 		const string &name,
-		const boost::optional<vector<shared_ptr<AbstractVariable>>> &args
+		const boost::optional<vector<shared_ptr<Variable>>> &args
 	)
-	: AbstractFunction(own_scope, name, args.get_value_or({}))
+	: AbstractFunction(own_scope, type_name, name, args.get_value_or({}))
 	{}
 
-	Function(Function &&) = default;
 	DEFINE_IMPLEMENT_WITH_MEMBERS(scope(), *definition_)
 
-	Reference<Function<ExpressionT>> *make_ref(const vector<Expression *> &args)
-	{ return make_ref_<Function<ExpressionT>>(args); }
+	Reference<Function> *make_ref(const vector<Expression *> &args)
+	{ return make_ref_<Function>(args); }
 
 	virtual Expression *ref(const vector<Expression *> &args) override
 	{ return make_ref(args); }
-
-	virtual ExpressionTypeTag expression_type_tag() const override
-	{ return ExpressionT::static_type_tag(); }
 
 
 	virtual string to_string(const string &pfx) const override
 	{
 		string fn;
-		if (expression_type_tag() == ExpressionTypeTag::VOID)
+		if (type().dynamic_tag() == ExpressionTypeTag::VOID)
 			fn = "procedure ";
 		else
-			fn = gologpp::to_string(expression_type_tag()) + "function ";
+			fn = gologpp::to_string(type().dynamic_tag()) + "function ";
 
 		return linesep + pfx + fn + name() + '('
 			+ concat_list(args(), ", ")
@@ -448,12 +442,12 @@ string to_string(DurativeCall::Hook);
 
 
 class AbstractFieldAccess
-: public virtual Expression
+: public Expression
 , public NoScopeOwner
 , public virtual AbstractLanguageElement
 {
 public:
-	AbstractFieldAccess(CompoundExpression *subject, const string &field_name);
+	AbstractFieldAccess(Expression *subject, const string &field_name);
 	const CompoundExpression &subject() const;
 	const string &field_name() const;
 
@@ -463,11 +457,9 @@ protected:
 };
 
 
-template<class ExprT>
 class FieldAccess
-: public ExprT
-, public AbstractFieldAccess
-, public LanguageElement<FieldAccess<ExprT>>
+: public AbstractFieldAccess
+, public LanguageElement<FieldAccess>
 {
 public:
 	using AbstractFieldAccess::AbstractFieldAccess;
@@ -475,12 +467,12 @@ public:
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*subject_)
 
 	string to_string(const string &pfx) const override
-	{ return pfx + subject().str() + "." + gologpp::to_string(ExprT::type_t::tag()) + field_name(); }
+	{ return pfx + subject().str() + "." + gologpp::to_string(type().dynamic_tag()) + field_name(); }
 };
 
 
 
-FieldAccess<CompoundExpression> *nested_field_access(CompoundExpression *subject, const vector<string> &fields);
+FieldAccess *nested_field_access(Expression *subject, const vector<string> &fields);
 
 
 } // namespace gologpp

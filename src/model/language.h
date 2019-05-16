@@ -4,6 +4,7 @@
 #include "gologpp.h"
 #include <memory>
 #include "semantics.h"
+#include "types.h"
 
 namespace gologpp {
 
@@ -26,7 +27,7 @@ public:
 	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
 
 	void set_implementation(unique_ptr<AbstractSemantics> &&impl);
-	virtual void attach_semantics(SemanticsFactory &implementor) = 0;
+	virtual void attach_semantics(SemanticsFactory &) = 0;
 
 	virtual string to_string(const string &pfx) const = 0;
 	string str() const;
@@ -48,6 +49,10 @@ public:
 	template<class T>
 	bool is_a() const
 	{ return dynamic_cast<const T *>(this); }
+
+	template<class T>
+	void ensure_type();
+
 
 
 protected:

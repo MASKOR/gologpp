@@ -12,9 +12,13 @@
 namespace gologpp {
 
 
+
 class Expression : public virtual AbstractLanguageElement {
 protected:
 	Expression();
+	Expression(const Expression &) = delete;
+	Expression(Expression &&) = default;
+	Expression &operator = (const Expression &) = delete;
 
 public:
 	virtual ~Expression() override = default;
@@ -24,7 +28,13 @@ public:
 	AbstractLanguageElement *parent();
 	const AbstractLanguageElement *parent() const;
 	void set_parent(AbstractLanguageElement *parent);
-	virtual Type::Tag dynamic_type_tag() const;
+
+	template<class TypeT>
+	TypedExpression<TypeT> *downcast()
+	{
+		ensure_type<TypeT>();
+		return dynamic_cast<TypedExpression<TypeT> *>(this);
+	}
 
 protected:
 	AbstractLanguageElement *parent_;
@@ -33,33 +43,49 @@ protected:
 
 
 template<class TypeT>
-class TypedExpression : public virtual Expression {
-public:
-	using expression_t = TypedExpression<TypeT>;
-	using type_t = TypeT;
-
-	virtual const TypeT &type() const override
-	{ return dynamic_cast<const TypeT &>(*type_); }
-
-	static Type::Tag static_type_tag()
-	{ return TypeT::tag(); }
-
+class TypedExpression : public Expression {
 protected:
-	using Expression::Expression;
-
 	TypedExpression()
-	: Expression()
 	{ set_type_by_name(TypeT::static_name()); }
+
+public:
+	virtual const TypeT &type() const override
+	{
+		return dynamic_cast<const TypeT &>(
+			AbstractLanguageElement::type()
+		);
+	}
+};
+
+template<>
+class TypedExpression<CompoundType> : public Expression {
+protected:
+	TypedExpression(const string &type_name)
+	{ set_type_by_name(type_name); }
+
+public:
+	virtual const CompoundType &type() const override
+	{
+		return dynamic_cast<const CompoundType &>(
+			AbstractLanguageElement::type()
+		);
+	}
 };
 
 
+template<class T>
+class unique_ptr<TypedExpression<T>> : public std::unique_ptr<TypedExpression<T>> {
+public:
+	using std::unique_ptr<TypedExpression<T>>::unique_ptr;
 
-template<>
-TypedExpression<CompoundType>::TypedExpression();
+	unique_ptr(Expression *e)
+	: std::unique_ptr<TypedExpression<T>>(e->downcast<T>())
+	{}
 
+	unique_ptr<TypedExpression<T>> &operator = (Expression *e)
+	{ return *this = e->downcast<T>(); }
+};
 
-
-void ensure_type_equality(const Expression &e1, const Expression &e2);
 
 
 }

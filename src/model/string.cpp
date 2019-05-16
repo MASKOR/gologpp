@@ -16,17 +16,13 @@ string ToString::to_string(const string &pfx) const
 
 
 
-StringConcatenation::StringConcatenation(StringExpression *lhs, StringExpression *rhs)
+StringConcatenation::StringConcatenation(Expression *lhs, Expression *rhs)
 : lhs_(lhs)
 , rhs_(rhs)
 {
 	lhs_->set_parent(this);
 	rhs_->set_parent(this);
 }
-
-StringConcatenation::StringConcatenation(Expression *lhs, StringExpression *rhs)
-: StringConcatenation(new ToString(lhs), rhs)
-{}
 
 
 const StringExpression &StringConcatenation::lhs() const

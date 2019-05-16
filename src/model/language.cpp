@@ -1,5 +1,7 @@
 #include "language.h"
 #include "reference.h"
+#include "error.h"
+#include "scope.h"
 
 namespace gologpp {
 
@@ -40,5 +42,10 @@ bool AbstractLanguageElement::set_type(const Type &t)
 }
 
 
+template<class T>
+void AbstractLanguageElement::ensure_type() {
+	if (type().dynamic_tag() != T::tag())
+		throw TypeError(*this, gologpp::type<T>());
+}
 
 } // namespace gologpp

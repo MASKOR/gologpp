@@ -13,10 +13,11 @@
 namespace gologpp {
 
 
-Block::Block(Scope *own_scope, const vector<VoidExpression *> &elements)
+Block::Block(Scope *own_scope, const vector<Expression *> &elements)
 : ScopeOwner(own_scope)
 {
-	for (VoidExpression *stmt : elements) {
+	for (Expression *stmt : elements) {
+		stmt->ensure_type<Void>();
 		stmt->set_parent(this);
 		elements_.emplace_back(stmt);
 	}
@@ -50,10 +51,10 @@ string Block::to_string(const string &pfx) const
 
 
 
-Choose::Choose(Scope *own_scope, const vector<VoidExpression *> &alternatives)
+Choose::Choose(Scope *own_scope, const vector<Expression *> &alternatives)
 : ScopeOwner(own_scope)
 {
-	for (VoidExpression *stmt : alternatives) {
+	for (Expression *stmt : alternatives) {
 		stmt->set_parent(this);
 		alternatives_.emplace_back(stmt);
 	}
@@ -84,9 +85,9 @@ string Choose::to_string(const string &pfx) const
 
 
 Conditional::Conditional(
-	BooleanExpression *condition,
-	VoidExpression *block_true,
-	VoidExpression *block_false
+	Expression *condition,
+	Expression *block_true,
+	Expression *block_false
 )
 : condition_(condition)
 , block_true_(block_true)
@@ -115,10 +116,11 @@ string Conditional::to_string(const string &pfx) const
 
 
 
-Concurrent::Concurrent(Scope *own_scope, const vector<VoidExpression *> &procs)
+Concurrent::Concurrent(Scope *own_scope, const vector<Expression *> &procs)
 : ScopeOwner(own_scope)
 {
-	for (VoidExpression *p : procs) {
+	for (Expression *p : procs) {
+		p->ensure_type<Void>();
 		p->set_parent(this);
 		procs_.emplace_back(p);
 	}
@@ -146,9 +148,10 @@ string Concurrent::to_string(const string &pfx) const
 
 
 
-Search::Search(VoidExpression *statement)
+Search::Search(Expression *statement)
 : statement_(statement)
 {
+	statement->ensure_type<Void>();
 	statement_->set_parent(this);
 }
 
@@ -161,9 +164,9 @@ string Search::to_string(const string &pfx) const
 
 
 Solve::Solve(
-	NumericExpression *horizon,
-	Reference<NumericFunction> *reward,
-	VoidExpression *statement
+	Expression *horizon,
+	Reference<Function> *reward,
+	Expression *statement
 )
 : statement_(statement)
 , horizon_(horizon)
@@ -173,13 +176,13 @@ Solve::Solve(
 	reward_->set_parent(this);
 }
 
-const Statement &Solve::statement() const
+const VoidExpression &Solve::statement() const
 { return *statement_; }
 
 const NumericExpression &Solve::horizon() const
 { return *horizon_; }
 
-const Reference<NumericFunction> &Solve::reward() const
+const Reference<Function> &Solve::reward() const
 { return *reward_; }
 
 
@@ -204,7 +207,7 @@ string Solve::to_string(const string &pfx) const
 
 
 
-Test::Test(BooleanExpression *expression)
+Test::Test(Expression *expression)
 : expression_(expression)
 {
 	expression_->set_parent(this);
@@ -218,7 +221,7 @@ string Test::to_string(const string &pfx) const
 
 
 
-While::While(BooleanExpression *expression, VoidExpression *statement)
+While::While(Expression *expression, Expression *statement)
 : expression_(expression)
 , statement_(statement)
 {
@@ -239,10 +242,15 @@ string While::to_string(const string &pfx) const
 
 
 
-AbstractFunction::AbstractFunction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args)
+AbstractFunction::AbstractFunction(
+	Scope *own_scope,
+	const string &type_name,
+	const string &name,
+	const vector<shared_ptr<Variable>> &args
+)
 : Global(name, args)
 , ScopeOwner(own_scope)
-{}
+{ set_type_by_name(type_name); }
 
 AbstractFunction::~AbstractFunction()
 {}
@@ -250,9 +258,9 @@ AbstractFunction::~AbstractFunction()
 const VoidExpression &AbstractFunction::definition() const
 { return *definition_; }
 
-void AbstractFunction::define(VoidExpression *definition)
+void AbstractFunction::define(Expression *definition)
 {
-	definition_.reset(definition);
+	definition_ = definition;
 	definition_->set_parent(this);
 }
 
@@ -294,11 +302,11 @@ string to_string(DurativeCall::Hook hook)
 
 
 
-AbstractFieldAccess::AbstractFieldAccess(CompoundExpression *subject, const string &field_name)
+AbstractFieldAccess::AbstractFieldAccess(Expression *subject, const string &field_name)
 : field_name_(field_name)
 {
-	subject_.reset(subject);
-	if (!set_type(subject->type().field_type(field_name)))
+	subject_ = subject;
+	if (!set_type(subject_->type().field_type(field_name)))
 		throw Bug("Failed to set type");
 }
 
@@ -309,22 +317,22 @@ const string &AbstractFieldAccess::field_name() const
 { return field_name_; }
 
 
-FieldAccess<CompoundExpression> *nested_field_access_(
+FieldAccess *nested_field_access_(
 	CompoundExpression *subject,
 	vector<string>::const_iterator it,
 	vector<string>::const_iterator end)
 {
 	if (it + 1 < end)
-		return new FieldAccess<CompoundExpression>(
+		return new FieldAccess(
 			nested_field_access_(subject, it + 1, end),
 			*it
 		);
 	else
-		return new FieldAccess<CompoundExpression>(subject, *it);
+		return new FieldAccess(subject, *it);
 }
 
 
-FieldAccess<CompoundExpression> *nested_field_access(CompoundExpression *subject, const vector<string> &fields)
+FieldAccess *nested_field_access(CompoundExpression *subject, const vector<string> &fields)
 { return nested_field_access_(subject, fields.begin(), fields.end()); }
 
 

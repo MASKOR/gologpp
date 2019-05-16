@@ -5,108 +5,177 @@
 
 namespace gologpp {
 
-AbstractConstant::~AbstractConstant()
+
+struct Constant::copy_visitor {
+	template<class T, class U>
+	void operator () (const T &, U &) const
+	{ throw Bug("Mismatched boost::variant copy"); }
+
+	template<class T>
+	void operator () (const T &src, T &tgt) const
+	{ tgt = src; }
+
+	void operator () (const CompoundType::Representation &src, CompoundType::Representation &tgt) const
+	{
+		tgt.clear();
+		for (const CompoundType::Representation::value_type &pair : src)
+			tgt[pair.first].reset(pair.second->copy());
+	}
+};
+
+
+struct Constant::to_string_visitor {
+	string pfx;
+
+	string operator() (const string &s) const
+	{ return pfx + s; }
+
+	string operator() (bool b) const
+	{ return pfx + (b ? "true" : "false"); }
+
+	string operator() (const CompoundType::Representation &c) const
+	{
+		string rv = pfx + "{" linesep;
+		for (const auto &pair : c)
+			rv += pfx + pfx + pair.first + " = " + pair.second->to_string("") + ", " linesep;
+		return rv + pfx + "}" linesep;
+	}
+
+	template<class T>
+	string operator() (const T &o) const
+	{ return pfx + std::to_string(o); }
+};
+
+
+struct Constant::hash_visitor {
+	template<class T>
+	size_t operator () (const T &v) const
+	{ return boost::hash_value(v); }
+
+	size_t operator () (const CompoundType::Representation &v) const
+	{
+		size_t rv = 0;
+		for (const auto &pair : v)
+			boost::hash_combine(rv, pair.second->hash());
+
+		return rv;
+	}
+};
+
+
+struct Constant::attach_semantics_visitor {
+	SemanticsFactory &f;
+
+	template<class T>
+	void operator () (const T&) const
+	{}
+
+	void operator () (CompoundType::Representation &v) const
+	{
+		for (auto &pair : v)
+			pair.second->attach_semantics(f);
+	}
+};
+
+
+Constant::~Constant()
 {}
 
-bool AbstractConstant::operator != (const AbstractConstant &other) const
+bool Constant::operator != (const Constant &other) const
 { return !(*this == other); }
 
 
-
-SimpleConstant::SimpleConstant(const LiteralVariant &l)
-: representation_(l)
-{}
-
-SimpleConstant::SimpleConstant(LiteralVariant &&l)
+Constant::Constant(LiteralVariant &&l)
 : representation_(std::move(l))
 {}
 
-size_t SimpleConstant::hash() const
-{ return boost::hash_value(variant()); }
 
-
-
-template<class ExprT> template<class ReprT>
-Constant<ExprT>::Constant(ReprT repr)
-: SimpleConstant(repr)
-{}
-
-template
-Constant<SymbolicExpression>::Constant(const string &);
-
-template
-Constant<SymbolicExpression>::Constant(string);
-
-template
-Constant<StringExpression>::Constant(const string &);
-
-template
-Constant<StringExpression>::Constant(string);
-
-template
-Constant<BooleanExpression>::Constant(bool);
-
-template
-Constant<NumericExpression>::Constant(int);
-
-template
-Constant<NumericExpression>::Constant(long);
-
-template
-Constant<NumericExpression>::Constant(double);
-
-
-Constant<CompoundExpression>::Constant(const string &type_name, const vector<fusion_wtf_vector<string, AbstractConstant *>> &definition)
+template<class ReprT>
+Constant::Constant(const string &type_name, ReprT repr)
+: representation_(repr)
 {
 	set_type_by_name(type_name);
-	for (const boost::fusion::vector<string, AbstractConstant *> &v : definition) {
+}
+
+template
+Constant::Constant(const string &type_name, const string &);
+
+template
+Constant::Constant(const string &type_name, string);
+
+template
+Constant::Constant(const string &type_name, bool);
+
+template
+Constant::Constant(const string &type_name, int);
+
+template
+Constant::Constant(const string &type_name, long);
+
+template
+Constant::Constant(const string &type_name, double);
+
+
+Constant::Constant(const string &type_name, const vector<fusion_wtf_vector<string, Constant *>> &definition)
+{
+	set_type_by_name(type_name);
+	const CompoundType &this_type = dynamic_cast<const CompoundType &>(type());
+	CompoundType::Representation tmp_value;
+	for (const boost::fusion::vector<string, Constant *> &v : definition) {
 		const string &field_name = boost::fusion::at_c<0>(v);
-		const Type &field_type = type().field_type(field_name);
-		AbstractConstant *field_value = boost::fusion::at_c<1>(v);
+		const Type &field_type = this_type.field_type(field_name);
+		Constant *field_value = boost::fusion::at_c<1>(v);
 		if (field_type == field_value->type())
-			representation_[field_name].reset(field_value);
+			tmp_value[field_name].reset(field_value);
 		else
 			throw ExpressionTypeMismatch("Cannot assign " + field_value->str()
 				+ " to a field of type " + field_type.name()
 			);
 	}
+
+	representation_ = std::move(tmp_value);
+
 	// TODO: check if all fields have been assigned!
 }
 
 
-Constant<CompoundExpression>::Constant(const Constant<CompoundExpression> &c)
+Constant::Constant(Constant &&c)
 {
+	ensure_type_equality(*this, c);
+
+	semantics_ = std::move(c.semantics_);
+	type_ = std::move(c.type_);
+	representation_ = std::move(c.representation_);
+}
+
+
+Constant::Constant(const Constant &c)
+{
+	ensure_type_equality(*this, c);
+
 	if (semantics_)
 		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
-	for (const auto &v : c.representation_)
-		representation_[v.first].reset(v.second->copy());
+
+	boost::apply_visitor(Constant::copy_visitor(), c.representation_, this->representation_);
 	set_type_by_name(c.type());
 }
 
 
-Constant<CompoundExpression>::Constant(Constant<CompoundExpression> &&c)
-{
-	representation_ = std::move(c.representation_);
-	semantics_ = std::move(c.semantics_);
-	type_ = std::move(c.type_);
-}
 
-
-Constant<CompoundExpression> &Constant<CompoundExpression>::operator = (const Constant<CompoundExpression> &c)
+Constant &Constant::operator = (const Constant &c)
 {
+	ensure_type_equality(*this, c);
 	if (semantics_)
 		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
 
-	representation_.clear();
-	for (const auto &v : c.representation_)
-		representation_[v.first].reset(v.second->copy());
+	boost::apply_visitor(copy_visitor(), c.representation_ , this->representation_);
 	set_type_by_name(c.type());
 
 	return *this;
 }
 
 
-Constant<CompoundExpression> &Constant<CompoundExpression>::operator = (Constant<CompoundExpression> &&c)
+Constant &Constant::operator = (Constant &&c)
 {
 	representation_ = std::move(c.representation_);
 	type_ = std::move(c.type_);
@@ -116,61 +185,36 @@ Constant<CompoundExpression> &Constant<CompoundExpression>::operator = (Constant
 }
 
 
-size_t Constant<CompoundExpression>::hash() const
+size_t Constant::hash() const
+{ return boost::apply_visitor(hash_visitor(), representation_); }
+
+string Constant::to_string(const string &pfx) const
+{ return boost::apply_visitor(to_string_visitor { pfx }, representation_); }
+
+Constant *Constant::copy() const
+{ return new Constant(*this); }
+
+
+bool Constant::operator == (const Constant &c) const
 {
-	size_t rv = 0;
-	for (const auto &v : representation_)
-		boost::hash_combine(rv, v.second->hash());
-	return rv;
-}
-
-const Constant<CompoundExpression>::Value &Constant<CompoundExpression>::value() const
-{ return representation_; }
-
-Type::Tag Constant<CompoundExpression>::dynamic_type_tag() const
-{ return type().dynamic_tag(); }
-
-Constant<CompoundExpression> *Constant<CompoundExpression>::copy() const
-{ return new Constant<CompoundExpression>(*this); }
-
-
-bool Constant<CompoundExpression>::operator == (const AbstractConstant &c) const
-{
-	if (type() != c.type())
-		return false;
-	const Constant<CompoundExpression> &cc = dynamic_cast<const Constant<CompoundExpression> &>(c);
-	for (const auto &v : representation_) {
-		auto it = cc.representation_.find(v.first);
-		if (it == cc.representation_.end() || *v.second != *it->second)
-			return false;
-	}
-	return true;
+	return this->type() == c.type()
+		&& variant() == c.variant();
 }
 
 
-string Constant<CompoundExpression>::to_string(const string &pfx) const
+void Constant::attach_semantics(SemanticsFactory &f)
 {
-	string rv = pfx + "{" linesep;
-	for (const auto &pair : representation_)
-		rv += pfx + pfx + pair.first + " = " + pair.second->to_string("") + ", " linesep;
-	return rv + pfx + "}" linesep;
-}
-
-
-void Constant<CompoundExpression>::attach_semantics(SemanticsFactory &f)
-{
-	for (auto &pair : representation_)
-		pair.second->attach_semantics(f);
-
-	if (!semantics_)
+	if (!semantics_) {
+		boost::apply_visitor(attach_semantics_visitor { f }, representation_);
 		set_implementation(f.make_semantics(*this));
+	}
 }
 
 
-vector<unique_ptr<AbstractConstant>> copy(const vector<unique_ptr<AbstractConstant>> &v)
+vector<unique_ptr<Constant>> copy(const vector<unique_ptr<Constant>> &v)
 {
-	vector<unique_ptr<AbstractConstant>> rv;
-	for (const unique_ptr<AbstractConstant> &c : v)
+	vector<unique_ptr<Constant>> rv;
+	for (const unique_ptr<Constant> &c : v)
 		rv.emplace_back(c->copy());
 	return rv;
 }

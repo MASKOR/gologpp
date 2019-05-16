@@ -26,11 +26,10 @@ class AbstractAction
 , public ScopeOwner
 , public virtual AbstractLanguageElement {
 public:
-	typedef VoidExpression expression_t;
 	typedef AbstractAction abstract_t;
 	typedef Void type_t;
 
-	AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<AbstractVariable>> &args);
+	AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<Variable>> &args);
 	AbstractAction(Scope &parent_scope, const string &name);
 
 	virtual ~AbstractAction() override = default;
@@ -41,7 +40,7 @@ public:
 	const BooleanExpression &precondition() const;
 	BooleanExpression &precondition();
 
-	void set_precondition(BooleanExpression *);
+	void set_precondition(Expression *);
 
 	const vector<unique_ptr<AbstractEffectAxiom>> &effects() const;
 	vector<unique_ptr<AbstractEffectAxiom>> &effects();
@@ -68,12 +67,12 @@ class Action : public AbstractAction, public LanguageElement<Action> {
 public:
 	using AbstractAction::AbstractAction;
 
-	void set_senses(Reference<AbstractFluent> *);
+	void set_senses(Reference<Fluent> *);
 
 	void define(
-		boost::optional<BooleanExpression *> precondition,
+		boost::optional<Expression *> precondition,
 		boost::optional<vector<AbstractEffectAxiom *>> effects,
-		boost::optional<Reference<AbstractFluent> *> senses
+		boost::optional<Reference<Fluent> *> senses
 	);
 
 	virtual void attach_semantics(SemanticsFactory &) override;
@@ -81,11 +80,11 @@ public:
 	virtual Expression *ref(const vector<Expression *> &args) override;
 	Reference<Action> *make_ref(const vector<Expression *> &args);
 
-	unique_ptr<Reference<AbstractFluent>> &senses();
-	const unique_ptr<Reference<AbstractFluent>> &senses() const;
+	unique_ptr<Reference<Fluent>> &senses();
+	const unique_ptr<Reference<Fluent>> &senses() const;
 
 private:
-	unique_ptr<Reference<AbstractFluent>> senses_;
+	unique_ptr<Reference<Fluent>> senses_;
 };
 
 
@@ -95,7 +94,7 @@ public:
 	using AbstractAction::AbstractAction;
 
 	void define(
-		boost::optional<BooleanExpression *> precondition,
+		boost::optional<Expression *> precondition,
 		boost::optional<vector<AbstractEffectAxiom *>> effects
 	);
 

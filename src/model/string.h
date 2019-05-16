@@ -28,10 +28,9 @@ private:
 
 
 
-class StringConcatenation : public StringExpression, public NoScopeOwner, public LanguageElement<StringConcatenation> {
+class StringConcatenation : public Expression, public NoScopeOwner, public LanguageElement<StringConcatenation> {
 public:
-	StringConcatenation(StringExpression *lhs, StringExpression *rhs);
-	StringConcatenation(Expression *lhs, StringExpression *rhs);
+	StringConcatenation(Expression *lhs, Expression *rhs);
 
 	const StringExpression &rhs() const;
 	const StringExpression &lhs() const;

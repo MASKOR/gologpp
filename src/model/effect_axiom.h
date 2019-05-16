@@ -16,7 +16,6 @@
 namespace gologpp {
 
 class Expression;
-class AbstractFluent;
 
 
 class AbstractEffectAxiom : public virtual AbstractLanguageElement {
@@ -30,7 +29,7 @@ public:
 	void set_action(AbstractAction &action);
 	const BooleanExpression &condition() const;
 	BooleanExpression &condition();
-	void set_condition(BooleanExpression *condition);
+	void set_condition(Expression *condition);
 
 protected:
 	AbstractAction *action_;
@@ -52,7 +51,7 @@ public:
 	const LhsT &lhs() const
 	{ return assignment_->lhs(); }
 
-	const typename LhsT::expression_t &value() const
+	const Expression &value() const
 	{ return assignment_->rhs(); }
 
 
@@ -62,13 +61,15 @@ public:
 			+ pfx + indent + assignment_->to_string("") + ";";
 	}
 
-	void define(boost::optional<BooleanExpression *> condition, LhsT *lhs, typename LhsT::expression_t *value)
+	void define(boost::optional<Expression *> condition, LhsT *lhs, Expression *value)
 	{
-		if (!lhs->template is_a<Reference<AbstractFluent>>()) {
+		if (!lhs->template is_a<Reference<Fluent>>()) {
 			AbstractFieldAccess *fa = dynamic_cast<AbstractFieldAccess *>(lhs);
-			if (!fa || !fa->subject().is_a<CompoundFluent>())
+			if (!fa || !fa->subject().is_a<Fluent>())
 				throw std::runtime_error("Effect must assign to a fluent or to a compound fluent's field");
 		}
+
+		ensure_type_equality(*lhs, *value);
 
 		if (condition)
 			set_condition(*condition);

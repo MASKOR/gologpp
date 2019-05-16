@@ -53,20 +53,14 @@ public:
 
 class ExpressionTypeMismatch : public UserError {
 public:
-	ExpressionTypeMismatch(const Expression &expr1, const Expression &expr2);
+	ExpressionTypeMismatch(const AbstractLanguageElement &expr1, const AbstractLanguageElement &expr2);
 	ExpressionTypeMismatch(const string &msg);
 };
 
 
 class TypeError : public UserError {
 public:
-	TypeError(const Expression &expr, const Type &t);
-
-	template<class T>
-	TypeError(const Expression &expr)
-	: UserError("Expression `" + expr.str() + "' is not of type " + T::static_name())
-	{}
-
+	TypeError(const AbstractLanguageElement &expr, const Type &t);
 };
 
 }
