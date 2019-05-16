@@ -35,7 +35,7 @@ public:
 	virtual void compile(const Block &program) = 0;
 	virtual void compile(const Fluent &fluent) = 0;
 	virtual void compile(const AbstractAction &action) = 0;
-	virtual void compile(const AbstractFunction &function) = 0;
+	virtual void compile(const Function &function) = 0;
 	virtual void postcompile() = 0;
 
 	virtual History run(Block &&program) = 0;

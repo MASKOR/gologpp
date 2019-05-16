@@ -148,6 +148,57 @@ string Concurrent::to_string(const string &pfx) const
 
 
 
+Pick::Pick(
+	Scope *own_scope,
+	const shared_ptr<Variable> &variable,
+	const boost::optional<std::vector<Constant *>> &domain,
+	Expression *statement
+)
+: ScopeOwner(own_scope)
+, variable_(variable)
+, statement_(statement)
+{
+	if (domain)
+		for (Constant *c : *domain) {
+			ensure_type_equality(*variable, *c);
+			c->set_parent(this);
+			domain_.emplace_back(c);
+		}
+	dynamic_cast<Expression *>(variable_.get())->set_parent(this);
+	statement_->set_parent(this);
+}
+
+
+const vector<unique_ptr<Constant>> &Pick::domain() const
+{ return domain_; }
+
+const Variable &Pick::variable() const
+{ return *variable_; }
+
+const Expression &Pick::statement() const
+{ return *statement_; }
+
+string Pick::to_string(const string &pfx) const
+{ return linesep + pfx + "pick (" + variable().to_string("") + "): " + statement().to_string(pfx); }
+
+
+void Pick::attach_semantics(SemanticsFactory &f)
+{
+	if (semantics_)
+		return;
+
+	for (unique_ptr<Constant> & c : domain_)
+		c->attach_semantics(f);
+	variable_->attach_semantics(f);
+	statement_->attach_semantics(f);
+
+	set_implementation(f.make_semantics(*this));
+}
+
+
+
+
+
 Search::Search(Expression *statement)
 : statement_(statement)
 {
@@ -240,9 +291,7 @@ string While::to_string(const string &pfx) const
 
 
 
-
-
-AbstractFunction::AbstractFunction(
+Function::Function(
 	Scope *own_scope,
 	const string &type_name,
 	const string &name,
@@ -252,20 +301,50 @@ AbstractFunction::AbstractFunction(
 , ScopeOwner(own_scope)
 { set_type_by_name(type_name); }
 
-AbstractFunction::~AbstractFunction()
-{}
 
-const VoidExpression &AbstractFunction::definition() const
+Function::Function(
+	Scope *own_scope,
+	const string &type_name,
+	const string &name,
+	const boost::optional<vector<shared_ptr<Variable>>> &args
+)
+: Global(name, args.get_value_or({}))
+, ScopeOwner(own_scope)
+{ set_type_by_name(type_name); }
+
+
+const VoidExpression &Function::definition() const
 { return *definition_; }
 
-void AbstractFunction::define(Expression *definition)
+void Function::compile(AExecutionContext &ctx)
+{ ctx.compile(*this); }
+
+Reference<Function> *Function::make_ref(const vector<Expression *> &args)
+{ return make_ref_<Function>(args); }
+
+Expression *Function::ref(const vector<Expression *> &args)
+{ return make_ref(args); }
+
+
+void Function::define(Expression *definition)
 {
 	definition_ = definition;
 	definition_->set_parent(this);
 }
 
-void AbstractFunction::compile(AExecutionContext &ctx)
-{ ctx.compile(*this); }
+
+string Function::to_string(const string &pfx) const
+{
+	string fn;
+	if (type().dynamic_tag() == ExpressionTypeTag::VOID)
+		fn = "procedure ";
+	else
+		fn = gologpp::to_string(type().dynamic_tag()) + "function ";
+
+	return linesep + pfx + fn + name() + '('
+	+ concat_list(args(), ", ")
+	+ ") " + definition().to_string(pfx);
+}
 
 
 
@@ -302,7 +381,7 @@ string to_string(DurativeCall::Hook hook)
 
 
 
-AbstractFieldAccess::AbstractFieldAccess(Expression *subject, const string &field_name)
+FieldAccess::FieldAccess(Expression *subject, const string &field_name)
 : field_name_(field_name)
 {
 	subject_ = subject;
@@ -310,11 +389,15 @@ AbstractFieldAccess::AbstractFieldAccess(Expression *subject, const string &fiel
 		throw Bug("Failed to set type");
 }
 
-const CompoundExpression &AbstractFieldAccess::subject() const
+const CompoundExpression &FieldAccess::subject() const
 { return *subject_; }
 
-const string &AbstractFieldAccess::field_name() const
+const string &FieldAccess::field_name() const
 { return field_name_; }
+
+string FieldAccess::to_string(const string &pfx) const
+{ return pfx + subject().str() + "." + gologpp::to_string(type().dynamic_tag()) + field_name(); }
+
 
 
 FieldAccess *nested_field_access_(

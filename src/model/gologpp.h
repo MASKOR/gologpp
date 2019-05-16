@@ -83,8 +83,6 @@ class InitialValue;
 
 class Variable;
 class Constant;
-
-class AbstractDomain;
 class Domain;
 
 class ArithmeticOperation;
@@ -109,10 +107,8 @@ class Test;
 class While;
 class Return;
 class DurativeCall;
-class AbstractFieldAccess;
 class FieldAccess;
 
-class AbstractFunction;
 class Function;
 
 template<class> class Reference;

@@ -64,7 +64,7 @@ public:
 	void define(boost::optional<Expression *> condition, LhsT *lhs, Expression *value)
 	{
 		if (!lhs->template is_a<Reference<Fluent>>()) {
-			AbstractFieldAccess *fa = dynamic_cast<AbstractFieldAccess *>(lhs);
+			FieldAccess *fa = dynamic_cast<FieldAccess *>(lhs);
 			if (!fa || !fa->subject().is_a<Fluent>())
 				throw std::runtime_error("Effect must assign to a fluent or to a compound fluent's field");
 		}

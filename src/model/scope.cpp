@@ -228,7 +228,7 @@ void Scope::register_global(Global *g)
 }
 
 
-void Scope::register_domain(AbstractDomain *d)
+void Scope::register_domain(Domain *d)
 {
 	if (exists_domain(d->name()))
 		throw RedefinitionError(d->name());

@@ -73,7 +73,7 @@ private:
 public:
 	using VariablesMap = unordered_map<string, shared_ptr<Variable>>;
 	using GlobalsMap = unordered_map<Identifier, shared_ptr<Global>>;
-	using DomainsMap = unordered_map<Name, shared_ptr<AbstractDomain>>;
+	using DomainsMap = unordered_map<Name, shared_ptr<Domain>>;
 	using TypesMap = unordered_map<Name, shared_ptr<Type>>;
 
 	explicit Scope(AbstractLanguageElement &owner, const vector<shared_ptr<Variable>> &lookup_vars = {});
@@ -195,7 +195,7 @@ public:
 
 	void register_global(Global *g);
 
-	void register_domain(AbstractDomain *d);
+	void register_domain(Domain *d);
 	void register_domain(const shared_ptr<Domain> &d);
 	void declare_domain(const string &name);
 	void define_domain(const string &name, const Domain &input);

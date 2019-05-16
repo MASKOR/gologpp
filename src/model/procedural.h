@@ -129,7 +129,7 @@ class Assignment
 , public LanguageElement<Assignment<LhsT>> {
 public:
 	static_assert(!std::is_base_of<Expression, LhsT>::value, "Cannot assign to a statement");
-	static_assert(!std::is_base_of<AbstractFunction, LhsT>::value, "Cannot assign to a function");
+	static_assert(!std::is_base_of<Function, LhsT>::value, "Cannot assign to a function");
 
 	Assignment(LhsT *lhs, Expression *rhs)
 	: lhs_(lhs), rhs_(rhs)
@@ -169,48 +169,15 @@ public:
 		const shared_ptr<Variable> &variable,
 		const boost::optional<std::vector<Constant *>> &domain,
 		Expression *statement
-	)
-	: ScopeOwner(own_scope)
-	, variable_(variable)
-	, statement_(statement)
-	{
-		if (domain)
-			for (Constant *c : *domain) {
-				ensure_type_equality(*variable, *c);
-				c->set_parent(this);
-				domain_.emplace_back(c);
-			}
-		dynamic_cast<Expression *>(variable_.get())->set_parent(this);
-		statement_->set_parent(this);
-	}
+	);
 
+	const vector<unique_ptr<Constant>> &domain() const;
+	const Variable &variable() const;
+	const Expression &statement() const;
 
-	const vector<unique_ptr<Constant>> &domain() const
-	{ return domain_; }
+	virtual void attach_semantics(SemanticsFactory &f) override;
 
-	const Variable &variable() const
-	{ return *variable_; }
-
-	const Expression &statement() const
-	{ return *statement_; }
-
-
-	virtual void attach_semantics(SemanticsFactory &f) override
-	{
-		if (semantics_)
-			return;
-
-		for (unique_ptr<Constant> & c : domain_)
-			c->attach_semantics(f);
-		variable_->attach_semantics(f);
-		statement_->attach_semantics(f);
-
-		set_implementation(f.make_semantics(*this));
-	}
-
-
-	virtual string to_string(const string &pfx) const override
-	{ return linesep + pfx + "pick (" + variable().to_string("") + "): " + statement().to_string(pfx); }
+	virtual string to_string(const string &pfx) const override;
 
 private:
 	vector<unique_ptr<Constant>> domain_;
@@ -331,43 +298,12 @@ private:
 
 
 /**
- * @brief The abstract superclass of all @ref Function types.
- */
-class AbstractFunction
-: public Global
-, public ScopeOwner
-, public virtual AbstractLanguageElement
-{
-protected:
-	AbstractFunction(
-		Scope *own_scope,
-		const string &type_name,
-		const string &name,
-		const vector<shared_ptr<Variable>> &args
-	);
-
-public:
-	typedef AbstractFunction abstract_t;
-
-	virtual ~AbstractFunction() override;
-
-	const VoidExpression &definition() const;
-	void define(Expression *definition);
-	virtual void compile(AExecutionContext &ctx) override;
-
-protected:
-	unique_ptr<VoidExpression> definition_;
-	vector<shared_ptr<Variable>> args_;
-};
-
-
-
-/**
  * @brief A function, also called a subroutine.
  * A function that returns a @ref Expression is also called a @ref Procedure.
  */
 class Function
-: public AbstractFunction
+: public Global
+, public ScopeOwner
 , public LanguageElement<Function>
 {
 public:
@@ -376,40 +312,30 @@ public:
 		const string &type_name,
 		const string &name,
 		const vector<shared_ptr<Variable>> &args
-	)
-	: AbstractFunction(own_scope, type_name, name, args)
-	{}
+	);
 
 	Function(
 		Scope *own_scope,
 		const string &type_name,
 		const string &name,
 		const boost::optional<vector<shared_ptr<Variable>>> &args
-	)
-	: AbstractFunction(own_scope, type_name, name, args.get_value_or({}))
-	{}
+	);
+
+
+	const VoidExpression &definition() const;
+	void define(Expression *definition);
+	virtual void compile(AExecutionContext &ctx) override;
+
+	Reference<Function> *make_ref(const vector<Expression *> &args);
+	virtual Expression *ref(const vector<Expression *> &args) override;
+
+	virtual string to_string(const string &pfx) const override;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(scope(), *definition_)
 
-	Reference<Function> *make_ref(const vector<Expression *> &args)
-	{ return make_ref_<Function>(args); }
-
-	virtual Expression *ref(const vector<Expression *> &args) override
-	{ return make_ref(args); }
-
-
-	virtual string to_string(const string &pfx) const override
-	{
-		string fn;
-		if (type().dynamic_tag() == ExpressionTypeTag::VOID)
-			fn = "procedure ";
-		else
-			fn = gologpp::to_string(type().dynamic_tag()) + "function ";
-
-		return linesep + pfx + fn + name() + '('
-			+ concat_list(args(), ", ")
-			+ ") " + definition().to_string(pfx);
-	}
+private:
+	unique_ptr<VoidExpression> definition_;
+	vector<shared_ptr<Variable>> args_;
 };
 
 
@@ -441,33 +367,23 @@ string to_string(DurativeCall::Hook);
 
 
 
-class AbstractFieldAccess
+class FieldAccess
 : public Expression
 , public NoScopeOwner
-, public virtual AbstractLanguageElement
-{
-public:
-	AbstractFieldAccess(Expression *subject, const string &field_name);
-	const CompoundExpression &subject() const;
-	const string &field_name() const;
-
-protected:
-	unique_ptr<CompoundExpression> subject_;
-	const string field_name_;
-};
-
-
-class FieldAccess
-: public AbstractFieldAccess
 , public LanguageElement<FieldAccess>
 {
 public:
-	using AbstractFieldAccess::AbstractFieldAccess;
+	FieldAccess(Expression *subject, const string &field_name);
+	const CompoundExpression &subject() const;
+	const string &field_name() const;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*subject_)
 
-	string to_string(const string &pfx) const override
-	{ return pfx + subject().str() + "." + gologpp::to_string(type().dynamic_tag()) + field_name(); }
+	string to_string(const string &pfx) const override;
+
+private:
+	unique_ptr<CompoundExpression> subject_;
+	const string field_name_;
 };
 
 
