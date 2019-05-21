@@ -157,7 +157,7 @@ Constant::Constant(const Constant &c)
 		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
 
 	boost::apply_visitor(Constant::copy_visitor(), c.representation_, this->representation_);
-	set_type_by_name(c.type());
+	this->type_ = c.type_;
 }
 
 
@@ -169,7 +169,7 @@ Constant &Constant::operator = (const Constant &c)
 		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
 
 	boost::apply_visitor(copy_visitor(), c.representation_ , this->representation_);
-	set_type_by_name(c.type());
+	this->type_ = c.type_;
 
 	return *this;
 }
