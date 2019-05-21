@@ -17,24 +17,13 @@ class Type
 : public std::enable_shared_from_this<Type>
 , public Name {
 public:
-	enum Tag {
-		BOOLEAN,
-		NUMERIC,
-		SYMBOLIC,
-		STRING,
-		VOID,
-		COMPOUND
-	};
-
 	virtual ~Type() = default;
 
 	virtual bool operator == (const Type &other) const;
 	bool operator != (const Type &other) const;
 
 	virtual bool is_compound() const;
-	bool is_simple() const;
-
-	virtual Tag dynamic_tag() const = 0;
+	virtual bool is_simple() const;
 
 	void ensure_match(const AbstractLanguageElement &e) const;
 
@@ -43,20 +32,24 @@ protected:
 };
 
 
-// TODO: Remove
-using ExpressionTypeTag = Type::Tag;
 
+class UndefinedType : public Type {
+public:
+	UndefinedType();
 
-string to_string(Type::Tag t);
+	virtual bool operator == (const Type &other) const override;
+	virtual operator bool () const override;
+
+	virtual bool is_simple() const override;
+
+	static string static_name();
+};
 
 
 
 class Bool : public Type {
 public:
 	Bool();
-
-	static Tag tag();
-	virtual Tag dynamic_tag() const override;
 	static string static_name();
 };
 
@@ -65,9 +58,6 @@ public:
 class Number : public Type {
 public:
 	Number();
-
-	static Tag tag();
-	virtual Tag dynamic_tag() const override;
 	static string static_name();
 };
 
@@ -76,9 +66,6 @@ public:
 class String : public Type {
 public:
 	String();
-
-	static Tag tag();
-	virtual Tag dynamic_tag() const override;
 	static string static_name();
 };
 
@@ -87,9 +74,6 @@ public:
 class Symbol : public Type {
 public:
 	Symbol();
-
-	static Tag tag();
-	virtual Tag dynamic_tag() const override;
 	static string static_name();
 };
 
@@ -98,9 +82,6 @@ public:
 class Void : public Type {
 public:
 	Void();
-
-	static Tag tag();
-	virtual Tag dynamic_tag() const override;
 	static string static_name();
 };
 
@@ -126,11 +107,8 @@ public:
 	{ return std::dynamic_pointer_cast<T>(field_type(field_name)); }
 
 	bool has_field(const string &name);
-
 	void add_field(const string &name, const string &type);
 
-	static Tag tag();
-	virtual Tag dynamic_tag() const override;
 	static string static_name();
 
 	virtual bool operator == (const Type &other) const override;

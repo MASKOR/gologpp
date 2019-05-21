@@ -71,7 +71,7 @@ void Domain::attach_semantics(SemanticsFactory &f)
 
 string Domain::to_string(const string &) const
 {
-	return gologpp::to_string(type().dynamic_tag()) + "domain " + this->name() + " = { "
+	return type().name() + " domain " + this->name() + " = { "
 	+ concat_list(elements_, ", ") + "};";
 }
 

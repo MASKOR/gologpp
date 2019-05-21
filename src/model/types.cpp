@@ -11,28 +11,6 @@ void ensure_type_equality(const AbstractLanguageElement &e1, const AbstractLangu
 }
 
 
-
-string to_string(Type::Tag t)
-{
-	switch (t) {
-	case Type::Tag::BOOLEAN:
-		return "?";
-	case Type::Tag::NUMERIC:
-		return "%";
-	case Type::Tag::SYMBOLIC:
-		return "§";
-	case Type::Tag::STRING:
-		return "$";
-	case Type::Tag::VOID:
-		return "";
-	case Type::Tag::COMPOUND:
-		return "@";
-	}
-	return "[Unknown ExpressionTypeTag]";
-}
-
-
-
 Type::Type(const string &name)
 : Name(name)
 {}
@@ -66,11 +44,13 @@ Bool::Bool()
 : Type(static_name())
 {}
 
-Type::Tag Bool::tag()
-{ return Type::Tag::BOOLEAN; }
 
-Type::Tag Bool::dynamic_tag() const
-{ return tag(); }
+
+
+
+Bool::Bool()
+: Type(static_name())
+{}
 
 string Bool::static_name()
 { return "bool"; }
@@ -81,12 +61,6 @@ Number::Number()
 : Type(static_name())
 {}
 
-Type::Tag Number::tag()
-{ return Type::Tag::NUMERIC; }
-
-Type::Tag Number::dynamic_tag() const
-{ return tag(); }
-
 string Number::static_name()
 { return "number"; }
 
@@ -95,12 +69,6 @@ string Number::static_name()
 String::String()
 : Type(static_name())
 {}
-
-Type::Tag String::tag()
-{ return Type::Tag::STRING; }
-
-Type::Tag String::dynamic_tag() const
-{ return tag(); }
 
 string String::static_name()
 { return "string"; }
@@ -111,12 +79,6 @@ Symbol::Symbol()
 : Type(static_name())
 {}
 
-Type::Tag Symbol::tag()
-{ return Type::Tag::SYMBOLIC; }
-
-Type::Tag Symbol::dynamic_tag() const
-{ return tag(); }
-
 string Symbol::static_name()
 { return "symbol"; }
 
@@ -126,12 +88,6 @@ Void::Void()
 : Type(static_name())
 {}
 
-Type::Tag Void::tag()
-{ return Type::Tag::VOID; }
-
-Type::Tag Void::dynamic_tag() const
-{ return tag(); }
-
 string Void::static_name()
 { return "void"; }
 
@@ -140,12 +96,6 @@ string Void::static_name()
 CompoundType::CompoundType(const string &name)
 : Type(name)
 {}
-
-Type::Tag CompoundType::tag()
-{ return Type::Tag::COMPOUND; }
-
-Type::Tag CompoundType::dynamic_tag() const
-{ return tag(); }
 
 string CompoundType::static_name()
 { return "compound"; }

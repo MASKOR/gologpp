@@ -336,10 +336,10 @@ void Function::define(Expression *definition)
 string Function::to_string(const string &pfx) const
 {
 	string fn;
-	if (type().dynamic_tag() == ExpressionTypeTag::VOID)
+	if (type() == gologpp::type<Void>())
 		fn = "procedure ";
 	else
-		fn = gologpp::to_string(type().dynamic_tag()) + "function ";
+		fn = type().name() + " function ";
 
 	return linesep + pfx + fn + name() + '('
 	+ concat_list(args(), ", ")
@@ -396,7 +396,7 @@ const string &FieldAccess::field_name() const
 { return field_name_; }
 
 string FieldAccess::to_string(const string &pfx) const
-{ return pfx + subject().str() + "." + gologpp::to_string(type().dynamic_tag()) + field_name(); }
+{ return pfx + subject().str() + "." + field_name(); }
 
 
 

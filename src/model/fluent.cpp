@@ -149,7 +149,7 @@ void Fluent::attach_semantics(SemanticsFactory &implementor)
 
 string Fluent::to_string(const string &pfx) const
 {
-	return linesep + pfx + gologpp::to_string(type().dynamic_tag()) + "fluent " + name() + '('
+	return linesep + pfx + type().name() + " fluent " + name() + '('
 	+ concat_list(args(), ", ", "") + ") {" + linesep
 	+ pfx + "initially:" + linesep
 	+ pfx + concat_list(initially(), ";" linesep + pfx, pfx) + linesep

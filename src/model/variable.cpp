@@ -57,7 +57,7 @@ void Variable::define_implicit_domain(const string &domain_name)
 }
 
 string Variable::to_string(const string &) const
-{ return gologpp::to_string(type().dynamic_tag()) + name(); }
+{ return name(); }
 
 
 }
