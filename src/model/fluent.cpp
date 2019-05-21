@@ -75,24 +75,15 @@ const Scope &InitialValue::parent_scope() const
 
 
 
-Fluent::Fluent(Scope *own_scope, const string &type_name, const string &name, const vector<shared_ptr<Variable>> &args)
+Fluent::Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<Variable>> &args)
 : Global(name, args)
 , ScopeOwner(own_scope)
-, domain_(new Domain(
-	type_name,
-	"implicit_domain(" + name + "/" + std::to_string(args.size()) + ")",
-	{},
-	true
-) )
-{
-	set_type_by_name(type_name);
-	domain_->add_subject(*this);
-}
+{}
 
-Fluent::Fluent(Scope &parent_scope, const string &type_name, const string &name)
+Fluent::Fluent(Scope &parent_scope, const string &name)
 : Global(name, {})
 , ScopeOwner(new Scope(parent_scope))
-{ set_type_by_name(type_name); }
+{}
 
 
 const vector<unique_ptr<InitialValue>> &Fluent::initially() const
@@ -113,8 +104,6 @@ void Fluent::compile(AExecutionContext &ctx)
 
 void Fluent::define(const boost::optional<vector<InitialValue *>> &initial_values)
 {
-	global_scope().register_domain(domain_);
-
 	for (shared_ptr<Variable> &arg : args())
 		if (arg->domain().is_implicit())
 			arg->define_implicit_domain("implicit_domain("
@@ -137,8 +126,6 @@ void Fluent::define(const boost::optional<vector<InitialValue *>> &initial_value
 				arg.add_implicit_domain_element(arg_value);
 			}
 			ival->set_fluent(*this);
-
-			domain_->add_element(ival->value());
 
 			initial_values_.push_back(unique_ptr<InitialValue>(ival));
 		}

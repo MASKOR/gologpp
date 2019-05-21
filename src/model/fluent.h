@@ -53,8 +53,8 @@ class Fluent
 , public LanguageElement<Fluent>
 {
 public:
-	Fluent(Scope *own_scope, const string &type_name, const string &name, const vector<shared_ptr<Variable>> &args);
-	Fluent(Scope &parent_scope, const string &type_name, const string &name);
+	Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<Variable>> &args);
+	Fluent(Scope &parent_scope, const string &name);
 
 	virtual ~Fluent() override = default;
 
@@ -74,7 +74,6 @@ public:
 
 private:
 	vector<unique_ptr<InitialValue>> initial_values_;
-	shared_ptr<Domain> domain_;
 };
 
 
