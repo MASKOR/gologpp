@@ -293,24 +293,22 @@ string While::to_string(const string &pfx) const
 
 Function::Function(
 	Scope *own_scope,
-	const string &type_name,
 	const string &name,
 	const vector<shared_ptr<Variable>> &args
 )
 : Global(name, args)
 , ScopeOwner(own_scope)
-{ set_type_by_name(type_name); }
+{}
 
 
 Function::Function(
 	Scope *own_scope,
-	const string &type_name,
 	const string &name,
 	const boost::optional<vector<shared_ptr<Variable>>> &args
 )
 : Global(name, args.get_value_or({}))
 , ScopeOwner(own_scope)
-{ set_type_by_name(type_name); }
+{}
 
 
 const Expression &Function::definition() const
@@ -385,8 +383,6 @@ FieldAccess::FieldAccess(Expression *subject, const string &field_name)
 : field_name_(field_name)
 {
 	subject_ = subject;
-	if (!set_type(subject_->type().field_type(field_name)))
-		throw Bug("Failed to set type");
 }
 
 const Expression &FieldAccess::subject() const
@@ -394,6 +390,13 @@ const Expression &FieldAccess::subject() const
 
 const string &FieldAccess::field_name() const
 { return field_name_; }
+
+const Type &FieldAccess::type() const
+{
+	return dynamic_cast<const CompoundType &>(
+		subject_->type()
+	).field_type(field_name_);
+}
 
 string FieldAccess::to_string(const string &pfx) const
 { return pfx + subject().str() + "." + field_name(); }

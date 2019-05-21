@@ -309,14 +309,12 @@ class Function
 public:
 	Function(
 		Scope *own_scope,
-		const string &type_name,
 		const string &name,
 		const vector<shared_ptr<Variable>> &args
 	);
 
 	Function(
 		Scope *own_scope,
-		const string &type_name,
 		const string &name,
 		const boost::optional<vector<shared_ptr<Variable>>> &args
 	);
@@ -378,6 +376,8 @@ public:
 	const string &field_name() const;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*subject_)
+
+	virtual const Type &type() const override;
 
 	string to_string(const string &pfx) const override;
 

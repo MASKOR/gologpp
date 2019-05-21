@@ -5,6 +5,7 @@
 #include "effect_axiom.h"
 #include "domain.h"
 #include "user_error.h"
+#include "error.h"
 #include "constant.h"
 #include "execution.h"
 
@@ -120,12 +121,15 @@ vector<shared_ptr<Variable>> Scope::lookup_vars(const vector<string> &names)
 }
 
 
-shared_ptr<Domain> Scope::lookup_domain(const string &name)
+shared_ptr<Domain> Scope::lookup_domain(const string &name, const string &type_name)
 {
-	if (exists_domain(name))
-		return std::dynamic_pointer_cast<Domain>(
-			domains_->find(name)->second
-		);
+	auto it = domains_->find(name);
+	if (it != domains_->end()
+		&& (type_name == ""
+			|| it->second->type().name() == type_name
+		)
+	)
+		return std::dynamic_pointer_cast<Domain>(it->second);
 	else
 		return shared_ptr<Domain>();
 }
@@ -216,6 +220,9 @@ bool Scope::exists_domain(const string &name) const
 bool Scope::exists_type(const string &name) const
 { return types_->find(name) != types_->end(); }
 
+const Type *Scope::lookup_type_raw(const string &name)
+{ return lookup_type(name).get(); }
+
 string Scope::to_string(const string &) const
 { return "[" + concat_list(vars(), ", ") + "]"; }
 
@@ -238,8 +245,8 @@ void Scope::register_domain(Domain *d)
 void Scope::register_domain(const shared_ptr<Domain> &d)
 { domains_->emplace(*d, d); }
 
-void Scope::declare_domain(const string &name)
-{ domains_->emplace(name, std::make_shared<Domain>(name)); }
+void Scope::declare_domain(const string &name, const string &type_name)
+{ domains_->emplace(name, std::make_shared<Domain>(type_name, name)); }
 
 
 void Scope::register_type(Type *t)
@@ -262,14 +269,21 @@ Constant *Scope::get_symbol(const string &name)
 	return nullptr;
 }
 
-void Scope::define_domain(const string &name, const Domain &input)
+void Scope::define_domain(const string &name, const string &type_name, const Domain &input)
 {
 	shared_ptr<Domain> d = lookup_domain(name);
-	if (d)
+	if (d) {
+		if (!set_type_by_name(type_name))
+			throw ExpressionTypeMismatch(
+				"Failed to set type `" + type_name
+				+ "' on domain `" + name + "'"
+			);
 		d->define(input);
+	}
 	else
 		register_domain(std::make_shared<Domain>(name, input));
 }
+
 
 
 ScopeOwner::ScopeOwner(Scope *owned_scope)

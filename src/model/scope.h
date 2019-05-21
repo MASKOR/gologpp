@@ -174,31 +174,33 @@ public:
 	}
 
 
-	bool exists_domain(const string &name) const;
-	shared_ptr<Domain> lookup_domain(const string &name);
-
 
 	bool exists_type(const string &name) const;
 
 	template<class TypeT = Type>
-	shared_ptr<TypeT> lookup_type(const string &name)
+	shared_ptr<const TypeT> lookup_type(const string &name)
 	{
 		if (exists_type(name))
-			return std::dynamic_pointer_cast<TypeT>(
+			return std::dynamic_pointer_cast<const TypeT>(
 				types_->find(name)->second
 			);
 		else
-			return shared_ptr<TypeT>();
+			return shared_ptr<const TypeT>();
 	}
+
+	const Type *lookup_type_raw(const string &name);
 
 	void register_type(Type *t);
 
 	void register_global(Global *g);
 
+	bool exists_domain(const string &name) const;
+	shared_ptr<Domain> lookup_domain(const string &name, const string &type_name = "");
+
 	void register_domain(Domain *d);
 	void register_domain(const shared_ptr<Domain> &d);
-	void declare_domain(const string &name);
-	void define_domain(const string &name, const Domain &input);
+	void declare_domain(const string &name, const string &type_name);
+	void define_domain(const string &name, const string &type_name, const Domain &input);
 
 	Constant *get_symbol(const string &name);
 
@@ -219,7 +221,7 @@ private:
 
 
 template<class T>
-T &type()
+const T &type()
 {
 	if (!global_scope().exists_type(T::static_name()))
 		global_scope().register_type(new T());
