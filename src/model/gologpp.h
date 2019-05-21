@@ -127,11 +127,11 @@ using FunctionReference = Reference<Function>;
 using VariableReference = Reference<Variable>;
 using FluentEffectAxiom = EffectAxiom<Reference<Fluent>>;
 
-#define GOLOGPP_SIMPLE_TYPES \
-	(Number)(Bool)(String)(Symbol)(Void)
+#define GOLOGPP_PREDEFINED_TYPES \
+	(Number)(Bool)(String)(Symbol)(Void)(UndefinedType)
 
 #define GOLOGPP_TYPES \
-	GOLOGPP_SIMPLE_TYPES(CompoundType)
+	GOLOGPP_PREDEFINED_TYPES(CompoundType)
 
 #define GOLOGPP_SEMANTIC_TYPES \
 	(FluentEffectAxiom)(InitialValue)(Fluent)(Variable) \
