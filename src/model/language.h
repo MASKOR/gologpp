@@ -1,6 +1,9 @@
 #ifndef GOLOGPP_LANGUAGE_H_
 #define GOLOGPP_LANGUAGE_H_
 
+#include <boost/fusion/adapted/std_tuple.hpp>
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
+
 #include "gologpp.h"
 #include <memory>
 #include "semantics.h"
@@ -72,6 +75,24 @@ public:
 	Semantics<GologT> &semantics() const
 	{ return static_cast<Semantics<GologT> &>(*semantics_); }
 };
+
+
+#define DEFINE_IMPLEMENT_WITH_MEMBERS(...) \
+	virtual void attach_semantics(SemanticsFactory &f) override { \
+		if (!semantics_) { \
+			semantics_ = f.make_semantics(*this); \
+			boost::fusion::for_each(std::tie(__VA_ARGS__), [&] (auto &e) { \
+				e.attach_semantics(f); \
+			} ); \
+		} \
+	}
+
+#define DEFINE_IMPLEMENT \
+	virtual void attach_semantics(SemanticsFactory &f) override { \
+		if (!semantics_) \
+			semantics_ = f.make_semantics(*this); \
+	}
+
 
 
 

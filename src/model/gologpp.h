@@ -5,12 +5,6 @@
 #include <vector>
 #include <string>
 
-#include <boost/fusion/algorithm/iteration/for_each.hpp>
-#include <boost/fusion/adapted/std_tuple.hpp>
-
-#include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/preprocessor/seq/for_each_product.hpp>
-
 namespace gologpp {
 
 enum VarDefinitionMode {
@@ -159,23 +153,6 @@ using FluentEffectAxiom = EffectAxiom<Reference<Fluent>>;
 	(ToString) \
 	(DurativeCall) \
 	(Comparison)
-
-
-#define DEFINE_IMPLEMENT_WITH_MEMBERS(...) \
-	virtual void attach_semantics(SemanticsFactory &f) override { \
-		if (!semantics_) { \
-			semantics_ = f.make_semantics(*this); \
-			boost::fusion::for_each(std::tie(__VA_ARGS__), [&] (auto &e) { \
-				e.attach_semantics(f); \
-			} ); \
-		} \
-	}
-
-#define DEFINE_IMPLEMENT \
-	virtual void attach_semantics(SemanticsFactory &f) override { \
-		if (!semantics_) \
-			semantics_ = f.make_semantics(*this); \
-	}
 
 
 } // namespace gologpp
