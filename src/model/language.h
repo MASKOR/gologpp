@@ -14,7 +14,7 @@ namespace gologpp {
 
 class AbstractLanguageElement {
 public:
-	AbstractLanguageElement() = default;
+	AbstractLanguageElement();
 
 	// By default, a language element is not copyable, since it is part of a graph
 	// that may even contain cycles.

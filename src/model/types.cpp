@@ -25,6 +25,9 @@ bool Type::operator == (const Type &other) const
 bool Type::operator != (const Type &other) const
 { return !(*this == other); }
 
+Type::operator bool () const
+{ return true; }
+
 bool Type::is_compound() const
 { return false; }
 
@@ -39,11 +42,21 @@ void Type::ensure_match(const AbstractLanguageElement &e) const
 
 
 
-
-Bool::Bool()
+UndefinedType::UndefinedType()
 : Type(static_name())
 {}
 
+bool UndefinedType::operator == (const Type &) const
+{ return false; }
+
+bool UndefinedType::is_simple() const
+{ return false; }
+
+UndefinedType::operator bool () const
+{ return false; }
+
+string UndefinedType::static_name()
+{ return "~undefined~"; }
 
 
 

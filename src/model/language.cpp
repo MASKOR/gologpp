@@ -6,6 +6,10 @@
 namespace gologpp {
 
 
+AbstractLanguageElement::AbstractLanguageElement()
+: type_(gologpp::type<UndefinedType>().shared_from_this())
+{}
+
 bool AbstractLanguageElement::is_ref() const
 { return dynamic_cast<const AbstractReference *>(this); }
 
@@ -24,27 +28,27 @@ const Type &AbstractLanguageElement::type() const
 
 bool AbstractLanguageElement::set_type_by_name(const string &name)
 {
-	shared_ptr<Type> desired_type = global_scope().lookup_type(name);
+	shared_ptr<const Type> desired_type = global_scope().lookup_type(name);
 
-	if (!type_)
+	if (!type())
 		type_ = desired_type;
 
-	return *type_ == *desired_type;
+	return type() == *desired_type;
 }
 
 
 bool AbstractLanguageElement::set_type(const Type &t)
 {
-	if (!type_)
+	if (!type())
 		type_ = t.shared_from_this();
 
-	return *type_ == t;
+	return type() == t;
 }
 
 
 template<class T>
 void AbstractLanguageElement::ensure_type() {
-	if (type().dynamic_tag() != T::tag())
+	if (type() != gologpp::type<T>())
 		throw TypeError(*this, gologpp::type<T>());
 }
 

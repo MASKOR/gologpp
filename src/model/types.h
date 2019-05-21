@@ -21,6 +21,7 @@ public:
 
 	virtual bool operator == (const Type &other) const;
 	bool operator != (const Type &other) const;
+	virtual operator bool () const;
 
 	virtual bool is_compound() const;
 	virtual bool is_simple() const;
@@ -116,7 +117,7 @@ public:
 	virtual bool is_compound() const override;
 
 private:
-	std::unordered_map<string, shared_ptr<Type>> fields_;
+	std::unordered_map<string, shared_ptr<const Type>> fields_;
 };
 
 
