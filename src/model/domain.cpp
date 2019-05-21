@@ -3,7 +3,7 @@
 namespace gologpp {
 
 
-Domain::Domain(const string &type_name, const string &name, const vector<Constant *> &elements, bool implicit)
+Domain::Domain(const string &name, const string &type_name, const vector<Constant *> &elements, bool implicit)
 : Name(name)
 , implicit_(implicit)
 {
@@ -15,12 +15,9 @@ Domain::Domain(const string &type_name)
 : Domain(type_name, "", {}, true)
 {}
 
-Domain::Domain(const string &type_name, const string &name, const Domain &other)
-: Domain(type_name, name, {}, false)
-{
-	ensure_type_equality(*this, other);
-	add_elements(other);
-}
+Domain::Domain(const string &name, const Domain &other)
+: Domain(name, other.type().name(), {}, false)
+{ add_elements(other); }
 
 Domain::Domain(const Domain &other)
 : Domain(other.type().name(), other.name(), {}, other.implicit_)
@@ -29,6 +26,10 @@ Domain::Domain(const Domain &other)
 	add_elements(other);
 }
 
+Domain::Domain()
+: Name("")
+, implicit_(false)
+{}
 
 
 Domain &Domain::operator = (const Domain &other)
@@ -126,7 +127,7 @@ Domain domain_union(const Domain &lhs, const Domain &rhs)
 	Domain rv { "" };
 	rv.add_elements(lhs);
 	rv.add_elements(rhs);
-	return std::move(rv);
+	return rv;
 }
 
 
@@ -136,7 +137,7 @@ Domain domain_difference(const Domain &lhs, const Domain &rhs)
 	Domain rv { "" };
 	rv.add_elements(lhs);
 	rv.remove(rhs);
-	return std::move(rv);
+	return rv;
 }
 
 
@@ -147,7 +148,7 @@ Domain domain_intersection(const Domain &lhs, const Domain &rhs)
 	rv.add_elements(lhs);
 	rv.remove(domain_difference(lhs, rhs));
 	rv.remove(domain_difference(rhs, lhs));
-	return std::move(rv);
+	return rv;
 }
 
 
@@ -156,13 +157,10 @@ Domain domain_operation(const Domain &lhs, DomainOperator op, const Domain &rhs)
 	switch(op) {
 	case UNION:
 		return std::move(domain_union(lhs, rhs));
-		break;
 	case DIFFERENCE:
 		return std::move(domain_difference(lhs, rhs));
-		break;
 	case INTERSECTION:
 		return std::move(domain_intersection(lhs, rhs));
-		break;
 	}
 	throw Bug("Unhandled domain type");
 }

@@ -31,10 +31,11 @@ public:
 	typedef std::unordered_set<unique_ptr<Constant>> ElementSet;
 	typedef typename ElementSet::iterator ElementIterator;
 
-	Domain(const string &type_name, const string &name, const vector<Constant *> &elements = {}, bool implicit = false);
+	Domain(const string &name, const string &type_name, const vector<Constant *> &elements = {}, bool implicit = false);
 	Domain(const string &type_name);
-	Domain(const string &type_name, const string &name, const Domain &other);
+	Domain(const string &name, const Domain &other);
 	Domain(const Domain &other);
+	Domain();
 
 	virtual ~Domain() override = default;
 
