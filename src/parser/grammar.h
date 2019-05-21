@@ -24,18 +24,16 @@ namespace gologpp {
 namespace parser {
 
 
-struct ProgramParser : grammar<VoidExpression *(Scope &)> {
+struct ProgramParser : grammar<Expression *(Scope &)> {
 	ProgramParser()
 	: ProgramParser::base_type(program)
 	{
 		program = *( omit[ // Discard attributes, they just register themselves as Globals
-			abstract_fluent()(_r1)
+			fluent(_r1)
 			| action(_r1)
 			| exog_action(_r1)
 			| function(_r1)
-			| numeric_domain_decl(_r1)
-			| symbolic_domain_decl(_r1)
-			| string_domain_decl(_r1)
+			| domain_decl(_r1)
 			| type_definition(_r1)
 		] ) > statement(_r1) > eoi;
 
@@ -46,15 +44,13 @@ struct ProgramParser : grammar<VoidExpression *(Scope &)> {
 		GOLOGPP_DEBUG_NODE(program);
 	}
 
-	rule<VoidExpression *(Scope &)> program;
+	rule<Expression *(Scope &)> program;
 	ActionParser<Action> action;
 	ActionParser<ExogAction> exog_action;
-	AbstractFunctionParser function;
+	FunctionParser function;
 	StatementParser statement;
-	DomainDeclarationParser<NumericExpression> numeric_domain_decl;
-	DomainDeclarationParser<SymbolicExpression> symbolic_domain_decl;
-	DomainDeclarationParser<StringExpression> string_domain_decl;
 	CompoundTypeParser type_definition;
+	FluentParser fluent;
 };
 
 

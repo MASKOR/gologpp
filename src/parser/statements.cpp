@@ -1,9 +1,4 @@
-#include "field_access.h"
 #include "statements.h"
-#include "types.h"
-#include "formula.h"
-#include "symbolic_expression.h"
-#include "string_expression.h"
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
@@ -21,36 +16,38 @@
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/operator/self.hpp>
 #include <boost/phoenix/object/construct.hpp>
+#include <boost/phoenix/bind/bind_member_function.hpp>
 
-#include <model/action.h>
+#include "types.h"
+#include "formula.h"
+#include "expressions.h"
 
 
 namespace gologpp {
 namespace parser {
 
 
-StatementParser &statement_()
-{
-	static StatementParser rv;
-	return rv;
-}
+static StatementParser statement_;
 
-rule<Statement *(Scope &)> statement = statement_()(_r1);
+rule<Expression *(Scope &)> statement {
+	statement_(_r1)
+};
 
 
-template<class ExprT>
-PickParser<ExprT>::PickParser()
-: PickParser<ExprT>::base_type(pick, type_descr<ExprT>()() + "_pick")
+PickParser::PickParser()
+: PickParser::base_type(pick, "pick")
 {
 	pick = {
-		((lit("pick") >> '(') [
+		(((lit("pick") >> '(') [
 			_a = new_<Scope>(_r1)
-		] >> var<ExprT, VarDefinitionMode::FORCE>()(*_a)
-		> -(lit("in") > '{' > constant % ',' > '}')
+		] >> var_decl(*_a) [ _b = _1 ])
+		> -(lit("in") > '{'
+		> constant(phoenix::bind(&Expression::type_name, *_b)) % ','
+		> '}')
 		> ')' > statement(*_a)) [
-			_val = new_<Pick<ExprT>>(_a, _1, _2, _3)
+			_val = new_<Pick>(_a, _1, _2, _3)
 		],
-		type_descr<ExprT>()() + "_pick"
+		"pick"
 	};
 }
 
@@ -63,23 +60,15 @@ StatementParser::StatementParser()
 	statement.name("statement");
 
 	simple_statement = (test(_r1)
-		| boolean_return(_r1) | numeric_return(_r1) | symbolic_return(_r1) | string_return(_r1)
-		| compound_return(_r1)
+		| return_stmt(_r1)
 		| durative_call(_r1)
-		| numeric_field_assignment(_r1) | boolean_field_assignment(_r1)
-		| symbolic_field_assignment(_r1) | string_field_assignment(_r1)
-		| compound_field_assignment(_r1)
-		| numeric_fluent_assignment(_r1) | boolean_fluent_assignment(_r1)
-		| symbolic_fluent_assignment(_r1) | string_fluent_assignment(_r1)
-		| compound_fluent_assignment(_r1)
+		| field_assignment(_r1)
+		| fluent_assignment(_r1)
 		| action_call(_r1) | procedure_call(_r1)) > ';';
 	simple_statement.name("simple_statement");
 
 	compound_statement = block(_r1) | choose(_r1) | conditional(_r1)
-		| boolean_pick(_r1)
-		| numeric_pick(_r1)
-		| symbolic_pick(_r1)
-		| string_pick(_r1)
+		| pick(_r1)
 		| solve(_r1) | search(_r1) | r_while(_r1)
 		| concurrent(_r1);
 	compound_statement.name("compound_statement");
@@ -113,7 +102,7 @@ StatementParser::StatementParser()
 	];
 	conditional.name("conditional");
 
-	empty_statement = qi::attr(new_<Block>(new_<Scope>(_r1), construct<vector<Statement *>>()));
+	empty_statement = qi::attr(new_<Block>(new_<Scope>(_r1), construct<vector<Expression *>>()));
 	empty_statement.name("empty_statement");
 
 	search = (lit("search") > statement(_r1)) [
@@ -145,25 +134,10 @@ StatementParser::StatementParser()
 	choose.name("concurrent");
 	on_error<rethrow>(concurrent, delete_(_a));
 
-	boolean_return = (lit("return") >> boolean_expression(_r1)) [
-		_val = new_<Return<BooleanExpression>>(_1)
+	return_stmt = (lit("return") >> value_expression(_r1)) [
+		_val = new_<Return>(_1)
 	];
-	boolean_return.name("boolean_return");
-
-	numeric_return = (lit("return") >> numeric_expression(_r1)) [
-		_val = new_<Return<NumericExpression>>(_1)
-	];
-	numeric_return.name("numeric_return");
-
-	symbolic_return = (lit("return") >> symbolic_expression(_r1)) [
-		_val = new_<Return<SymbolicExpression>>(_1)
-	];
-	symbolic_return.name("symbolic_return");
-
-	string_return = (lit("return") >> string_expression(_r1)) [
-		_val = new_<Return<StringExpression>>(_1)
-	];
-	string_return.name("string_return");
+	return_stmt.name("string_return");
 
 
 	durative_call = (

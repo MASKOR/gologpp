@@ -2,7 +2,6 @@
 #define GOLOGPP_PARSER_COMPOUND_EXPRESSION_H_
 
 #include "utilities.h"
-#include "expressions.h"
 #include "atoms.h"
 #include "reference.h"
 
@@ -11,21 +10,19 @@ namespace gologpp {
 namespace parser {
 
 
-template<>
-struct ExpressionParser<CompoundExpression> : public grammar<CompoundExpression *(Scope &)> {
-	ExpressionParser();
+struct CompoundExpressionParser : public grammar<Expression *(Scope &)> {
+	CompoundExpressionParser();
 
-	rule<CompoundExpression *(Scope &)> expression;
-	rule<CompoundExpression *(Scope &)> compound_atom;
-	rule<Reference<Variable<CompoundExpression>> *(Scope &)> var_ref;
-	ReferenceParser<Fluent<CompoundExpression>> compound_fluent_ref;
-	ReferenceParser<Function<CompoundExpression>> compound_function_ref;
+	rule<Expression *(Scope &)> expression;
+	rule<Expression *(Scope &)> compound_atom;
+	rule<Reference<Variable> *(Scope &)> var_ref;
+	ReferenceParser<Fluent> compound_fluent_ref;
+	ReferenceParser<Function> compound_function_ref;
 
-	rule<CompoundExpression *(Scope &)> field_access;
-	rule<string()> field_name;
+	rule<Expression *(Scope &)> field_access;
 };
 
-extern rule<CompoundExpression *(Scope &)> compound_expression;
+extern rule<Expression *(Scope &)> compound_expression;
 
 
 } // namespace parser

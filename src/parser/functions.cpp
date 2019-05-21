@@ -1,6 +1,7 @@
 #include "field_access.h"
 #include "functions.h"
 #include "types.h"
+#include "statements.h"
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
@@ -9,6 +10,8 @@
 #include <boost/spirit/include/qi_list.hpp>
 #include <boost/spirit/include/qi_kleene.hpp>
 #include <boost/spirit/include/qi_action.hpp>
+#include <boost/spirit/include/qi_lit.hpp>
+#include <boost/spirit/include/qi_char.hpp>
 
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/dynamic_cast.hpp>
@@ -27,76 +30,63 @@
 namespace gologpp {
 namespace parser {
 
-template<class ExprT>
-rule<> &decl_prefix()
-{
-	static rule<> rv = type_mark<ExprT>() >> lit("function");
-	return rv;
-}
-
-template<>
-rule<> &decl_prefix<VoidExpression>()
-{
-	static rule<> rv = lit("procedure");
-	return rv;
-}
+static rule<Typename(Scope &)> decl_prefix {
+	lit("procedure") [
+		_val = val(Void::static_name())
+	]
+	| any_type_specifier >> "function"
+};
 
 
-template<class ExpressionT>
-FunctionParser<ExpressionT>::FunctionParser()
-: FunctionParser::base_type(function, type_descr<ExpressionT>()() + "_function_definition")
+FunctionParser::FunctionParser()
+: FunctionParser::base_type(function, "function_definition")
 {
 	function =
-		(decl_prefix<ExpressionT>() > r_name() > '(') [
+		(decl_prefix(_r1) > r_name() > '(') [
 			_a = new_<Scope>(_r1),
-			_b = _1
-		]
-		> ( -(abstract_var<VarDefinitionMode::FORCE>()(*_a) % ',') > ')' ) [
-			_c = _1
-		]
-		> type_specifier<ExpressionT>() [
+			_b = _2,
 			_d = _1
+		]
+		> ( -(var_decl(*_a) % ',') > ')' ) [
+			_c = _1
 		]
 		> (
 			lit(';') [
 				_val = phoenix::bind(
-					&Scope::declare_global<Function<ExpressionT>>,
+					&Scope::declare_global<Function>,
 					_r1, _a, _b, _c
 				),
-				if_(!_val || !phoenix::bind(&Function<CompoundExpression>::set_type_by_name, *_val, _d)) [
+				if_(!_val) [
 					_pass = false
+				].else_ [
+					phoenix::bind(
+						&AbstractLanguageElement::set_type_by_name,
+						_val, _d
+					)
 				]
 			]
 			| statement(*_a) [
 				_val = phoenix::bind(
-					&Scope::define_global<Function<ExpressionT>, VoidExpression *>,
+					&Scope::define_global<Function, Expression *>,
 					_r1, _a, _b, _c, _1
 				),
-				if_(!_val || !phoenix::bind(&Function<CompoundExpression>::set_type_by_name, *_val, _d)) [
+				if_(!_val) [
 					_pass = false
+				].else_ [
+					phoenix::bind(
+						&AbstractLanguageElement::set_type_by_name,
+						_val, _d
+					)
 				]
 			]
 		)
 	;
-	function.name(type_descr<ExpressionT>()() + "_function_definition");
+	function.name("function_definition");
 	on_error<rethrow>(function, delete_(_a));
 	GOLOGPP_DEBUG_NODE(function);
 }
 
 
-
-AbstractFunctionParser::AbstractFunctionParser()
-: AbstractFunctionParser::base_type(function, "any_function_definition")
-{
-	function = bool_func(_r1)
-		| num_func(_r1)
-		| sym_func(_r1)
-		| string_func(_r1)
-		| compound_func(_r1)
-		| procedure(_r1);
-	function.name("any_function_definition");
-	GOLOGPP_DEBUG_NODE(function);
-}
 
 
 } // namespace parser

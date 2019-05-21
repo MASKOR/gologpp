@@ -20,18 +20,16 @@ namespace gologpp {
 namespace parser {
 
 
-
-ExpressionParser<NumericExpression> &numeric_expression_()
-{
-	static ExpressionParser<NumericExpression> numeric_expression_;
-	return numeric_expression_;
-}
-
-rule<NumericExpression *(Scope &)> numeric_expression = numeric_expression_()(_r1);
+static NumericExpressionParser numeric_expression_parser_;
 
 
-ExpressionParser<NumericExpression>::ExpressionParser()
-: ExpressionParser::base_type(expression, "numeric_expression")
+rule<Expression *(Scope &)> numeric_expression {
+	numeric_expression_parser_(_r1)
+};
+
+
+NumericExpressionParser::NumericExpressionParser()
+: NumericExpressionParser::base_type(expression, "numeric_expression")
 {
 	expression = binary_expr(_r1) | unary_expr(_r1);
 	expression.name("numeric_expression");
@@ -39,7 +37,7 @@ ExpressionParser<NumericExpression>::ExpressionParser()
 	unary_expr = brace(_r1) | numeric_constant
 		| num_var_ref(_r1)
 		| numeric_fluent_ref(_r1) | numeric_function_ref(_r1)
-		| numeric_field_access(_r1)
+		| field_access(_r1, val(Number::static_name()))
 	;
 	unary_expr.name("unary_numeric_expression");
 
@@ -63,15 +61,14 @@ ExpressionParser<NumericExpression>::ExpressionParser()
 	;
 	arith_operator.name("arithmetic_operator");
 
-	num_var_ref = var<NumericExpression>()(_r1) [
-		_val = new_<Reference<NumericVariable>>(_1)
+	num_var_ref = var_usage(_r1, val(Number::static_name())) [
+		_val = new_<Reference<Variable>>(_1)
 	];
 	num_var_ref.name("reference_to_numeric_variable");
 
 	GOLOGPP_DEBUG_NODES((expression)(binary_expr)(unary_expr)
 	(operation)(brace)(num_var_ref)(arith_operator));
 }
-
 
 
 

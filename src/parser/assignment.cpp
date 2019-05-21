@@ -4,9 +4,7 @@
 #include "arithmetic.h"
 #include "formula.h"
 #include "types.h"
-#include "symbolic_expression.h"
-#include "string_expression.h"
-#include "compound_expression.h"
+#include "expressions.h"
 
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_char.hpp>
@@ -16,6 +14,9 @@
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/dynamic_cast.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/operator/comparison.hpp>
+#include <boost/phoenix/bind/bind_member_function.hpp>
+#include <boost/phoenix/scope/local_variable.hpp>
 
 
 namespace gologpp {
@@ -23,59 +24,35 @@ namespace parser {
 
 
 
-template<class ExpressionT>
-AssignmentParser<Reference<Fluent<ExpressionT>>>::AssignmentParser()
-: AssignmentParser<Reference<Fluent<ExpressionT>>>::base_type(assignment, string("assignment_to_") + type_descr<ExpressionT>()() + "_fluent")
+template<class LhsT>
+AssignmentParser<LhsT>::AssignmentParser()
+: AssignmentParser<LhsT>::base_type(assignment, "assignment")
 {
-	assignment = ((fluent_ref(_r1) >> "=") > expression(_r1)) [
-		_val = new_<Assignment<Reference<Fluent<ExpressionT>>>>(_1, _2)
+	typename expression::local_variable<Typename>::type lhs_type;
+	assignment = (
+		(lhs_parser(_r1) >> "=") [
+			lhs_type = phoenix::bind(&Expression::type_name, _1)
+		]
+		> typed_expression(_r1, lhs_type)
+	) [
+		_val = new_<Assignment<LhsT>>(_1, _2)
 	];
-	assignment.name(string("assignment_to_") + type_descr<ExpressionT>()() + "_fluent");
+	assignment.name("assignment");
 }
 
-#define GOLOGPP_PARSER_INSTANTIATE_FLUENT_ASSIGNMENT(r, data, T) \
-	template \
-	AssignmentParser<Reference<Fluent<T>>>::AssignmentParser();
 
-BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_INSTANTIATE_FLUENT_ASSIGNMENT, (), GOLOGPP_VALUE_TYPES)
-
-
-
-template<class ExpressionT>
-AssignmentParser<Reference<Variable<ExpressionT>>>::AssignmentParser()
-: AssignmentParser<Reference<Variable<ExpressionT>>>::base_type(assignment, string("assignment_to_") + type_descr<ExpressionT>()() + "_variable")
+template<>
+void AssignmentParser<Reference<Fluent>>::init()
 {
-	assignment = (var_ref(_r1) >> "=" > expression(_r1)) [
-		_val = new_<Assignment<Reference<Variable<ExpressionT>>>>(_1, _2)
-	];
-
-	var_ref = var<ExpressionT, VarDefinitionMode::ALLOW>()(_r1) [ _val = new_<Reference<Variable<ExpressionT>>>(_1) ];
-	var_ref.name("reference_to_" + type_descr<ExpressionT>()() + "_variable");
+	lhs_parser = ReferenceParser<Fluent>()(_r1);
 }
 
-#define GOLOGPP_PARSER_INSTANTIATE_VARIABLE_ASSIGNMENT(r, data, T) \
-	template \
-	AssignmentParser<Reference<Variable<T>>>::AssignmentParser();
 
-BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_INSTANTIATE_VARIABLE_ASSIGNMENT, (), GOLOGPP_VALUE_TYPES)
-
-
-
-template<class ExprT>
-AssignmentParser<FieldAccess<ExprT>>::AssignmentParser()
-: AssignmentParser<FieldAccess<ExprT>>::base_type(assignment, string("assignment_to_") + type_descr<ExprT>()() + "_field")
+template<>
+void AssignmentParser<FieldAccess>::init()
 {
-	assignment = ((field_access(_r1) >> "=") > expression(_r1)) [
-		_val = new_<Assignment<FieldAccess<ExprT>>>(_1, _2)
-	];
-	assignment.name(string("assignment_to_") + type_descr<ExprT>()() + "_field");
+	lhs_parser = field_access(_r1, val(""));
 }
-
-#define GOLOGPP_PARSER_INSTANTIATE_FIELD_ASSIGNMENT(r, data, T) \
-	template \
-	AssignmentParser<FieldAccess<T>>::AssignmentParser();
-
-BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_INSTANTIATE_FIELD_ASSIGNMENT, (), GOLOGPP_VALUE_TYPES)
 
 
 } // namespace parser

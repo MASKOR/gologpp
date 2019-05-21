@@ -4,51 +4,42 @@
 #include <model/formula.h>
 
 #include "utilities.h"
-#include "expressions.h"
-#include "arithmetic.h"
-#include "symbolic_expression.h"
-#include "string_expression.h"
-#include "atoms.h"
+#include "reference.h"
 
 
 namespace gologpp {
 namespace parser {
 
 
-template<class ExprT>
-struct ComparisonParser : grammar<Comparison<ExprT> *(Scope &)> {
+struct ComparisonParser : grammar<Comparison *(Scope &), locals<Typename>> {
 	ComparisonParser();
 
-	rule<Comparison<ExprT> *(Scope &)> comparison;
+	rule<Comparison *(Scope &), locals<Typename>> comparison;
 	rule<ComparisonOperator()> cmp_op;
-	ExpressionParser<ExprT> expression;
+	rule<Expression *(Scope &)> comparable_expr;
 };
 
 
 
-template<>
-struct ExpressionParser<BooleanExpression> : grammar<BooleanExpression *(Scope &)> {
-	ExpressionParser();
+struct BooleanExpressionParser : grammar<Expression *(Scope &)> {
+	BooleanExpressionParser();
 
-	rule<BooleanExpression *(Scope &)> expression;
-	rule<BooleanExpression *(Scope &)> unary_expr;
-	rule<BooleanExpression *(Scope &)> binary_expr;
-	rule<BooleanExpression *(Scope &)> negation;
-	rule<BooleanExpression *(Scope &)> brace;
-	rule<BooleanExpression *(Scope &)> bool_var_ref;
-	rule<BooleanExpression *(Scope &), locals<Scope *>> quantification;
+	rule<Expression *(Scope &)> expression;
+	rule<Expression *(Scope &)> unary_expr;
+	rule<Expression *(Scope &)> binary_expr;
+	rule<Expression *(Scope &)> negation;
+	rule<Expression *(Scope &)> brace;
+	rule<Expression *(Scope &)> bool_var_ref;
+	rule<Expression *(Scope &), locals<Scope *>> quantification;
 	rule<QuantificationOperator()> quantification_op;
 	rule<BooleanOperator()> bool_op;
-	ReferenceParser<BooleanFluent> boolean_fluent_ref;
-	ReferenceParser<BooleanFunction> boolean_function_ref;
-	FieldAccessParser<BooleanExpression> boolean_field_access;
-	ComparisonParser<NumericExpression> numeric_comparison;
-	ComparisonParser<SymbolicExpression> symbolic_comparison;
-	ComparisonParser<StringExpression> string_comparison;
+	ReferenceParser<Fluent> boolean_fluent_ref;
+	ReferenceParser<Function> boolean_function_ref;
+	ComparisonParser comparison;
 };
 
 
-extern rule<BooleanExpression *(Scope &)> boolean_expression;
+extern rule<Expression *(Scope &)> boolean_expression;
 
 
 } // namespace parser

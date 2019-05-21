@@ -1,11 +1,7 @@
 #include "field_access.h"
 #include "reference.h"
 #include "utilities.h"
-#include "string_expression.h"
-#include "symbolic_expression.h"
-#include "compound_expression.h"
-#include "formula.h"
-#include "arithmetic.h"
+#include "expressions.h"
 
 #include <model/action.h>
 #include <model/procedural.h>
@@ -39,7 +35,7 @@ namespace parser {
 
 template<class GologT>
 ReferenceParser<GologT>::ReferenceParser()
-: ReferenceParser::base_type(pred_ref, string("reference_to_") + type_descr<GologT>()())
+: ReferenceParser::base_type(pred_ref, "reference")
 {
 	pred_ref = (((r_name() >> "(") > -(
 		any_expr(_r1) %  ","
@@ -50,14 +46,9 @@ ReferenceParser<GologT>::ReferenceParser()
 			delete_(_val)
 		]
 	];
-	pred_ref.name(string("reference_to_") + type_descr<GologT>()());
+	pred_ref.name("reference");
 
-	any_expr = boolean_expression(_r1)
-		| numeric_expression(_r1)
-		| string_expression(_r1)
-		| symbolic_expression(_r1)
-		| compound_expression(_r1)
-	;
+	any_expr = value_expression(_r1);
 	any_expr.name("any_expression");
 
 	GOLOGPP_DEBUG_NODES((pred_ref)(any_expr));
@@ -67,21 +58,8 @@ ReferenceParser<GologT>::ReferenceParser()
 
 template struct ReferenceParser<Action>;
 template struct ReferenceParser<ExogAction>;
-template struct ReferenceParser<Procedure>;
-
-#define GOLOGPP_INSTANTIATE_WITH_EXPR_T(_, seq) \
-	template \
-	struct ReferenceParser < \
-		BOOST_PP_SEQ_ELEM(0, seq) < \
-			BOOST_PP_SEQ_ELEM(1, seq) \
-		> \
-	>;
-
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(
-	GOLOGPP_INSTANTIATE_WITH_EXPR_T,
-	((Function)(Fluent)) (GOLOGPP_VALUE_TYPES)
-)
-
+template struct ReferenceParser<Function>;
+template struct ReferenceParser<Fluent>;
 
 
 

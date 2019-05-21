@@ -3,8 +3,12 @@
 
 #include "formula.h"
 #include "types.h"
-#include "reference.h"
 #include "field_access.h"
+#include "arithmetic.h"
+#include "symbolic_expression.h"
+#include "string_expression.h"
+#include "expressions.h"
+#include "atoms.h"
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
@@ -18,6 +22,10 @@
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/object/dynamic_cast.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/bind/bind_member_function.hpp>
+
+#include <unordered_map>
+#include <functional>
 
 
 namespace gologpp {
@@ -25,9 +33,8 @@ namespace parser {
 
 
 
-template<class ExprT>
-ComparisonParser<ExprT>::ComparisonParser()
-: ComparisonParser<ExprT>::base_type(comparison, type_descr<ExprT>()() + "_comparison")
+ComparisonParser::ComparisonParser()
+: ComparisonParser::base_type(comparison, "comparison")
 {
 	cmp_op =
 		qi::string(">") [ _val = val(ComparisonOperator::GT) ]
@@ -37,39 +44,42 @@ ComparisonParser<ExprT>::ComparisonParser()
 		| qi::string("==") [ _val = val(ComparisonOperator::EQ) ]
 		| qi::string("!=") [ _val = val(ComparisonOperator::NEQ) ]
 	;
-	cmp_op.name("numeric_comparison_operator");
+	cmp_op.name("comparison_operator");
 
 	comparison = (
-		(expression(_r1) >> cmp_op) > expression(_r1)
+		(comparable_expr(_r1) >> cmp_op) [
+			_a = phoenix::bind(&Expression::type_name, _1)
+		]
+		> typed_expression(_r1, _a)
 	) [
-		_val = new_<Comparison<ExprT>>(at_c<0>(_1), at_c<1>(_1), _2)
+		_val = new_<Comparison>(at_c<0>(_1), at_c<1>(_1), _2)
 	];
-	comparison.name("numeric_comparison");
+	comparison.name("comparison");
+
+	comparable_expr = numeric_expression(_r1) | string_expression(_r1) | symbolic_expression(_r1);
 
 	GOLOGPP_DEBUG_NODE(comparison);
 }
 
 
-ExpressionParser<BooleanExpression> &boolean_expression_()
-{
-	static ExpressionParser<BooleanExpression> boolean_expression_;
-	return boolean_expression_;
-}
+static BooleanExpressionParser boolean_expression_parser_;
 
-rule<BooleanExpression *(Scope &)> boolean_expression = boolean_expression_()(_r1);
+rule<Expression *(Scope &)> boolean_expression {
+	boolean_expression_parser_(_r1)
+};
 
 
-ExpressionParser<BooleanExpression>::ExpressionParser()
-: ExpressionParser::base_type(expression, "boolean_expression")
+BooleanExpressionParser::BooleanExpressionParser()
+: BooleanExpressionParser::base_type(expression, "boolean_expression")
 {
 	expression = binary_expr(_r1) | unary_expr(_r1);
 	expression.name("boolean_expression");
 
 	unary_expr = quantification(_r1) | negation(_r1) | boolean_constant
-		| bool_var_ref(_r1) | brace(_r1) | numeric_comparison(_r1) | symbolic_comparison(_r1)
-		| string_comparison(_r1)
+		| bool_var_ref(_r1) | brace(_r1)
+		| comparison(_r1)
 		| boolean_fluent_ref(_r1) | boolean_function_ref(_r1)
-		| boolean_field_access(_r1)
+		| field_access(_r1, val(Bool::static_name()))
 	;
 	unary_expr.name("unary_boolean_expression");
 
@@ -82,7 +92,7 @@ ExpressionParser<BooleanExpression>::ExpressionParser()
 
 	quantification = ( (quantification_op > '(') [
 		_a = new_<Scope>(_r1)
-	] > abstract_var<VarDefinitionMode::FORCE>()(*_a) > ')' > expression(*_a)) [
+	] > var_decl(*_a) > ')' > expression(*_a)) [
 		_val = new_<Quantification>(_a, _1, _2, _3)
 	];
 	quantification.name("quantification");
@@ -110,8 +120,8 @@ ExpressionParser<BooleanExpression>::ExpressionParser()
 	brace = '(' >> expression(_r1) >> ')';
 	brace.name("braced_boolean_expression");
 
-	bool_var_ref = var<BooleanExpression>()(_r1) [
-		_val = new_<Reference<BooleanVariable>>(_1)
+	bool_var_ref = var_usage(_r1, val(Bool::static_name())) [
+		_val = new_<Reference<Variable>>(_1)
 	];
 	bool_var_ref.name("reference_to_boolean_variable");
 

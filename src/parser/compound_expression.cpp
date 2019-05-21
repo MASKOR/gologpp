@@ -3,6 +3,7 @@
 #include <model/fluent.h>
 #include <model/procedural.h>
 
+#include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_attr.hpp>
 #include <boost/spirit/include/qi_action.hpp>
@@ -12,6 +13,8 @@
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/dynamic_cast.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/operator/logical.hpp>
+#include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
 
 
@@ -19,28 +22,28 @@ namespace gologpp {
 namespace parser {
 
 
-ExpressionParser<CompoundExpression> &compound_expression_()
-{
-	static ExpressionParser<CompoundExpression> rv;
-	return rv;
-}
+static CompoundExpressionParser compound_expression_;
 
-rule<CompoundExpression *(Scope &)> compound_expression = compound_expression_()(_r1);
 
-ExpressionParser<CompoundExpression>::ExpressionParser()
-: ExpressionParser::base_type(expression, "compound_expression")
+rule<Expression *(Scope &)> compound_expression {
+	compound_expression_(_r1)
+};
+
+
+CompoundExpressionParser::CompoundExpressionParser()
+: CompoundExpressionParser::base_type(expression, "compound_expression")
 {
 	expression = field_access(_r1)
 		| compound_atom(_r1);
 	expression.name("compound_expression");
 
-	field_access = (compound_atom(_r1) >> '.' >> (field_name % '.')) [
-		_val = phoenix::bind(&nested_field_access, _1, _2)
+	field_access = (compound_atom(_r1) >> '.' >> (r_name() % '.')) [
+		_val = phoenix::bind(&nested_field_access, _1, _2),
+		if_(!_val) [
+			_pass = false
+		]
 	];
 	field_access.name("nestable_compound_field_access");
-
-	field_name = type_mark<CompoundExpression>() >> r_name();
-	field_name.name("compound_field_name");
 
 	compound_atom =
 		compound_constant | var_ref(_r1)
@@ -49,8 +52,8 @@ ExpressionParser<CompoundExpression>::ExpressionParser()
 	;
 	compound_atom.name("compound_atom");
 
-	var_ref = var<CompoundExpression>()(_r1) [
-		_val = new_<Reference<Variable<CompoundExpression>>>(_1)
+	var_ref = var_usage(_r1, val(CompoundType::static_name())) [
+		_val = new_<Reference<Variable>>(_1)
 	];
 	var_ref.name("compound_var_ref");
 

@@ -2,14 +2,9 @@
 #define GOLOGPP_PARSER_ACTION_H_
 
 #include "utilities.h"
-#include "formula.h"
 #include "domain.h"
-#include "string_expression.h"
-#include "symbolic_expression.h"
-#include "compound_expression.h"
 #include "effect_axiom.h"
 #include "reference.h"
-
 
 #include <model/scope.h>
 
@@ -18,70 +13,27 @@ namespace parser {
 
 
 template<class ActionT>
-struct ActionDefinitionParser;
-
-
-template<>
-struct ActionDefinitionParser<Action>
+struct ActionDefinitionParser
 : grammar < void (
 	Scope &, // parent scope
 	Scope *, // owned scope
 	string, // action name
-	boost::optional<vector<shared_ptr<AbstractVariable>>> // action args
+	boost::optional<vector<shared_ptr<Variable>>> // action args
 ) > {
 	ActionDefinitionParser();
+
 
 	rule < void (
 		Scope &, // parent scope
 		Scope *, // owned scope
 		string, // action name
-		boost::optional<vector<shared_ptr<AbstractVariable>>> // action args
+		boost::optional<vector<shared_ptr<Variable>>> // action args
 	) > definition;
 
-	ExpressionParser<BooleanExpression> formula_parser;
 	rule<AbstractEffectAxiom *(Scope &)> effect;
-	EffectParser<Reference<BooleanFluent>> boolean_effect;
-	EffectParser<Reference<NumericFluent>> numeric_effect;
-	EffectParser<Reference<SymbolicFluent>> symbolic_effect;
-	EffectParser<Reference<StringFluent>> string_effect;
-	EffectParser<Reference<CompoundFluent>> compound_effect;
-	AnyDomainAssignmentParser domain_assignment;
-
-	ReferenceParser<BooleanFluent>boolean_senses;
-	ReferenceParser<NumericFluent> numeric_senses;
-	ReferenceParser<SymbolicFluent> symbolic_senses;
-	ReferenceParser<StringFluent> string_senses;
-	ReferenceParser<CompoundFluent> compound_senses;
-	rule<Reference<AbstractFluent> *(Scope &)> senses;
-};
-
-
-
-template<>
-struct ActionDefinitionParser<ExogAction>
-: grammar < void (
-	Scope &, // parent scope
-	Scope *, // owned scope
-	string, // action name
-	boost::optional<vector<shared_ptr<AbstractVariable>>> // action args
-) > {
-	ActionDefinitionParser();
-
-	rule < void (
-		Scope &, // parent scope
-		Scope *, // owned scope
-		string, // action name
-		boost::optional<vector<shared_ptr<AbstractVariable>>> // action args
-	) > definition;
-
-	ExpressionParser<BooleanExpression> formula_parser;
-	rule<AbstractEffectAxiom *(Scope &)> effect;
-	EffectParser<Reference<BooleanFluent>> boolean_effect;
-	EffectParser<Reference<NumericFluent>> numeric_effect;
-	EffectParser<Reference<SymbolicFluent>> symbolic_effect;
-	EffectParser<Reference<StringFluent>> string_effect;
-	EffectParser<Reference<CompoundFluent>> compound_effect;
-	AnyDomainAssignmentParser domain_assignment;
+	EffectParser<Reference<Fluent>> fluent_effect;
+	EffectParser<FieldAccess> field_effect;
+	ReferenceParser<Fluent> senses;
 };
 
 
@@ -93,7 +45,7 @@ struct ActionParser
 	locals <
 		Scope *,
 		string,
-		boost::optional < vector < shared_ptr < AbstractVariable > > >
+		boost::optional < vector < shared_ptr < Variable > > >
 	>
 > {
 	ActionParser();
@@ -103,7 +55,7 @@ struct ActionParser
 	rule < ActionT *(Scope &), locals <
 		Scope *,
 		string,
-		boost::optional < vector < shared_ptr < AbstractVariable > > >
+		boost::optional < vector < shared_ptr < Variable > > >
 	> > action;
 };
 

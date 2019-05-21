@@ -2,51 +2,33 @@
 #define GOLOGPP_PARSER_FUNCTIONS_H_
 
 #include "utilities.h"
-#include "statements.h"
 
 namespace gologpp {
 namespace parser {
 
 
-template<class ExpressionT>
 struct FunctionParser
 : grammar <
-	Function<ExpressionT> *(Scope &),
+	Function *(Scope &),
 	locals <
 		Scope *,
 		string,
-		boost::optional<vector<shared_ptr<AbstractVariable>>>,
+		boost::optional<vector<shared_ptr<Variable>>>,
 		string
 	>
 > {
 	FunctionParser();
 
 	rule<
-		Function<ExpressionT> *(Scope &),
+		Function *(Scope &),
 		locals <
 			Scope *,
 			string,
-			boost::optional<vector<shared_ptr<AbstractVariable>>>,
+			boost::optional<vector<shared_ptr<Variable>>>,
 			string
 		>
 	> function;
-	StatementParser statement;
 };
-
-
-
-struct AbstractFunctionParser : grammar<AbstractFunction *(Scope &)> {
-	AbstractFunctionParser();
-
-	rule<AbstractFunction *(Scope &)> function;
-	FunctionParser<NumericExpression> num_func;
-	FunctionParser<BooleanExpression> bool_func;
-	FunctionParser<SymbolicExpression> sym_func;
-	FunctionParser<StringExpression> string_func;
-	FunctionParser<CompoundExpression> compound_func;
-	FunctionParser<VoidExpression> procedure;
-};
-
 
 
 } // namespace parser

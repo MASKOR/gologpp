@@ -2,17 +2,19 @@
 
 #include <boost/spirit/include/qi_expect.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
-#include <boost/spirit/include/qi_alternative.hpp>
-#include <boost/spirit/include/qi_kleene.hpp>
-#include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_list.hpp>
+#include <boost/spirit/include/qi_lit.hpp>
+#include <boost/spirit/include/qi_char.hpp>
 
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/dynamic_cast.hpp>
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/operator/comparison.hpp>
+#include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
+#include <boost/phoenix/bind/bind_function.hpp>
 
 #include <model/scope.h>
 
@@ -22,30 +24,14 @@ namespace gologpp {
 namespace parser {
 
 
-template<class ExprT>
-rule<void(CompoundType *)> &field_definition()
-{
-	static rule<void(CompoundType *)> field_definition {
-		(type_mark<ExprT>() > r_name() > type_specifier<ExprT>()) [
-			phoenix::bind(&CompoundType::add_field, _r1, _1, _2)
-		]
-	};
-	return field_definition;
-}
-
-
 CompoundTypeParser::CompoundTypeParser()
 : CompoundTypeParser::base_type(type_definition, "compound_type_definition")
 {
 	type_definition = (lit("compound") > r_name() > '{') [
 		_val = new_<CompoundType>(_1)
-	] > ((
-		field_definition<NumericExpression>()(_val)
-		| field_definition<BooleanExpression>()(_val)
-		| field_definition<StringExpression>()(_val)
-		| field_definition<SymbolicExpression>()(_val)
-		| field_definition<CompoundExpression>()(_val)
-	) % ',' > lit('}')) [
+	] > ((any_type_specifier > r_name()) [
+		phoenix::bind(&CompoundType::add_field, _val, _2, _1)
+	] % ',' > lit('}')) [
 		phoenix::bind(&Scope::register_type, _r1, _val)
 	];
 	type_definition.name("compound_type_definition");
@@ -53,16 +39,15 @@ CompoundTypeParser::CompoundTypeParser()
 }
 
 
-template<>
-rule<string()> &
-type_specifier<CompoundExpression>()
-{
-	// CompoundExpressions: Colon followed by type name
-	static rule<string()> type_specifier {
-		qi::lit(':') > r_name()
-	};
-	return type_specifier;
-}
+
+rule<string()> any_type_specifier = r_name() [
+	if_(phoenix::bind(&Scope::exists_type, phoenix::bind(&global_scope), _1)) [
+		_val = _1
+	].else_ [
+		_pass = false
+	]
+];
+
 
 
 } // namespace parser

@@ -9,47 +9,18 @@
 namespace gologpp {
 namespace parser {
 
-template<class ExprT>
-struct DomainExpressionParser : grammar<Domain<ExprT>(Scope &)> {
+struct DomainExpressionParser : grammar<Domain(Scope &, Typename)> {
 	DomainExpressionParser();
 
-	rule<Domain<ExprT>(Scope &)> domain_expr;
-	rule<Domain<ExprT>(Scope &)> unary_domain_expr;
-	rule<Domain<ExprT>(Scope &)> binary_domain_expr;
+	rule<Domain(Scope &, Typename)> domain_expr;
+	rule<Domain(Scope &, Typename)> unary_domain_expr;
+	rule<Domain(Scope &, Typename)> binary_domain_expr;
 	rule<DomainOperator()> domain_operator;
-	ConstantParser<ExprT, true> constant;
 };
 
-
-
-template<class ExprT>
-struct DomainDeclarationParser : grammar<void(Scope &), locals<string>> {
-	DomainDeclarationParser();
-
-	rule<void(Scope &), locals<string>> domain;
-	DomainExpressionParser<ExprT> domain_expr;
-};
-
-
-
-template<class ExprT>
-struct DomainAssignmentParser : grammar<void(Scope &)> {
-	DomainAssignmentParser();
-
-	rule<void(Scope &)> domain_assignment;
-	DomainExpressionParser<ExprT> domain_expr;
-};
-
-
-
-struct AnyDomainAssignmentParser : grammar<void(Scope &)> {
-	AnyDomainAssignmentParser();
-
-	rule<void(Scope &)> domain_assignment;
-	DomainAssignmentParser<NumericExpression> numeric_domain_assignment;
-	DomainAssignmentParser<SymbolicExpression> symbolic_domain_assignment;
-	DomainAssignmentParser<StringExpression> string_domain_assignment;
-};
+extern rule<Domain(Scope &, Typename)> domain_expression;
+extern rule<void(Scope &), locals<string, Typename>> domain_decl;
+extern rule<void(Scope &), locals<Typename>> domain_assignment;
 
 
 } // namespace parser

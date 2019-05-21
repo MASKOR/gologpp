@@ -26,6 +26,8 @@ using namespace boost::spirit::qi::labels;
 using namespace boost::phoenix;
 
 
+using Typename = string;
+
 
 /******************
 * Little helpers

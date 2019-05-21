@@ -1,7 +1,6 @@
 #ifndef GOLOGPP_PARSER_SYMBOLIC_EXPRESSION_H_
 #define GOLOGPP_PARSER_SYMBOLIC_EXPRESSION_H_
 
-#include "expressions.h"
 #include "utilities.h"
 #include "atoms.h"
 #include "reference.h"
@@ -13,21 +12,17 @@ namespace gologpp {
 namespace parser {
 
 
+struct SymbolicExpressionParser : grammar<Expression *(Scope &)> {
+	SymbolicExpressionParser();
 
-
-template<>
-struct ExpressionParser<SymbolicExpression> : grammar<SymbolicExpression *(Scope &)> {
-	ExpressionParser();
-
-	rule<SymbolicExpression *(Scope &)> expression;
-	rule<Reference<Variable<SymbolicExpression>> *(Scope &)> var_ref;
-	ReferenceParser<Fluent<SymbolicExpression>> symbolic_fluent_ref;
-	ReferenceParser<Function<SymbolicExpression>> symbolic_function_ref;
-	FieldAccessParser<SymbolicExpression> symbolic_field_access;
+	rule<Expression *(Scope &)> expression;
+	rule<Reference<Variable> *(Scope &)> var_ref;
+	ReferenceParser<Fluent> symbolic_fluent_ref;
+	ReferenceParser<Function> symbolic_function_ref;
 };
 
 
-extern rule<SymbolicExpression *(Scope &)> symbolic_expression;
+extern rule<Expression *(Scope &)> symbolic_expression;
 
 
 } // namespace parser

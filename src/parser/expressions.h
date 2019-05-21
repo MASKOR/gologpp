@@ -13,21 +13,10 @@ namespace parser {
 * Just an undefined template
 ****************************/
 
-template<class ExprT>
-struct ExpressionParser;
 
-#define GOLOGPP_PARSER_SPECIALIZE_EXPRESSION_PARSER(r, data, T) \
-template<> struct ExpressionParser<T>;
+extern rule<Expression *(Scope &)> value_expression;
 
-BOOST_PP_SEQ_FOR_EACH(GOLOGPP_PARSER_SPECIALIZE_EXPRESSION_PARSER, (), GOLOGPP_VALUE_TYPES)
-
-
-template<class> struct ReferenceParser;
-template<class> struct FieldAccessParser;
-
-
-template<class ExprT>
-rule<ExprT *(Scope &)> &expression();
+extern rule<Expression *(Scope &, Typename)> typed_expression;
 
 
 } // namespace parser

@@ -5,7 +5,6 @@
 #include <model/procedural.h>
 
 #include "utilities.h"
-#include "expressions.h"
 #include "reference.h"
 
 
@@ -13,37 +12,15 @@ namespace gologpp {
 namespace parser {
 
 
+
 template<class LhsT>
-struct AssignmentParser;
-
-
-template<class ExpressionT>
-struct AssignmentParser<Reference<Fluent<ExpressionT>>> : grammar<Assignment<Reference<Fluent<ExpressionT>>> *(Scope &)> {
+struct AssignmentParser : grammar<Assignment<LhsT> *(Scope &)> {
 	AssignmentParser();
 
-	rule<Assignment<Reference<Fluent<ExpressionT>>> *(Scope &)> assignment;
-	ReferenceParser<Fluent<ExpressionT>> fluent_ref;
-	ExpressionParser<ExpressionT> expression;
-};
+	void init();
 
-
-template<class ExpressionT>
-struct AssignmentParser<Reference<Variable<ExpressionT>>> : grammar<Assignment<Reference<Variable<ExpressionT>>> *(Scope &)> {
-	AssignmentParser();
-
-	rule<Assignment<Reference<Variable<ExpressionT>>> *(Scope &)> assignment;
-	rule<Reference<Variable<ExpressionT>> *(Scope &)> var_ref;
-	ExpressionParser<ExpressionT> expression;
-};
-
-
-template<class ExprT>
-struct AssignmentParser<FieldAccess<ExprT>> : grammar<Assignment<FieldAccess<ExprT>> *(Scope &)> {
-	AssignmentParser();
-
-	rule<Assignment<FieldAccess<ExprT>> *(Scope &)> assignment;
-	FieldAccessParser<ExprT> field_access;
-	ExpressionParser<ExprT> expression;
+	rule<Assignment<LhsT> *(Scope &)> assignment;
+	rule<LhsT *(Scope &)> lhs_parser;
 };
 
 

@@ -134,6 +134,7 @@ if (${BUILD_PARSER})
 		src/parser/action.cpp
 		src/parser/arithmetic.cpp
 		src/parser/formula.cpp
+		src/parser/effect_axiom.cpp
 		src/parser/functions.cpp
 		src/parser/utilities.cpp
 		src/parser/statements.cpp

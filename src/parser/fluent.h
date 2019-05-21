@@ -9,41 +9,31 @@ namespace gologpp {
 namespace parser {
 
 
-template<class ExprT>
 struct FluentParser
 : grammar <
-	Fluent<ExprT> *(Scope &),
+	Fluent *(Scope &),
 	locals <
 		Scope *,
 		string,
-		boost::optional < vector < shared_ptr < AbstractVariable > > >,
-		string
+		boost::optional < vector < shared_ptr < Variable > > >,
+		Typename
 	>
 > {
 	FluentParser();
 
 	rule <
-		Fluent < ExprT > *(Scope &),
+		Fluent *(Scope &),
 		locals <
 			Scope *,
 			string,
-			boost::optional < vector < shared_ptr < AbstractVariable > > >,
-			string
+			boost::optional < vector < shared_ptr < Variable > > >,
+			Typename
 		>
 	> fluent;
-	rule<InitialValue<ExprT> *()> initially;
-	AnyDomainAssignmentParser domain_assignment;
-	ConstantParser<ExprT, true> constant;
+
+	rule<InitialValue *(Typename)> initially;
 };
 
-extern FluentParser<NumericExpression> numeric_fluent;
-extern FluentParser<BooleanExpression> boolean_fluent;
-extern FluentParser<SymbolicExpression> symbolic_fluent;
-extern FluentParser<StringExpression> string_fluent;
-extern FluentParser<CompoundExpression> compound_fluent;
-
-
-rule<AbstractFluent *(Scope &)> &abstract_fluent();
 
 
 } // namespace parser

@@ -17,6 +17,8 @@
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/operator/logical.hpp>
+#include <boost/phoenix/operator/comparison.hpp>
 #include <boost/phoenix/scope/let.hpp>
 #include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/scope/local_variable.hpp>
@@ -25,17 +27,22 @@ namespace gologpp {
 namespace parser {
 
 
-template<class ExprT>
-DomainExpressionParser<ExprT>::DomainExpressionParser()
-: DomainExpressionParser<ExprT>::base_type(domain_expr, type_descr<ExprT>()() + "_domain_expression")
-{
-	domain_expr = binary_domain_expr(_r1) | unary_domain_expr(_r1);
-	domain_expr.name(type_descr<ExprT>()() + "_domain_expression");
+static DomainExpressionParser domain_expression_;
 
-	typename expression::local_variable<shared_ptr<Domain<ExprT>>>::type p_domain;
+rule<Domain(Scope &, Typename)> domain_expression {
+	domain_expression_(_r1, _r2)
+};
+
+DomainExpressionParser::DomainExpressionParser()
+: DomainExpressionParser::base_type(domain_expr, "domain_expression")
+{
+	domain_expr = binary_domain_expr(_r1, _r2) | unary_domain_expr(_r1, _r2);
+	domain_expr.name("domain_expression");
+
+	typename expression::local_variable<shared_ptr<Domain>>::type p_domain;
 	unary_domain_expr =
 		r_name() [
-			let(p_domain = phoenix::bind(&Scope::lookup_domain<ExprT>, _r1, _1)) [
+			let(p_domain = phoenix::bind(&Scope::lookup_domain, _r1, _1, _r2)) [
 				if_(p_domain) [
 					_val = *p_domain
 				].else_ [
@@ -43,14 +50,14 @@ DomainExpressionParser<ExprT>::DomainExpressionParser()
 				]
 			]
 		]
-		| (lit('{') > (constant % ',') > '}') [
-			_val = construct<Domain<ExprT>>(val(""), _1)
+		| (lit('{') > (constant(_r2) % ',') > '}') [
+			_val = construct<Domain>(val(""), _r2, _1)
 		]
 	;
 	unary_domain_expr.name("unary_domain_expression");
 
-	binary_domain_expr = (unary_domain_expr(_r1) >> domain_operator >> domain_expr(_r1)) [
-		_val = phoenix::bind(&domain_operation<ExprT>, _1, _2, _3)
+	binary_domain_expr = (unary_domain_expr(_r1, _r2) >> domain_operator >> domain_expr(_r1, _r2)) [
+		_val = phoenix::bind(&domain_operation, _1, _2, _3)
 	];
 	binary_domain_expr.name("binary_domain_expression");
 
@@ -66,60 +73,35 @@ DomainExpressionParser<ExprT>::DomainExpressionParser()
 
 
 
-template<class ExprT>
-DomainDeclarationParser<ExprT>::DomainDeclarationParser()
-: DomainDeclarationParser<ExprT>::base_type(domain, "domain_declaration")
-{
-	domain = ((type_mark<ExprT>() >> "domain") > r_name() [
-		_a = _1
-	] )
+rule<void(Scope &), locals<string, Typename>> domain_decl {
+	((any_type_specifier >> "domain") > r_name()) [
+		_a = _1, // type name
+		_b = _2  // domain name
+	]
 	> (
 		lit(';') [ // forward declaration
-			phoenix::bind(&Scope::declare_domain<ExprT>, _r1, _a)
+			phoenix::bind(&Scope::declare_domain, _r1, _a, _b)
 		]
-		| ( lit('=') > domain_expr(_r1) ) [ // definition
-			phoenix::bind(&Scope::define_domain<ExprT>, _r1, _a, _1)
+		| ( lit('=') > domain_expression(_r1, _a) ) [ // definition
+			phoenix::bind(&Scope::define_domain, _r1, _a, _b, _1)
 		]
-	);
-	domain.name("domain_declaration");
-
-	GOLOGPP_DEBUG_NODE(domain);
-}
-
-template
-struct DomainDeclarationParser<NumericExpression>;
-
-template
-struct DomainDeclarationParser<SymbolicExpression>;
-
-template
-struct DomainDeclarationParser<StringExpression>;
+	),
+	"domain_declaration"
+};
 
 
 
-template<class ExprT>
-DomainAssignmentParser<ExprT>::DomainAssignmentParser()
-: DomainAssignmentParser<ExprT>::base_type(domain_assignment, type_descr<ExprT>()() + "_domain_assignment")
-{
-	domain_assignment = (var<ExprT, VarDefinitionMode::DENY>()(_r1) > "in" > domain_expr(_r1) > ';') [
-		phoenix::bind(&Variable<ExprT>::set_domain_copy, _1, _2)
-	];
-	GOLOGPP_DEBUG_NODE(domain_assignment);
-}
-
-
-
-AnyDomainAssignmentParser::AnyDomainAssignmentParser()
-: AnyDomainAssignmentParser::base_type(domain_assignment, "any_domain_assignment")
-{
-	domain_assignment =
-		numeric_domain_assignment(_r1)
-		| symbolic_domain_assignment(_r1)
-		| string_domain_assignment(_r1)
-	;
-	domain_assignment.name("any_domain_assignment");
-}
-
+rule<void(Scope &), locals<Typename>> domain_assignment {
+	(
+		any_var_usage(_r1) [
+			_a = phoenix::bind(&Expression::type_name, _1)
+		]
+		> "in" > domain_expression(_r1, _a) > ';'
+	) [
+		phoenix::bind(&Variable::set_domain_copy, _1, _2)
+	],
+	"domain_assignment"
+};
 
 
 } // namespace parser

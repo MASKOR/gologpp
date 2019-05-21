@@ -18,6 +18,8 @@
 #include <boost/spirit/include/qi_no_skip.hpp>
 #include <boost/spirit/include/qi_as_string.hpp>
 #include <boost/spirit/include/qi_list.hpp>
+#include <boost/spirit/include/qi_lazy.hpp>
+#include <boost/spirit/include/qi_lit.hpp>
 
 #include <boost/phoenix/bind/bind_function.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
@@ -35,262 +37,165 @@
 #include <model/variable.h>
 #include <model/constant.h>
 
+#include <unordered_map>
+#include <functional>
+
 
 namespace gologpp {
 namespace parser {
 
 
-/******************
- * Variables
- ******************/
+
+rule<shared_ptr<Variable>(Scope &)> var_decl {
+	(any_type_specifier >> r_name()) [
+		_val = phoenix::bind(
+			&Scope::get_var, _r1,
+			VarDefinitionMode::FORCE,
+			_1, _2
+		)
+	],
+	"variable_declaration"
+};
 
 
-template<class ExpressionT, VarDefinitionMode var_def_mode>
-rule<shared_ptr<Variable<ExpressionT>>(Scope &), locals<string>> &
-var() {
-	static rule<shared_ptr<Variable<ExpressionT>>(Scope &), locals<string>> variable;
-	variable = {
-		type_mark<ExpressionT>() >> r_name() [
-			_val = phoenix::bind(
-				&Scope::get_var<ExpressionT, var_def_mode>,
-				_r1, _1
-			)
-		] > type_specifier<ExpressionT>() [
-			_a = _1, // can't use _1 directly, have to assign it to a local first (wtf?)
-			if_(!_val || !phoenix::bind(&Variable<ExpressionT>::set_type_by_name, *_val, _a)) [
-				_pass = false
-			]
-		],
-		type_descr<ExpressionT>()() + "_variable"
-	};
+rule<shared_ptr<Variable>(Scope &, Typename)> var_usage {
+	r_name() [
+		_val = phoenix::bind(
+			&Scope::get_var, _r1,
+			VarDefinitionMode::DENY,
+			_r2, _1
+		)
+	],
+	"variable_reference"
+};
 
-	//GOLOGPP_DEBUG_NODE(variable);
-	return variable;
-}
-
-
-#define GOLOGPP_INSTANTIATE_TEMPLATE_VAR(_, seq) \
-	template \
-	rule < shared_ptr < Variable < BOOST_PP_SEQ_ELEM(0, seq) > > (Scope &), locals<string> > & \
-	var < BOOST_PP_SEQ_ELEM(0, seq), BOOST_PP_SEQ_ELEM(1, seq) > ();
-
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(
-	GOLOGPP_INSTANTIATE_TEMPLATE_VAR,
-	(GOLOGPP_VALUE_TYPES) ((VarDefinitionMode::DENY)(VarDefinitionMode::ALLOW)(VarDefinitionMode::FORCE))
-)
-
-
-
-
-template<VarDefinitionMode var_def_mode>
-rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var() {
-	static rule<shared_ptr<AbstractVariable> (Scope &)> any_var {
-		var<BooleanExpression, var_def_mode>()(_r1) [ _val = phoenix::bind(
-			&std::dynamic_pointer_cast<AbstractVariable, BooleanVariable>,
-			_1
-		) ]
-		| var<NumericExpression, var_def_mode>()(_r1) [ _val = phoenix::bind(
-			&std::dynamic_pointer_cast<AbstractVariable, NumericVariable>,
-			_1
-		) ]
-		| var<SymbolicExpression, var_def_mode>()(_r1) [ _val = phoenix::bind(
-			&std::dynamic_pointer_cast<AbstractVariable, SymbolicVariable>,
-			_1
-		) ]
-		| var<StringExpression, var_def_mode>()(_r1) [ _val = phoenix::bind(
-			&std::dynamic_pointer_cast<AbstractVariable, StringVariable>,
-			_1
-		) ]
-		| var<CompoundExpression, var_def_mode>()(_r1) [ _val = phoenix::bind(
-			&std::dynamic_pointer_cast<AbstractVariable, CompoundVariable>,
-			_1
-		) ],
-		"any_variable"
-	};
-	//GOLOGPP_DEBUG_NODE(any_var);
-	return any_var;
-}
-
-template
-rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<VarDefinitionMode::DENY>();
-
-template
-rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<VarDefinitionMode::ALLOW>();
-
-template
-rule<shared_ptr<AbstractVariable> (Scope &)> &abstract_var<VarDefinitionMode::FORCE>();
-
-
-/******************
-* Constants
-******************/
-
-template<>
-void ConstantParser<BooleanExpression, false>::init(rule<Constant<BooleanExpression> *()> &constant)
-{
-	constant =
-		lit("true") [
-			_val = new_<Constant<BooleanExpression>>(true)
-		]
-		| lit("false") [
-			_val = new_<Constant<BooleanExpression>>(false)
-		]
-	;
-	constant.name(type_descr<BooleanExpression>()() + "_constant");
-	//GOLOGPP_DEBUG_NODE(bool_constant);
-}
-
-template<>
-void ConstantParser<BooleanExpression, true>::init(rule<Constant<BooleanExpression> *()> &constant)
-{ ConstantParser<BooleanExpression, false>::init(constant); }
 
 
 static real_parser<double, strict_real_policies<double>> strict_double;
 
-template<>
-void ConstantParser<NumericExpression, false>::init(rule<Constant<NumericExpression> *()> &constant)
-{
-	constant =
-		strict_double [
-			_val = new_<Constant<NumericExpression>>(_1)
-		]
-		| int_ [
-			_val = new_<Constant<NumericExpression>>(_1)
-		]
-	;
-	constant.name(type_descr<NumericExpression>()() + "_constant");
-	//GOLOGPP_DEBUG_NODE(num_constant);
-}
-
-template<>
-void ConstantParser<NumericExpression, true>::init(rule<Constant<NumericExpression> *()> &constant)
-{ ConstantParser<NumericExpression, false>::init(constant); }
+rule<Constant *()> numeric_constant {
+	strict_double [
+		_val = new_<Constant>(Number::static_name(), _1)
+	]
+	| int_ [
+		_val = new_<Constant>(Number::static_name(), _1)
+	],
+	"numeric_constant"
+};
 
 
+rule<Constant *()> boolean_constant {
+	lit("true") [
+		_val = new_<Constant>(Bool::static_name(), true)
+	]
+	| lit("false") [
+		_val = new_<Constant>(Bool::static_name(), false)
+	],
+	"boolean_constant"
+};
 
-template<>
-void ConstantParser<SymbolicExpression, true>::init(rule<Constant<SymbolicExpression> *()> &constant)
-{
-	constant = r_name() [ _val = new_<Constant<SymbolicExpression>>(_1) ];
-	constant.name(type_descr<SymbolicExpression>()() + "_constant_definition");
-}
 
-template<>
-void ConstantParser<SymbolicExpression, false>::init(rule<Constant<SymbolicExpression> *()> &constant)
-{
-	constant = r_name() [
+rule<Constant *()> string_constant {
+	qi::as_string [ qi::lexeme [
+		lit('"') > *(char_ - '"') > lit('"')
+	] ] [
+		_val = new_<Constant>(String::static_name(), _1)
+	],
+	"string_constant"
+};
+
+
+rule<Constant *()> symbolic_constant {
+	r_name() [
 		_val = phoenix::bind(&Scope::get_symbol, phoenix::bind(&global_scope), _1),
 		if_(_val == nullptr) [
 			_pass = false
 		]
-	];
-	constant.name(type_descr<SymbolicExpression>()() + "_constant_usage");
-	//GOLOGPP_DEBUG_NODE(symbol_usage);
-}
+	],
+	"symbolic_constant_usage"
+};
+
+
+rule<Constant *()> symbolic_constant_def {
+	r_name() [ _val = new_<Constant>(val(Symbol::static_name()), _1) ],
+	"symbolic_constant_definition"
+};
+
+
+struct CompoundConstantParser : grammar<Constant *()> {
+	CompoundConstantParser()
+	: CompoundConstantParser::base_type(compound_constant_, "compound_constant")
+	{
+		compound_constant_ = (
+			(any_type_specifier >> '{')
+				> (
+					r_name() > '=' > any_constant
+				) % ',' > '}'
+			) [
+				_val = new_<Constant>(_1, _2)
+			]
+		;
+		compound_constant_.name("compound_constant");
+
+		any_constant_ =
+			boolean_constant | numeric_constant
+			| symbolic_constant | string_constant
+			| compound_constant_
+		;
+		any_constant_.name("any_constant");
+
+		GOLOGPP_DEBUG_NODES((compound_constant_)(any_constant_));
+	}
+
+	rule<Constant *()> compound_constant_;
+	rule<Constant *()> any_constant_;
+};
+
+
+rule<Constant *()> compound_constant = CompoundConstantParser();
 
 
 
-template<>
-void ConstantParser<StringExpression, false>::init(rule<Constant<StringExpression> *()> &constant)
-{
-	constant =
-		qi::as_string [ qi::lexeme [
-			lit('"') > *(char_ - '"') > lit('"')
-		] ] [
-			_val = new_<Constant<StringExpression>>(_1)
-		]
-	;
-	constant.name(type_descr<StringExpression>()() + "_constant");
-}
-
-template<>
-void ConstantParser<StringExpression, true>::init(rule<Constant<StringExpression> *()> &constant)
-{ ConstantParser<StringExpression, false>::init(constant); }
-
-
-
-template<bool allow_symbol_def>
-ConstantParser<CompoundExpression, allow_symbol_def>::ConstantParser()
-: ConstantParser<CompoundExpression, allow_symbol_def>::base_type(constant, type_descr<CompoundExpression>()() + "_constant")
-{
-	constant =
-		( (r_name() >> '{')
-			> (
-				r_name() > '=' > abstract_constant
-			) % ','
-		> '}' ) [
-			_val = new_<Constant<CompoundExpression>>(_1, _2)
-		]
-	;
-	constant.name(type_descr<CompoundExpression>()() + "_constant");
-
-	abstract_constant = boolean_constant | numeric_constant | symbolic_constant | string_constant | constant;
-	abstract_constant.name("any_constant");
-
-	GOLOGPP_DEBUG_NODES((constant)(abstract_constant));
-}
-
-template
-ConstantParser<CompoundExpression, false>::ConstantParser();
-
-template
-ConstantParser<CompoundExpression, true>::ConstantParser();
-
-
-ConstantParser<NumericExpression> numeric_constant;
-ConstantParser<BooleanExpression> boolean_constant;
-ConstantParser<StringExpression> string_constant;
-ConstantParser<SymbolicExpression> symbolic_constant;
-ConstantParser<SymbolicExpression, true> symbolic_constant_def;
-ConstantParser<CompoundExpression> compound_constant;
-
-
-
-template<>
-rule<AbstractConstant *()> &abstract_constant<true>() {
-	static rule<AbstractConstant *()> any_constant {
-		boolean_constant | numeric_constant
-		| symbolic_constant_def
-		| string_constant | compound_constant,
-		"any_constant"
-	};
-	GOLOGPP_DEBUG_NODE(any_constant);
-	return any_constant;
+rule<Constant *()> any_constant {
+	boolean_constant | numeric_constant
+		| symbolic_constant | string_constant
+		| compound_constant
+	, "any_constant"
 };
 
 
 
-template<>
-rule<AbstractConstant *()> &abstract_constant<false>() {
-	static rule<AbstractConstant *()> any_constant {
-		boolean_constant | numeric_constant
-		| symbolic_constant
-		| string_constant | compound_constant,
-		"any_constant"
-	};
-	GOLOGPP_DEBUG_NODE(any_constant);
-	return any_constant;
+static std::unordered_map <
+	Typename,
+	std::reference_wrapper <
+		rule<Constant *()>
+	>
+>
+constant_parser_map {
+	{ Bool::static_name(), boolean_constant },
+	{ Number::static_name(), numeric_constant },
+	{ String::static_name(), string_constant },
+	{ Symbol::static_name(), symbolic_constant },
 };
 
+static rule<Constant *()> &get_constant_parser(Typename type);
 
+rule<Constant *(Typename)> constant {
+	lazy(phoenix::bind(&get_constant_parser, _r1))
+};
 
-/******************
-* General atoms
-******************/
-
-rule<Expression *(Scope &)> &atom() {
-	static rule<Expression *(Scope &)> any_atom {
-		var<BooleanExpression>()(_r1) [ _val = new_<Reference<BooleanVariable>>(_1) ]
-		| var<NumericExpression>()(_r1) [ _val = new_<Reference<NumericVariable>>(_1) ]
-		| var<SymbolicExpression>()(_r1) [ _val = new_<Reference<SymbolicVariable>>(_1) ]
-		| var<StringExpression>()(_r1) [ _val = new_<Reference<StringVariable>>(_1) ]
-		| var<CompoundExpression>()(_r1) [ _val = new_<Reference<CompoundVariable>>(_1) ]
-		| abstract_constant<false>() [ _val = _1 ]
-		, "any_atom"
-	};
-	GOLOGPP_DEBUG_NODE(any_atom);
-	return any_atom;
+static rule<Constant *()> &get_constant_parser(Typename type)
+{
+	auto it = constant_parser_map.find(type);
+	if (it == constant_parser_map.end())
+		return compound_constant;
+	else
+		return it->second;
 }
+
+
+
+
 
 
 }
