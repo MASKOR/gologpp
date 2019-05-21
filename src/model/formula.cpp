@@ -12,7 +12,7 @@ Negation::Negation(Expression *expression)
 { expression_->set_parent(this); }
 
 
-const BooleanExpression &Negation::expression() const
+const Expression &Negation::expression() const
 { return *expression_; }
 
 
@@ -63,9 +63,9 @@ string to_string(BooleanOperator op)
 
 
 BooleanOperation::BooleanOperation(
-	BooleanExpression *lhs,
+	Expression *lhs,
 	BooleanOperator op,
-	BooleanExpression *rhs
+	Expression *rhs
 )
 : lhs_(lhs)
 , op_(op)
@@ -78,10 +78,10 @@ BooleanOperation::BooleanOperation(
 BooleanOperator BooleanOperation::op() const
 { return op_; }
 
-const BooleanExpression &BooleanOperation::lhs() const
+const Expression &BooleanOperation::lhs() const
 { return *lhs_; }
 
-const BooleanExpression &BooleanOperation::rhs() const
+const Expression &BooleanOperation::rhs() const
 { return *rhs_; }
 
 string BooleanOperation::to_string(const string &pfx) const
@@ -123,7 +123,7 @@ QuantificationOperator Quantification::op() const
 const Variable &Quantification::variable() const
 { return *variable_; }
 
-const BooleanExpression &Quantification::expression() const
+const Expression &Quantification::expression() const
 { return *expression_; }
 
 string Quantification::to_string(const string &pfx) const

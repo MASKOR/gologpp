@@ -27,8 +27,8 @@ public:
 	const AbstractAction &action() const;
 	AbstractAction &action();
 	void set_action(AbstractAction &action);
-	const BooleanExpression &condition() const;
-	BooleanExpression &condition();
+	const Expression &condition() const;
+	Expression &condition();
 	void set_condition(Expression *condition);
 
 protected:

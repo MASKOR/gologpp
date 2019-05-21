@@ -25,10 +25,10 @@ StringConcatenation::StringConcatenation(Expression *lhs, Expression *rhs)
 }
 
 
-const StringExpression &StringConcatenation::lhs() const
+const Expression &StringConcatenation::lhs() const
 { return *lhs_; }
 
-const StringExpression &StringConcatenation::rhs() const
+const Expression &StringConcatenation::rhs() const
 { return *rhs_; }
 
 string StringConcatenation::to_string(const string &pfx) const

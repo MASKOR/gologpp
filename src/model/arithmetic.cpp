@@ -18,10 +18,10 @@ ArithmeticOperation::ArithmeticOperation(
 }
 
 
-const NumericExpression &ArithmeticOperation::lhs() const
+const Expression &ArithmeticOperation::lhs() const
 { return *lhs_; }
 
-const NumericExpression &ArithmeticOperation::rhs() const
+const Expression &ArithmeticOperation::rhs() const
 { return *rhs_; }
 
 ArithmeticOperation::Operator ArithmeticOperation::op() const

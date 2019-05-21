@@ -37,8 +37,8 @@ public:
 	virtual bool operator == (const AbstractAction &other) const;
 	bool operator != (const AbstractAction &other) const;
 
-	const BooleanExpression &precondition() const;
-	BooleanExpression &precondition();
+	const Expression &precondition() const;
+	Expression &precondition();
 
 	void set_precondition(Expression *);
 

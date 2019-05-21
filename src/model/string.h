@@ -10,7 +10,7 @@ namespace gologpp {
 
 
 class ToString
-: public StringExpression
+: public Expression
 , public NoScopeOwner
 , public LanguageElement<ToString> {
 public:
@@ -32,8 +32,8 @@ class StringConcatenation : public Expression, public NoScopeOwner, public Langu
 public:
 	StringConcatenation(Expression *lhs, Expression *rhs);
 
-	const StringExpression &rhs() const;
-	const StringExpression &lhs() const;
+	const Expression &rhs() const;
+	const Expression &lhs() const;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 

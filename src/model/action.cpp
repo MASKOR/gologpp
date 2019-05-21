@@ -50,7 +50,7 @@ bool AbstractAction::operator != (const AbstractAction &other) const
 bool AbstractAction::operator == (const AbstractAction &other) const
 { return typeid(*this) == typeid(other) && hash() == other.hash(); }
 
-const BooleanExpression &AbstractAction::precondition() const
+const Expression &AbstractAction::precondition() const
 { return *precondition_; }
 
 

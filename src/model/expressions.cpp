@@ -23,6 +23,8 @@ const AbstractLanguageElement *Expression::parent() const
 void Expression::set_parent(AbstractLanguageElement *parent)
 { parent_ = parent; }
 
+const string &Expression::type_name() const
+{ return type().name(); }
 
 
 

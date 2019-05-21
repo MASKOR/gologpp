@@ -26,7 +26,7 @@ namespace gologpp {
 /**
  * @brief A scoped block of procedural code.
  */
-class Block : public VoidExpression, public ScopeOwner, public LanguageElement<Block> {
+class Block : public Expression, public ScopeOwner, public LanguageElement<Block> {
 public:
 	Block(Scope *own_scope, const vector<Expression *> &elements);
 	virtual void attach_semantics(SemanticsFactory &) override;
@@ -44,7 +44,7 @@ private:
 /**
  * @brief Nondeterministic choice from a set of @ref Statement.
  */
-class Choose : public VoidExpression, public ScopeOwner, public LanguageElement<Choose> {
+class Choose : public Expression, public ScopeOwner, public LanguageElement<Choose> {
 public:
 	Choose(Scope *own_scope, const vector<Expression *> &alternatives);
 	void attach_semantics(SemanticsFactory &) override;
@@ -62,7 +62,7 @@ private:
 /**
  * @brief Classical if-then-else.
  */
-class Conditional : public VoidExpression, public NoScopeOwner, public LanguageElement<Conditional> {
+class Conditional : public Expression, public NoScopeOwner, public LanguageElement<Conditional> {
 public:
 	Conditional(
 		Expression *condition,
@@ -72,9 +72,9 @@ public:
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, *block_true_, *block_false_)
 
-	const BooleanExpression &condition() const;
-	const VoidExpression &block_true() const;
-	const VoidExpression &block_false() const;
+	const Expression &condition() const;
+	const Expression &block_true() const;
+	const Expression &block_false() const;
 
 	virtual string to_string(const string &pfx) const override;
 
@@ -89,7 +89,7 @@ protected:
 /**
  * @brief Execute a set of statements in parallel.
  */
-class Concurrent : public VoidExpression, public ScopeOwner, public LanguageElement<Concurrent> {
+class Concurrent : public Expression, public ScopeOwner, public LanguageElement<Concurrent> {
 public:
 	Concurrent(Scope *own_scope, const vector<Expression *> &procs);
 	void attach_semantics(SemanticsFactory &) override;
@@ -105,7 +105,7 @@ private:
 
 
 class AbstractAssignment
-: public VoidExpression
+: public Expression
 , public NoScopeOwner
 , public virtual AbstractLanguageElement {
 public:
@@ -128,7 +128,7 @@ class Assignment
 : public AbstractAssignment
 , public LanguageElement<Assignment<LhsT>> {
 public:
-	static_assert(!std::is_base_of<Expression, LhsT>::value, "Cannot assign to a statement");
+	static_assert(!std::is_base_of<VoidExpression, LhsT>::value, "Cannot assign to a statement");
 	static_assert(!std::is_base_of<Function, LhsT>::value, "Cannot assign to a function");
 
 	Assignment(LhsT *lhs, Expression *rhs)
@@ -162,7 +162,7 @@ private:
  *
  * @brief Nondeterministically pick a variable assignment.
  */
-class Pick : public VoidExpression, public ScopeOwner, public LanguageElement<Pick> {
+class Pick : public Expression, public ScopeOwner, public LanguageElement<Pick> {
 public:
 	Pick(
 		Scope *own_scope,
@@ -193,17 +193,17 @@ private:
  * Resolve all nondeterinisms within a statement so that all its tests succeed and all its actions
  * become executable.
  */
-class Search : public VoidExpression, public NoScopeOwner, public LanguageElement<Search> {
+class Search : public Expression, public NoScopeOwner, public LanguageElement<Search> {
 public:
 	Search(Expression *statement);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*statement_)
 
-	const VoidExpression &statement() const;
+	const Expression &statement() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 protected:
-	unique_ptr<VoidExpression> statement_;
+	unique_ptr<Expression> statement_;
 };
 
 
@@ -214,7 +214,7 @@ protected:
  * Search for a "best" executable path given a reward function, but only up to a
  * certain maximum number of actions (the horizon). Then execute the found action sequence.
  */
-class Solve : public VoidExpression, public NoScopeOwner, public LanguageElement<Solve> {
+class Solve : public Expression, public NoScopeOwner, public LanguageElement<Solve> {
 public:
 	Solve(
 		Expression *horizon,
@@ -222,8 +222,8 @@ public:
 		Expression *statement
 	);
 
-	const VoidExpression &statement() const;
-	const NumericExpression &horizon() const;
+	const Expression &statement() const;
+	const Expression &horizon() const;
 	const Reference<Function> &reward() const;
 	virtual void attach_semantics(SemanticsFactory &implementor) override;
 	virtual string to_string(const string &pfx) const override;
@@ -239,12 +239,12 @@ private:
 /**
  * @brief Test for a boolean condition. Fail the program if the condition evaluates to false.
  */
-class Test : public VoidExpression, public NoScopeOwner, public LanguageElement<Test> {
+class Test : public Expression, public NoScopeOwner, public LanguageElement<Test> {
 public:
 	Test(Expression *expression);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_)
 
-	const BooleanExpression &expression() const;
+	const Expression &expression() const;
 
 	virtual string to_string(const string &pfx) const override;
 
@@ -257,13 +257,13 @@ protected:
 /**
  * @brief Classical while loop.
  */
-class While : public VoidExpression, public NoScopeOwner, public LanguageElement<While> {
+class While : public Expression, public NoScopeOwner, public LanguageElement<While> {
 public:
 	While(Expression *expression, Expression *stmt);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_, *statement_)
 
-	const BooleanExpression &expression() const;
-	const VoidExpression &statement() const;
+	const Expression &expression() const;
+	const Expression &statement() const;
 
 	virtual string to_string(const string &pfx) const override;
 
@@ -277,7 +277,7 @@ protected:
 /**
  * @brief Return a value from a function.
  */
-class Return : public VoidExpression, public NoScopeOwner, public LanguageElement<Return> {
+class Return : public Expression, public NoScopeOwner, public LanguageElement<Return> {
 public:
 	Return(Expression *expr)
 	: expr_(expr)
@@ -322,7 +322,7 @@ public:
 	);
 
 
-	const VoidExpression &definition() const;
+	const Expression &definition() const;
 	void define(Expression *definition);
 	virtual void compile(AExecutionContext &ctx) override;
 
@@ -341,7 +341,7 @@ private:
 
 
 class DurativeCall
-: public VoidExpression
+: public Expression
 , public NoScopeOwner
 , public LanguageElement<DurativeCall>
 {
@@ -374,7 +374,7 @@ class FieldAccess
 {
 public:
 	FieldAccess(Expression *subject, const string &field_name);
-	const CompoundExpression &subject() const;
+	const Expression &subject() const;
 	const string &field_name() const;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*subject_)

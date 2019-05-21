@@ -12,13 +12,13 @@
 namespace gologpp {
 
 
-class Negation : public BooleanExpression, public NoScopeOwner, public LanguageElement<Negation> {
+class Negation : public Expression, public NoScopeOwner, public LanguageElement<Negation> {
 public:
 	Negation(Expression *expression);
 	Negation(Negation &&) = default;
 	virtual ~Negation() override = default;
 
-	const BooleanExpression &expression() const;
+	const Expression &expression() const;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_)
 
@@ -37,7 +37,7 @@ enum ComparisonOperator {
 string to_string(ComparisonOperator op);
 
 
-class Comparison : public BooleanExpression, public NoScopeOwner, public LanguageElement<Comparison> {
+class Comparison : public Expression, public NoScopeOwner, public LanguageElement<Comparison> {
 public:
 	Comparison(Expression *lhs, ComparisonOperator op, Expression *rhs)
 	: lhs_(lhs)
@@ -85,13 +85,13 @@ string to_string(BooleanOperator op);
 class BooleanOperation : public Expression, public NoScopeOwner, public LanguageElement<BooleanOperation> {
 public:
 	BooleanOperation(
-		BooleanExpression *lhs,
+		Expression *lhs,
 		BooleanOperator op,
-		BooleanExpression *rhs
+		Expression *rhs
 	);
 	BooleanOperator op() const;
-	const BooleanExpression &lhs() const;
-	const BooleanExpression &rhs() const;
+	const Expression &lhs() const;
+	const Expression &rhs() const;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
 
@@ -117,7 +117,7 @@ enum QuantificationOperator {
 string to_string(QuantificationOperator op);
 
 
-class Quantification : public BooleanExpression, public ScopeOwner, public LanguageElement<Quantification> {
+class Quantification : public Expression, public ScopeOwner, public LanguageElement<Quantification> {
 public:
 	Quantification(
 		Scope *own_scope,
@@ -128,7 +128,7 @@ public:
 
 	QuantificationOperator op() const;
 	const Variable &variable() const;
-	const BooleanExpression &expression() const;
+	const Expression &expression() const;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *expression_)
 

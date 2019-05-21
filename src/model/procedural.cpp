@@ -98,13 +98,13 @@ Conditional::Conditional(
 	block_false_->set_parent(this);
 }
 
-const BooleanExpression &Conditional::condition() const
+const Expression &Conditional::condition() const
 { return *condition_; }
 
-const VoidExpression &Conditional::block_false() const
+const Expression &Conditional::block_false() const
 { return *block_false_; }
 
-const VoidExpression &Conditional::block_true() const
+const Expression &Conditional::block_true() const
 { return *block_true_; }
 
 
@@ -206,7 +206,7 @@ Search::Search(Expression *statement)
 	statement_->set_parent(this);
 }
 
-const VoidExpression &Search::statement() const
+const Expression &Search::statement() const
 { return *statement_; }
 
 string Search::to_string(const string &pfx) const
@@ -227,10 +227,10 @@ Solve::Solve(
 	reward_->set_parent(this);
 }
 
-const VoidExpression &Solve::statement() const
+const Expression &Solve::statement() const
 { return *statement_; }
 
-const NumericExpression &Solve::horizon() const
+const Expression &Solve::horizon() const
 { return *horizon_; }
 
 const Reference<Function> &Solve::reward() const
@@ -264,7 +264,7 @@ Test::Test(Expression *expression)
 	expression_->set_parent(this);
 }
 
-const BooleanExpression &Test::expression() const
+const Expression &Test::expression() const
 { return *expression_; }
 
 string Test::to_string(const string &pfx) const
@@ -280,10 +280,10 @@ While::While(Expression *expression, Expression *statement)
 	statement_->set_parent(this);
 }
 
-const BooleanExpression &While::expression() const
+const Expression &While::expression() const
 { return *expression_; }
 
-const VoidExpression &While::statement() const
+const Expression &While::statement() const
 { return *statement_; }
 
 string While::to_string(const string &pfx) const
@@ -313,7 +313,7 @@ Function::Function(
 { set_type_by_name(type_name); }
 
 
-const VoidExpression &Function::definition() const
+const Expression &Function::definition() const
 { return *definition_; }
 
 void Function::compile(AExecutionContext &ctx)
@@ -389,7 +389,7 @@ FieldAccess::FieldAccess(Expression *subject, const string &field_name)
 		throw Bug("Failed to set type");
 }
 
-const CompoundExpression &FieldAccess::subject() const
+const Expression &FieldAccess::subject() const
 { return *subject_; }
 
 const string &FieldAccess::field_name() const
@@ -401,7 +401,7 @@ string FieldAccess::to_string(const string &pfx) const
 
 
 FieldAccess *nested_field_access_(
-	CompoundExpression *subject,
+	Expression *subject,
 	vector<string>::const_iterator it,
 	vector<string>::const_iterator end)
 {
@@ -415,7 +415,7 @@ FieldAccess *nested_field_access_(
 }
 
 
-FieldAccess *nested_field_access(CompoundExpression *subject, const vector<string> &fields)
+FieldAccess *nested_field_access(Expression *subject, const vector<string> &fields)
 { return nested_field_access_(subject, fields.begin(), fields.end()); }
 
 

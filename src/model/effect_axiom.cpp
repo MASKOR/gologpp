@@ -20,10 +20,10 @@ AbstractAction &AbstractEffectAxiom::action()
 void AbstractEffectAxiom::set_action(AbstractAction &action)
 { action_ = &action; }
 
-const BooleanExpression &AbstractEffectAxiom::condition() const
+const Expression &AbstractEffectAxiom::condition() const
 { return *condition_; }
 
-BooleanExpression &AbstractEffectAxiom::condition()
+Expression &AbstractEffectAxiom::condition()
 { return *condition_; }
 
 void AbstractEffectAxiom::set_condition(Expression *condition)

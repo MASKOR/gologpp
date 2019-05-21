@@ -29,61 +29,32 @@ public:
 	const AbstractLanguageElement *parent() const;
 	void set_parent(AbstractLanguageElement *parent);
 
-	template<class TypeT>
-	TypedExpression<TypeT> *downcast()
-	{
-		ensure_type<TypeT>();
-		return dynamic_cast<TypedExpression<TypeT> *>(this);
-	}
+	const string &type_name() const;
 
 protected:
 	AbstractLanguageElement *parent_;
 };
 
 
-
 template<class TypeT>
-class TypedExpression : public Expression {
-protected:
-	TypedExpression()
-	{ set_type_by_name(TypeT::static_name()); }
-
-public:
-	virtual const TypeT &type() const override
-	{
-		return dynamic_cast<const TypeT &>(
-			AbstractLanguageElement::type()
-		);
-	}
-};
-
-template<>
-class TypedExpression<CompoundType> : public Expression {
-protected:
-	TypedExpression(const string &type_name)
-	{ set_type_by_name(type_name); }
-
-public:
-	virtual const CompoundType &type() const override
-	{
-		return dynamic_cast<const CompoundType &>(
-			AbstractLanguageElement::type()
-		);
-	}
+struct TypedExpression {
 };
 
 
 template<class T>
-class unique_ptr<TypedExpression<T>> : public std::unique_ptr<TypedExpression<T>> {
+class unique_ptr<TypedExpression<T>> : public std::unique_ptr<Expression> {
 public:
-	using std::unique_ptr<TypedExpression<T>>::unique_ptr;
+	using std::unique_ptr<Expression>::unique_ptr;
 
 	unique_ptr(Expression *e)
-	: std::unique_ptr<TypedExpression<T>>(e->downcast<T>())
-	{}
+	: std::unique_ptr<Expression>(e)
+	{ e->ensure_type<T>(); }
 
 	unique_ptr<TypedExpression<T>> &operator = (Expression *e)
-	{ return *this = e->downcast<T>(); }
+	{
+		e->ensure_type<T>();
+		return *this = e;
+	}
 };
 
 

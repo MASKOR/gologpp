@@ -10,15 +10,15 @@
 namespace gologpp {
 
 
-class ArithmeticOperation : public NumericExpression, public NoScopeOwner, public LanguageElement<ArithmeticOperation> {
+class ArithmeticOperation : public Expression, public NoScopeOwner, public LanguageElement<ArithmeticOperation> {
 public:
 	enum Operator {
 		ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, POWER, MODULO
 	};
 	ArithmeticOperation(Expression *lhs, Operator op, Expression *rhs);
 
-	const NumericExpression &lhs() const;
-	const NumericExpression &rhs() const;
+	const Expression &lhs() const;
+	const Expression &rhs() const;
 	Operator op() const;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)

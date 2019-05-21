@@ -26,7 +26,7 @@ template<class T>      using vector      = std::vector<T>;
 
 
 class Expression;
-template<class> class TypedExpression;
+template<class> struct TypedExpression;
 
 
 template<class T>
