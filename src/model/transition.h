@@ -16,9 +16,6 @@ public:
 
 	Transition(const shared_ptr<Action> &action, vector<unique_ptr<Constant>> &&args, Hook hook);
 
-	Transition(Transition &&) = default;
-	Transition(const Transition &) = default;
-
 	Hook hook() const;
 
 	virtual string to_string(const string &pfx) const override;
@@ -41,9 +38,6 @@ public:
 
 	Activity(const shared_ptr<Action> &action, vector<unique_ptr<Constant>> &&args, State state = IDLE);
 	Activity(const shared_ptr<Transition> &);
-
-	Activity(Activity &&) = default;
-	Activity(const Activity &) = default;
 
 	State state() const;
 	void set_state(State s);

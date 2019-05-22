@@ -15,7 +15,6 @@ namespace gologpp {
 class Negation : public Expression, public NoScopeOwner, public LanguageElement<Negation> {
 public:
 	Negation(Expression *expression);
-	Negation(Negation &&) = default;
 	virtual ~Negation() override = default;
 
 	const Expression &expression() const;
