@@ -12,7 +12,7 @@ Domain::Domain(const string &name, const string &type_name, const vector<Constan
 }
 
 Domain::Domain(const string &type_name)
-: Domain(type_name, "", {}, true)
+: Domain("", type_name, {}, true)
 {}
 
 Domain::Domain(const string &name, const Domain &other)
@@ -20,9 +20,8 @@ Domain::Domain(const string &name, const Domain &other)
 { add_elements(other); }
 
 Domain::Domain(const Domain &other)
-: Domain(other.type().name(), other.name(), {}, other.implicit_)
+: Domain(other.name(), other.type().name(), {}, other.implicit_)
 {
-	ensure_type_equality(*this, other);
 	add_elements(other);
 }
 
@@ -34,7 +33,7 @@ Domain::Domain()
 
 Domain &Domain::operator = (const Domain &other)
 {
-	ensure_type_equality(*this, other);
+	ensure_type(other.type());
 	this->name_ = other.name_;
 	this->subjects_ = other.subjects_;
 	this->implicit_ = other.implicit_;
@@ -97,7 +96,7 @@ bool Domain::is_defined() const
 void Domain::add_elements(const vector<Constant *> &elements)
 {
 	for (Constant *c : elements) {
-		ensure_type_equality(*this, *c);
+		ensure_type(c->type());
 		elements_.emplace(c);
 	}
 }
@@ -106,7 +105,7 @@ void Domain::add_elements(const vector<Constant *> &elements)
 void Domain::add_elements(const Domain &other)
 {
 	for (const unique_ptr<Constant> &e : other.elements()) {
-		ensure_type_equality(*this, *e);
+		ensure_type(e->type());
 		elements_.emplace(e->copy());
 	}
 }
@@ -114,7 +113,7 @@ void Domain::add_elements(const Domain &other)
 
 void Domain::remove(const Domain &other)
 {
-	ensure_type_equality(*this, other);
+	ensure_type(other.type());
 	for (const unique_ptr<Constant> &e : other.elements())
 		elements_.erase(e);
 }
@@ -124,8 +123,7 @@ void Domain::remove(const Domain &other)
 Domain domain_union(const Domain &lhs, const Domain &rhs)
 {
 	ensure_type_equality(lhs, rhs);
-	Domain rv { "" };
-	rv.add_elements(lhs);
+	Domain rv { lhs };
 	rv.add_elements(rhs);
 	return rv;
 }
@@ -134,8 +132,7 @@ Domain domain_union(const Domain &lhs, const Domain &rhs)
 Domain domain_difference(const Domain &lhs, const Domain &rhs)
 {
 	ensure_type_equality(lhs, rhs);
-	Domain rv { "" };
-	rv.add_elements(lhs);
+	Domain rv { lhs };
 	rv.remove(rhs);
 	return rv;
 }
@@ -144,8 +141,7 @@ Domain domain_difference(const Domain &lhs, const Domain &rhs)
 Domain domain_intersection(const Domain &lhs, const Domain &rhs)
 {
 	ensure_type_equality(lhs, rhs);
-	Domain rv { "" };
-	rv.add_elements(lhs);
+	Domain rv { lhs };
 	rv.remove(domain_difference(lhs, rhs));
 	rv.remove(domain_difference(rhs, lhs));
 	return rv;
