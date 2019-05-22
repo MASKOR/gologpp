@@ -53,7 +53,8 @@ public:
 	unique_ptr<TypedExpression<T>> &operator = (Expression *e)
 	{
 		e->ensure_type<T>();
-		return *this = e;
+		std::unique_ptr<Expression>::operator = (std::unique_ptr<Expression>(e));
+		return *this;
 	}
 };
 
