@@ -20,7 +20,7 @@ UserError::UserError(const string &msg)
 ExpressionTypeMismatch::ExpressionTypeMismatch(const AbstractLanguageElement &expr1, const AbstractLanguageElement &expr2)
 : UserError(
 	"Type `" + expr1.type().name()
-	+ "'of `" + expr1.str()
+	+ " 'of `" + expr1.str()
 	+ "' doesn't match type `" + expr2.type().name()
 	+ "' of `" + expr2.str() + "'"
 )
