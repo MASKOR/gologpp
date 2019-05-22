@@ -28,12 +28,11 @@ template<class LhsT>
 AssignmentParser<LhsT>::AssignmentParser()
 : AssignmentParser<LhsT>::base_type(assignment, "assignment")
 {
-	typename expression::local_variable<Typename>::type lhs_type;
 	assignment = (
 		(lhs_parser(_r1) >> "=") [
-			lhs_type = phoenix::bind(&Expression::type_name, _1)
+			_a = phoenix::bind(&Expression::type_name, _1)
 		]
-		> typed_expression(_r1, lhs_type)
+		> typed_expression(_r1, _a)
 	) [
 		_val = new_<Assignment<LhsT>>(_1, _2)
 	];
@@ -53,6 +52,13 @@ void AssignmentParser<FieldAccess>::init()
 {
 	lhs_parser = field_access(_r1, val(""));
 }
+
+
+template
+struct AssignmentParser<Reference<Fluent>>;
+
+template
+struct AssignmentParser<FieldAccess>;
 
 
 } // namespace parser

@@ -14,12 +14,12 @@ namespace parser {
 
 
 template<class LhsT>
-struct AssignmentParser : grammar<Assignment<LhsT> *(Scope &)> {
+struct AssignmentParser : grammar<Assignment<LhsT> *(Scope &), locals<Typename>> {
 	AssignmentParser();
 
 	void init();
 
-	rule<Assignment<LhsT> *(Scope &)> assignment;
+	rule<Assignment<LhsT> *(Scope &), locals<Typename>> assignment;
 	rule<LhsT *(Scope &)> lhs_parser;
 };
 
