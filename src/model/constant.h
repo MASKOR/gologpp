@@ -23,6 +23,17 @@ using fusion_wtf_vector = boost::fusion::vector2<T1, T2>;
 #endif
 
 
+template<>
+class unique_ptr<Constant> : public std::unique_ptr<Constant> {
+public:
+	using std::unique_ptr<Constant>::unique_ptr;
+
+	unique_ptr(const unique_ptr<Constant> &c);
+
+	unique_ptr<Constant> &operator = (const unique_ptr<Constant> &c);
+};
+
+
 
 class Constant
 : public Expression
@@ -72,7 +83,6 @@ private:
 	LiteralVariant representation_;
 
 	struct to_string_visitor;
-	struct copy_visitor;
 	struct hash_visitor;
 	struct attach_semantics_visitor;
 };

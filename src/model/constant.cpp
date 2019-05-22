@@ -6,22 +6,15 @@
 namespace gologpp {
 
 
-struct Constant::copy_visitor {
-	template<class T, class U>
-	void operator () (const T &, U &) const
-	{ throw Bug("Mismatched boost::variant copy"); }
+unique_ptr<Constant>::unique_ptr(const unique_ptr<Constant> &c)
+: std::unique_ptr<Constant>(c->copy())
+{}
 
-	template<class T>
-	void operator () (const T &src, T &tgt) const
-	{ tgt = src; }
-
-	void operator () (const CompoundType::Representation &src, CompoundType::Representation &tgt) const
-	{
-		tgt.clear();
-		for (const CompoundType::Representation::value_type &pair : src)
-			tgt[pair.first].reset(pair.second->copy());
-	}
-};
+unique_ptr<Constant> &unique_ptr<Constant>::operator = (const unique_ptr<Constant> &c)
+{
+	std::unique_ptr<Constant>::operator = (std::make_unique<Constant>(*c));
+	return *this;
+}
 
 
 struct Constant::to_string_visitor {
@@ -141,8 +134,6 @@ Constant::Constant(const string &type_name, const vector<fusion_wtf_vector<strin
 
 Constant::Constant(Constant &&c)
 {
-	ensure_type_equality(*this, c);
-
 	semantics_ = std::move(c.semantics_);
 	type_ = std::move(c.type_);
 	representation_ = std::move(c.representation_);
@@ -151,12 +142,10 @@ Constant::Constant(Constant &&c)
 
 Constant::Constant(const Constant &c)
 {
-	ensure_type_equality(*this, c);
-
 	if (semantics_)
 		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
 
-	boost::apply_visitor(Constant::copy_visitor(), c.representation_, this->representation_);
+	this->representation_ = c.representation_;
 	this->type_ = c.type_;
 }
 
@@ -164,11 +153,10 @@ Constant::Constant(const Constant &c)
 
 Constant &Constant::operator = (const Constant &c)
 {
-	ensure_type_equality(*this, c);
 	if (semantics_)
 		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
 
-	boost::apply_visitor(copy_visitor(), c.representation_ , this->representation_);
+	this->representation_ = c.representation_;
 	this->type_ = c.type_;
 
 	return *this;
