@@ -74,7 +74,7 @@ public:
 	using VariablesMap = unordered_map<string, shared_ptr<Variable>>;
 	using GlobalsMap = unordered_map<Identifier, shared_ptr<Global>>;
 	using DomainsMap = unordered_map<Name, shared_ptr<Domain>>;
-	using TypesMap = unordered_map<Name, shared_ptr<Type>>;
+	using TypesMap = unordered_map<Name, shared_ptr<const Type>>;
 
 	explicit Scope(AbstractLanguageElement &owner, const vector<shared_ptr<Variable>> &lookup_vars = {});
 	Scope(Scope &parent_scope);

@@ -36,7 +36,8 @@ const Scope &NoScopeOwner::scope() const
 
 
 Scope::Scope()
-: parent_scope_(*this)
+: AbstractLanguageElement(std::make_shared<UndefinedType>())
+, parent_scope_(*this)
 , owner_(nullptr)
 , globals_(new GlobalsMap())
 , domains_(new DomainsMap())
@@ -46,6 +47,8 @@ Scope::Scope()
 	register_type(new T());
 
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_REGISTER_SIMPLE_TYPE, (), GOLOGPP_PREDEFINED_TYPES)
+
+	(*types_)[*type_] = type_;
 }
 
 

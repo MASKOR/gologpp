@@ -13,6 +13,12 @@ namespace gologpp {
 
 
 class AbstractLanguageElement {
+private:
+	// Used by the constructor of the first Scope (i.e. the global scope) because at that time
+	// the type registry isn't initialized, yet. So we have to pass the type instead of looking it up.
+	AbstractLanguageElement(shared_ptr<const UndefinedType>);
+	friend class Scope;
+
 public:
 	AbstractLanguageElement();
 
@@ -56,7 +62,7 @@ public:
 	template<class T>
 	void ensure_type();
 
-
+	void ensure_type(const Type &t);
 
 protected:
 	unique_ptr<AbstractSemantics> semantics_;

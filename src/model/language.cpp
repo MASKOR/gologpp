@@ -8,6 +8,10 @@
 namespace gologpp {
 
 
+AbstractLanguageElement::AbstractLanguageElement(shared_ptr<const UndefinedType> t)
+: type_(t)
+{}
+
 AbstractLanguageElement::AbstractLanguageElement()
 : type_(gologpp::type<UndefinedType>().shared_from_this())
 {}
@@ -55,12 +59,22 @@ void AbstractLanguageElement::ensure_type() {
 		throw TypeError(this->str() + " is not of type " + T::static_name());
 }
 
-
 #define GOLOGPP_INSTANTIATE_ENSURE_TYPE(_r, _data, T) \
 	template \
 	void AbstractLanguageElement::ensure_type<T>();
 
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_INSTANTIATE_ENSURE_TYPE, (), GOLOGPP_TYPES)
+
+
+void AbstractLanguageElement::ensure_type(const Type &t) {
+	if (!type())
+		type_ = t.shared_from_this();
+
+	if (type() && type() != t)
+		throw TypeError(this->str() + " has type " + type().name()
+			+ " and cannot be redefined to type " + t.name()
+		);
+}
 
 
 } // namespace gologpp

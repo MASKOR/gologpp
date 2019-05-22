@@ -127,7 +127,7 @@ using FunctionReference = Reference<Function>;
 using VariableReference = Reference<Variable>;
 
 #define GOLOGPP_PREDEFINED_TYPES \
-	(Number)(Bool)(String)(Symbol)(Void)(UndefinedType)
+	(Number)(Bool)(String)(Symbol)(Void)
 
 #define GOLOGPP_TYPES \
 	GOLOGPP_PREDEFINED_TYPES(CompoundType)
