@@ -7,6 +7,7 @@
 #include <boost/spirit/include/qi_eps.hpp>
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_char.hpp>
+#include <boost/spirit/include/qi_lit.hpp>
 
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/object/new.hpp>
@@ -30,8 +31,10 @@ EffectParser<LhsT>::EffectParser()
 {
 	effect = ( eps [ _val = new_<EffectAxiom<LhsT>>() ] >> (
 		-(lit("if") > '(' > condition(_r1) > ')')
-		>> lhs(_r1)
-		>> '=' >> typed_expression(_r1, phoenix::bind(&Expression::type_name, _1))
+		> lhs(_r1) [
+			_a = phoenix::bind(&Expression::type_name, _1)
+		]
+		> '=' > typed_expression(_r1, _a)
 	)) [
 		phoenix::bind(&EffectAxiom<LhsT>::define, *_val, _1, _2, _3)
 	];
@@ -41,6 +44,12 @@ EffectParser<LhsT>::EffectParser()
 	GOLOGPP_DEBUG_NODE(effect);
 }
 
+
+template
+struct EffectParser<Reference<Fluent>>;
+
+template
+struct EffectParser<FieldAccess>;
 
 
 }
