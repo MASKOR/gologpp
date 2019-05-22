@@ -309,12 +309,14 @@ class Function
 public:
 	Function(
 		Scope *own_scope,
+		const string &type_name,
 		const string &name,
 		const vector<shared_ptr<Variable>> &args
 	);
 
 	Function(
 		Scope *own_scope,
+		const string &type_name,
 		const string &name,
 		const boost::optional<vector<shared_ptr<Variable>>> &args
 	);

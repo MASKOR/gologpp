@@ -7,10 +7,16 @@
 namespace gologpp {
 
 
-AbstractAction::AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<Variable>> &args)
+AbstractAction::AbstractAction(
+	Scope *own_scope,
+	const string &, // ignored type_name
+	const string &name,
+	const vector<shared_ptr<Variable>> &args
+)
 : Global(name, args)
 , ScopeOwner(own_scope)
 {
+	set_type_by_name(Void::static_name());
 	set_precondition(new Constant(Bool::static_name(), true));
 	vector<Expression *> mapping_args;
 	for (const shared_ptr<Variable> &arg : args)
@@ -18,10 +24,6 @@ AbstractAction::AbstractAction(Scope *own_scope, const string &name, const vecto
 	mapping_.reset(new ActionMapping(name, mapping_args));
 }
 
-
-AbstractAction::AbstractAction(Scope &parent_scope, const string &name)
-: AbstractAction(new Scope(parent_scope), name, {})
-{}
 
 const vector<unique_ptr<AbstractEffectAxiom>> &AbstractAction::effects() const
 { return effects_; }

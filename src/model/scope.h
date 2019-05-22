@@ -124,6 +124,7 @@ public:
 	template<class GologT>
 	GologT *declare_global(
 		Scope *own_scope,
+		const string &type_name,
 		const string &name,
 		const boost::optional<vector<shared_ptr<Variable>>> &args
 	) {
@@ -131,6 +132,10 @@ public:
 		arity_t arity = static_cast<arity_t>(args.get_value_or({}).size());
 		if (exists_global(name, arity)) {
 			rv = lookup_global<GologT>(name, arity).get();
+
+			if (rv && rv->type().name() != type_name)
+				throw TypeError("Cannot redeclare " + rv->str()
+					+ " with type " + type_name);
 
 			// Here be dragons:
 			// own_scope is constructed by the parser, and it may or may not
@@ -141,7 +146,7 @@ public:
 		}
 		else
 			(*globals_) [ { name, arity } ]
-				.reset(new GologT(own_scope, name, args.get_value_or({})));
+				.reset(new GologT(own_scope, type_name, name, args.get_value_or({})));
 
 		return lookup_global<GologT>(name, arity).get();
 	}
@@ -149,7 +154,9 @@ public:
 
 	template<class GologT, class... DefinitionTs>
 	GologT *define_global(
-		Scope *own_scope, const string &name,
+		Scope *own_scope,
+		const string &type_name,
+		const string &name,
 		const boost::optional<vector<shared_ptr<Variable>>> &args,
 		DefinitionTs... definition_args
 	) {
@@ -157,6 +164,10 @@ public:
 		arity_t arity = static_cast<arity_t>(args.get_value_or({}).size());
 		if (exists_global(name, arity)) {
 			rv = lookup_global<GologT>(name, arity).get();
+
+			if (rv && rv->type().name() != type_name)
+				throw TypeError("Cannot redefine " + rv->str()
+					+ " with type " + type_name);
 
 			// Here be dragons:
 			// own_scope is constructed by the parser, and it may or may not
@@ -168,7 +179,7 @@ public:
 			// TODO: if (rv->defined()): Warn on redefinition
 		}
 		else
-			rv = declare_global<GologT>(own_scope, name, args);
+			rv = declare_global<GologT>(own_scope, type_name, name, args);
 		rv->define(definition_args...);
 		return rv;
 	}

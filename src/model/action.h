@@ -27,10 +27,13 @@ class AbstractAction
 , public virtual AbstractLanguageElement {
 public:
 	typedef AbstractAction abstract_t;
-	typedef Void type_t;
 
-	AbstractAction(Scope *own_scope, const string &name, const vector<shared_ptr<Variable>> &args);
-	AbstractAction(Scope &parent_scope, const string &name);
+	AbstractAction(
+		Scope *own_scope,
+		const string &,
+		const string &name,
+		const vector<shared_ptr<Variable>> &args
+	);
 
 	virtual ~AbstractAction() override = default;
 

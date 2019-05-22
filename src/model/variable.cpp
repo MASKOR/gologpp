@@ -7,7 +7,10 @@ namespace gologpp {
 Variable::Variable(const string &type_name, const string &name)
 : Identifier(name, 0)
 , domain_(new Domain(type_name))
-{ domain_->add_subject(*this); }
+{
+	set_type_by_name(type_name);
+	domain_->add_subject(*this);
+}
 
 
 Reference<Variable> *Variable::ref()

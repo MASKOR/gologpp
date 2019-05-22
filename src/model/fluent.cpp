@@ -75,15 +75,15 @@ const Scope &InitialValue::parent_scope() const
 
 
 
-Fluent::Fluent(Scope *own_scope, const string &name, const vector<shared_ptr<Variable>> &args)
+Fluent::Fluent(Scope *own_scope, const string &type_name, const string &name, const vector<shared_ptr<Variable>> &args)
 : Global(name, args)
 , ScopeOwner(own_scope)
-{}
+{ set_type_by_name(type_name); }
 
-Fluent::Fluent(Scope &parent_scope, const string &name)
+/*Fluent::Fluent(Scope &parent_scope, const string &name)
 : Global(name, {})
 , ScopeOwner(new Scope(parent_scope))
-{}
+{}*/
 
 
 const vector<unique_ptr<InitialValue>> &Fluent::initially() const
