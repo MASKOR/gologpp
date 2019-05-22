@@ -125,7 +125,6 @@ using FieldAssignment = Assignment<FieldAccess>;
 using FluentReference = Reference<Fluent>;
 using FunctionReference = Reference<Function>;
 using VariableReference = Reference<Variable>;
-using FluentEffectAxiom = EffectAxiom<Reference<Fluent>>;
 
 #define GOLOGPP_PREDEFINED_TYPES \
 	(Number)(Bool)(String)(Symbol)(Void)(UndefinedType)
@@ -134,7 +133,9 @@ using FluentEffectAxiom = EffectAxiom<Reference<Fluent>>;
 	GOLOGPP_PREDEFINED_TYPES(CompoundType)
 
 #define GOLOGPP_SEMANTIC_TYPES \
-	(FluentEffectAxiom)(InitialValue)(Fluent)(Variable) \
+	(EffectAxiom<Reference<Fluent>>) \
+	(EffectAxiom<FieldAccess>) \
+	(InitialValue)(Fluent)(Variable) \
 	(Constant) \
 	(FluentAssignment)(VariableAssignment) \
 	(FluentReference)(VariableReference)(Pick)(Return) \
