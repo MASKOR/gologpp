@@ -37,4 +37,9 @@ TypeError::TypeError(const AbstractLanguageElement &expr, const Type &t)
 {}
 
 
+TypeError::TypeError(const string &msg)
+: UserError(msg)
+{}
+
+
 }

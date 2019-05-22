@@ -3,6 +3,8 @@
 #include "error.h"
 #include "scope.h"
 
+#include <boost/preprocessor/seq/for_each.hpp>
+
 namespace gologpp {
 
 
@@ -48,8 +50,17 @@ bool AbstractLanguageElement::set_type(const Type &t)
 
 template<class T>
 void AbstractLanguageElement::ensure_type() {
-	if (type() != gologpp::type<T>())
-		throw TypeError(*this, gologpp::type<T>());
+	const Type &this_type = type();
+	if (typeid(this_type) != typeid(T))
+		throw TypeError(this->str() + " is not of type " + T::static_name());
 }
+
+
+#define GOLOGPP_INSTANTIATE_ENSURE_TYPE(_r, _data, T) \
+	template \
+	void AbstractLanguageElement::ensure_type<T>();
+
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_INSTANTIATE_ENSURE_TYPE, (), GOLOGPP_TYPES)
+
 
 } // namespace gologpp

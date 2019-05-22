@@ -61,6 +61,7 @@ public:
 class TypeError : public UserError {
 public:
 	TypeError(const AbstractLanguageElement &expr, const Type &t);
+	TypeError(const string &msg);
 };
 
 }

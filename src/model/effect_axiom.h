@@ -74,7 +74,7 @@ public:
 		if (condition)
 			set_condition(*condition);
 
-		assignment_ = std::make_unique<Assignment<LhsT>>(lhs, value);
+		assignment_.reset(new Assignment<LhsT>(lhs, value));
 		assignment_->set_parent(this);
 	}
 
