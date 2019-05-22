@@ -64,9 +64,21 @@ rule<shared_ptr<Variable>(Scope &, Typename)> var_usage {
 			&Scope::get_var, _r1,
 			VarDefinitionMode::DENY,
 			_r2, _1
-		)
+		),
+		_pass = !!_val // force conversion to bool
 	],
 	"variable_reference"
+};
+
+
+rule<shared_ptr<Variable>(Scope &)> any_var_usage {
+	r_name() [
+		_val = phoenix::bind(
+			&Scope::lookup_var, _r1,
+			_1
+		),
+		_pass = !!_val // force conversion to bool
+	]
 };
 
 
