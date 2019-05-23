@@ -128,12 +128,14 @@ class Assignment
 : public AbstractAssignment
 , public LanguageElement<Assignment<LhsT>, VoidType> {
 public:
-	static_assert(!std::is_base_of<VoidExpression, LhsT>::value, "Cannot assign to a statement");
 	static_assert(!std::is_base_of<Function, LhsT>::value, "Cannot assign to a function");
 
 	Assignment(LhsT *lhs, Expression *rhs)
 	: lhs_(lhs), rhs_(rhs)
 	{
+		if (lhs_->type().template is<VoidType>())
+			throw TypeError("Cannot assign to a void expression");
+
 		ensure_type_equality(*lhs, *rhs);
 		lhs_->set_parent(this);
 		rhs_->set_parent(this);
