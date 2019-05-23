@@ -19,10 +19,6 @@ template<class... Ts>  using tuple       = std::tuple<Ts...>;
 template<class T>      using vector      = std::vector<T>;
 
 
-class Expression;
-template<class> struct TypedExpression;
-
-
 template<class T>
 class unique_ptr : public std::unique_ptr<T> {
 public:
@@ -30,10 +26,13 @@ public:
 };
 
 
+class Expression;
+
+
 using string = std::string;
 
 class AbstractLanguageElement;
-template<class> class LanguageElement;
+template<class, class> class LanguageElement;
 
 class AbstractAction;
 class Action;

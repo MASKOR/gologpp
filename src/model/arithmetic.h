@@ -10,7 +10,7 @@
 namespace gologpp {
 
 
-class ArithmeticOperation : public Expression, public NoScopeOwner, public LanguageElement<ArithmeticOperation> {
+class ArithmeticOperation : public Expression, public NoScopeOwner, public LanguageElement<ArithmeticOperation, NumberType> {
 public:
 	enum Operator {
 		ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, POWER, MODULO

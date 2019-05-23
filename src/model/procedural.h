@@ -26,7 +26,7 @@ namespace gologpp {
 /**
  * @brief A scoped block of procedural code.
  */
-class Block : public Expression, public ScopeOwner, public LanguageElement<Block> {
+class Block : public Expression, public ScopeOwner, public LanguageElement<Block, VoidType> {
 public:
 	Block(Scope *own_scope, const vector<Expression *> &elements);
 	virtual void attach_semantics(SemanticsFactory &) override;
@@ -44,7 +44,7 @@ private:
 /**
  * @brief Nondeterministic choice from a set of @ref Statement.
  */
-class Choose : public Expression, public ScopeOwner, public LanguageElement<Choose> {
+class Choose : public Expression, public ScopeOwner, public LanguageElement<Choose, VoidType> {
 public:
 	Choose(Scope *own_scope, const vector<Expression *> &alternatives);
 	void attach_semantics(SemanticsFactory &) override;
@@ -62,7 +62,7 @@ private:
 /**
  * @brief Classical if-then-else.
  */
-class Conditional : public Expression, public NoScopeOwner, public LanguageElement<Conditional> {
+class Conditional : public Expression, public NoScopeOwner, public LanguageElement<Conditional, VoidType> {
 public:
 	Conditional(
 		Expression *condition,
@@ -89,7 +89,7 @@ protected:
 /**
  * @brief Execute a set of statements in parallel.
  */
-class Concurrent : public Expression, public ScopeOwner, public LanguageElement<Concurrent> {
+class Concurrent : public Expression, public ScopeOwner, public LanguageElement<Concurrent, VoidType> {
 public:
 	Concurrent(Scope *own_scope, const vector<Expression *> &procs);
 	void attach_semantics(SemanticsFactory &) override;
@@ -126,7 +126,7 @@ public:
 template<class LhsT>
 class Assignment
 : public AbstractAssignment
-, public LanguageElement<Assignment<LhsT>> {
+, public LanguageElement<Assignment<LhsT>, VoidType> {
 public:
 	static_assert(!std::is_base_of<VoidExpression, LhsT>::value, "Cannot assign to a statement");
 	static_assert(!std::is_base_of<Function, LhsT>::value, "Cannot assign to a function");
@@ -162,7 +162,7 @@ private:
  *
  * @brief Nondeterministically pick a variable assignment.
  */
-class Pick : public Expression, public ScopeOwner, public LanguageElement<Pick> {
+class Pick : public Expression, public ScopeOwner, public LanguageElement<Pick, VoidType> {
 public:
 	Pick(
 		Scope *own_scope,
@@ -193,7 +193,7 @@ private:
  * Resolve all nondeterinisms within a statement so that all its tests succeed and all its actions
  * become executable.
  */
-class Search : public Expression, public NoScopeOwner, public LanguageElement<Search> {
+class Search : public Expression, public NoScopeOwner, public LanguageElement<Search, VoidType> {
 public:
 	Search(Expression *statement);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*statement_)
@@ -214,7 +214,7 @@ protected:
  * Search for a "best" executable path given a reward function, but only up to a
  * certain maximum number of actions (the horizon). Then execute the found action sequence.
  */
-class Solve : public Expression, public NoScopeOwner, public LanguageElement<Solve> {
+class Solve : public Expression, public NoScopeOwner, public LanguageElement<Solve, VoidType> {
 public:
 	Solve(
 		Expression *horizon,
@@ -239,7 +239,7 @@ private:
 /**
  * @brief Test for a boolean condition. Fail the program if the condition evaluates to false.
  */
-class Test : public Expression, public NoScopeOwner, public LanguageElement<Test> {
+class Test : public Expression, public NoScopeOwner, public LanguageElement<Test, VoidType> {
 public:
 	Test(Expression *expression);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_)
@@ -257,7 +257,7 @@ protected:
 /**
  * @brief Classical while loop.
  */
-class While : public Expression, public NoScopeOwner, public LanguageElement<While> {
+class While : public Expression, public NoScopeOwner, public LanguageElement<While, VoidType> {
 public:
 	While(Expression *expression, Expression *stmt);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_, *statement_)
@@ -277,7 +277,7 @@ protected:
 /**
  * @brief Return a value from a function.
  */
-class Return : public Expression, public NoScopeOwner, public LanguageElement<Return> {
+class Return : public Expression, public NoScopeOwner, public LanguageElement<Return, VoidType> {
 public:
 	Return(Expression *expr)
 	: expr_(expr)
@@ -304,7 +304,7 @@ private:
 class Function
 : public Global
 , public ScopeOwner
-, public LanguageElement<Function>
+, public LanguageElement<Function, VoidType>
 {
 public:
 	Function(
@@ -343,7 +343,7 @@ private:
 class DurativeCall
 : public Expression
 , public NoScopeOwner
-, public LanguageElement<DurativeCall>
+, public LanguageElement<DurativeCall, VoidType>
 {
 public:
 	enum Hook {

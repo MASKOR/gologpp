@@ -12,7 +12,7 @@
 namespace gologpp {
 
 
-class Negation : public Expression, public NoScopeOwner, public LanguageElement<Negation> {
+class Negation : public Expression, public NoScopeOwner, public LanguageElement<Negation, BoolType> {
 public:
 	Negation(Expression *expression);
 	virtual ~Negation() override = default;
@@ -36,7 +36,7 @@ enum ComparisonOperator {
 string to_string(ComparisonOperator op);
 
 
-class Comparison : public Expression, public NoScopeOwner, public LanguageElement<Comparison> {
+class Comparison : public Expression, public NoScopeOwner, public LanguageElement<Comparison, BoolType> {
 public:
 	Comparison(Expression *lhs, ComparisonOperator op, Expression *rhs);
 
@@ -68,7 +68,7 @@ enum BooleanOperator {
 string to_string(BooleanOperator op);
 
 
-class BooleanOperation : public Expression, public NoScopeOwner, public LanguageElement<BooleanOperation> {
+class BooleanOperation : public Expression, public NoScopeOwner, public LanguageElement<BooleanOperation, BoolType> {
 public:
 	BooleanOperation(
 		Expression *lhs,
@@ -103,7 +103,7 @@ enum QuantificationOperator {
 string to_string(QuantificationOperator op);
 
 
-class Quantification : public Expression, public ScopeOwner, public LanguageElement<Quantification> {
+class Quantification : public Expression, public ScopeOwner, public LanguageElement<Quantification, BoolType> {
 public:
 	Quantification(
 		Scope *own_scope,

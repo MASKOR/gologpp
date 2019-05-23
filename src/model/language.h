@@ -73,10 +73,16 @@ protected:
 
 
 
-template<class GologT>
+template<class GologT, class TypeT = UndefinedType>
 class LanguageElement : public virtual AbstractLanguageElement {
 public:
 	typedef GologT golog_t;
+
+	LanguageElement()
+	{
+		if (typeid(TypeT) != typeid(UndefinedType))
+			set_type_by_name(TypeT::name());
+	}
 
 	virtual ~LanguageElement() = default;
 
@@ -84,6 +90,7 @@ public:
 	Semantics<GologT> &semantics() const
 	{ return static_cast<Semantics<GologT> &>(*semantics_); }
 };
+
 
 
 #define DEFINE_IMPLEMENT_WITH_MEMBERS(...) \
