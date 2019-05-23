@@ -84,8 +84,11 @@ shared_ptr<Variable> Scope::get_var(VarDefinitionMode var_def_mode, const string
 	shared_ptr<Variable> rv;
 
 	auto it = variables_.find(name);
-	if (it != variables_.end())
-		rv = std::dynamic_pointer_cast<Variable>(it->second);
+	if (it != variables_.end()) {
+		rv = it->second;
+		if (rv->type().name() != type_name)
+			return nullptr;
+	}
 
 	if (!rv && var_def_mode != VarDefinitionMode::FORCE && &parent_scope() != this)
 		rv = std::dynamic_pointer_cast<Variable>(
