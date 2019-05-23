@@ -41,7 +41,26 @@ EffectParser<LhsT>::EffectParser()
 	effect.name("effect_axiom");
 	on_error<rethrow>(effect, delete_(_val));
 
-	GOLOGPP_DEBUG_NODE(effect);
+	init();
+
+	GOLOGPP_DEBUG_NODES((effect)(lhs))
+}
+
+
+template<>
+void EffectParser<Reference<Fluent>>::init()
+{
+	static ReferenceParser<Fluent> ref;
+	lhs = ref(_r1);
+	lhs.name("fluent_reference");
+}
+
+
+template<>
+void EffectParser<FieldAccess>::init()
+{
+	lhs = any_field_access()(_r1);
+	lhs.name("fluent_field_access");
 }
 
 
