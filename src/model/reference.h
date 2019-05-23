@@ -308,6 +308,9 @@ public:
 	virtual string to_string(const string &pfx) const override
 	{ return target()->to_string(pfx); }
 
+	virtual const Type &type() const override
+	{ return target()->type(); }
+
 
 private:
 	shared_ptr<Variable> target_;
