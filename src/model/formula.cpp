@@ -21,6 +21,29 @@ string Negation::to_string(const string &pfx) const
 
 
 
+Comparison::Comparison(Expression *lhs, ComparisonOperator op, Expression *rhs)
+: lhs_(lhs)
+, op_(op)
+, rhs_(rhs)
+{
+	ensure_type_equality(*lhs, *rhs);
+	lhs_->set_parent(this);
+	rhs_->set_parent(this);
+}
+
+ComparisonOperator Comparison::op() const
+{ return op_; }
+
+const Expression &Comparison::lhs() const
+{ return *lhs_; }
+
+const Expression &Comparison::rhs() const
+{ return *rhs_; }
+
+string Comparison::to_string(const string &pfx) const
+{ return '(' + lhs().to_string(pfx) + ' ' + gologpp::to_string(op()) + ' ' + rhs().to_string(pfx) + ')'; }
+
+
 string to_string(ComparisonOperator op)
 {
 	switch (op) {
@@ -38,26 +61,6 @@ string to_string(ComparisonOperator op)
 		return "<";
 	}
 	return "[Unkown ComparisonOperator]";
-}
-
-
-
-string to_string(BooleanOperator op)
-{
-	switch (op) {
-	case AND:
-		return "&";
-	case OR:
-		return "|";
-	case IFF:
-		return "==";
-	case IMPLIES:
-		return "->";
-	case XOR:
-		return "!=";
-	}
-
-	return "[Unknown BooleanOperator]";
 }
 
 
@@ -86,6 +89,25 @@ const Expression &BooleanOperation::rhs() const
 
 string BooleanOperation::to_string(const string &pfx) const
 { return '(' + lhs().to_string(pfx) + ' ' + gologpp::to_string(op()) + ' ' + rhs().to_string(pfx) + ')'; }
+
+
+string to_string(BooleanOperator op)
+{
+	switch (op) {
+	case AND:
+		return "&";
+	case OR:
+		return "|";
+	case IFF:
+		return "==";
+	case IMPLIES:
+		return "->";
+	case XOR:
+		return "!=";
+	}
+
+	return "[Unknown BooleanOperator]";
+}
 
 
 

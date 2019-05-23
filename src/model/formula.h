@@ -38,35 +38,22 @@ string to_string(ComparisonOperator op);
 
 class Comparison : public Expression, public NoScopeOwner, public LanguageElement<Comparison> {
 public:
-	Comparison(Expression *lhs, ComparisonOperator op, Expression *rhs)
-	: lhs_(lhs)
-	, op_(op)
-	, rhs_(rhs)
-	{
-		ensure_type_equality(*lhs, *rhs);
-		lhs_->set_parent(this);
-		rhs_->set_parent(this);
-	}
+	Comparison(Expression *lhs, ComparisonOperator op, Expression *rhs);
 
-	ComparisonOperator op() const
-	{ return op_; }
+	ComparisonOperator op() const;
+	const Expression &lhs() const;
+	const Expression &rhs() const;
 
-	const Expression &lhs() const
-	{ return *lhs_; }
-
-	const Expression &rhs() const
-	{ return *rhs_; }
+	virtual string to_string(const string &pfx) const override;
 
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
-
-	virtual string to_string(const string &pfx) const override
-	{ return '(' + lhs().to_string(pfx) + ' ' + gologpp::to_string(op()) + ' ' + rhs().to_string(pfx) + ')'; }
 
 protected:
 	unique_ptr<Expression> lhs_;
 	ComparisonOperator op_;
 	unique_ptr<Expression> rhs_;
 };
+
 
 
 
