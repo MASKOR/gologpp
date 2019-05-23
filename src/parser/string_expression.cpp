@@ -1,9 +1,10 @@
 #include "string_expression.h"
-#include "arithmetic.h"
-#include "formula.h"
-#include "symbolic_expression.h"
 
 #include "atoms.h"
+#include "field_access.h"
+#include "formula.h"
+#include "arithmetic.h"
+#include "expressions.h"
 
 #include <model/fluent.h>
 #include <model/procedural.h>
@@ -26,13 +27,6 @@ namespace gologpp {
 namespace parser {
 
 
-static StringExpressionParser string_expression_;
-
-rule<Expression *(Scope &)> string_expression {
-	string_expression_(_r1)
-};
-
-
 StringExpressionParser::StringExpressionParser()
 : StringExpressionParser::base_type(expression, "string_expression")
 {
@@ -41,13 +35,13 @@ StringExpressionParser::StringExpressionParser()
 
 	unary_expr =
 		conversion(_r1)
-		| string_constant | var_ref(_r1) | string_fluent_ref(_r1)
+		| string_constant() | var_ref(_r1) | string_fluent_ref(_r1)
 		| string_function_ref(_r1)
-		| field_access(_r1, val(String::static_name()))
+		| field_access()(_r1, val(String::static_name()))
 	;
 	unary_expr.name("unary_string_expression");
 
-	var_ref = var_usage(_r1, val(String::static_name())) [
+	var_ref = var_usage()(_r1, val(String::static_name())) [
 		_val = new_<Reference<Variable>>(_1)
 	];
 	var_ref.name("reference_to_string_variable");
@@ -70,7 +64,7 @@ StringExpressionParser::StringExpressionParser()
 	GOLOGPP_DEBUG_NODES(
 		(expression)(unary_expr)(var_ref)(conversion)
 		(convertible_expr)(concatenation)(implicit_conversion)
-	);
+	)
 }
 
 

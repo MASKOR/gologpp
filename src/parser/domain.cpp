@@ -27,16 +27,21 @@ namespace gologpp {
 namespace parser {
 
 
-static DomainExpressionParser domain_expression_;
 
-rule<Domain(Scope &, Typename)> domain_expression {
-	domain_expression_(_r1, _r2)
+rule<Domain(Scope &, Typename)> &domain_expression()
+{
+	static DomainExpressionParser domain_expression_;
+	static rule<Domain(Scope &, Typename)> rv {
+		domain_expression_(_r1, _r2, false)
+	};
+	return rv;
 };
+
 
 DomainExpressionParser::DomainExpressionParser()
 : DomainExpressionParser::base_type(domain_expr, "domain_expression")
 {
-	domain_expr = binary_domain_expr(_r1, _r2) | unary_domain_expr(_r1, _r2);
+	domain_expr = binary_domain_expr(_r1, _r2, _r3) | unary_domain_expr(_r1, _r2, _r3);
 	domain_expr.name("domain_expression");
 
 	typename expression::local_variable<shared_ptr<Domain>>::type p_domain;
@@ -50,13 +55,13 @@ DomainExpressionParser::DomainExpressionParser()
 				]
 			]
 		]
-		| (lit('{') > (constant(_r2) % ',') > '}') [
+		| (lit('{') > (constant()(_r2, _r3) % ',') > '}') [
 			_val = construct<Domain>(val(""), _r2, _1)
 		]
 	;
 	unary_domain_expr.name("unary_domain_expression");
 
-	binary_domain_expr = (unary_domain_expr(_r1, _r2) >> domain_operator >> domain_expr(_r1, _r2)) [
+	binary_domain_expr = (unary_domain_expr(_r1, _r2, _r3) >> domain_operator >> domain_expr(_r1, _r2, _r3)) [
 		_val = phoenix::bind(&domain_operation, _1, _2, _3)
 	];
 	binary_domain_expr.name("binary_domain_expression");
@@ -73,35 +78,44 @@ DomainExpressionParser::DomainExpressionParser()
 
 
 
-rule<void(Scope &), locals<string, Typename>> domain_decl {
-	((any_type_specifier >> "domain") > r_name()) [
-		_a = _1, // type name
-		_b = _2  // domain name
-	]
-	> (
-		lit(';') [ // forward declaration
-			phoenix::bind(&Scope::declare_domain, _r1, _a, _b)
+rule<void(Scope &), locals<string, Typename>> &domain_decl()
+{
+	static DomainExpressionParser domain_expr_;
+	static rule<void(Scope &), locals<string, Typename>> rv {
+		((any_type_specifier() >> "domain") > r_name()) [
+			_a = _1, // type name
+			_b = _2  // domain name
 		]
-		| ( lit('=') > domain_expression(_r1, _a) ) [ // definition
-			phoenix::bind(&Scope::define_domain, _r1, _a, _b, _1)
-		]
-	),
-	"domain_declaration"
-};
+		> (
+			lit(';') [ // forward declaration
+				phoenix::bind(&Scope::declare_domain, _r1, _b, _a)
+			]
+			| ( lit('=') > domain_expr_(_r1, _a, true) ) [ // definition
+				phoenix::bind(&Scope::define_domain, _r1, _b, _a, _1)
+			]
+		),
+		"domain_declaration"
+	};
+	return rv;
+}
 
 
-
-rule<void(Scope &), locals<Typename>> domain_assignment {
-	(
-		any_var_usage(_r1) [
-			_a = phoenix::bind(&Expression::type_name, _1)
-		]
-		> "in" > domain_expression(_r1, _a) > ';'
-	) [
-		phoenix::bind(&Variable::set_domain_copy, _1, _2)
-	],
-	"domain_assignment"
-};
+rule<void(Scope &, bool), locals<Typename>> &domain_assignment()
+{
+	static DomainExpressionParser domain_expr_;
+	static rule<void(Scope &, bool), locals<Typename>> rv {
+		(
+			any_var_usage()(_r1) [
+				_a = phoenix::bind(&Expression::type_name, *_1)
+			]
+			> "in" > domain_expr_(_r1, _a, _r2) > ';'
+		) [
+			phoenix::bind(&Variable::set_domain_copy, _1, _2)
+		],
+		"domain_assignment"
+	};
+	return rv;
+}
 
 
 } // namespace parser

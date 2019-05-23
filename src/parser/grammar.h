@@ -9,6 +9,7 @@
 #include "functions.h"
 #include "domain.h"
 #include "types.h"
+#include "expressions.h"
 
 #include <boost/spirit/include/qi_kleene.hpp>
 #include <boost/spirit/include/qi_omit.hpp>
@@ -33,13 +34,15 @@ struct ProgramParser : grammar<Expression *(Scope &)> {
 			| action(_r1)
 			| exog_action(_r1)
 			| function(_r1)
-			| domain_decl(_r1)
+			| domain_decl()(_r1)
 			| type_definition(_r1)
 		] ) > statement(_r1) > eoi;
 
 		on_error<rethrow>(program,
 			phoenix::bind(&handle_error, _1, _3, _2, _4)
 		);
+
+		define_expression_rules();
 
 		GOLOGPP_DEBUG_NODE(program);
 	}

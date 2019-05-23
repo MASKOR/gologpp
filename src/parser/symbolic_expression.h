@@ -22,9 +22,6 @@ struct SymbolicExpressionParser : grammar<Expression *(Scope &)> {
 };
 
 
-extern rule<Expression *(Scope &)> symbolic_expression;
-
-
 } // namespace parser
 } // namespace gologpp
 

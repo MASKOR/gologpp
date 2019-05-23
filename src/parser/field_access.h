@@ -7,7 +7,7 @@ namespace gologpp {
 namespace parser {
 
 
-extern rule<FieldAccess *(Scope &, Typename)> field_access;
+rule<FieldAccess *(Scope &, Typename)> &field_access();
 
 
 } // namespace parser

@@ -36,12 +36,12 @@ FluentParser::FluentParser()
 : FluentParser::base_type(fluent)
 {
 	fluent = (
-		(((any_type_specifier >> "fluent") > r_name() > '(') [
+		(((any_type_specifier() >> "fluent") > r_name() > '(') [
 			_a = new_<Scope>(_r1),
 			_b = _2, // fluent name
 			_d = _1  // type name
 		] )
-		> ( -(var_decl(*_a) % ',') > lit(')')) [
+		> ( -(var_decl()(*_a) % ',') > lit(')')) [
 			_c = _1
 		]
 	)
@@ -50,15 +50,13 @@ FluentParser::FluentParser()
 			_val = phoenix::bind(
 				&Scope::declare_global<Fluent>,
 				_r1,
-				_a, _b, _c
+				_a, _d, _b, _c
 			),
-			if_(!phoenix::bind(&Fluent::set_type_by_name, *_val, _d)) [
-				_pass = false
-			]
+			_pass = !!_val
 		]
 		| ( lit('{') > ( // definition
 			("initially:" > +initially(_d))
-			^ ("domain:" > +domain_assignment(*_a))
+			^ ("domain:" > +domain_assignment()(*_a, false))
 		) > '}' ) [
 			_val = phoenix::bind(
 				&Scope::define_global<
@@ -66,27 +64,25 @@ FluentParser::FluentParser()
 					const boost::optional<vector<InitialValue *>> &
 				>,
 				_r1,
-				_a, _b, _c, _1
+				_a, _d, _b, _c, _1
 			),
-			if_(!phoenix::bind(&Fluent::set_type_by_name, *_val, _d)) [
-				_pass = false
-			]
+			_pass = !!_val
 		]
 	);
 	fluent.name("fluent_definition");
 	on_error<rethrow>(fluent, delete_(_a));
 
 	initially = (lit('(')
-		> -(any_constant % ',')
+		> -(any_constant() % ',')
 		> ')' > '='
-		> constant(_r1)
+		> constant()(_r1, false)
 		> ';'
 	) [
 		_val = new_<InitialValue>(_1, _2)
 	];
 	initially.name("initial_value_mapping");
 
-	GOLOGPP_DEBUG_NODES((variable)(fluent)(initially));
+	GOLOGPP_DEBUG_NODES((fluent)(initially))
 }
 
 

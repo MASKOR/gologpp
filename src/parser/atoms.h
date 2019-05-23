@@ -9,23 +9,23 @@ namespace gologpp {
 namespace parser {
 
 
-extern rule<shared_ptr<Variable>(Scope &)> var_decl;
-extern rule<shared_ptr<Variable>(Scope &, Typename)> var_usage;
-extern rule<shared_ptr<Variable>(Scope &)> any_var_usage;
+rule<shared_ptr<Variable>(Scope &)> &var_decl();
+rule<shared_ptr<Variable>(Scope &, Typename)> &var_usage();
+rule<shared_ptr<Variable>(Scope &)> &any_var_usage();
 
 
-extern rule<Constant *()> numeric_constant;
-extern rule<Constant *()> boolean_constant;
-extern rule<Constant *()> string_constant;
-extern rule<Constant *()> symbolic_constant;
-extern rule<Constant *()> symbolic_constant_def;
-extern rule<Constant *()> compound_constant;
+rule<Constant *()> &numeric_constant();
+rule<Constant *()> &boolean_constant();
+rule<Constant *()> &string_constant();
+rule<Constant *()> &symbolic_constant();
+rule<Constant *()> &symbolic_constant_def();
+rule<Constant *()> &compound_constant();
 
-extern rule<Constant *()> any_constant;
+rule<Constant *()> &any_constant();
 
-extern rule<Constant *(Typename)> constant;
+rule<Constant *(Typename, bool)> &constant();
 
-extern rule<Expression *()> &atom;
+rule<Expression *()> &atom();
 
 
 } // namespace parser

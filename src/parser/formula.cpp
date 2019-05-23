@@ -4,9 +4,6 @@
 #include "formula.h"
 #include "types.h"
 #include "field_access.h"
-#include "arithmetic.h"
-#include "symbolic_expression.h"
-#include "string_expression.h"
 #include "expressions.h"
 #include "atoms.h"
 
@@ -22,6 +19,7 @@
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/object/dynamic_cast.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/operator/comparison.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
 
 #include <unordered_map>
@@ -48,25 +46,27 @@ ComparisonParser::ComparisonParser()
 
 	comparison = (
 		(comparable_expr(_r1) >> cmp_op) [
-			_a = phoenix::bind(&Expression::type_name, _1)
+			_a = phoenix::bind(&Expression::type_name, *_1)
 		]
-		> typed_expression(_r1, _a)
+		> typed_expr(_r1, _a)
 	) [
 		_val = new_<Comparison>(at_c<0>(_1), at_c<1>(_1), _2)
 	];
 	comparison.name("comparison");
 
-	comparable_expr = numeric_expression(_r1) | string_expression(_r1) | symbolic_expression(_r1);
+	typed_expr = comparable_expr(_r1) [
+		_val = _1,
+		_pass = phoenix::bind(&Expression::type_name, *_val) == _r2
+	];
 
-	GOLOGPP_DEBUG_NODE(comparison);
+	comparable_expr = numeric_expression(_r1)
+		| string_expression(_r1)
+		| symbolic_expression(_r1);
+	comparable_expr.name("comparable_lhs");
+
+	GOLOGPP_DEBUG_NODES((comparison)(comparable_expr)(typed_expr))
 }
 
-
-static BooleanExpressionParser boolean_expression_parser_;
-
-rule<Expression *(Scope &)> boolean_expression {
-	boolean_expression_parser_(_r1)
-};
 
 
 BooleanExpressionParser::BooleanExpressionParser()
@@ -75,11 +75,11 @@ BooleanExpressionParser::BooleanExpressionParser()
 	expression = binary_expr(_r1) | unary_expr(_r1);
 	expression.name("boolean_expression");
 
-	unary_expr = quantification(_r1) | negation(_r1) | boolean_constant
+	unary_expr = quantification(_r1) | negation(_r1) | boolean_constant()
 		| bool_var_ref(_r1) | brace(_r1)
 		| comparison(_r1)
 		| boolean_fluent_ref(_r1) | boolean_function_ref(_r1)
-		| field_access(_r1, val(Bool::static_name()))
+		| field_access()(_r1, val(Bool::static_name()))
 	;
 	unary_expr.name("unary_boolean_expression");
 
@@ -92,7 +92,7 @@ BooleanExpressionParser::BooleanExpressionParser()
 
 	quantification = ( (quantification_op > '(') [
 		_a = new_<Scope>(_r1)
-	] > var_decl(*_a) > ')' > expression(*_a)) [
+	] > var_decl()(*_a) > ')' > expression(*_a)) [
 		_val = new_<Quantification>(_a, _1, _2, _3)
 	];
 	quantification.name("quantification");
@@ -120,14 +120,14 @@ BooleanExpressionParser::BooleanExpressionParser()
 	brace = '(' >> expression(_r1) >> ')';
 	brace.name("braced_boolean_expression");
 
-	bool_var_ref = var_usage(_r1, val(Bool::static_name())) [
+	bool_var_ref = var_usage()(_r1, val(Bool::static_name())) [
 		_val = new_<Reference<Variable>>(_1)
 	];
 	bool_var_ref.name("reference_to_boolean_variable");
 
 	GOLOGPP_DEBUG_NODES((expression)(unary_expr)(binary_expr)
 	(negation)(brace)(bool_var_ref)(quantification)
-	(quantification_op)(bool_op));
+	(quantification_op)(bool_op))
 }
 
 

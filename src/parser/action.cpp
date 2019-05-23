@@ -1,6 +1,5 @@
 #include "field_access.h"
 #include "action.h"
-#include "formula.h"
 
 #include <boost/spirit/home/qi/nonterminal/error_handler.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>
@@ -47,7 +46,7 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 		( "precondition:" > boolean_expression(*_r2) )
 		^ ( "effect:" > +(effect(*_r2) > ';') )
 		^ ( "senses:" > senses(*_r2) )
-		^ ( "domain:" > +(domain_assignment(*_r2)) )
+		^ ( "domain:" > +(domain_assignment()(*_r2, false)) )
 		^ qi::eps
 	) > '}' ) [
 		phoenix::bind(
@@ -58,7 +57,7 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 				boost::optional<Reference<Fluent> *>
 			>,
 			_r1,
-			_r2, _r3, _r4, _1, _2, _3
+			_r2, val(""), _r3, _r4, _1, _2, _3
 		)
 	];
 
@@ -74,7 +73,7 @@ ActionDefinitionParser<ExogAction>::ActionDefinitionParser()
 	definition = ( lit('{') > (
 		( "precondition:" > boolean_expression(*_r2) )
 		^ ( "effect:" > +(effect(*_r2) > ';') )
-		^ ( "domain:" > +(domain_assignment(*_r2)) )
+		^ ( "domain:" > +(domain_assignment()(*_r2, false)) )
 		^ qi::eps
 	) > '}' ) [
 		phoenix::bind(
@@ -84,7 +83,7 @@ ActionDefinitionParser<ExogAction>::ActionDefinitionParser()
 				boost::optional<vector<AbstractEffectAxiom *>>
 			>,
 			_r1,
-			_r2, _r3, _r4, _1, _2
+			_r2, val(""), _r3, _r4, _1, _2
 		)
 	];
 
@@ -102,14 +101,14 @@ ActionParser<ActionT>::ActionParser()
 			_a = new_<Scope>(_r1),
 			_b = _1
 		])
-		> ( -(var_decl(*_a) % ',') > ')' ) [
+		> ( -(var_decl()(*_a) % ',') > ')' ) [
 			_c = _1
 		]
 	)
 	> (
 		action_definition(_r1, _a, _b, _c)
 		| lit(';') [
-			phoenix::bind(&Scope::declare_global<ActionT>, _r1, _a, _b, _c)
+			phoenix::bind(&Scope::declare_global<ActionT>, _r1, _a, val(""), _b, _c)
 		]
 	);
 	action.name("action_declaration");

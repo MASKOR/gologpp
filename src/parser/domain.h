@@ -9,18 +9,18 @@
 namespace gologpp {
 namespace parser {
 
-struct DomainExpressionParser : grammar<Domain(Scope &, Typename)> {
+struct DomainExpressionParser : grammar<Domain(Scope &, Typename, bool)> {
 	DomainExpressionParser();
 
-	rule<Domain(Scope &, Typename)> domain_expr;
-	rule<Domain(Scope &, Typename)> unary_domain_expr;
-	rule<Domain(Scope &, Typename)> binary_domain_expr;
+	rule<Domain(Scope &, Typename, bool)> domain_expr;
+	rule<Domain(Scope &, Typename, bool)> unary_domain_expr;
+	rule<Domain(Scope &, Typename, bool)> binary_domain_expr;
 	rule<DomainOperator()> domain_operator;
 };
 
-extern rule<Domain(Scope &, Typename)> domain_expression;
-extern rule<void(Scope &), locals<string, Typename>> domain_decl;
-extern rule<void(Scope &), locals<Typename>> domain_assignment;
+rule<Domain(Scope &, Typename)> &domain_expression();
+rule<void(Scope &), locals<string, Typename>> &domain_decl();
+rule<void(Scope &, bool), locals<Typename>> &domain_assignment();
 
 
 } // namespace parser

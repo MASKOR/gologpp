@@ -5,6 +5,7 @@
 #include "domain.h"
 #include "effect_axiom.h"
 #include "reference.h"
+#include "formula.h"
 
 #include <model/scope.h>
 
@@ -34,6 +35,7 @@ struct ActionDefinitionParser
 	EffectParser<Reference<Fluent>> fluent_effect;
 	EffectParser<FieldAccess> field_effect;
 	ReferenceParser<Fluent> senses;
+	BooleanExpressionParser boolean_expression;
 };
 
 

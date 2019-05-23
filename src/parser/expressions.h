@@ -14,9 +14,18 @@ namespace parser {
 ****************************/
 
 
-extern rule<Expression *(Scope &)> value_expression;
+void define_expression_rules();
 
-extern rule<Expression *(Scope &, Typename)> typed_expression;
+rule<Expression *(Scope &)> &value_expression();
+
+rule<Expression *(Scope &, Typename)> &typed_expression();
+
+extern rule<Expression *(Scope &)> boolean_expression;
+extern rule<Expression *(Scope &)> numeric_expression;
+extern rule<Expression *(Scope &)> string_expression;
+extern rule<Expression *(Scope &)> symbolic_expression;
+extern rule<Expression *(Scope &)> compound_expression;
+
 
 
 } // namespace parser

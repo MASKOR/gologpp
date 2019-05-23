@@ -30,8 +30,6 @@ struct NumericExpressionParser : grammar<Expression *(Scope &)> {
 	ReferenceParser<Function> numeric_function_ref;
 };
 
-extern rule<Expression *(Scope &)> numeric_expression;
-
 
 
 } // namespace parser

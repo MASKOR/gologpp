@@ -16,11 +16,7 @@ namespace gologpp {
 namespace parser {
 
 
-struct PickParser : grammar<Pick *(Scope &), locals<Scope *, shared_ptr<Variable>>> {
-	PickParser();
 
-	rule<Pick *(Scope &), locals<Scope *, shared_ptr<Variable>>> pick;
-};
 
 
 struct StatementParser : grammar<Expression *(Scope &)> {
@@ -32,8 +28,7 @@ struct StatementParser : grammar<Expression *(Scope &)> {
 	rule<Block *(Scope &), locals<Scope *>> block;
 	rule<Choose *(Scope &), locals<Scope *>> choose;
 	rule<Conditional *(Scope &)> conditional;
-
-	PickParser pick;
+	rule<Pick *(Scope &), locals<Scope *, shared_ptr<Variable>>> pick;
 
 	rule<Search *(Scope &)> search;
 	rule<Solve *(Scope &)> solve;
@@ -44,7 +39,6 @@ struct StatementParser : grammar<Expression *(Scope &)> {
 
 	rule<Expression *(Scope &)> empty_statement;
 
-
 	rule<Return *(Scope &)> return_stmt;
 
 	ReferenceParser<Function> procedure_call;
@@ -53,10 +47,10 @@ struct StatementParser : grammar<Expression *(Scope &)> {
 
 	AssignmentParser<Reference<Fluent>> fluent_assignment;
 	AssignmentParser<FieldAccess> field_assignment;
+
+	BooleanExpressionParser boolean_expression;
+	NumericExpressionParser numeric_expression;
 };
-
-
-extern rule<Expression *(Scope &)> statement;
 
 
 

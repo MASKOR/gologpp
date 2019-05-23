@@ -2,6 +2,7 @@
 #define GOLOGPP_PARSER_FUNCTIONS_H_
 
 #include "utilities.h"
+#include "statements.h"
 
 namespace gologpp {
 namespace parser {
@@ -28,6 +29,8 @@ struct FunctionParser
 			string
 		>
 	> function;
+
+	StatementParser statement;
 };
 
 

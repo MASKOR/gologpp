@@ -27,32 +27,6 @@ namespace gologpp {
 namespace parser {
 
 
-static StatementParser statement_;
-
-rule<Expression *(Scope &)> statement {
-	statement_(_r1)
-};
-
-
-PickParser::PickParser()
-: PickParser::base_type(pick, "pick")
-{
-	pick = {
-		(((lit("pick") >> '(') [
-			_a = new_<Scope>(_r1)
-		] >> var_decl(*_a) [ _b = _1 ])
-		> -(lit("in") > '{'
-		> constant(phoenix::bind(&Expression::type_name, *_b)) % ','
-		> '}')
-		> ')' > statement(*_a)) [
-			_val = new_<Pick>(_a, _1, _2, _3)
-		],
-		"pick"
-	};
-}
-
-
-
 StatementParser::StatementParser()
 : StatementParser::base_type(statement, "statement")
 {
@@ -102,6 +76,20 @@ StatementParser::StatementParser()
 	];
 	conditional.name("conditional");
 
+	pick = (
+		(lit("pick") > '(') [
+			_a = new_<Scope>(_r1)
+		] > var_decl()(*_a) [
+			_b = _1
+		] > -(lit("in") > '{'
+		> constant()(phoenix::bind(&Expression::type_name, *_b), false) % ','
+		> '}')
+		> ')' > statement(*_a)
+	) [
+		_val = new_<Pick>(_a, _1, _2, _3)
+	];
+	pick.name("pick");
+
 	empty_statement = qi::attr(new_<Block>(new_<Scope>(_r1), construct<vector<Expression *>>()));
 	empty_statement.name("empty_statement");
 
@@ -134,7 +122,7 @@ StatementParser::StatementParser()
 	choose.name("concurrent");
 	on_error<rethrow>(concurrent, delete_(_a));
 
-	return_stmt = (lit("return") >> value_expression(_r1)) [
+	return_stmt = (lit("return") >> value_expression()(_r1)) [
 		_val = new_<Return>(_1)
 	];
 	return_stmt.name("string_return");
@@ -156,7 +144,7 @@ StatementParser::StatementParser()
 
 	GOLOGPP_DEBUG_NODES((statement)(simple_statement)(compound_statement)
 		(block)(choose)(conditional)(search)(solve)(test)(r_while)
-		(boolean_return)(numeric_return));
+		(return_stmt))
 }
 
 

@@ -34,7 +34,7 @@ static rule<Typename(Scope &)> decl_prefix {
 	lit("procedure") [
 		_val = val(Void::static_name())
 	]
-	| any_type_specifier >> "function"
+	| any_type_specifier() >> "function"
 };
 
 
@@ -47,37 +47,23 @@ FunctionParser::FunctionParser()
 			_b = _2,
 			_d = _1
 		]
-		> ( -(var_decl(*_a) % ',') > ')' ) [
+		> ( -(var_decl()(*_a) % ',') > ')' ) [
 			_c = _1
 		]
 		> (
 			lit(';') [
 				_val = phoenix::bind(
 					&Scope::declare_global<Function>,
-					_r1, _a, _b, _c
+					_r1, _a, _d, _b, _c
 				),
-				if_(!_val) [
-					_pass = false
-				].else_ [
-					phoenix::bind(
-						&AbstractLanguageElement::set_type_by_name,
-						_val, _d
-					)
-				]
+				_pass = !!_val
 			]
 			| statement(*_a) [
 				_val = phoenix::bind(
 					&Scope::define_global<Function, Expression *>,
-					_r1, _a, _b, _c, _1
+					_r1, _a, _d, _b, _c, _1
 				),
-				if_(!_val) [
-					_pass = false
-				].else_ [
-					phoenix::bind(
-						&AbstractLanguageElement::set_type_by_name,
-						_val, _d
-					)
-				]
+				_pass = !!_val
 			]
 		)
 	;

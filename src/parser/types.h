@@ -18,7 +18,7 @@ struct CompoundTypeParser : public grammar<CompoundType *(Scope &)> {
 };
 
 
-extern rule<Typename()> any_type_specifier;
+rule<Typename()> &any_type_specifier();
 
 
 

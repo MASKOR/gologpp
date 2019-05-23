@@ -32,9 +32,9 @@ EffectParser<LhsT>::EffectParser()
 	effect = ( eps [ _val = new_<EffectAxiom<LhsT>>() ] >> (
 		-(lit("if") > '(' > condition(_r1) > ')')
 		> lhs(_r1) [
-			_a = phoenix::bind(&Expression::type_name, _1)
+			_a = phoenix::bind(&Expression::type_name, *_1)
 		]
-		> '=' > typed_expression(_r1, _a)
+		> '=' > typed_expression()(_r1, _a)
 	)) [
 		phoenix::bind(&EffectAxiom<LhsT>::define, *_val, _1, _2, _3)
 	];

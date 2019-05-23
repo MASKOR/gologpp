@@ -23,12 +23,17 @@ namespace gologpp {
 namespace parser {
 
 
-rule<FieldAccess *(Scope &, Typename)> field_access { (
-	(compound_expression(_r1) >> lit('.')) > r_name()) [
-		_val = new_<FieldAccess>(_1, _2)
-	],
-	"field_access"
-};
+rule<FieldAccess *(Scope &, Typename)> &field_access()
+{
+	static CompoundExpressionParser compound_expression_;
+	static rule<FieldAccess *(Scope &, Typename)> rv { (
+		(compound_expression_(_r1) >> lit('.')) > r_name()) [
+			_val = new_<FieldAccess>(_1, _2)
+		],
+		"field_access"
+	};
+	return rv;
+}
 
 
 } // namespace parser

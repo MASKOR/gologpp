@@ -38,7 +38,7 @@ ReferenceParser<GologT>::ReferenceParser()
 : ReferenceParser::base_type(pred_ref, "reference")
 {
 	pred_ref = (((r_name() >> "(") > -(
-		any_expr(_r1) %  ","
+		value_expression()(_r1) %  ","
 	) ) > ")") [
 		_val = new_<Reference<GologT>>(_1, _2),
 		if_(!phoenix::bind(&Reference<GologT>::consistent, *_val)) [
@@ -48,10 +48,7 @@ ReferenceParser<GologT>::ReferenceParser()
 	];
 	pred_ref.name("reference");
 
-	any_expr = value_expression(_r1);
-	any_expr.name("any_expression");
-
-	GOLOGPP_DEBUG_NODES((pred_ref)(any_expr));
+	GOLOGPP_DEBUG_NODE(pred_ref)
 }
 
 

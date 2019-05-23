@@ -45,103 +45,124 @@ namespace gologpp {
 namespace parser {
 
 
-
-rule<shared_ptr<Variable>(Scope &)> var_decl {
-	(any_type_specifier >> r_name()) [
-		_val = phoenix::bind(
-			&Scope::get_var, _r1,
-			VarDefinitionMode::FORCE,
-			_1, _2
-		)
-	],
-	"variable_declaration"
-};
-
-
-rule<shared_ptr<Variable>(Scope &, Typename)> var_usage {
-	r_name() [
-		_val = phoenix::bind(
-			&Scope::get_var, _r1,
-			VarDefinitionMode::DENY,
-			_r2, _1
-		),
-		_pass = !!_val // force conversion to bool
-	],
-	"variable_reference"
-};
+rule<shared_ptr<Variable>(Scope &)> &var_decl() {
+	static rule<shared_ptr<Variable>(Scope &)> rv {
+		(any_type_specifier() >> r_name()) [
+			_val = phoenix::bind(
+				&Scope::get_var, _r1,
+				VarDefinitionMode::FORCE,
+				_1, _2
+			)
+		],
+		"variable_declaration"
+	};
+	return rv;
+}
 
 
-rule<shared_ptr<Variable>(Scope &)> any_var_usage {
-	r_name() [
-		_val = phoenix::bind(
-			&Scope::lookup_var, _r1,
-			_1
-		),
-		_pass = !!_val // force conversion to bool
-	]
-};
+rule<shared_ptr<Variable>(Scope &, Typename)> &var_usage() {
+	static rule<shared_ptr<Variable>(Scope &, Typename)> rv {
+		r_name() [
+			_val = phoenix::bind(
+				&Scope::get_var, _r1,
+				VarDefinitionMode::DENY,
+				_r2, _1
+			),
+			_pass = !!_val // force conversion to bool
+		],
+		"variable_reference"
+	};
+	return rv;
+}
 
 
-
-static real_parser<double, strict_real_policies<double>> strict_double;
-
-rule<Constant *()> numeric_constant {
-	strict_double [
-		_val = new_<Constant>(Number::static_name(), _1)
-	]
-	| int_ [
-		_val = new_<Constant>(Number::static_name(), _1)
-	],
-	"numeric_constant"
-};
-
-
-rule<Constant *()> boolean_constant {
-	lit("true") [
-		_val = new_<Constant>(Bool::static_name(), true)
-	]
-	| lit("false") [
-		_val = new_<Constant>(Bool::static_name(), false)
-	],
-	"boolean_constant"
-};
-
-
-rule<Constant *()> string_constant {
-	qi::as_string [ qi::lexeme [
-		lit('"') > *(char_ - '"') > lit('"')
-	] ] [
-		_val = new_<Constant>(String::static_name(), _1)
-	],
-	"string_constant"
-};
-
-
-rule<Constant *()> symbolic_constant {
-	r_name() [
-		_val = phoenix::bind(&Scope::get_symbol, phoenix::bind(&global_scope), _1),
-		if_(_val == nullptr) [
-			_pass = false
+rule<shared_ptr<Variable>(Scope &)> &any_var_usage() {
+	static rule<shared_ptr<Variable>(Scope &)> rv {
+		r_name() [
+			_val = phoenix::bind(
+				&Scope::lookup_var, _r1,
+				_1
+			),
+			_pass = !!_val // force conversion to bool
 		]
-	],
-	"symbolic_constant_usage"
-};
+	};
+	return rv;
+}
 
 
-rule<Constant *()> symbolic_constant_def {
-	r_name() [ _val = new_<Constant>(val(Symbol::static_name()), _1) ],
-	"symbolic_constant_definition"
-};
 
+
+rule<Constant *()> &numeric_constant() {
+	static real_parser<double, strict_real_policies<double>> strict_double;
+	static rule<Constant *()> rv {
+		strict_double [
+			_val = new_<Constant>(Number::static_name(), _1)
+		]
+		| int_ [
+			_val = new_<Constant>(Number::static_name(), _1)
+		],
+		"numeric_constant"
+	};
+	return rv;
+}
+
+rule<Constant *()> &boolean_constant() {
+	static rule<Constant *()> rv {
+		lit("true") [
+			_val = new_<Constant>(Bool::static_name(), true)
+		]
+		| lit("false") [
+			_val = new_<Constant>(Bool::static_name(), false)
+		],
+		"boolean_constant"
+	};
+	return rv;
+}
+
+
+rule<Constant *()> &string_constant() {
+	static rule<Constant *()> rv {
+		qi::as_string [ qi::lexeme [
+			lit('"') > *(char_ - '"') > lit('"')
+		] ] [
+			_val = new_<Constant>(String::static_name(), _1)
+		],
+		"string_constant"
+	};
+	return rv;
+}
+
+
+rule<Constant *()> &symbolic_constant() {
+		static rule<Constant *()> rv {
+		r_name() [
+			_val = phoenix::bind(&Scope::get_symbol, phoenix::bind(&global_scope), _1),
+			if_(_val == nullptr) [
+				_pass = false
+			]
+		],
+		"symbolic_constant_usage"
+	};
+	return rv;
+}
+
+
+rule<Constant *()> &symbolic_constant_def() {
+	static rule<Constant *()> rv {
+		r_name() [ _val = new_<Constant>(val(Symbol::static_name()), _1) ],
+		"symbolic_constant_definition"
+	};
+	return rv;
+}
 
 struct CompoundConstantParser : grammar<Constant *()> {
 	CompoundConstantParser()
 	: CompoundConstantParser::base_type(compound_constant_, "compound_constant")
 	{
 		compound_constant_ = (
-			(any_type_specifier >> '{')
+			(any_type_specifier() >> '{')
 				> (
-					r_name() > '=' > any_constant
+					r_name() > '=' > any_constant_
 				) % ',' > '}'
 			) [
 				_val = new_<Constant>(_1, _2)
@@ -150,13 +171,13 @@ struct CompoundConstantParser : grammar<Constant *()> {
 		compound_constant_.name("compound_constant");
 
 		any_constant_ =
-			boolean_constant | numeric_constant
-			| symbolic_constant | string_constant
+			boolean_constant() | numeric_constant()
+			| symbolic_constant() | string_constant()
 			| compound_constant_
 		;
 		any_constant_.name("any_constant");
 
-		GOLOGPP_DEBUG_NODES((compound_constant_)(any_constant_));
+		GOLOGPP_DEBUG_NODES((compound_constant_)(any_constant_))
 	}
 
 	rule<Constant *()> compound_constant_;
@@ -164,47 +185,59 @@ struct CompoundConstantParser : grammar<Constant *()> {
 };
 
 
-rule<Constant *()> compound_constant = CompoundConstantParser();
+rule<Constant *()> &compound_constant() {
+	static CompoundConstantParser ccp;
+	static rule<Constant *()> rv { ccp };
+	return rv;
+}
 
 
 
-rule<Constant *()> any_constant {
-	boolean_constant | numeric_constant
-		| symbolic_constant | string_constant
-		| compound_constant
-	, "any_constant"
-};
+rule<Constant *()> &any_constant() {
+	static rule<Constant *()> rv {
+		boolean_constant() | numeric_constant()
+			| symbolic_constant() | string_constant()
+			| compound_constant()
+		, "any_constant"
+	};
+	return rv;
+}
 
 
 
-static std::unordered_map <
-	Typename,
-	std::reference_wrapper <
-		rule<Constant *()>
-	>
->
-constant_parser_map {
-	{ Bool::static_name(), boolean_constant },
-	{ Number::static_name(), numeric_constant },
-	{ String::static_name(), string_constant },
-	{ Symbol::static_name(), symbolic_constant },
-};
-
-static rule<Constant *()> &get_constant_parser(Typename type);
-
-rule<Constant *(Typename)> constant {
-	lazy(phoenix::bind(&get_constant_parser, _r1))
-};
-
-static rule<Constant *()> &get_constant_parser(Typename type)
+static rule<Constant *()> &get_constant_parser(Typename type, bool allow_symbol_def)
 {
+	static std::unordered_map <
+		Typename,
+		std::reference_wrapper <
+			rule<Constant *()>
+		>
+	>
+	constant_parser_map {
+		{ Bool::static_name(), boolean_constant() },
+		{ Number::static_name(), numeric_constant() },
+		{ String::static_name(), string_constant() },
+		{ Symbol::static_name(), symbolic_constant() },
+	};
+
+	if (type == Symbol::static_name() && allow_symbol_def)
+		return symbolic_constant_def();
+
 	auto it = constant_parser_map.find(type);
 	if (it == constant_parser_map.end())
-		return compound_constant;
+		return compound_constant();
 	else
 		return it->second;
 }
 
+
+
+rule<Constant *(Typename, bool)> &constant() {
+	static rule<Constant *(Typename, bool)> rv {
+		lazy(phoenix::bind(&get_constant_parser, _r1, _r2))
+	};
+	return rv;
+}
 
 
 

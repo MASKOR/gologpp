@@ -22,8 +22,6 @@ struct CompoundExpressionParser : public grammar<Expression *(Scope &)> {
 	rule<Expression *(Scope &)> field_access;
 };
 
-extern rule<Expression *(Scope &)> compound_expression;
-
 
 } // namespace parser
 } // namespace gologpp

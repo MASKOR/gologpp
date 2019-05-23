@@ -29,25 +29,30 @@ CompoundTypeParser::CompoundTypeParser()
 {
 	type_definition = (lit("compound") > r_name() > '{') [
 		_val = new_<CompoundType>(_1)
-	] > ((any_type_specifier > r_name()) [
+	] > ((any_type_specifier() > r_name()) [
 		phoenix::bind(&CompoundType::add_field, _val, _2, _1)
 	] % ',' > lit('}')) [
 		phoenix::bind(&Scope::register_type, _r1, _val)
-	];
+	]
+	;
 	type_definition.name("compound_type_definition");
 	on_error<rethrow>(type_definition, delete_(_val));
 }
 
 
 
-rule<string()> any_type_specifier = r_name() [
-	if_(phoenix::bind(&Scope::exists_type, phoenix::bind(&global_scope), _1)) [
-		_val = _1
-	].else_ [
-		_pass = false
-	]
-];
+rule<string()> &any_type_specifier() {
+	static rule<string()> any_type_specifier_ = r_name() [
+		if_(phoenix::bind(&Scope::exists_type, phoenix::bind(&global_scope), _1)) [
+			_val = _1
+		].else_ [
+			_pass = false
+		]
+	];
+	any_type_specifier_.name("any_type_specifier");
 
+	return any_type_specifier_;
+}
 
 
 } // namespace parser

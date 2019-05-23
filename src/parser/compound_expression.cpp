@@ -22,14 +22,6 @@ namespace gologpp {
 namespace parser {
 
 
-static CompoundExpressionParser compound_expression_;
-
-
-rule<Expression *(Scope &)> compound_expression {
-	compound_expression_(_r1)
-};
-
-
 CompoundExpressionParser::CompoundExpressionParser()
 : CompoundExpressionParser::base_type(expression, "compound_expression")
 {
@@ -46,18 +38,18 @@ CompoundExpressionParser::CompoundExpressionParser()
 	field_access.name("nestable_compound_field_access");
 
 	compound_atom =
-		compound_constant | var_ref(_r1)
+		compound_constant() | var_ref(_r1)
 		| compound_fluent_ref(_r1)
 		| compound_function_ref(_r1)
 	;
 	compound_atom.name("compound_atom");
 
-	var_ref = var_usage(_r1, val(CompoundType::static_name())) [
+	var_ref = var_usage()(_r1, val(CompoundType::static_name())) [
 		_val = new_<Reference<Variable>>(_1)
 	];
 	var_ref.name("compound_var_ref");
 
-	GOLOGPP_DEBUG_NODES((expression)(field_access)(field_name)(compound_atom)(var_ref));
+	GOLOGPP_DEBUG_NODES((expression)(field_access)(compound_atom)(var_ref))
 }
 
 

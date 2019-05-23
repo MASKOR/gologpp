@@ -30,9 +30,9 @@ AssignmentParser<LhsT>::AssignmentParser()
 {
 	assignment = (
 		(lhs_parser(_r1) >> "=") [
-			_a = phoenix::bind(&Expression::type_name, _1)
+			_a = phoenix::bind(&Expression::type_name, *_1)
 		]
-		> typed_expression(_r1, _a)
+		> typed_expression()(_r1, _a)
 	) [
 		_val = new_<Assignment<LhsT>>(_1, _2)
 	];
@@ -50,7 +50,7 @@ void AssignmentParser<Reference<Fluent>>::init()
 template<>
 void AssignmentParser<FieldAccess>::init()
 {
-	lhs_parser = field_access(_r1, val(""));
+	lhs_parser = field_access()(_r1, val(""));
 }
 
 

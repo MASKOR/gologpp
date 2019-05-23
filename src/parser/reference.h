@@ -17,7 +17,6 @@ struct ReferenceParser : grammar<Reference<GologT> *(Scope &)> {
 	ReferenceParser();
 
 	rule<Reference<GologT> *(Scope &)> pred_ref;
-	rule<Expression *(Scope &)> any_expr;
 };
 
 
