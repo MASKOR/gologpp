@@ -115,8 +115,10 @@ public:
 	bool has_type(const string &field_name)
 	{ return std::dynamic_pointer_cast<T>(field_type(field_name)); }
 
-	bool has_field(const string &name);
+	bool has_field(const string &name) const;
 	void add_field(const string &name, const string &type);
+
+	bool has_field_of_type(const string &field_name, const string &type_name) const;
 
 	static string name();
 

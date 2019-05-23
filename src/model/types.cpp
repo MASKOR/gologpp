@@ -122,8 +122,10 @@ void CompoundType::add_field(const string &name, const string &type)
 	fields_.insert({name, global_scope().lookup_type(type)});
 }
 
+bool CompoundType::has_field_of_type(const string &field_name, const string &type_name) const
+{ return has_field(field_name) && field_type(field_name).name() == type_name; }
 
-bool CompoundType::has_field(const string &name)
+bool CompoundType::has_field(const string &name) const
 { return fields_.find(name) != fields_.end(); }
 
 
