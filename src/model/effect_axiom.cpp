@@ -4,7 +4,7 @@
 namespace gologpp {
 
 AbstractEffectAxiom::AbstractEffectAxiom()
-: condition_(new Constant(Bool::static_name(), true))
+: condition_(new Constant(BoolType::name(), true))
 {}
 
 AbstractEffectAxiom::~AbstractEffectAxiom()

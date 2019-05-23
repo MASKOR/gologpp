@@ -267,8 +267,8 @@ Constant *Scope::get_symbol(const string &name)
 	for (const DomainsMap::value_type &entry : *domains_) {
 		try {
 			const Domain &domain = dynamic_cast<const Domain &>(*entry.second);
-			if (domain.elements().find(unique_ptr<Constant>(new Constant(Symbol::static_name(), name))) != domain.elements().end())
-				return new Constant(Symbol::static_name(), name);
+			if (domain.elements().find(unique_ptr<Constant>(new Constant(SymbolType::name(), name))) != domain.elements().end())
+				return new Constant(SymbolType::name(), name);
 		} catch (std::bad_cast &)
 		{}
 	}

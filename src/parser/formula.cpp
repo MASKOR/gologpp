@@ -79,7 +79,7 @@ BooleanExpressionParser::BooleanExpressionParser()
 		| bool_var_ref(_r1) | brace(_r1)
 		| comparison(_r1)
 		| boolean_fluent_ref(_r1) | boolean_function_ref(_r1)
-		| field_access()(_r1, val(Bool::static_name()))
+		| field_access()(_r1, val(BoolType::name()))
 	;
 	unary_expr.name("unary_boolean_expression");
 
@@ -120,7 +120,7 @@ BooleanExpressionParser::BooleanExpressionParser()
 	brace = '(' >> expression(_r1) >> ')';
 	brace.name("braced_boolean_expression");
 
-	bool_var_ref = var_usage()(_r1, val(Bool::static_name())) [
+	bool_var_ref = var_usage()(_r1, val(BoolType::name())) [
 		_val = new_<Reference<Variable>>(_1)
 	];
 	bool_var_ref.name("reference_to_boolean_variable");

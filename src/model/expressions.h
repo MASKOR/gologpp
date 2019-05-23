@@ -36,27 +36,28 @@ protected:
 };
 
 
-template<class TypeT>
-struct TypedExpression {
-};
-
 
 template<class T>
-class unique_ptr<TypedExpression<T>> : public std::unique_ptr<Expression> {
+class SafeExprOwner : public std::unique_ptr<Expression> {
 public:
 	using std::unique_ptr<Expression>::unique_ptr;
 
-	unique_ptr(Expression *e)
+	SafeExprOwner(Expression *e)
 	: std::unique_ptr<Expression>(e)
 	{ e->ensure_type<T>(); }
 
-	unique_ptr<TypedExpression<T>> &operator = (Expression *e)
+	SafeExprOwner<T> &operator = (Expression *e)
 	{
 		e->ensure_type<T>();
 		std::unique_ptr<Expression>::operator = (std::unique_ptr<Expression>(e));
 		return *this;
 	}
 };
+
+
+template<class T>
+string to_string(const SafeExprOwner<T> &o, const string &pfx)
+{ return o->to_string(pfx); }
 
 
 

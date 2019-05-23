@@ -26,11 +26,19 @@ public:
 	virtual bool is_compound() const;
 	virtual bool is_simple() const;
 
+	template<class T>
+	bool is() const;
+
 	void ensure_match(const AbstractLanguageElement &e) const;
 
 protected:
 	Type(const string &name);
 };
+
+
+template<class T>
+bool Type::is() const
+{ return typeid(*this) == typeid(T); }
 
 
 
@@ -43,47 +51,47 @@ public:
 
 	virtual bool is_simple() const override;
 
-	static string static_name();
+	static string name();
 };
 
 
 
-class Bool : public Type {
+class BoolType : public Type {
 public:
-	Bool();
-	static string static_name();
+	BoolType();
+	static string name();
 };
 
 
 
-class Number : public Type {
+class NumberType : public Type {
 public:
-	Number();
-	static string static_name();
+	NumberType();
+	static string name();
 };
 
 
 
-class String : public Type {
+class StringType : public Type {
 public:
-	String();
-	static string static_name();
+	StringType();
+	static string name();
 };
 
 
 
-class Symbol : public Type {
+class SymbolType : public Type {
 public:
-	Symbol();
-	static string static_name();
+	SymbolType();
+	static string name();
 };
 
 
 
-class Void : public Type {
+class VoidType : public Type {
 public:
-	Void();
-	static string static_name();
+	VoidType();
+	static string name();
 };
 
 
@@ -110,7 +118,7 @@ public:
 	bool has_field(const string &name);
 	void add_field(const string &name, const string &type);
 
-	static string static_name();
+	static string name();
 
 	virtual bool operator == (const Type &other) const override;
 
@@ -119,8 +127,6 @@ public:
 private:
 	std::unordered_map<string, shared_ptr<const Type>> fields_;
 };
-
-
 
 
 

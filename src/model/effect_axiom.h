@@ -33,7 +33,7 @@ public:
 
 protected:
 	AbstractAction *action_;
-	unique_ptr<BooleanExpression> condition_;
+	SafeExprOwner<BoolType> condition_;
 };
 
 

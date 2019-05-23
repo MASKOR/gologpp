@@ -31,12 +31,12 @@ public:
 	Block(Scope *own_scope, const vector<Expression *> &elements);
 	virtual void attach_semantics(SemanticsFactory &) override;
 
-	const vector<unique_ptr<VoidExpression>> &elements() const;
+	const vector<SafeExprOwner<VoidType>> &elements() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	vector<unique_ptr<VoidExpression>> elements_;
+	vector<SafeExprOwner<VoidType>> elements_;
 };
 
 
@@ -49,12 +49,12 @@ public:
 	Choose(Scope *own_scope, const vector<Expression *> &alternatives);
 	void attach_semantics(SemanticsFactory &) override;
 
-	const vector<unique_ptr<VoidExpression>> &alternatives() const;
+	const vector<SafeExprOwner<VoidType>> &alternatives() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	vector<unique_ptr<VoidExpression>> alternatives_;
+	vector<SafeExprOwner<VoidType>> alternatives_;
 };
 
 
@@ -79,9 +79,9 @@ public:
 	virtual string to_string(const string &pfx) const override;
 
 protected:
-	unique_ptr<BooleanExpression> condition_;
-	unique_ptr<VoidExpression> block_true_;
-	unique_ptr<VoidExpression> block_false_;
+	SafeExprOwner<BoolType> condition_;
+	SafeExprOwner<VoidType> block_true_;
+	SafeExprOwner<VoidType> block_false_;
 };
 
 
@@ -94,12 +94,12 @@ public:
 	Concurrent(Scope *own_scope, const vector<Expression *> &procs);
 	void attach_semantics(SemanticsFactory &) override;
 
-	const vector<unique_ptr<VoidExpression>> &procs() const;
+	const vector<SafeExprOwner<VoidType>> &procs() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	vector<unique_ptr<VoidExpression>> procs_;
+	vector<SafeExprOwner<VoidType>> procs_;
 };
 
 
@@ -182,7 +182,7 @@ public:
 private:
 	vector<unique_ptr<Constant>> domain_;
 	shared_ptr<Variable> variable_;
-	unique_ptr<VoidExpression> statement_;
+	SafeExprOwner<VoidType> statement_;
 };
 
 
@@ -229,8 +229,8 @@ public:
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	unique_ptr<VoidExpression> statement_;
-	unique_ptr<NumericExpression> horizon_;
+	SafeExprOwner<VoidType> statement_;
+	SafeExprOwner<NumberType> horizon_;
 	unique_ptr<Reference<Function>> reward_;
 };
 
@@ -249,7 +249,7 @@ public:
 	virtual string to_string(const string &pfx) const override;
 
 protected:
-	unique_ptr<BooleanExpression> expression_;
+	SafeExprOwner<VoidType> expression_;
 };
 
 
@@ -268,8 +268,8 @@ public:
 	virtual string to_string(const string &pfx) const override;
 
 protected:
-	unique_ptr<BooleanExpression> expression_;
-	unique_ptr<VoidExpression> statement_;
+	SafeExprOwner<BoolType> expression_;
+	SafeExprOwner<VoidType> statement_;
 };
 
 
@@ -334,7 +334,7 @@ public:
 	DEFINE_IMPLEMENT_WITH_MEMBERS(scope(), *definition_)
 
 private:
-	unique_ptr<VoidExpression> definition_;
+	SafeExprOwner<VoidType> definition_;
 	vector<shared_ptr<Variable>> args_;
 };
 
@@ -384,7 +384,7 @@ public:
 	string to_string(const string &pfx) const override;
 
 private:
-	unique_ptr<CompoundExpression> subject_;
+	SafeExprOwner<CompoundType> subject_;
 	const string field_name_;
 };
 

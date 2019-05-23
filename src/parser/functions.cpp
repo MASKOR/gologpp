@@ -32,7 +32,7 @@ namespace parser {
 
 static rule<Typename(Scope &)> decl_prefix {
 	lit("procedure") [
-		_val = val(Void::static_name())
+		_val = val(VoidType::name())
 	]
 	| any_type_specifier() >> "function"
 };

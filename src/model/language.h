@@ -6,6 +6,7 @@
 
 #include "gologpp.h"
 #include <memory>
+#include <type_traits>
 #include "semantics.h"
 #include "types.h"
 

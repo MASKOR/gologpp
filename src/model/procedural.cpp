@@ -17,7 +17,7 @@ Block::Block(Scope *own_scope, const vector<Expression *> &elements)
 : ScopeOwner(own_scope)
 {
 	for (Expression *stmt : elements) {
-		stmt->ensure_type<Void>();
+		stmt->ensure_type<VoidType>();
 		stmt->set_parent(this);
 		elements_.emplace_back(stmt);
 	}
@@ -33,7 +33,7 @@ void Block::attach_semantics(SemanticsFactory &f)
 	}
 }
 
-const vector<unique_ptr<VoidExpression>> &Block::elements() const
+const vector<SafeExprOwner<VoidType>> &Block::elements() const
 { return elements_; }
 
 string Block::to_string(const string &pfx) const
@@ -60,7 +60,7 @@ Choose::Choose(Scope *own_scope, const vector<Expression *> &alternatives)
 	}
 }
 
-const vector<unique_ptr<VoidExpression>> &Choose::alternatives() const
+const vector<SafeExprOwner<VoidType>> &Choose::alternatives() const
 { return alternatives_; }
 
 
@@ -69,7 +69,7 @@ void Choose::attach_semantics(SemanticsFactory &f)
 	if (!semantics_) {
 		semantics_ = f.make_semantics(*this);
 		scope().attach_semantics(f);
-		for (unique_ptr<VoidExpression> &stmt : alternatives_)
+		for (SafeExprOwner<VoidType> &stmt : alternatives_)
 			stmt->attach_semantics(f);
 	}
 }
@@ -120,7 +120,7 @@ Concurrent::Concurrent(Scope *own_scope, const vector<Expression *> &procs)
 : ScopeOwner(own_scope)
 {
 	for (Expression *p : procs) {
-		p->ensure_type<Void>();
+		p->ensure_type<VoidType>();
 		p->set_parent(this);
 		procs_.emplace_back(p);
 	}
@@ -131,11 +131,11 @@ void Concurrent::attach_semantics(SemanticsFactory &f)
 {
 	semantics_ = f.make_semantics(*this);
 	scope().attach_semantics(f);
-	for (unique_ptr<VoidExpression> &p : procs_)
+	for (SafeExprOwner<VoidType> &p : procs_)
 		p->attach_semantics(f);
 }
 
-const vector<unique_ptr<VoidExpression>> &Concurrent::procs() const
+const vector<SafeExprOwner<VoidType>> &Concurrent::procs() const
 { return procs_; }
 
 
@@ -202,7 +202,7 @@ void Pick::attach_semantics(SemanticsFactory &f)
 Search::Search(Expression *statement)
 : statement_(statement)
 {
-	statement->ensure_type<Void>();
+	statement->ensure_type<VoidType>();
 	statement_->set_parent(this);
 }
 
@@ -336,7 +336,7 @@ void Function::define(Expression *definition)
 string Function::to_string(const string &pfx) const
 {
 	string fn;
-	if (type() == gologpp::type<Void>())
+	if (type() == gologpp::type<VoidType>())
 		fn = "procedure ";
 	else
 		fn = type().name() + " function ";

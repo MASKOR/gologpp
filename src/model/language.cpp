@@ -56,7 +56,7 @@ template<class T>
 void AbstractLanguageElement::ensure_type() {
 	const Type &this_type = type();
 	if (typeid(this_type) != typeid(T))
-		throw TypeError(this->str() + " is not of type " + T::static_name());
+		throw TypeError(this->str() + " is not of type " + T::name());
 }
 
 #define GOLOGPP_INSTANTIATE_ENSURE_TYPE(_r, _data, T) \

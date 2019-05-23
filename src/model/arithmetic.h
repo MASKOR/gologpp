@@ -47,7 +47,7 @@ public:
 
 
 private:
-	unique_ptr<NumericExpression> lhs_, rhs_;
+	SafeExprOwner<NumberType> lhs_, rhs_;
 	Operator operator_;
 };
 

@@ -37,11 +37,11 @@ StringExpressionParser::StringExpressionParser()
 		conversion(_r1)
 		| string_constant() | var_ref(_r1) | string_fluent_ref(_r1)
 		| string_function_ref(_r1)
-		| field_access()(_r1, val(String::static_name()))
+		| field_access()(_r1, val(StringType::name()))
 	;
 	unary_expr.name("unary_string_expression");
 
-	var_ref = var_usage()(_r1, val(String::static_name())) [
+	var_ref = var_usage()(_r1, val(StringType::name())) [
 		_val = new_<Reference<Variable>>(_1)
 	];
 	var_ref.name("reference_to_string_variable");

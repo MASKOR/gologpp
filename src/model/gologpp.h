@@ -46,24 +46,13 @@ class Identifier;
 
 class Global;
 
-
 class Type;
-class Bool;
-class Number;
-class String;
-class Symbol;
-class Void;
+class BoolType;
+class NumberType;
+class StringType;
+class SymbolType;
+class VoidType;
 class CompoundType;
-
-using BooleanExpression = TypedExpression<Bool>;
-using NumericExpression = TypedExpression<Number>;
-using SymbolicExpression = TypedExpression<Symbol>;
-using StringExpression = TypedExpression<String>;
-using VoidExpression = TypedExpression<Void>;
-using CompoundExpression = TypedExpression<CompoundType>;
-
-
-typedef VoidExpression Statement;
 
 class AbstractEffectAxiom;
 template<class> class EffectAxiom;
@@ -127,7 +116,7 @@ using FunctionReference = Reference<Function>;
 using VariableReference = Reference<Variable>;
 
 #define GOLOGPP_PREDEFINED_TYPES \
-	(Number)(Bool)(String)(Symbol)(Void)
+	(NumberType)(BoolType)(StringType)(SymbolType)(VoidType)
 
 #define GOLOGPP_TYPES \
 	GOLOGPP_PREDEFINED_TYPES(CompoundType)

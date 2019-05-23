@@ -16,8 +16,8 @@ AbstractAction::AbstractAction(
 : Global(name, args)
 , ScopeOwner(own_scope)
 {
-	set_type_by_name(Void::static_name());
-	set_precondition(new Constant(Bool::static_name(), true));
+	set_type_by_name(VoidType::name());
+	set_precondition(new Constant(BoolType::name(), true));
 	vector<Expression *> mapping_args;
 	for (const shared_ptr<Variable> &arg : args)
 		mapping_args.push_back(new Reference<Variable>(arg));

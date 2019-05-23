@@ -60,7 +60,7 @@ public:
 
 private:
 	vector<unique_ptr<AbstractEffectAxiom>> effects_;
-	unique_ptr<BooleanExpression> precondition_;
+	SafeExprOwner<BoolType> precondition_;
 	unique_ptr<ActionMapping> mapping_;
 };
 

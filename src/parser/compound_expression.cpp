@@ -44,7 +44,7 @@ CompoundExpressionParser::CompoundExpressionParser()
 	;
 	compound_atom.name("compound_atom");
 
-	var_ref = var_usage()(_r1, val(CompoundType::static_name())) [
+	var_ref = var_usage()(_r1, val(CompoundType::name())) [
 		_val = new_<Reference<Variable>>(_1)
 	];
 	var_ref.name("compound_var_ref");

@@ -96,10 +96,10 @@ rule<Constant *()> &numeric_constant() {
 	static real_parser<double, strict_real_policies<double>> strict_double;
 	static rule<Constant *()> rv {
 		strict_double [
-			_val = new_<Constant>(Number::static_name(), _1)
+			_val = new_<Constant>(NumberType::name(), _1)
 		]
 		| int_ [
-			_val = new_<Constant>(Number::static_name(), _1)
+			_val = new_<Constant>(NumberType::name(), _1)
 		],
 		"numeric_constant"
 	};
@@ -109,10 +109,10 @@ rule<Constant *()> &numeric_constant() {
 rule<Constant *()> &boolean_constant() {
 	static rule<Constant *()> rv {
 		lit("true") [
-			_val = new_<Constant>(Bool::static_name(), true)
+			_val = new_<Constant>(BoolType::name(), true)
 		]
 		| lit("false") [
-			_val = new_<Constant>(Bool::static_name(), false)
+			_val = new_<Constant>(BoolType::name(), false)
 		],
 		"boolean_constant"
 	};
@@ -125,7 +125,7 @@ rule<Constant *()> &string_constant() {
 		qi::as_string [ qi::lexeme [
 			lit('"') > *(char_ - '"') > lit('"')
 		] ] [
-			_val = new_<Constant>(String::static_name(), _1)
+			_val = new_<Constant>(StringType::name(), _1)
 		],
 		"string_constant"
 	};
@@ -149,7 +149,7 @@ rule<Constant *()> &symbolic_constant() {
 
 rule<Constant *()> &symbolic_constant_def() {
 	static rule<Constant *()> rv {
-		r_name() [ _val = new_<Constant>(val(Symbol::static_name()), _1) ],
+		r_name() [ _val = new_<Constant>(val(SymbolType::name()), _1) ],
 		"symbolic_constant_definition"
 	};
 	return rv;
@@ -214,13 +214,13 @@ static rule<Constant *()> &get_constant_parser(Typename type, bool allow_symbol_
 		>
 	>
 	constant_parser_map {
-		{ Bool::static_name(), boolean_constant() },
-		{ Number::static_name(), numeric_constant() },
-		{ String::static_name(), string_constant() },
-		{ Symbol::static_name(), symbolic_constant() },
+		{ BoolType::name(), boolean_constant() },
+		{ NumberType::name(), numeric_constant() },
+		{ StringType::name(), string_constant() },
+		{ SymbolType::name(), symbolic_constant() },
 	};
 
-	if (type == Symbol::static_name() && allow_symbol_def)
+	if (type == SymbolType::name() && allow_symbol_def)
 		return symbolic_constant_def();
 
 	auto it = constant_parser_map.find(type);

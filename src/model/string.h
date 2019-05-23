@@ -40,7 +40,7 @@ public:
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	unique_ptr<StringExpression> lhs_, rhs_;
+	SafeExprOwner<StringType> lhs_, rhs_;
 };
 
 

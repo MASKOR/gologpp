@@ -43,7 +43,7 @@ void Type::ensure_match(const AbstractLanguageElement &e) const
 
 
 UndefinedType::UndefinedType()
-: Type(static_name())
+: Type(name())
 {}
 
 bool UndefinedType::operator == (const Type &) const
@@ -55,53 +55,53 @@ bool UndefinedType::is_simple() const
 UndefinedType::operator bool () const
 { return false; }
 
-string UndefinedType::static_name()
+string UndefinedType::name()
 { return "~undefined~"; }
 
 
 
 
-Bool::Bool()
-: Type(static_name())
+BoolType::BoolType()
+: Type(name())
 {}
 
-string Bool::static_name()
+string BoolType::name()
 { return "bool"; }
 
 
 
-Number::Number()
-: Type(static_name())
+NumberType::NumberType()
+: Type(name())
 {}
 
-string Number::static_name()
+string NumberType::name()
 { return "number"; }
 
 
 
-String::String()
-: Type(static_name())
+StringType::StringType()
+: Type(name())
 {}
 
-string String::static_name()
+string StringType::name()
 { return "string"; }
 
 
 
-Symbol::Symbol()
-: Type(static_name())
+SymbolType::SymbolType()
+: Type(name())
 {}
 
-string Symbol::static_name()
+string SymbolType::name()
 { return "symbol"; }
 
 
 
-Void::Void()
-: Type(static_name())
+VoidType::VoidType()
+: Type(name())
 {}
 
-string Void::static_name()
+string VoidType::name()
 { return "void"; }
 
 
@@ -110,7 +110,7 @@ CompoundType::CompoundType(const string &name)
 : Type(name)
 {}
 
-string CompoundType::static_name()
+string CompoundType::name()
 { return "compound"; }
 
 

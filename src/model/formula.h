@@ -24,7 +24,7 @@ public:
 	virtual string to_string(const string &pfx) const override;
 
 protected:
-	unique_ptr<BooleanExpression> expression_;
+	SafeExprOwner<BoolType> expression_;
 };
 
 
@@ -97,9 +97,9 @@ public:
 	virtual string to_string(const string &pfx) const override;
 
 protected:
-	unique_ptr<BooleanExpression> lhs_;
+	SafeExprOwner<BoolType> lhs_;
 	BooleanOperator op_;
-	unique_ptr<BooleanExpression> rhs_;
+	SafeExprOwner<BoolType> rhs_;
 };
 
 
@@ -136,7 +136,7 @@ public:
 protected:
 	QuantificationOperator op_;
 	shared_ptr<Variable> variable_;
-	unique_ptr<BooleanExpression> expression_;
+	SafeExprOwner<BoolType> expression_;
 };
 
 

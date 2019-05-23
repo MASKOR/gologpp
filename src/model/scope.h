@@ -234,9 +234,9 @@ private:
 template<class T>
 const T &type()
 {
-	if (!global_scope().exists_type(T::static_name()))
+	if (!global_scope().exists_type(T::name()))
 		global_scope().register_type(new T());
-	return *global_scope().lookup_type<T>(T::static_name());
+	return *global_scope().lookup_type<T>(T::name());
 }
 
 
