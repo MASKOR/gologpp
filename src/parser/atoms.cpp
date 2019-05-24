@@ -56,6 +56,7 @@ rule<shared_ptr<Variable>(Scope &)> &var_decl() {
 		],
 		"variable_declaration"
 	};
+	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
@@ -72,6 +73,7 @@ rule<shared_ptr<Variable>(Scope &, Typename)> &var_usage() {
 		],
 		"variable_reference"
 	};
+	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
@@ -86,6 +88,7 @@ rule<shared_ptr<Variable>(Scope &)> &any_var_usage() {
 			_pass = !!_val // force conversion to bool
 		]
 	};
+	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
@@ -103,6 +106,7 @@ rule<Constant *()> &numeric_constant() {
 		],
 		"numeric_constant"
 	};
+	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
@@ -116,6 +120,7 @@ rule<Constant *()> &boolean_constant() {
 		],
 		"boolean_constant"
 	};
+	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
@@ -129,6 +134,7 @@ rule<Constant *()> &string_constant() {
 		],
 		"string_constant"
 	};
+	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
@@ -143,6 +149,7 @@ rule<Constant *()> &symbolic_constant() {
 		],
 		"symbolic_constant_usage"
 	};
+	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
@@ -152,6 +159,7 @@ rule<Constant *()> &symbolic_constant_def() {
 		r_name() [ _val = new_<Constant>(val(SymbolType::name()), _1) ],
 		"symbolic_constant_definition"
 	};
+	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
@@ -200,6 +208,7 @@ rule<Constant *()> &any_constant() {
 			| compound_constant()
 		, "any_constant"
 	};
+	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
@@ -236,6 +245,7 @@ rule<Constant *(Typename, bool)> &constant() {
 	static rule<Constant *(Typename, bool)> rv {
 		lazy(phoenix::bind(&get_constant_parser, _r1, _r2))
 	};
+	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 

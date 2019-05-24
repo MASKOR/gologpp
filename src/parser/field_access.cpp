@@ -43,6 +43,7 @@ rule<FieldAccess *(Scope &, Typename)> &field_access()
 		internal(_r1, _r2),
 		"field_access"
 	};
+	GOLOGPP_DEBUG_NODES((rv)(internal))
 	return rv;
 }
 
@@ -51,11 +52,12 @@ rule<FieldAccess *(Scope &)> &any_field_access()
 {
 	static CompoundExpressionParser compound_expression_;
 	static rule<FieldAccess *(Scope &)> rv {
-		((compound_expression_(_r1) >> '.' ) > r_name()) [
+		(compound_expression_(_r1) >> '.'  >> r_name()) [
 			_val = new_<FieldAccess>(_1, _2)
 		],
 		"any_field_access"
 	};
+	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 

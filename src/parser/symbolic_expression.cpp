@@ -23,11 +23,14 @@ SymbolicExpressionParser::SymbolicExpressionParser()
 		| typed_reference<Fluent>()(_r1, SymbolType::name())
 		| typed_reference<Function>()(_r1, SymbolType::name())
 		| field_access()(_r1, val(SymbolType::name()));
+	expression.name("symbolic_expression");
 
 	var_ref = var_usage()(_r1, val(SymbolType::name())) [
 		_val = new_<Reference<Variable>>(_1)
 	];
 	var_ref.name("reference_to_symbolic_variable");
+
+	GOLOGPP_DEBUG_NODES((expression)(var_ref))
 }
 
 

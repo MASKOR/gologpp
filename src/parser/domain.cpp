@@ -34,6 +34,7 @@ rule<Domain(Scope &, Typename)> &domain_expression()
 	static rule<Domain(Scope &, Typename)> rv {
 		domain_expression_(_r1, _r2, false)
 	};
+	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 };
 
@@ -96,6 +97,7 @@ rule<void(Scope &), locals<string, Typename>> &domain_decl()
 		),
 		"domain_declaration"
 	};
+	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
@@ -114,6 +116,7 @@ rule<void(Scope &, bool), locals<Typename>> &domain_assignment()
 		],
 		"domain_assignment"
 	};
+	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 

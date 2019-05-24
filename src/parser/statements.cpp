@@ -127,7 +127,7 @@ StatementParser::StatementParser()
 	return_stmt = (lit("return") >> value_expression()(_r1)) [
 		_val = new_<Return>(_1)
 	];
-	return_stmt.name("string_return");
+	return_stmt.name("return");
 
 
 	durative_call = (
@@ -146,7 +146,7 @@ StatementParser::StatementParser()
 
 	GOLOGPP_DEBUG_NODES((statement)(simple_statement)(compound_statement)
 		(block)(choose)(conditional)(search)(solve)(test)(r_while)
-		(return_stmt))
+		(return_stmt)(pick))
 }
 
 
