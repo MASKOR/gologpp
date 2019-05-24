@@ -13,6 +13,7 @@
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/operator/self.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
+#include <boost/phoenix/fusion/at.hpp>
 
 #include <model/effect_axiom.h>
 
@@ -29,14 +30,15 @@ template<class LhsT>
 EffectParser<LhsT>::EffectParser()
 : EffectParser<LhsT>::base_type(effect, "effect_axiom")
 {
-	effect = ( eps [ _val = new_<EffectAxiom<LhsT>>() ] >> (
-		-(lit("if") > '(' > condition(_r1) > ')')
-		> lhs(_r1) [
+	effect = (
+		(-(lit("if") > '(' > condition(_r1) > ')')
+		>> lhs(_r1) [
 			_a = phoenix::bind(&Expression::type_name, *_1)
-		]
+		])
 		> '=' > typed_expression()(_r1, _a)
-	)) [
-		phoenix::bind(&EffectAxiom<LhsT>::define, *_val, _1, _2, _3)
+	) [
+		_val = new_<EffectAxiom<LhsT>>(),
+		phoenix::bind(&EffectAxiom<LhsT>::define, *_val, at_c<0>(_1), at_c<1>(_1), _2)
 	];
 	effect.name("effect_axiom");
 	on_error<rethrow>(effect, delete_(_val));
