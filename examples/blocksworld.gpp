@@ -1,9 +1,9 @@
-§domain blocks = {a, b, c}
-§domain locations = blocks | {table}
+symbol domain blocks = {a, b, c}
+symbol domain locations = blocks | {table}
 
-§fluent loc(§x) {
+symbol fluent loc(symbol x) {
 domain:
-	§x in blocks;
+	x in blocks;
 initially:
 	(a) = c;
 	(b) = table;
@@ -11,22 +11,22 @@ initially:
 // 	(d) = a; //*/
 }
 
-action stack(§x, §y) {
+action stack(symbol x, symbol y) {
 domain:
-	§x in blocks;
-	§y in locations;
+	x in blocks;
+	y in locations;
 precondition:
-	  §x != §y // Can't stack x on x
-	& §x != table // Can't stack table
-	& loc(§x) != §y // Can't stack the same thing twice
-	& (!exists(§z) loc(§z) == §x) // Nothing is on x
+	  x != y // Can't stack x on x
+	& x != table // Can't stack table
+	& loc(x) != y // Can't stack the same thing twice
+	& (!exists(symbol z) loc(z) == x) // Nothing is on x
 	& (
-		§y == table // either y is the table...
-		| !exists(§z) loc(§z) == §y // or nothing is on y
+		y == table // either y is the table...
+		| !exists(symbol z) loc(z) == y // or nothing is on y
 	)
 
 effect:
-	loc(§x) = §y;
+	loc(x) = y;
 }
 
 
@@ -36,13 +36,13 @@ procedure bla() {
 }
 
 
-?function goal() {
+bool function goal() {
 	return loc(a) == table & loc(b) == a & loc(c) == b
 // 	& loc(d) == c
 	;
 }
 
-%function reward() {
+number function reward() {
 	if (goal())
 		return 100;
 	else
@@ -53,7 +53,7 @@ procedure bla() {
 {
 	solve(8, reward())
 		while (!goal())
-			pick (§x in {a, b, c})
-				pick(§y in {table, a, b, c})
-					stack(§x, §y);
+			pick (symbol x in {a, b, c})
+				pick(symbol y in {table, a, b, c})
+					stack(x, y);
 }
