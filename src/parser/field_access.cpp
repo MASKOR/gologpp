@@ -3,7 +3,6 @@
 #include "compound_expression.h"
 #include "reference.h"
 
-#include <boost/spirit/include/qi_expect.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>
@@ -27,7 +26,7 @@ rule<FieldAccess *(Scope &, Typename)> &field_access()
 {
 	static CompoundExpressionParser compound_expression_;
 	static rule<FieldAccess *(Scope &, Typename), locals<const CompoundType *>> internal { (
-		(compound_expression_(_r1) >> lit('.')) > r_name()) [
+		compound_expression_(_r1) >> lit('.') >> r_name()) [
 			_a = dynamic_cast_<const CompoundType *>(
 				&phoenix::bind(&AbstractLanguageElement::type, _1)
 			),
