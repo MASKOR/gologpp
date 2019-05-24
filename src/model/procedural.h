@@ -306,7 +306,7 @@ private:
 class Function
 : public Global
 , public ScopeOwner
-, public LanguageElement<Function, VoidType>
+, public LanguageElement<Function>
 {
 public:
 	Function(
