@@ -48,9 +48,6 @@ UndefinedType::UndefinedType()
 : Type(name())
 {}
 
-bool UndefinedType::operator == (const Type &) const
-{ return false; }
-
 bool UndefinedType::is_simple() const
 { return false; }
 

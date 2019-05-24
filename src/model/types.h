@@ -48,11 +48,8 @@ class UndefinedType : public Type {
 public:
 	UndefinedType();
 
-	virtual bool operator == (const Type &other) const override;
 	virtual operator bool () const override;
-
 	virtual bool is_simple() const override;
-
 	static string name();
 };
 
