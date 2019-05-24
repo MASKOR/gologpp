@@ -37,13 +37,19 @@ AssignmentParser<LhsT>::AssignmentParser()
 		_val = new_<Assignment<LhsT>>(_1, _2)
 	];
 	assignment.name("assignment");
+
+	init();
+
+	GOLOGPP_DEBUG_NODES((assignment)(lhs_parser))
 }
 
 
 template<>
 void AssignmentParser<Reference<Fluent>>::init()
 {
-	lhs_parser = ReferenceParser<Fluent>()(_r1);
+	static ReferenceParser<Fluent> ref_parser;
+	lhs_parser = ref_parser(_r1);
+	lhs_parser.name("fluent_lhs");
 }
 
 
@@ -51,6 +57,7 @@ template<>
 void AssignmentParser<FieldAccess>::init()
 {
 	lhs_parser = field_access()(_r1, val(""));
+	lhs_parser.name("field_access_lhs");
 }
 
 
