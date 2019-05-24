@@ -26,8 +26,6 @@ struct NumericExpressionParser : grammar<Expression *(Scope &)> {
 	rule<Expression *(Scope &)> num_var_ref;
 	rule<Expression *(Scope &)> unary_expr;
 	rule<ArithmeticOperation::Operator()> arith_operator;
-	ReferenceParser<Fluent> numeric_fluent_ref;
-	ReferenceParser<Function> numeric_function_ref;
 };
 
 

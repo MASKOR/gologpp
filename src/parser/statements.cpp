@@ -38,7 +38,9 @@ StatementParser::StatementParser()
 		| durative_call(_r1)
 		| field_assignment(_r1)
 		| fluent_assignment(_r1)
-		| action_call(_r1) | procedure_call(_r1)) > ';';
+		| action_call(_r1)
+		| typed_reference<Function>()(_r1, VoidType::name()))
+		> ';';
 	simple_statement.name("simple_statement");
 
 	compound_statement = block(_r1) | choose(_r1) | conditional(_r1)
@@ -99,7 +101,7 @@ StatementParser::StatementParser()
 	search.name("search");
 
 	solve = (lit("solve") > '('
-		> numeric_expression(_r1) > ',' > reward_fn(_r1)
+		> numeric_expression(_r1) > ',' > typed_reference<Function>()(_r1, NumberType::name())
 	> ')' > statement(_r1)) [
 		_val = new_<Solve>(_1, _2, _3)
 	];

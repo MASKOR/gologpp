@@ -16,8 +16,6 @@ struct CompoundExpressionParser : public grammar<Expression *(Scope &)> {
 	rule<Expression *(Scope &)> expression;
 	rule<Expression *(Scope &)> compound_atom;
 	rule<Reference<Variable> *(Scope &)> var_ref;
-	ReferenceParser<Fluent> compound_fluent_ref;
-	ReferenceParser<Function> compound_function_ref;
 
 	rule<Expression *(Scope &)> field_access;
 };

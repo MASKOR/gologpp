@@ -20,6 +20,10 @@ struct ReferenceParser : grammar<Reference<GologT> *(Scope &)> {
 };
 
 
+template<class GologT>
+rule<Reference<GologT> *(Scope &, Typename)> &typed_reference();
+
+
 
 } // namespace parser
 } // namespace gologpp

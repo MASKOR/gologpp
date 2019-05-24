@@ -32,7 +32,6 @@ struct StatementParser : grammar<Expression *(Scope &)> {
 
 	rule<Search *(Scope &)> search;
 	rule<Solve *(Scope &)> solve;
-	ReferenceParser<Function> reward_fn;
 	rule<Test *(Scope &)> test;
 	rule<While *(Scope &)> r_while;
 	rule<Concurrent *(Scope &), locals<Scope *>> concurrent;
@@ -41,7 +40,6 @@ struct StatementParser : grammar<Expression *(Scope &)> {
 
 	rule<Return *(Scope &)> return_stmt;
 
-	ReferenceParser<Function> procedure_call;
 	ReferenceParser<Action> action_call;
 	rule<DurativeCall *(Scope &), locals<DurativeCall::Hook>> durative_call;
 

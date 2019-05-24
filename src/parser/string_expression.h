@@ -18,8 +18,6 @@ struct StringExpressionParser : grammar<Expression *(Scope &)> {
 	rule<Expression *(Scope &)> conversion;
 	rule<Expression *(Scope &)> convertible_expr;
 	rule<Expression *(Scope &)> implicit_conversion;
-	ReferenceParser<Fluent> string_fluent_ref;
-	ReferenceParser<Function> string_function_ref;
 };
 
 

@@ -34,17 +34,27 @@ namespace parser {
 
 
 template<class GologT>
+Reference<GologT> *get_ref(const string &name, const boost::optional<vector<Expression *>> &args)
+{
+	if (global_scope().lookup_global<GologT>(name, static_cast<arity_t>(args.get_value_or({}).size())))
+		return new Reference<GologT>(name, args);
+	else
+		return nullptr;
+}
+
+
+template<class GologT>
 ReferenceParser<GologT>::ReferenceParser()
 : ReferenceParser::base_type(pred_ref, "reference")
 {
-	pred_ref = (((r_name() >> "(") > -(
+	pred_ref = (((r_name() >> "(") >> -(
 		value_expression()(_r1) %  ","
-	) ) > ")") [
-		_val = new_<Reference<GologT>>(_1, _2),
-		if_(!phoenix::bind(&Reference<GologT>::consistent, *_val)) [
-			_pass = false,
-			delete_(_val)
-		]
+	) ) >> ")") [
+			_val = phoenix::bind(&get_ref<GologT>, _1, _2),
+			if_(!_val || !phoenix::bind(&ReferenceBase<GologT, Expression>::consistent, *_val)) [
+				_pass = false,
+				delete_(_val)
+			]
 	];
 	pred_ref.name("reference");
 
@@ -59,6 +69,51 @@ template struct ReferenceParser<Function>;
 template struct ReferenceParser<Fluent>;
 
 
+
+template<class GologT>
+Reference<GologT> *get_typed_ref(
+	const string &type,
+	const string &name,
+	const boost::optional<vector<Expression *>> &args
+) {
+	shared_ptr<GologT> g = global_scope().lookup_global<GologT>(
+		name,
+		static_cast<arity_t>(args.get_value_or({}).size())
+	);
+
+	if (g && g->type() == type)
+		return new Reference<GologT>(name, args);
+	else
+		return nullptr;
+}
+
+
+
+template<class GologT>
+rule<Reference<GologT> *(Scope &, Typename)> &typed_reference()
+{
+	static rule<Reference<GologT> *(Scope &, Typename)> rv {
+		(((r_name() >> "(") >> -(
+			value_expression()(_r1) %  ","
+		) ) >> ")") [
+			_val = phoenix::bind(&get_typed_ref<GologT>, _r2, _1, _2),
+			if_(!_val || !phoenix::bind(&ReferenceBase<GologT, Expression>::consistent, *_val)) [
+				_pass = false,
+				delete_(_val)
+			]
+		],
+		"typed_reference"
+	};
+	GOLOGPP_DEBUG_NODE(rv)
+	return rv;
+}
+
+
+template
+rule<Reference<Fluent> *(Scope &, Typename)> &typed_reference();
+
+template
+rule<Reference<Function> *(Scope &, Typename)> &typed_reference();
 
 
 

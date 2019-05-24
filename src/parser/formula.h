@@ -37,8 +37,6 @@ struct BooleanExpressionParser : grammar<Expression *(Scope &)> {
 	rule<Expression *(Scope &), locals<Scope *>> quantification;
 	rule<QuantificationOperator()> quantification_op;
 	rule<BooleanOperator()> bool_op;
-	ReferenceParser<Fluent> boolean_fluent_ref;
-	ReferenceParser<Function> boolean_function_ref;
 	ComparisonParser comparison;
 };
 

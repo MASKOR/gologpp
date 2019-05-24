@@ -35,8 +35,9 @@ StringExpressionParser::StringExpressionParser()
 
 	unary_expr =
 		conversion(_r1)
-		| string_constant() | var_ref(_r1) | string_fluent_ref(_r1)
-		| string_function_ref(_r1)
+		| string_constant() | var_ref(_r1)
+		| typed_reference<Fluent>()(_r1, StringType::name())
+		| typed_reference<Function>()(_r1, StringType::name())
 		| field_access()(_r1, val(StringType::name()))
 	;
 	unary_expr.name("unary_string_expression");

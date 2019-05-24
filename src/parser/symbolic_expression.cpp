@@ -19,8 +19,9 @@ namespace parser {
 SymbolicExpressionParser::SymbolicExpressionParser()
 : SymbolicExpressionParser::base_type(expression, "symbolic_expression")
 {
-	expression = symbolic_constant() | var_ref(_r1) | symbolic_fluent_ref(_r1)
-		| symbolic_function_ref(_r1)
+	expression = symbolic_constant() | var_ref(_r1)
+		| typed_reference<Fluent>()(_r1, SymbolType::name())
+		| typed_reference<Function>()(_r1, SymbolType::name())
 		| field_access()(_r1, val(SymbolType::name()));
 
 	var_ref = var_usage()(_r1, val(SymbolType::name())) [

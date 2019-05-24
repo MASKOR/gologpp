@@ -17,8 +17,6 @@ struct SymbolicExpressionParser : grammar<Expression *(Scope &)> {
 
 	rule<Expression *(Scope &)> expression;
 	rule<Reference<Variable> *(Scope &)> var_ref;
-	ReferenceParser<Fluent> symbolic_fluent_ref;
-	ReferenceParser<Function> symbolic_function_ref;
 };
 
 

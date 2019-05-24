@@ -78,7 +78,8 @@ BooleanExpressionParser::BooleanExpressionParser()
 	unary_expr = quantification(_r1) | negation(_r1) | boolean_constant()
 		| bool_var_ref(_r1) | brace(_r1)
 		| comparison(_r1)
-		| boolean_fluent_ref(_r1) | boolean_function_ref(_r1)
+		| typed_reference<Fluent>()(_r1, BoolType::name())
+		| typed_reference<Function>()(_r1, BoolType::name())
 		| field_access()(_r1, val(BoolType::name()))
 	;
 	unary_expr.name("unary_boolean_expression");
