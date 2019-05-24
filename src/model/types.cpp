@@ -16,14 +16,16 @@ Type::Type(const string &name)
 {}
 
 bool Type::operator == (const Type &other) const
-{
-	if (this == &other)
-		return true;
-	return typeid(*this) == typeid(other);
-}
+{ return this == &other || typeid(*this) == typeid(other); }
+
+bool Type::operator == (const string &type_name) const
+{ return name() == type_name; }
 
 bool Type::operator != (const Type &other) const
 { return !(*this == other); }
+
+bool Type::operator != (const string &type_name) const
+{ return !(*this == type_name); }
 
 Type::operator bool () const
 { return true; }
@@ -142,6 +144,9 @@ bool CompoundType::operator == (const Type &other) const
 		return false;
 	}
 }
+
+bool CompoundType::operator == (const string &type_name) const
+{ return name() == type_name || type_name == CompoundType::name(); }
 
 bool CompoundType::is_compound() const
 { return true; }

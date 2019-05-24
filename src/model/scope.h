@@ -133,7 +133,7 @@ public:
 		if (exists_global(name, arity)) {
 			rv = lookup_global<GologT>(name, arity).get();
 
-			if (rv && rv->type().name() != type_name)
+			if (rv && rv->type() != type_name)
 				throw TypeError("Cannot redeclare " + rv->str()
 					+ " with type " + type_name);
 
@@ -165,7 +165,7 @@ public:
 		if (exists_global(name, arity)) {
 			rv = lookup_global<GologT>(name, arity).get();
 
-			if (rv && rv->type().name() != type_name)
+			if (rv && rv->type() != type_name)
 				throw TypeError("Cannot redefine " + rv->str()
 					+ " with type " + type_name);
 

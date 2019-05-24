@@ -86,7 +86,7 @@ shared_ptr<Variable> Scope::get_var(VarDefinitionMode var_def_mode, const string
 	auto it = variables_.find(name);
 	if (it != variables_.end()) {
 		rv = it->second;
-		if (rv->type().name() != type_name)
+		if (rv->type() != type_name)
 			return nullptr;
 	}
 

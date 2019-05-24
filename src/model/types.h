@@ -20,7 +20,9 @@ public:
 	virtual ~Type() = default;
 
 	virtual bool operator == (const Type &other) const;
+	virtual bool operator == (const string &type_name) const;
 	bool operator != (const Type &other) const;
+	bool operator != (const string &type_name) const;
 	virtual operator bool () const;
 
 	virtual bool is_compound() const;
@@ -123,6 +125,7 @@ public:
 	static string name();
 
 	virtual bool operator == (const Type &other) const override;
+	virtual bool operator == (const string &type_name) const override;
 
 	virtual bool is_compound() const override;
 
