@@ -47,8 +47,8 @@ public:
 	virtual Scope &parent_scope() = 0;
 	virtual const Scope &parent_scope() const = 0;
 
-	bool set_type_by_name(const string &name);
-	bool set_type(const Type &t);
+	void set_type_by_name(const string &name);
+	void set_type(const Type &t);
 	virtual const Type &type() const;
 
 	// Unambiguous alias name to simplify type resolution for phoenix::bind in the parser

@@ -279,11 +279,7 @@ void Scope::define_domain(const string &name, const string &type_name, const Dom
 {
 	shared_ptr<Domain> d = lookup_domain(name);
 	if (d) {
-		if (!set_type_by_name(type_name))
-			throw ExpressionTypeMismatch(
-				"Failed to set type `" + type_name
-				+ "' on domain `" + name + "'"
-			);
+		set_type_by_name(type_name);
 		d->define(input);
 	}
 	else

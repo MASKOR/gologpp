@@ -32,23 +32,25 @@ const Type &AbstractLanguageElement::type() const
 { return *type_; }
 
 
-bool AbstractLanguageElement::set_type_by_name(const string &name)
+void AbstractLanguageElement::set_type_by_name(const string &name)
 {
 	shared_ptr<const Type> desired_type = global_scope().lookup_type(name);
 
 	if (!type())
 		type_ = desired_type;
 
-	return type() == *desired_type;
+	if (type() != *desired_type)
+		throw TypeError("Cannot override type " + type().name() + " of `" + str() + "' with " + name);
 }
 
 
-bool AbstractLanguageElement::set_type(const Type &t)
+void AbstractLanguageElement::set_type(const Type &t)
 {
 	if (!type())
 		type_ = t.shared_from_this();
 
-	return type() == t;
+	if (type() != t)
+		throw TypeError("Cannot override type " + type().name() + " of `" + str() + "' with " + t.name());
 }
 
 
