@@ -31,45 +31,47 @@ void test_objectmodel()
 #ifdef GOLOGPP_TEST_OBJECTMODEL
 	{
 		Scope *on_scope = new Scope(global_scope());
-		on_scope->get_var<NumericExpression>("X");
-		NumericFluent *on = new NumericFluent(
+		on_scope->get_var(VarDefinitionMode::FORCE, NumberType::name(), "X");
+		Fluent *on = new Fluent(
 			on_scope,
+			NumberType::name(),
 			"on",
 			on_scope->lookup_vars({"X"})
 		);
-		InitialValue<NumericExpression> *iv1 = new InitialValue<NumericExpression> {
-			{ new NumericConstant(1) },
-			new NumericConstant(0)
+		InitialValue *iv1 = new InitialValue {
+			{ new Constant(NumberType::name(), 1) },
+			new Constant(NumberType::name(), 0)
 		};
 		on->define({iv1});
 		global_scope().register_global(on);
 	}
-	shared_ptr<NumericFluent> on = global_scope().lookup_global<NumericFluent>("on", 1);
+	shared_ptr<Fluent> on = global_scope().lookup_global<Fluent>("on", 1);
 
 	{
-		Action *put = new Action(global_scope(), "put");
+		Scope *act_scope = new Scope(global_scope());
+		Action *put = new Action(act_scope, "", "put", {});
 		put->set_args( {
-			put->scope().get_var<NumericExpression>("X"),
-			put->scope().get_var<NumericExpression>("Y")
+			put->scope().get_var(VarDefinitionMode::FORCE, NumberType::name(), "X"),
+			put->scope().get_var(VarDefinitionMode::FORCE, NumberType::name(), "Y")
 		});
 		global_scope().register_global(put);
 
-		put->set_precondition(new Comparison<NumericExpression>(
-			on->make_ref({ put->arg_ref<NumericExpression>("X") }),
+		put->set_precondition(new Comparison(
+			on->make_ref({ put->arg_ref("X") }),
 			ComparisonOperator::NEQ,
-			put->arg_ref<NumericExpression>("Y")
+			put->arg_ref("Y")
 		));
 	}
 	shared_ptr<Action> put = global_scope().lookup_global<Action>("put", 2);
 
 	{ vector<unique_ptr<Expression>> arg;
-		EffectAxiom<Reference<NumericFluent>> *effect = new EffectAxiom<Reference<NumericFluent>>();
+		EffectAxiom<Reference<Fluent>> *effect = new EffectAxiom<Reference<Fluent>>();
 		effect->define(
-			new BooleanConstant(true),
+			new Constant(BoolType::name(), true),
 			on->make_ref({
-				put->arg_ref<NumericExpression>("X")
+				put->arg_ref("X")
 			} ),
-			put->arg_ref<NumericExpression>("Y")
+			put->arg_ref("Y")
 		);
 
 		put->add_effect(effect);
@@ -103,7 +105,9 @@ void test_objectmodel()
 void test_parser()
 {
 #ifdef GOLOGPP_TEST_PARSER
-	VoidExpression *mainproc = parser::parse_file(SOURCE_DIR "/examples/blocksworld.gpp").release();
+	Expression *mainproc = parser::parse_file(SOURCE_DIR "/examples/blocksworld.gpp").release();
+
+	std::cout << mainproc->str() << std::endl;
 
 #ifdef GOLOGPP_TEST_READYLOG
 	eclipse_opts options;
