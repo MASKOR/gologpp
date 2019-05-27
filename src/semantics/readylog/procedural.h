@@ -22,98 +22,20 @@
 namespace gologpp {
 
 
-/*
- * The implementations of the different function types that follow show how
- * different implementations can be used depending on the Expression type argument.
- */
 
-
-/*
- * 1. Define the abstract superclass that is used by the ExecutionContext
- *    It can produce a term that references a function since that always looks the same.
- *    The definition is however pure virtual since that will look different in readylog
- *    functions and procedures.
- */
 template<>
-class Semantics<AbstractFunction> : public ReadylogSemantics {
+class Semantics<Function> : public ReadylogSemantics {
 public:
-	Semantics(const AbstractFunction &function)
+	Semantics(const Function &function)
 	: function_(function)
 	{}
 
 	virtual EC_word plterm() override;
-	virtual EC_word definition() = 0;
+	virtual EC_word definition();
+	EC_word return_var();
 
-protected:
-	const AbstractFunction &function_;
-};
-
-
-
-/*
- * 2. Semantics for all Function types that get translated into readylog procedures.
- *    This class is only used indirectly (see below)
- */
-template<class ExprT>
-class ReadylogProcedure : public Semantics<AbstractFunction> {
-public:
-	using Semantics<AbstractFunction>::Semantics;
-
-	virtual EC_word definition() override
-	{
-		function_.scope().semantics().init_vars();
-		return ::term(EC_functor("proc", 2),
-			plterm(),
-			function_.definition().semantics().plterm()
-		);
-	}
-};
-
-
-
-/*
- * 3. Map ReadylogProcedure class to to Function types that should use it.
- */
-template<>
-class Semantics<Function<Void>> : public ReadylogProcedure<VoidExpression> {
-public:
-	using ReadylogProcedure<VoidExpression>::ReadylogProcedure;
-};
-
-
-template<>
-class Semantics<Function<BooleanExpression>> : public ReadylogProcedure<BooleanExpression> {
-public:
-	using ReadylogProcedure<BooleanExpression>::ReadylogProcedure;
-};
-
-
-
-/*
- * 4. Implement all remaining types as readylog functions.
- */
-template<class ExprT>
-class Semantics<Function<ExprT>> : public Semantics<AbstractFunction> {
-public:
-	using Semantics<AbstractFunction>::Semantics;
-
-	virtual EC_word definition() override
-	{
-		function_.scope().semantics().init_vars();
-		return_var_ = ::newvar();
-
-		return ::term(EC_functor("function", 3),
-			plterm(),
-			return_var_,
-			function_.definition().semantics().plterm()
-		);
-	}
-
-
-	EC_word return_var()
-	{ return return_var_; }
-
-protected:
+private:
+	const Function &function_;
 	EC_word return_var_;
 };
 
@@ -188,92 +110,41 @@ private:
 
 
 
-template<class ExprT>
-class Semantics<Assignment<Reference<Fluent<ExprT>>>> : public ReadylogSemantics {
+template<>
+class Semantics<Assignment<Reference<Fluent>>> : public ReadylogSemantics {
 public:
-	Semantics(const Assignment<Reference<Fluent<ExprT>>> &ass)
-	: assignment_(ass)
-	{}
+	Semantics(const Assignment<Reference<Fluent>> &ass);
 
-	virtual EC_word plterm() override
-	{
-		return ::term(EC_functor("set", 2),
-			assignment_.lhs().semantics().plterm(),
-			assignment_.rhs().semantics().plterm()
-		);
-	}
+	virtual EC_word plterm() override;
 
 private:
-	const Assignment<Reference<Fluent<ExprT>>> &assignment_;
+	const Assignment<Reference<Fluent>> &assignment_;
 };
 
 
 
-template<class ExprT>
-class Semantics<Assignment<FieldAccess<ExprT>>> : public ReadylogSemantics {
+template<>
+class Semantics<Assignment<FieldAccess>> : public ReadylogSemantics {
 public:
-	Semantics(const Assignment<FieldAccess<ExprT>> &ass)
-	: assignment_(ass)
-	, field_access_(ass.lhs())
-	{}
+	Semantics(const Assignment<FieldAccess> &ass);
 
-	virtual EC_word plterm() override
-	{
-		const AbstractFieldAccess *fa = &assignment_.lhs();
-		const Reference<CompoundFluent> *fluent = nullptr;
-		const CompoundExpression *sub;
-		EC_word field_list = ::nil();
-
-		do {
-			field_list = ::list(EC_atom(fa->field_name().c_str()), field_list);
-			sub = &fa->subject();
-			fa = dynamic_cast<const FieldAccess<CompoundExpression> *>(sub);
-		} while (fa);
-
-		fluent = dynamic_cast<const Reference<CompoundFluent> *>(sub);
-
-		return ::term(EC_functor("set", 2),
-			fluent->semantics().plterm(),
-			::term(EC_functor("gpp_field_assign", 3),
-				field_list,
-				assignment_.rhs().semantics().plterm(),
-				fluent->semantics().plterm()
-			)
-		);
-	}
+	virtual EC_word plterm() override;
 
 private:
-	const Assignment<FieldAccess<ExprT>> &assignment_;
-	const FieldAccess<ExprT> &field_access_;
+	const Assignment<FieldAccess> &assignment_;
+	const FieldAccess &field_access_;
 };
 
 
 
-template<class ExprT>
-class Semantics<Pick<ExprT>> : public ReadylogSemantics {
+template<>
+class Semantics<Pick> : public ReadylogSemantics {
 public:
-	Semantics(const Pick<ExprT> &pick)
-	: pick_(pick)
-	{
-		if (pick_.domain().empty())
-			throw std::runtime_error("ReadyLog requires a domain for pick()!");
-	}
-
-	virtual EC_word plterm() override
-	{
-		// Make sure the `pick'ed variable is a Golog variable
-		// No init_vars() is needed in this case.
-		{ GologVarMutator guard(pick_.variable().semantics());
-			return ::term(EC_functor("pickBest", 3),
-				pick_.variable().semantics().plterm(),
-				to_ec_list(pick_.domain(), pick_.domain().begin()),
-				pick_.statement().semantics().plterm()
-			);
-		}
-	}
+	Semantics(const Pick &pick);
+	virtual EC_word plterm() override;
 
 private:
-	const Pick<ExprT> &pick_;
+	const Pick &pick_;
 };
 
 
@@ -326,39 +197,15 @@ private:
 
 
 
-template<class ExpressionT>
-class Semantics<Return<ExpressionT>> : public ReadylogSemantics {
+template<>
+class Semantics<Return> : public ReadylogSemantics {
 public:
-	Semantics(const Return<ExpressionT> &r)
-	: ret_(r)
-	{}
-
-	virtual EC_word plterm() override {
-		const AbstractLanguageElement *root_parent = ret_.parent();
-		const Expression *parent_expr = nullptr;
-		while ((parent_expr = dynamic_cast<const Expression *>(root_parent))) {
-			root_parent = parent_expr->parent();
-		}
-
-		try {
-			const Function<ExpressionT> &function = dynamic_cast<const Function<ExpressionT> &>(*root_parent);
-			return ::term(EC_functor("=", 2),
-				function.semantics().return_var(),
-				ret_.expression().semantics().plterm()
-			);
-		} catch (std::bad_cast &) {
-			throw Bug(ret_.str() + ": Wrong type");
-		}
-	}
+	Semantics(const Return &r);
+	virtual EC_word plterm() override;
 
 private:
-	const Return<ExpressionT> &ret_;
+	const Return &ret_;
 };
-
-
-
-template<>
-EC_word Semantics<Return<BooleanExpression>>::plterm();
 
 
 
@@ -366,7 +213,6 @@ template<>
 class Semantics<DurativeCall> : public ReadylogSemantics {
 public:
 	Semantics(const DurativeCall &call);
-
 	virtual EC_word plterm() override;
 
 private:
@@ -375,35 +221,17 @@ private:
 
 
 
-template<class ExprT>
-class Semantics<FieldAccess<ExprT>> : public ReadylogSemantics {
+template<>
+class Semantics<FieldAccess> : public ReadylogSemantics {
 public:
-	Semantics(const FieldAccess<ExprT> &field_access)
-	: field_access_(field_access)
-	, is_lvalue_(false)
-	{}
+	Semantics(const FieldAccess &field_access);
 
-	virtual EC_word plterm() override
-	{
-		return ::term(EC_functor("gpp_field_value", 2),
-			EC_atom(field_access_.field_name().c_str()),
-			field_access_.subject().semantics().plterm()
-		);
-	}
-
-	EC_word field_assign(const ExprT &value) {
-		return ::term(EC_functor("gpp_field_assign", 3),
-			EC_atom(field_access_.field_name().c_str()),
-			value.semantics().plterm(),
-			field_access_.subject().semantics().plterm()
-		);
-	}
-
-	void set_lvalue(bool lvalue)
-	{ is_lvalue_ = lvalue; }
+	virtual EC_word plterm() override;
+	EC_word field_assign(const Expression &value);
+	void set_lvalue(bool lvalue);
 
 private:
-	const FieldAccess<ExprT> &field_access_;
+	const FieldAccess &field_access_;
 	bool is_lvalue_;
 };
 

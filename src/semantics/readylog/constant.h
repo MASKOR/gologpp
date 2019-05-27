@@ -13,19 +13,16 @@
 namespace gologpp {
 
 
-template<class ExpressionT>
-class Semantics<Constant<ExpressionT>> : public ReadylogSemantics {
+template<>
+class Semantics<Constant> : public ReadylogSemantics {
 public:
-	Semantics(const Constant<ExpressionT> &value)
-	: value_(value)
-	{}
+	Semantics(const Constant &value);
 
 	virtual ~Semantics() override = default;
-
 	virtual EC_word plterm() override;
 
 private:
-	const Constant<ExpressionT> &value_;
+	const Constant &value_;
 };
 
 

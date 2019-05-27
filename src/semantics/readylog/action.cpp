@@ -3,6 +3,7 @@
 #include "scope.h"
 #include "execution.h"
 #include "variable.h"
+#include "constant.h"
 
 #include <model/transition.h>
 
@@ -23,10 +24,10 @@ EC_word Semantics<Action>::durative_action()
 	action_.scope().semantics().init_vars();
 
 	vector<EC_word> arg_domains;
-	for (const shared_ptr<AbstractVariable> &arg : action_.args())
+	for (const shared_ptr<Variable> &arg : action_.args())
 		if (arg->domain().is_defined())
 			arg_domains.emplace_back(
-				arg->semantics<AbstractVariable>().member_restriction()
+				arg->semantics<Variable>().member_restriction()
 			);
 
 	EC_word prim_action = ::term(EC_functor("durative_action", 1), plterm());

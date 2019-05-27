@@ -9,18 +9,15 @@
 
 namespace gologpp {
 
-template<class ExprT>
-class Semantics<Domain<ExprT>> : public ReadylogSemantics {
+template<>
+class Semantics<Domain> : public ReadylogSemantics {
 public:
-	Semantics(const Domain<ExprT> &domain)
-	: domain_(domain)
-	{}
+	Semantics(const Domain &domain);
 
-	virtual EC_word plterm() override
-	{ return to_ec_list(domain_.elements()); }
+	virtual EC_word plterm() override;
 
 private:
-	const Domain<ExprT> &domain_;
+	const Domain &domain_;
 };
 
 

@@ -19,19 +19,17 @@ template<class GologT> class Reference;
 
 
 
-template<class ExpressionT>
-class Semantics<Reference<Variable<ExpressionT>>> : public ReadylogSemantics {
+template<>
+class Semantics<Reference<Variable>> : public ReadylogSemantics {
 public:
-	Semantics(const Reference<Variable<ExpressionT>> &ref)
-	: ref_(ref)
-	{}
+	Semantics(const Reference<Variable> &ref);
 
-	virtual EC_word plterm() override
-	{ return ref_.target()->semantics().plterm(); }
+	virtual EC_word plterm() override;
 
 private:
-	const Reference<Variable<ExpressionT>> &ref_;
+	const Reference<Variable> &ref_;
 };
+
 
 
 template<class GologT, class ExprT>
@@ -68,9 +66,9 @@ EC_word Semantics<ReferenceBase<Action, Expression>>::plterm();
 
 
 template<class TargetT>
-class Semantics<Grounding<TargetT>> : public Semantics<ReferenceBase<TargetT, AbstractConstant>> {
+class Semantics<Grounding<TargetT>> : public Semantics<ReferenceBase<TargetT, Constant>> {
 public:
-	using Semantics<ReferenceBase<TargetT, AbstractConstant>>::Semantics;
+	using Semantics<ReferenceBase<TargetT, Constant>>::Semantics;
 };
 
 

@@ -21,6 +21,10 @@ T &access(const unique_ptr<T> &ptr)
 { return *ptr; }
 
 template<class T> inline
+const Expression &access(const SafeExprOwner<T> &ptr)
+{ return *ptr; }
+
+template<class T> inline
 typename std::enable_if<!std::is_pointer<T>::value, T>::type
 &access(T &&ptr)
 { return std::forward<T>(ptr); }

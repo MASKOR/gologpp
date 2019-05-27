@@ -15,9 +15,9 @@ namespace gologpp {
 
 
 template<>
-class Semantics<AbstractVariable> : public ReadylogSemantics {
+class Semantics<Variable> : public ReadylogSemantics {
 public:
-	Semantics(const AbstractVariable &var);
+	Semantics(const Variable &var);
 	virtual ~Semantics() override;
 
 	void init();
@@ -26,18 +26,10 @@ public:
 	EC_word member_restriction();
 
 private:
-	const AbstractVariable &var_;
+	const Variable &var_;
 	EC_word ec_var_;
 	EC_atom golog_var_;
 	bool as_golog_var_;
-};
-
-
-template<class ExprT>
-class Semantics<Variable<ExprT>> : public Semantics<AbstractVariable>
-{
-public:
-	using Semantics<AbstractVariable>::Semantics;
 };
 
 
@@ -48,16 +40,12 @@ public:
  */
 class GologVarMutator {
 public:
-	GologVarMutator(Semantics<AbstractVariable> &var_impl);
-
-	template<class ExpressionT>
-	GologVarMutator(const Reference<Variable<ExpressionT>> &var_ref)
-	: GologVarMutator(var_ref.target()->template implementation<AbstractVariable>())
-	{}
-
+	GologVarMutator(Semantics<Variable> &var_impl);
+	GologVarMutator(const Reference<Variable> &var_ref);
 	~GologVarMutator();
+
 private:
-	Semantics<AbstractVariable> &var_impl_;
+	Semantics<Variable> &var_impl_;
 };
 
 

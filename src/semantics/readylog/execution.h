@@ -29,8 +29,8 @@ public:
 	virtual void precompile() override {}
 	virtual void compile(const Block &block) override;
 	virtual void compile(const AbstractAction &action) override;
-	virtual void compile(const AbstractFluent &fluent) override;
-	virtual void compile(const AbstractFunction &function) override;
+	virtual void compile(const Fluent &fluent) override;
+	virtual void compile(const Function &function) override;
 	virtual void postcompile() override;
 
     virtual bool final(Block &program, History &history) override;

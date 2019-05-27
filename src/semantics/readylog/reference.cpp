@@ -1,6 +1,17 @@
 #include "reference.h"
+#include "variable.h"
 
 namespace gologpp {
+
+
+Semantics<Reference<Variable>>::Semantics(const Reference<Variable> &ref)
+: ref_(ref)
+{}
+
+EC_word Semantics<Reference<Variable>>::plterm()
+{ return ref_.target()->semantics().plterm(); }
+
+
 
 template<>
 EC_word Semantics<ReferenceBase<Action, Expression>>::plterm()

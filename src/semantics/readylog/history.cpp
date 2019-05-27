@@ -42,31 +42,31 @@ string Semantics<History>::get_head_name(EC_word head)
 
 
 
-vector<unique_ptr<AbstractConstant>> get_args(EC_word head) {
+vector<unique_ptr<Constant>> get_args(EC_word head) {
 	EC_word term;
 	EC_atom did;
 	double d;
 	long i;
 	char *s;
 
-	vector<unique_ptr<AbstractConstant>> args;
+	vector<unique_ptr<Constant>> args;
 
 	for (int j = 1; j <= head.arity(); j++) {
 		head.arg(j,term);
 		if (EC_succeed == term.is_long(&i))
-			args.emplace_back(new NumericConstant(i));
+			args.emplace_back(new Constant(NumberType::name(), i));
 		else if (EC_succeed == term.is_double(&d))
-			args.emplace_back(new NumericConstant(d));
+			args.emplace_back(new Constant(NumberType::name(), d));
 		else if (EC_succeed == term.is_atom(&did)) {
 			if (did == EC_atom("true"))
-				args.emplace_back(new BooleanConstant(true));
+				args.emplace_back(new Constant(BoolType::name(), true));
 			else if (did == EC_atom("fail"))
-				args.emplace_back(new BooleanConstant(false));
+				args.emplace_back(new Constant(BoolType::name(), false));
 			else
-				args.emplace_back(new SymbolicConstant(string(did.name())));
+				args.emplace_back(new Constant(SymbolType::name(), string(did.name())));
 		}
 		else if (EC_succeed == term.is_string(&s))
-			args.emplace_back(new StringConstant(string(s)));
+			args.emplace_back(new Constant(StringType::name(), string(s)));
 		else
 			throw Bug("Invalid argument #" + std::to_string(j) + " in expression " + ReadylogContext::instance().to_string(head));
 	}
@@ -102,7 +102,7 @@ shared_ptr<Transition> Semantics<History>::get_last_transition()
 	head.arg(1, head);
 	headname = get_head_name(head);
 
-	vector<unique_ptr<AbstractConstant>> args = get_args(head);
+	vector<unique_ptr<Constant>> args = get_args(head);
 	shared_ptr<Action> action = global_scope().lookup_global<Action>(headname, arity_t(head.arity()));
 	shared_ptr<Transition> rv;
 

@@ -27,41 +27,24 @@ protected:
 };
 
 
-template<class ExprT>
-class Semantics<EffectAxiom<Reference<Fluent<ExprT>>>> : public Semantics<AbstractEffectAxiom> {
+template<>
+class Semantics<EffectAxiom<Reference<Fluent>>> : public Semantics<AbstractEffectAxiom> {
 public:
 	using Semantics<AbstractEffectAxiom>::Semantics;
 
-	const EffectAxiom<Reference<Fluent<ExprT>>> &effect() const
-	{ return dynamic_cast<const EffectAxiom<Reference<Fluent<ExprT>>> &>(effect_); }
-
-	virtual EC_word plterm() override
-	{
-		return ::term(EC_functor(cv_functor.c_str(), 4),
-			effect().action().semantics().plterm(),
-			effect().lhs().semantics().plterm(),
-			effect().value().semantics().plterm(),
-			effect().condition().semantics().plterm()
-		);
-	}
+	const EffectAxiom<Reference<Fluent>> &effect() const;
+	virtual EC_word plterm() override;
 };
 
 
-template<class ExprT>
-class Semantics<EffectAxiom<FieldAccess<ExprT>>> : public Semantics<AbstractEffectAxiom> {
-	const EffectAxiom<FieldAccess<ExprT>> &effect() const
-	{ return dynamic_cast<const EffectAxiom<FieldAccess<ExprT>> &>(effect_); }
+template<>
+class Semantics<EffectAxiom<FieldAccess>> : public Semantics<AbstractEffectAxiom> {
+	using Semantics<AbstractEffectAxiom>::Semantics;
 
-	virtual EC_word plterm() override
-	{
-		return ::term(EC_functor(cv_functor.c_str(), 4),
-			effect().action().semantics().plterm(),
-			effect().lhs().subject().semantics().plterm(),
-			effect().lhs().semantics().field_assign(effect().value()),
-			effect().condition().semantics().plterm()
-		);
-	}
+	const EffectAxiom<FieldAccess> &effect() const;
+	virtual EC_word plterm() override;
 };
+
 
 } /* namespace gologpp */
 

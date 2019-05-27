@@ -24,42 +24,16 @@ private:
 
 
 template<>
-class Semantics<Comparison<NumericExpression>> : public ReadylogSemantics {
+class Semantics<Comparison> : public ReadylogSemantics {
 public:
-	Semantics(const Comparison<NumericExpression> &cmp);
+	Semantics(const Comparison &cmp);
 
 	virtual ~Semantics() override = default;
 	virtual EC_word plterm() override;
 
 private:
-	const Comparison<NumericExpression> &comparison_;
+	const Comparison &comparison_;
 	const char *functor_;
-};
-
-
-template<>
-class Semantics<Comparison<SymbolicExpression>> : public ReadylogSemantics {
-public:
-	Semantics(const Comparison<SymbolicExpression> &cmp);
-
-	virtual ~Semantics() override = default;
-	virtual EC_word plterm() override;
-
-private:
-	const Comparison<SymbolicExpression> &comparison_;
-};
-
-
-template<>
-class Semantics<Comparison<StringExpression>> : public ReadylogSemantics {
-public:
-	Semantics(const Comparison<StringExpression> &cmp);
-
-	virtual ~Semantics() override = default;
-	virtual EC_word plterm() override;
-
-private:
-	const Comparison<StringExpression> &comparison_;
 };
 
 

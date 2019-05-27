@@ -114,16 +114,16 @@ void ReadylogContext::compile(const AbstractAction &aa)
 }
 
 
-void ReadylogContext::compile(const AbstractFluent &fluent)
+void ReadylogContext::compile(const Fluent &fluent)
 {
-	compile_term(fluent.semantics<AbstractFluent>().prim_fluent());
-	for (EC_word &initially : fluent.semantics<AbstractFluent>().initially())
+	compile_term(fluent.semantics<Fluent>().prim_fluent());
+	for (EC_word &initially : fluent.semantics<Fluent>().initially())
 		compile_term(initially);
 }
 
 
-void ReadylogContext::compile(const AbstractFunction &function)
-{ compile_term(function.semantics<AbstractFunction>().definition()); }
+void ReadylogContext::compile(const Function &function)
+{ compile_term(function.semantics<Function>().definition()); }
 
 
 void ReadylogContext::compile_term(const EC_word &term)
@@ -144,9 +144,8 @@ void ReadylogContext::postcompile()
 
 
 void ReadylogContext::ec_write(EC_word t)
-{
-	ec_query(::term(EC_functor("writeln", 1), t));
-}
+{ ec_query(::term(EC_functor("writeln", 1), t)); }
+
 
 string ReadylogContext::to_string(EC_word t)
 {

@@ -24,7 +24,7 @@ void Semantics<Scope>::init_vars()
 		if (&scope_ == &(global_scope()) || !scope_.parent_scope().lookup_var(entry.first))
 			// Only init variables that aren't in the parent scope
 			// (They are initialized there).
-			entry.second->semantics<AbstractVariable>().init();
+			entry.second->semantics<Variable>().init();
 }
 
 
