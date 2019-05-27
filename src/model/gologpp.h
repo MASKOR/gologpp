@@ -137,6 +137,7 @@ using VariableReference = Reference<Variable>;
 	(Negation)(BooleanOperation)(Quantification)(Concurrent) \
 	(Block)(Choose)(Conditional)(Search)(Solve)(Test)(While) \
 	(History)(Reference<Action>)(Grounding<Action>) \
+	(Grounding<ExogAction>) \
 	(Reference<ExogAction>) \
 	(StringConcatenation) \
 	(ToString) \
