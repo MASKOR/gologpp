@@ -154,7 +154,7 @@ string ReadylogContext::to_string(EC_word t)
 		S, "%w", t
 	);
 	char *rv;
-	if(ec_query(q) && S.is_string(&rv))
+	if(ec_query(q) && S.is_string(&rv) == EC_succeed)
 		return rv;
 	else
 		throw Bug("Error converting eclipse term to string");
