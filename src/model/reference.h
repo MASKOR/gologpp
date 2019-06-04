@@ -105,7 +105,13 @@ public:
 		auto it_rarg = args().begin();
 		auto it_targ = target()->args().begin();
 		for (; it_rarg < args().end() && it_targ < target()->args().end(); ++it_rarg, ++it_targ) {
-			if (dynamic_cast<const Expression &>(**it_rarg).type() != dynamic_cast<const Expression &>(**it_targ).type())
+			const Type &t_ref = (*it_rarg)->type();
+			const Type &t_tgt = (*it_targ)->type();
+			if (t_ref != t_tgt
+				&& !(t_ref.is<SymbolType>() && t_tgt.is<StringType>())
+				// TODO: Hack: Allow passing a symbol value to a string argument
+				// This is needed because ReadyLog can't deal with strings.
+			)
 				return false;
 
 			if ((*it_rarg)->is_ref() && !dynamic_cast<AbstractReference &>(**it_rarg).consistent())
