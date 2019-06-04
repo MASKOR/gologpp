@@ -55,7 +55,7 @@ void Variable::set_domain_copy(const Domain &domain)
 
 void Variable::define_implicit_domain(const string &domain_name)
 {
-	global_scope().register_domain(new Domain(type().name(), domain_name, {}, true));
+	global_scope().register_domain(new Domain(domain_name, type().name(), {}, true));
 	set_domain(domain_name);
 }
 
