@@ -281,17 +281,11 @@ protected:
  */
 class Return : public Expression, public NoScopeOwner, public LanguageElement<Return, VoidType> {
 public:
-	Return(Expression *expr)
-	: expr_(expr)
-	{ expr_->set_parent(this); }
-
+	Return(Expression *expr);
 	DEFINE_IMPLEMENT_WITH_MEMBERS(*expr_)
 
-	const Expression &expression() const
-	{ return *expr_; }
-
-	virtual string to_string(const string &pfx) const override
-	{ return linesep + pfx + "return " + expression().to_string(""); }
+	const Expression &expression() const;
+	virtual string to_string(const string &pfx) const override;
 
 private:
 	unique_ptr<Expression> expr_;

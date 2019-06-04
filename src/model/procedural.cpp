@@ -291,6 +291,18 @@ string While::to_string(const string &pfx) const
 
 
 
+Return::Return(Expression *expr)
+: expr_(expr)
+{ expr_->set_parent(this); }
+
+const Expression &Return::expression() const
+{ return *expr_; }
+
+string Return::to_string(const string &pfx) const
+{ return linesep + pfx + "return " + expression().to_string("") + ';'; }
+
+
+
 Function::Function(
 	Scope *own_scope,
 	const string &type_name,
