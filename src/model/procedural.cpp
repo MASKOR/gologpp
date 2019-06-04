@@ -39,12 +39,12 @@ const vector<SafeExprOwner<VoidType>> &Block::elements() const
 string Block::to_string(const string &pfx) const
 {
 	if (elements().size() == 0)
-		return "{}";
+		return pfx + "{}";
 	else if (elements().size() == 1)
 		return elements()[0]->to_string(pfx);
 	else {
 		return pfx + "{" + linesep
-			+ concat_list(elements(), ";" linesep + pfx + indent, pfx + indent) + ";" linesep
+			+ concat_list(elements(), linesep, pfx + indent) + linesep
 			+ pfx + "}" + linesep;
 	}
 }
@@ -78,7 +78,7 @@ void Choose::attach_semantics(SemanticsFactory &f)
 string Choose::to_string(const string &pfx) const
 {
 	return linesep + pfx + "choose {" + linesep
-		+ concat_list(alternatives(), ";" linesep + pfx + indent, pfx + indent) + ";" linesep
+		+ concat_list(alternatives(), linesep, pfx + indent) + linesep
 		+ pfx + "}" linesep;
 }
 
@@ -142,7 +142,7 @@ const vector<SafeExprOwner<VoidType>> &Concurrent::procs() const
 string Concurrent::to_string(const string &pfx) const
 {
 	return linesep + pfx + "concurrent {" + linesep
-		+ concat_list(procs(), ";" linesep + pfx + indent, pfx + indent) + ";" linesep
+		+ concat_list(procs(), linesep, pfx + indent) + linesep
 		+ pfx + "}";
 }
 
@@ -268,7 +268,7 @@ const Expression &Test::expression() const
 { return *expression_; }
 
 string Test::to_string(const string &pfx) const
-{ return linesep + pfx + "test (" + expression().to_string("") + ')'; }
+{ return linesep + pfx + "test (" + expression().to_string("") + ");"; }
 
 
 

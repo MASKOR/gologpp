@@ -150,7 +150,7 @@ public:
 	{ return *rhs_; }
 
 	virtual string to_string(const string &pfx) const override
-	{ return lhs().to_string(pfx) + " = " + rhs().to_string(""); }
+	{ return lhs().to_string(pfx) + " = " + rhs().to_string("") + ';'; }
 
 private:
     unique_ptr<LhsT> lhs_;
