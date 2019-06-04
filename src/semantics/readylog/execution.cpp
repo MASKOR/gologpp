@@ -195,19 +195,28 @@ bool ReadylogContext::trans(Block &program, History &history)
 		e1, h1
 	);
 
+	EC_word Ball = ::newvar();
+	EC_word catch_trans = ::term(EC_functor("catch", 3),
+		trans, Ball, EC_atom("fail")
+	);
+
 	EC_word q;
 	if (options_.trace)
-		q = ::term(EC_functor("trace", 1), trans);
+		q = ::term(EC_functor("trace", 1), catch_trans);
 	else
-		q = trans;
+		q = catch_trans;
 
 
 	if (ec_query(q)) {
 		program.semantics().set_current_program(e1);
 		history.semantics().set_current_history(h1);
 		return true;
+	} else {
+		if (Ball.is_var() == EC_succeed) // Eclipse didn't throw
+			return false;
+		else
+			throw std::runtime_error(this->to_string(Ball));
 	}
-	return false;
 }
 
 
