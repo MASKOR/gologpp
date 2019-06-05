@@ -13,7 +13,10 @@ struct DomainExpressionParser : grammar<Domain(Scope &, Typename, bool)> {
 	DomainExpressionParser();
 
 	rule<Domain(Scope &, Typename, bool)> domain_expr;
-	rule<Domain(Scope &, Typename, bool)> unary_domain_expr;
+	rule <
+		Domain(Scope &, Typename, bool),
+		locals<shared_ptr<Domain>>
+	> unary_domain_expr;
 	rule<Domain(Scope &, Typename, bool)> binary_domain_expr;
 	rule<DomainOperator()> domain_operator;
 };

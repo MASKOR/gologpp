@@ -45,15 +45,13 @@ DomainExpressionParser::DomainExpressionParser()
 	domain_expr = binary_domain_expr(_r1, _r2, _r3) | unary_domain_expr(_r1, _r2, _r3);
 	domain_expr.name("domain_expression");
 
-	typename expression::local_variable<shared_ptr<Domain>>::type p_domain;
 	unary_domain_expr =
 		r_name() [
-			let(p_domain = phoenix::bind(&Scope::lookup_domain, _r1, _1, _r2)) [
-				if_(p_domain) [
-					_val = *p_domain
-				].else_ [
-					_pass = false
-				]
+			_a = phoenix::bind(&Scope::lookup_domain, _r1, _1, _r2),
+			if_(_a) [
+				_val = *_a
+			].else_ [
+				_pass = false
 			]
 		]
 		| (lit('{') > (constant()(_r2, _r3) % ',') > '}') [
