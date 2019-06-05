@@ -42,6 +42,10 @@ class SafeExprOwner : public std::unique_ptr<Expression> {
 public:
 	using std::unique_ptr<Expression>::unique_ptr;
 
+	SafeExprOwner()
+	: std::unique_ptr<Expression>()
+	{}
+
 	SafeExprOwner(Expression *e)
 	: std::unique_ptr<Expression>(e)
 	{ e->ensure_type<T>(); }

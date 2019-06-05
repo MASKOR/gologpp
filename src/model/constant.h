@@ -28,6 +28,10 @@ class unique_ptr<Constant> : public std::unique_ptr<Constant> {
 public:
 	using std::unique_ptr<Constant>::unique_ptr;
 
+	unique_ptr()
+	: std::unique_ptr<Constant>()
+	{}
+
 	unique_ptr(const unique_ptr<Constant> &c);
 
 	unique_ptr<Constant> &operator = (const unique_ptr<Constant> &c);
