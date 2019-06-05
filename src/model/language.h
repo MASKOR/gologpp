@@ -93,7 +93,7 @@ public:
 
 
 
-#define DEFINE_IMPLEMENT_WITH_MEMBERS(...) \
+#define DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(...) \
 	virtual void attach_semantics(SemanticsFactory &f) override { \
 		if (!semantics_) { \
 			semantics_ = f.make_semantics(*this); \
@@ -103,7 +103,7 @@ public:
 		} \
 	}
 
-#define DEFINE_IMPLEMENT \
+#define DEFINE_ATTACH_SEMANTICS \
 	virtual void attach_semantics(SemanticsFactory &f) override { \
 		if (!semantics_) \
 			semantics_ = f.make_semantics(*this); \

@@ -85,7 +85,7 @@ public:
 	{ return action().scope(); }
 
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, *assignment_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*condition_, *assignment_)
 
 protected:
 	unique_ptr<Assignment<LhsT>> assignment_;

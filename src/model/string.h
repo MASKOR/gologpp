@@ -18,7 +18,7 @@ public:
 
 	const Expression &expression() const;
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*expr_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*expr_)
 
 	virtual string to_string(const string &pfx) const override;
 
@@ -35,7 +35,7 @@ public:
 	const Expression &rhs() const;
 	const Expression &lhs() const;
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*lhs_, *rhs_)
 
 	virtual string to_string(const string &pfx) const override;
 

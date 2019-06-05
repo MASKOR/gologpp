@@ -31,7 +31,7 @@ public:
 	virtual Scope &parent_scope() override;
 	virtual const Scope &parent_scope() const override;
 
-	DEFINE_IMPLEMENT
+	DEFINE_ATTACH_SEMANTICS
 
 	HistorySemantics &abstract_impl()
 	{ return static_cast<HistorySemantics &>(*semantics_); }

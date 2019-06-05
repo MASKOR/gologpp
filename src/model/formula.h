@@ -19,7 +19,7 @@ public:
 
 	const Expression &expression() const;
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*expression_)
 
 	virtual string to_string(const string &pfx) const override;
 
@@ -46,7 +46,7 @@ public:
 
 	virtual string to_string(const string &pfx) const override;
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*lhs_, *rhs_)
 
 protected:
 	unique_ptr<Expression> lhs_;
@@ -79,7 +79,7 @@ public:
 	const Expression &lhs() const;
 	const Expression &rhs() const;
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*lhs_, *rhs_)
 
 	virtual string to_string(const string &pfx) const override;
 
@@ -116,7 +116,7 @@ public:
 	const Variable &variable() const;
 	const Expression &expression() const;
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*variable_, *expression_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*variable_, *expression_)
 
 	virtual string to_string(const string &pfx) const override;
 

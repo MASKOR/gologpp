@@ -70,7 +70,7 @@ public:
 		Expression *block_false
 	);
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*condition_, *block_true_, *block_false_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*condition_, *block_true_, *block_false_)
 
 	const Expression &condition() const;
 	const Expression &block_true() const;
@@ -141,7 +141,7 @@ public:
 		rhs_->set_parent(this);
 	}
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*lhs_, *rhs_)
 
 	const LhsT &lhs() const override
 	{ return *lhs_; }
@@ -198,7 +198,7 @@ private:
 class Search : public Expression, public NoScopeOwner, public LanguageElement<Search, VoidType> {
 public:
 	Search(Expression *statement);
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*statement_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*statement_)
 
 	const Expression &statement() const;
 
@@ -244,7 +244,7 @@ private:
 class Test : public Expression, public NoScopeOwner, public LanguageElement<Test, VoidType> {
 public:
 	Test(Expression *expression);
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*expression_)
 
 	const Expression &expression() const;
 
@@ -262,7 +262,7 @@ protected:
 class While : public Expression, public NoScopeOwner, public LanguageElement<While, VoidType> {
 public:
 	While(Expression *expression, Expression *stmt);
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*expression_, *statement_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*expression_, *statement_)
 
 	const Expression &expression() const;
 	const Expression &statement() const;
@@ -282,7 +282,7 @@ protected:
 class Return : public Expression, public NoScopeOwner, public LanguageElement<Return, VoidType> {
 public:
 	Return(Expression *expr);
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*expr_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*expr_)
 
 	const Expression &expression() const;
 	virtual string to_string(const string &pfx) const override;
@@ -327,7 +327,7 @@ public:
 
 	virtual string to_string(const string &pfx) const override;
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(scope(), *definition_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(scope(), *definition_)
 
 private:
 	SafeExprOwner<VoidType> definition_;
@@ -347,7 +347,7 @@ public:
 	};
 
 	DurativeCall(Hook hook, Reference<Action> *action);
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*action_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*action_)
 
 	Hook hook() const;
 	const Reference<Action> &action() const;
@@ -373,7 +373,7 @@ public:
 	const Expression &subject() const;
 	const string &field_name() const;
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*subject_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*subject_)
 
 	virtual const Type &type() const override;
 

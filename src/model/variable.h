@@ -42,7 +42,7 @@ public:
 
 	virtual string to_string(const string &) const override;
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*domain_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*domain_)
 
 private:
 	shared_ptr<Domain> domain_;

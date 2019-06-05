@@ -21,7 +21,7 @@ public:
 	const Expression &rhs() const;
 	Operator op() const;
 
-	DEFINE_IMPLEMENT_WITH_MEMBERS(*lhs_, *rhs_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*lhs_, *rhs_)
 
 	static std::string to_string(ArithmeticOperation::Operator op)
 	{
