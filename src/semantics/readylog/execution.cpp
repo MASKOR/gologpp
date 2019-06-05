@@ -144,14 +144,14 @@ void ReadylogContext::postcompile()
 
 
 void ReadylogContext::ec_write(EC_word t)
-{ ec_query(::term(EC_functor("writeln", 1), t)); }
+{ ec_query(::term(EC_functor("printf", 2), "%Qw%n", ::list(t, ::nil()))); }
 
 
 string ReadylogContext::to_string(EC_word t)
 {
 	EC_word S = ::newvar();
 	EC_word q = ::term(EC_functor("sprintf", 3),
-		S, "%w", t
+		S, "%Qw", t
 	);
 	char *rv;
 	if(ec_query(q) && S.is_string(&rv) == EC_succeed)
