@@ -85,7 +85,7 @@ void test_objectmodel()
 		options.guitrace = false;
 
 		Block main(new Scope(global_scope()), {
-			put->make_ref({new NumericConstant(1), new NumericConstant(2)})
+			put->make_ref({new Constant(NumberType::name(), 1), new Constant(NumberType::name(), 2)})
 		});
 
 		ReadylogContext::init(options);
