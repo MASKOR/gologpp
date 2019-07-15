@@ -62,7 +62,11 @@ protected:
 \*--------------------------------------------*/
 
 enum BooleanOperator {
-	AND = 1, OR, XOR, IMPLIES, IFF
+	// Order is important here since the
+	// enum value encodes operator precedence
+	IMPLIES = 0, OR, AND, XOR, IFF
+	, MIN_PRECEDENCE = IMPLIES
+	, MAX_PRECEDENCE = IFF
 };
 
 string to_string(BooleanOperator op);

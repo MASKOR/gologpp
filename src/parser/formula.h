@@ -30,7 +30,7 @@ struct BooleanExpressionParser : grammar<Expression *(Scope &)> {
 
 	rule<Expression *(Scope &)> expression;
 	rule<Expression *(Scope &)> unary_expr;
-	rule<Expression *(Scope &)> binary_expr;
+	rule<Expression *(Scope &)> operation_seq;
 	rule<Expression *(Scope &)> negation;
 	rule<Expression *(Scope &)> brace;
 	rule<Expression *(Scope &)> bool_var_ref;
