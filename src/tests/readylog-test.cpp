@@ -107,6 +107,9 @@ void test_parser()
 #ifdef GOLOGPP_TEST_PARSER
 	Expression *mainproc = parser::parse_file(SOURCE_DIR "/examples/blocksworld.gpp").release();
 
+	for (shared_ptr<const Global> g : global_scope().globals())
+		std::cout << g->str() << std::endl;
+
 	std::cout << mainproc->str() << std::endl;
 
 #ifdef GOLOGPP_TEST_READYLOG

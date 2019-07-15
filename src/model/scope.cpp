@@ -262,6 +262,7 @@ void Scope::register_type(Type *t)
 	(*types_)[*t].reset(t);
 }
 
+
 Constant *Scope::get_symbol(const string &name)
 {
 	for (const DomainsMap::value_type &entry : *domains_) {
@@ -275,6 +276,7 @@ Constant *Scope::get_symbol(const string &name)
 	return nullptr;
 }
 
+
 void Scope::define_domain(const string &name, const string &type_name, const Domain &input)
 {
 	shared_ptr<Domain> d = lookup_domain(name);
@@ -286,6 +288,14 @@ void Scope::define_domain(const string &name, const string &type_name, const Dom
 		register_domain(std::make_shared<Domain>(name, input));
 }
 
+
+vector<shared_ptr<const Global>> Scope::globals() const
+{
+	vector<shared_ptr<const Global>> rv;
+	for (const GlobalsMap::value_type &entry : *globals_)
+		rv.push_back(entry.second);
+	return rv;
+}
 
 
 ScopeOwner::ScopeOwner(Scope *owned_scope)
