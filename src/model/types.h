@@ -97,7 +97,7 @@ public:
 
 class CompoundType : public Type {
 public:
-	using Representation = std::unordered_map<string, unique_ptr<Constant>>;
+	using Representation = std::unordered_map<string, unique_ptr<Value>>;
 
 	CompoundType(const string &name);
 

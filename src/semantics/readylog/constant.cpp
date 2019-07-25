@@ -3,11 +3,11 @@
 
 namespace gologpp {
 
-Semantics<Constant>::Semantics(const Constant &value)
+Semantics<Value>::Semantics(const Value &value)
 : value_(value)
 {}
 
-EC_word Semantics<Constant>::plterm()
+EC_word Semantics<Value>::plterm()
 {
 	if (value_.type().is<BoolType>()) {
 		if (static_cast<bool>(value_))

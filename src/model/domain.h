@@ -28,10 +28,10 @@ class Domain
 , public std::enable_shared_from_this<Domain>
 {
 public:
-	typedef std::unordered_set<unique_ptr<Constant>> ElementSet;
+	typedef std::unordered_set<unique_ptr<Value>> ElementSet;
 	typedef typename ElementSet::iterator ElementIterator;
 
-	Domain(const string &name, const string &type_name, const vector<Constant *> &elements = {}, bool implicit = false);
+	Domain(const string &name, const string &type_name, const vector<Value *> &elements = {}, bool implicit = false);
 	Domain(const string &type_name);
 	Domain(const string &name, const Domain &other);
 	Domain(const Domain &other);
@@ -56,14 +56,14 @@ public:
 	ElementSet &elements();
 	const ElementSet &elements() const;
 
-	void add_element(const Constant &c);
+	void add_element(const Value &c);
 
 	virtual Scope &parent_scope() override;
 	virtual const Scope &parent_scope() const override;
 
 	virtual bool is_defined() const;
 
-	void add_elements(const vector<Constant *> &elements);
+	void add_elements(const vector<Value *> &elements);
 	void add_elements(const Domain &other);
 
 	void remove(const Domain &other);

@@ -169,11 +169,11 @@ public:
 	Pick(
 		Scope *own_scope,
 		const shared_ptr<Variable> &variable,
-		const boost::optional<std::vector<Constant *>> &domain,
+		const boost::optional<std::vector<Value *>> &domain,
 		Expression *statement
 	);
 
-	const vector<unique_ptr<Constant>> &domain() const;
+	const vector<unique_ptr<Value>> &domain() const;
 	const Variable &variable() const;
 	const Expression &statement() const;
 
@@ -182,7 +182,7 @@ public:
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	vector<unique_ptr<Constant>> domain_;
+	vector<unique_ptr<Value>> domain_;
 	shared_ptr<Variable> variable_;
 	SafeExprOwner<VoidType> statement_;
 };

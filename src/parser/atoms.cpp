@@ -96,14 +96,14 @@ rule<shared_ptr<Variable>(Scope &)> &any_var_usage() {
 
 
 
-rule<Constant *()> &numeric_constant() {
+rule<Value *()> &numeric_constant() {
 	static real_parser<double, strict_real_policies<double>> strict_double;
-	static rule<Constant *()> rv {
+	static rule<Value *()> rv {
 		strict_double [
-			_val = new_<Constant>(NumberType::name(), _1)
+			_val = new_<Value>(NumberType::name(), _1)
 		]
 		| int_ [
-			_val = new_<Constant>(NumberType::name(), _1)
+			_val = new_<Value>(NumberType::name(), _1)
 		],
 		"numeric_constant"
 	};
@@ -111,13 +111,13 @@ rule<Constant *()> &numeric_constant() {
 	return rv;
 }
 
-rule<Constant *()> &boolean_constant() {
-	static rule<Constant *()> rv {
+rule<Value *()> &boolean_constant() {
+	static rule<Value *()> rv {
 		lit("true") [
-			_val = new_<Constant>(BoolType::name(), true)
+			_val = new_<Value>(BoolType::name(), true)
 		]
 		| lit("false") [
-			_val = new_<Constant>(BoolType::name(), false)
+			_val = new_<Value>(BoolType::name(), false)
 		],
 		"boolean_constant"
 	};
@@ -126,12 +126,12 @@ rule<Constant *()> &boolean_constant() {
 }
 
 
-rule<Constant *()> &string_constant() {
-	static rule<Constant *()> rv {
+rule<Value *()> &string_constant() {
+	static rule<Value *()> rv {
 		qi::as_string [ qi::lexeme [
 			lit('"') > *(char_ - '"') > lit('"')
 		] ] [
-			_val = new_<Constant>(StringType::name(), _1)
+			_val = new_<Value>(StringType::name(), _1)
 		],
 		"string_constant"
 	};
@@ -140,8 +140,8 @@ rule<Constant *()> &string_constant() {
 }
 
 
-rule<Constant *()> &symbolic_constant() {
-		static rule<Constant *()> rv {
+rule<Value *()> &symbolic_constant() {
+		static rule<Value *()> rv {
 		r_name() [
 			_val = phoenix::bind(&Scope::get_symbol, phoenix::bind(&global_scope), _1),
 			if_(_val == nullptr) [
@@ -155,16 +155,16 @@ rule<Constant *()> &symbolic_constant() {
 }
 
 
-rule<Constant *()> &symbolic_constant_def() {
-	static rule<Constant *()> rv {
-		r_name() [ _val = new_<Constant>(val(SymbolType::name()), _1) ],
+rule<Value *()> &symbolic_constant_def() {
+	static rule<Value *()> rv {
+		r_name() [ _val = new_<Value>(val(SymbolType::name()), _1) ],
 		"symbolic_constant_definition"
 	};
 //	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
-struct CompoundConstantParser : grammar<Constant *()> {
+struct CompoundConstantParser : grammar<Value *()> {
 	CompoundConstantParser()
 	: CompoundConstantParser::base_type(compound_constant_, "compound_constant")
 	{
@@ -174,7 +174,7 @@ struct CompoundConstantParser : grammar<Constant *()> {
 					r_name() > '=' > any_constant_
 				) % ',' > '}'
 			) [
-				_val = new_<Constant>(_1, _2)
+				_val = new_<Value>(_1, _2)
 			]
 		;
 		compound_constant_.name("compound_constant");
@@ -189,21 +189,21 @@ struct CompoundConstantParser : grammar<Constant *()> {
 //		GOLOGPP_DEBUG_NODES((compound_constant_)(any_constant_))
 	}
 
-	rule<Constant *()> compound_constant_;
-	rule<Constant *()> any_constant_;
+	rule<Value *()> compound_constant_;
+	rule<Value *()> any_constant_;
 };
 
 
-rule<Constant *()> &compound_constant() {
+rule<Value *()> &compound_constant() {
 	static CompoundConstantParser ccp;
-	static rule<Constant *()> rv { ccp };
+	static rule<Value *()> rv { ccp };
 	return rv;
 }
 
 
 
-rule<Constant *()> &any_constant() {
-	static rule<Constant *()> rv {
+rule<Value *()> &any_constant() {
+	static rule<Value *()> rv {
 		boolean_constant() | numeric_constant()
 			| symbolic_constant() | string_constant()
 			| compound_constant()
@@ -215,12 +215,12 @@ rule<Constant *()> &any_constant() {
 
 
 
-static rule<Constant *()> &get_constant_parser(Typename type, bool allow_symbol_def)
+static rule<Value *()> &get_constant_parser(Typename type, bool allow_symbol_def)
 {
 	static std::unordered_map <
 		Typename,
 		std::reference_wrapper <
-			rule<Constant *()>
+			rule<Value *()>
 		>
 	>
 	constant_parser_map {
@@ -242,8 +242,8 @@ static rule<Constant *()> &get_constant_parser(Typename type, bool allow_symbol_
 
 
 
-rule<Constant *(Typename, bool)> &constant() {
-	static rule<Constant *(Typename, bool)> rv {
+rule<Value *(Typename, bool)> &constant() {
+	static rule<Value *(Typename, bool)> rv {
 		lazy(phoenix::bind(&get_constant_parser, _r1, _r2))
 	};
 //	GOLOGPP_DEBUG_NODE(rv)

@@ -17,7 +17,7 @@ AbstractAction::AbstractAction(
 , ScopeOwner(own_scope)
 {
 	set_type_by_name(VoidType::name());
-	set_precondition(new Constant(BoolType::name(), true));
+	set_precondition(new Value(BoolType::name(), true));
 	vector<Expression *> mapping_args;
 	for (const shared_ptr<Variable> &arg : args)
 		mapping_args.push_back(new Reference<Variable>(arg));

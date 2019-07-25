@@ -27,12 +27,12 @@ const Domain &Variable::domain() const
 { return *domain_; }
 
 
-void Variable::add_implicit_domain_element(const Constant &c)
+void Variable::add_implicit_domain_element(const Value &c)
 {
 	if (!domain_->is_implicit())
 		return;
-	domain_->elements().emplace(new Constant(
-		dynamic_cast<const Constant &>(c)
+	domain_->elements().emplace(new Value(
+		dynamic_cast<const Value &>(c)
 	) );
 }
 

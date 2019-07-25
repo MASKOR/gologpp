@@ -66,9 +66,9 @@ EC_word Semantics<ReferenceBase<Action, Expression>>::plterm();
 
 
 template<class TargetT>
-class Semantics<Grounding<TargetT>> : public Semantics<ReferenceBase<TargetT, Constant>> {
+class Semantics<Grounding<TargetT>> : public Semantics<ReferenceBase<TargetT, Value>> {
 public:
-	using Semantics<ReferenceBase<TargetT, Constant>>::Semantics;
+	using Semantics<ReferenceBase<TargetT, Value>>::Semantics;
 };
 
 

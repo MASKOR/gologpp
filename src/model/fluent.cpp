@@ -4,7 +4,7 @@
 namespace gologpp {
 
 
-InitialValue::InitialValue(const vector<Constant *> &args, Constant *value)
+InitialValue::InitialValue(const vector<Value *> &args, Value *value)
 {
 	set_type(value->type());
 	set_args(args);
@@ -12,31 +12,31 @@ InitialValue::InitialValue(const vector<Constant *> &args, Constant *value)
 }
 
 
-InitialValue::InitialValue(const boost::optional<vector<Constant *>> &args, Constant *value)
+InitialValue::InitialValue(const boost::optional<vector<Value *>> &args, Value *value)
 : InitialValue(args.get_value_or({}), value)
 {}
 
-const vector<unique_ptr<Constant>> &InitialValue::args() const
+const vector<unique_ptr<Value>> &InitialValue::args() const
 { return args_; }
 
-vector<unique_ptr<Constant>> &InitialValue::args()
+vector<unique_ptr<Value>> &InitialValue::args()
 { return args_; }
 
-void InitialValue::set_args(const vector<Constant *> &args)
+void InitialValue::set_args(const vector<Value *> &args)
 {
-	for (Constant *c : args) {
+	for (Value *c : args) {
 		c->set_parent(this);
 		args_.emplace_back(c);
 	}
 }
 
-const Constant &InitialValue::value() const
+const Value &InitialValue::value() const
 { return *value_; }
 
-Constant &InitialValue::value()
+Value &InitialValue::value()
 { return *value_; }
 
-void InitialValue::set_value(Constant *value)
+void InitialValue::set_value(Value *value)
 {
 	value->set_parent(this);
 	value_.reset(value);
@@ -48,7 +48,7 @@ void InitialValue::attach_semantics(SemanticsFactory &implementor)
 	if (semantics_)
 		return;
 	value().attach_semantics(implementor);
-	for (unique_ptr<Constant> &arg : args())
+	for (unique_ptr<Value> &arg : args())
 		arg->attach_semantics(implementor);
 
 	semantics_ = implementor.make_semantics(*this);
@@ -119,7 +119,7 @@ void Fluent::define(const boost::optional<vector<InitialValue *>> &initial_value
 
 			for (arity_t arg_idx = 0; arg_idx < arity(); ++arg_idx) {
 				Variable &arg = *args()[arg_idx];
-				Constant &arg_value = *ival->args()[arg_idx];
+				Value &arg_value = *ival->args()[arg_idx];
 
 				ensure_type_equality(arg, arg_value);
 

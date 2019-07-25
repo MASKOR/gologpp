@@ -14,16 +14,16 @@ rule<shared_ptr<Variable>(Scope &, Typename)> &var_usage();
 rule<shared_ptr<Variable>(Scope &)> &any_var_usage();
 
 
-rule<Constant *()> &numeric_constant();
-rule<Constant *()> &boolean_constant();
-rule<Constant *()> &string_constant();
-rule<Constant *()> &symbolic_constant();
-rule<Constant *()> &symbolic_constant_def();
-rule<Constant *()> &compound_constant();
+rule<Value *()> &numeric_constant();
+rule<Value *()> &boolean_constant();
+rule<Value *()> &string_constant();
+rule<Value *()> &symbolic_constant();
+rule<Value *()> &symbolic_constant_def();
+rule<Value *()> &compound_constant();
 
-rule<Constant *()> &any_constant();
+rule<Value *()> &any_constant();
 
-rule<Constant *(Typename, bool)> &constant();
+rule<Value *(Typename, bool)> &constant();
 
 rule<Expression *()> &atom();
 

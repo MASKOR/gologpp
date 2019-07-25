@@ -151,7 +151,7 @@ string Concurrent::to_string(const string &pfx) const
 Pick::Pick(
 	Scope *own_scope,
 	const shared_ptr<Variable> &variable,
-	const boost::optional<std::vector<Constant *>> &domain,
+	const boost::optional<std::vector<Value *>> &domain,
 	Expression *statement
 )
 : ScopeOwner(own_scope)
@@ -159,7 +159,7 @@ Pick::Pick(
 , statement_(statement)
 {
 	if (domain)
-		for (Constant *c : *domain) {
+		for (Value *c : *domain) {
 			ensure_type_equality(*variable, *c);
 			c->set_parent(this);
 			domain_.emplace_back(c);
@@ -169,7 +169,7 @@ Pick::Pick(
 }
 
 
-const vector<unique_ptr<Constant>> &Pick::domain() const
+const vector<unique_ptr<Value>> &Pick::domain() const
 { return domain_; }
 
 const Variable &Pick::variable() const
@@ -187,7 +187,7 @@ void Pick::attach_semantics(SemanticsFactory &f)
 	if (semantics_)
 		return;
 
-	for (unique_ptr<Constant> & c : domain_)
+	for (unique_ptr<Value> & c : domain_)
 		c->attach_semantics(f);
 	variable_->attach_semantics(f);
 	statement_->attach_semantics(f);

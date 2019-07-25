@@ -35,7 +35,7 @@ public:
 	 * Add @param c to this Variable's @class Domain if it is an implicit domain.
 	 * If it's an explicit domain, this method does nothing.
 	 */
-	virtual void add_implicit_domain_element(const Constant &c);
+	virtual void add_implicit_domain_element(const Value &c);
 	void set_domain(const string &domain_name);
 	void set_domain_copy(const Domain &domain);
 	virtual void define_implicit_domain(const string &domain_name);

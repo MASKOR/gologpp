@@ -24,40 +24,40 @@ using fusion_wtf_vector = boost::fusion::vector2<T1, T2>;
 
 
 template<>
-class unique_ptr<Constant> : public std::unique_ptr<Constant> {
+class unique_ptr<Value> : public std::unique_ptr<Value> {
 public:
-	using std::unique_ptr<Constant>::unique_ptr;
+	using std::unique_ptr<Value>::unique_ptr;
 
 	unique_ptr()
-	: std::unique_ptr<Constant>()
+	: std::unique_ptr<Value>()
 	{}
 
-	unique_ptr(const unique_ptr<Constant> &c);
+	unique_ptr(const unique_ptr<Value> &c);
 
-	unique_ptr<Constant> &operator = (const unique_ptr<Constant> &c);
+	unique_ptr<Value> &operator = (const unique_ptr<Value> &c);
 };
 
 
 
-class Constant
+class Value
 : public Expression
 , public NoScopeOwner
-, public LanguageElement<Constant>
+, public LanguageElement<Value>
 {
 public:
 	using LiteralVariant = boost::variant<int, long, double, string, bool, CompoundType::Representation>;
 
 	template<class ReprT>
-	Constant(const string &type_name, ReprT repr);
+	Value(const string &type_name, ReprT repr);
 
-	Constant(const string &type_name, const vector<fusion_wtf_vector<string, Constant *>> &definition);
-	Constant(Constant &&c);
-	Constant(const Constant &c);
+	Value(const string &type_name, const vector<fusion_wtf_vector<string, Value *>> &definition);
+	Value(Value &&c);
+	Value(const Value &c);
 
-	Constant &operator = (Constant &&);
-	Constant &operator = (const Constant &c);
+	Value &operator = (Value &&);
+	Value &operator = (const Value &c);
 
-	virtual ~Constant() override;
+	virtual ~Value() override;
 
 	virtual size_t hash() const;
 
@@ -73,15 +73,15 @@ public:
 
 	virtual string to_string(const string &) const override;
 
-	virtual bool operator == (const Constant &c) const;
+	virtual bool operator == (const Value &c) const;
 
-	bool operator != (const Constant &) const;
-	virtual Constant *copy() const;
+	bool operator != (const Value &) const;
+	virtual Value *copy() const;
 
 	virtual void attach_semantics(SemanticsFactory &f) override;
 
 protected:
-	Constant(LiteralVariant &&repr);
+	Value(LiteralVariant &&repr);
 
 private:
 	LiteralVariant representation_;
@@ -93,7 +93,7 @@ private:
 
 
 
-vector<unique_ptr<Constant>> copy(const vector<unique_ptr<Constant>> &v);
+vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v);
 
 
 
@@ -104,14 +104,14 @@ vector<unique_ptr<Constant>> copy(const vector<unique_ptr<Constant>> &v);
 namespace std {
 
 template<>
-struct hash<gologpp::unique_ptr<gologpp::Constant>> {
-	size_t operator () (const gologpp::unique_ptr<gologpp::Constant> &o) const
+struct hash<gologpp::unique_ptr<gologpp::Value>> {
+	size_t operator () (const gologpp::unique_ptr<gologpp::Value> &o) const
 	{ return o->hash(); }
 };
 
 template<>
-struct equal_to<gologpp::unique_ptr<gologpp::Constant>> {
-	bool operator () (const gologpp::unique_ptr<gologpp::Constant> &lhs, const gologpp::unique_ptr<gologpp::Constant> &rhs) const
+struct equal_to<gologpp::unique_ptr<gologpp::Value>> {
+	bool operator () (const gologpp::unique_ptr<gologpp::Value> &lhs, const gologpp::unique_ptr<gologpp::Value> &rhs) const
 	{ return *lhs == *rhs; }
 };
 

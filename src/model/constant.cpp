@@ -6,18 +6,18 @@
 namespace gologpp {
 
 
-unique_ptr<Constant>::unique_ptr(const unique_ptr<Constant> &c)
-: std::unique_ptr<Constant>(c->copy())
+unique_ptr<Value>::unique_ptr(const unique_ptr<Value> &c)
+: std::unique_ptr<Value>(c->copy())
 {}
 
-unique_ptr<Constant> &unique_ptr<Constant>::operator = (const unique_ptr<Constant> &c)
+unique_ptr<Value> &unique_ptr<Value>::operator = (const unique_ptr<Value> &c)
 {
-	std::unique_ptr<Constant>::operator = (std::make_unique<Constant>(*c));
+	std::unique_ptr<Value>::operator = (std::make_unique<Value>(*c));
 	return *this;
 }
 
 
-struct Constant::to_string_visitor {
+struct Value::to_string_visitor {
 	string pfx;
 
 	string operator() (const string &s) const
@@ -40,7 +40,7 @@ struct Constant::to_string_visitor {
 };
 
 
-struct Constant::hash_visitor {
+struct Value::hash_visitor {
 	template<class T>
 	size_t operator () (const T &v) const
 	{ return boost::hash_value(v); }
@@ -56,7 +56,7 @@ struct Constant::hash_visitor {
 };
 
 
-struct Constant::attach_semantics_visitor {
+struct Value::attach_semantics_visitor {
 	SemanticsFactory &f;
 
 	template<class T>
@@ -71,53 +71,53 @@ struct Constant::attach_semantics_visitor {
 };
 
 
-Constant::~Constant()
+Value::~Value()
 {}
 
-bool Constant::operator != (const Constant &other) const
+bool Value::operator != (const Value &other) const
 { return !(*this == other); }
 
 
-Constant::Constant(LiteralVariant &&l)
+Value::Value(LiteralVariant &&l)
 : representation_(std::move(l))
 {}
 
 
 template<class ReprT>
-Constant::Constant(const string &type_name, ReprT repr)
+Value::Value(const string &type_name, ReprT repr)
 : representation_(repr)
 {
 	set_type_by_name(type_name);
 }
 
 template
-Constant::Constant(const string &type_name, const string &);
+Value::Value(const string &type_name, const string &);
 
 template
-Constant::Constant(const string &type_name, string);
+Value::Value(const string &type_name, string);
 
 template
-Constant::Constant(const string &type_name, bool);
+Value::Value(const string &type_name, bool);
 
 template
-Constant::Constant(const string &type_name, int);
+Value::Value(const string &type_name, int);
 
 template
-Constant::Constant(const string &type_name, long);
+Value::Value(const string &type_name, long);
 
 template
-Constant::Constant(const string &type_name, double);
+Value::Value(const string &type_name, double);
 
 
-Constant::Constant(const string &type_name, const vector<fusion_wtf_vector<string, Constant *>> &definition)
+Value::Value(const string &type_name, const vector<fusion_wtf_vector<string, Value *>> &definition)
 {
 	set_type_by_name(type_name);
 	const CompoundType &this_type = dynamic_cast<const CompoundType &>(type());
 	CompoundType::Representation tmp_value;
-	for (const boost::fusion::vector<string, Constant *> &v : definition) {
+	for (const boost::fusion::vector<string, Value *> &v : definition) {
 		const string &field_name = boost::fusion::at_c<0>(v);
 		const Type &field_type = this_type.field_type(field_name);
-		Constant *field_value = boost::fusion::at_c<1>(v);
+		Value *field_value = boost::fusion::at_c<1>(v);
 		if (field_type == field_value->type())
 			tmp_value[field_name].reset(field_value);
 		else
@@ -132,7 +132,7 @@ Constant::Constant(const string &type_name, const vector<fusion_wtf_vector<strin
 }
 
 
-Constant::Constant(Constant &&c)
+Value::Value(Value &&c)
 {
 	semantics_ = std::move(c.semantics_);
 	type_ = std::move(c.type_);
@@ -140,7 +140,7 @@ Constant::Constant(Constant &&c)
 }
 
 
-Constant::Constant(const Constant &c)
+Value::Value(const Value &c)
 {
 	if (semantics_)
 		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
@@ -151,7 +151,7 @@ Constant::Constant(const Constant &c)
 
 
 
-Constant &Constant::operator = (const Constant &c)
+Value &Value::operator = (const Value &c)
 {
 	if (semantics_)
 		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
@@ -163,7 +163,7 @@ Constant &Constant::operator = (const Constant &c)
 }
 
 
-Constant &Constant::operator = (Constant &&c)
+Value &Value::operator = (Value &&c)
 {
 	representation_ = std::move(c.representation_);
 	type_ = std::move(c.type_);
@@ -173,24 +173,24 @@ Constant &Constant::operator = (Constant &&c)
 }
 
 
-size_t Constant::hash() const
+size_t Value::hash() const
 { return boost::apply_visitor(hash_visitor(), representation_); }
 
-string Constant::to_string(const string &pfx) const
+string Value::to_string(const string &pfx) const
 { return boost::apply_visitor(to_string_visitor { pfx }, representation_); }
 
-Constant *Constant::copy() const
-{ return new Constant(*this); }
+Value *Value::copy() const
+{ return new Value(*this); }
 
 
-bool Constant::operator == (const Constant &c) const
+bool Value::operator == (const Value &c) const
 {
 	return this->type() == c.type()
 		&& variant() == c.variant();
 }
 
 
-void Constant::attach_semantics(SemanticsFactory &f)
+void Value::attach_semantics(SemanticsFactory &f)
 {
 	if (!semantics_) {
 		boost::apply_visitor(attach_semantics_visitor { f }, representation_);
@@ -199,10 +199,10 @@ void Constant::attach_semantics(SemanticsFactory &f)
 }
 
 
-vector<unique_ptr<Constant>> copy(const vector<unique_ptr<Constant>> &v)
+vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v)
 {
-	vector<unique_ptr<Constant>> rv;
-	for (const unique_ptr<Constant> &c : v)
+	vector<unique_ptr<Value>> rv;
+	for (const unique_ptr<Value> &c : v)
 		rv.emplace_back(c->copy());
 	return rv;
 }

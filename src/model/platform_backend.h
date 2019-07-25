@@ -48,7 +48,7 @@ public:
 	void set_context(AExecutionContext *ctx);
 
 protected:
-	void update_activity(shared_ptr<Transition>, Constant *sensing_result = nullptr);
+	void update_activity(shared_ptr<Transition>, Value *sensing_result = nullptr);
 
 private:
 	virtual void execute_activity(shared_ptr<Activity> a) = 0;

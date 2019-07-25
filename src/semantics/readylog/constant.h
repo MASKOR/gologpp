@@ -14,15 +14,15 @@ namespace gologpp {
 
 
 template<>
-class Semantics<Constant> : public ReadylogSemantics {
+class Semantics<Value> : public ReadylogSemantics {
 public:
-	Semantics(const Constant &value);
+	Semantics(const Value &value);
 
 	virtual ~Semantics() override = default;
 	virtual EC_word plterm() override;
 
 private:
-	const Constant &value_;
+	const Value &value_;
 };
 
 

@@ -263,13 +263,13 @@ void Scope::register_type(Type *t)
 }
 
 
-Constant *Scope::get_symbol(const string &name)
+Value *Scope::get_symbol(const string &name)
 {
 	for (const DomainsMap::value_type &entry : *domains_) {
 		try {
 			const Domain &domain = dynamic_cast<const Domain &>(*entry.second);
-			if (domain.elements().find(unique_ptr<Constant>(new Constant(SymbolType::name(), name))) != domain.elements().end())
-				return new Constant(SymbolType::name(), name);
+			if (domain.elements().find(unique_ptr<Value>(new Value(SymbolType::name(), name))) != domain.elements().end())
+				return new Value(SymbolType::name(), name);
 		} catch (std::bad_cast &)
 		{}
 	}

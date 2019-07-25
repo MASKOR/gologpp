@@ -3,7 +3,7 @@
 namespace gologpp {
 
 
-Domain::Domain(const string &name, const string &type_name, const vector<Constant *> &elements, bool implicit)
+Domain::Domain(const string &name, const string &type_name, const vector<Value *> &elements, bool implicit)
 : Name(name)
 , implicit_(implicit)
 {
@@ -62,7 +62,7 @@ const std::unordered_set<AbstractLanguageElement *> &Domain::subjects() const
 
 void Domain::attach_semantics(SemanticsFactory &f)
 {
-	for (const unique_ptr<Constant> &c : elements_)
+	for (const unique_ptr<Value> &c : elements_)
 		c->attach_semantics(f);
 	set_implementation(f.make_semantics(*this));
 }
@@ -81,8 +81,8 @@ Domain::ElementSet &Domain::elements()
 const Domain::ElementSet &Domain::elements() const
 { return elements_; }
 
-void Domain::add_element(const Constant &c)
-{ elements_.emplace(new Constant(c)); }
+void Domain::add_element(const Value &c)
+{ elements_.emplace(new Value(c)); }
 
 Scope &Domain::parent_scope()
 { return global_scope(); }
@@ -93,9 +93,9 @@ const Scope &Domain::parent_scope() const
 bool Domain::is_defined() const
 { return elements_.size() > 0; }
 
-void Domain::add_elements(const vector<Constant *> &elements)
+void Domain::add_elements(const vector<Value *> &elements)
 {
-	for (Constant *c : elements) {
+	for (Value *c : elements) {
 		ensure_type(c->type());
 		elements_.emplace(c);
 	}
@@ -104,7 +104,7 @@ void Domain::add_elements(const vector<Constant *> &elements)
 
 void Domain::add_elements(const Domain &other)
 {
-	for (const unique_ptr<Constant> &e : other.elements()) {
+	for (const unique_ptr<Value> &e : other.elements()) {
 		ensure_type(e->type());
 		elements_.emplace(e->copy());
 	}
@@ -114,7 +114,7 @@ void Domain::add_elements(const Domain &other)
 void Domain::remove(const Domain &other)
 {
 	ensure_type(other.type());
-	for (const unique_ptr<Constant> &e : other.elements())
+	for (const unique_ptr<Value> &e : other.elements())
 		elements_.erase(e);
 }
 

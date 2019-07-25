@@ -188,13 +188,13 @@ class Grounding
 	                           // (used for the exogenous event queue)
 	AbstractGrounding          // All others use some placeholder
   >::type
-, public ReferenceBase<TargetT, Constant>
+, public ReferenceBase<TargetT, Value>
 {
 public:
-	using ReferenceBase<TargetT, Constant>::ReferenceBase;
+	using ReferenceBase<TargetT, Value>::ReferenceBase;
 
 	Grounding(const Grounding<TargetT> &other)
-	: ReferenceBase<TargetT, Constant>(other.target(), copy(other.args()))
+	: ReferenceBase<TargetT, Value>(other.target(), copy(other.args()))
 	{}
 
 	virtual ~Grounding() override = default;
@@ -225,7 +225,7 @@ public:
 	size_t hash() const
 	{
 		size_t rv = this->target()->hash();
-		for (const unique_ptr<Constant> &c : this->args())
+		for (const unique_ptr<Value> &c : this->args())
 			boost::hash_combine(rv, c->hash());
 
 		return rv;
@@ -236,7 +236,7 @@ public:
 	{
 		if (!this->semantics_) {
 			this->semantics_ = f.make_semantics(*this);
-			ReferenceBase<TargetT, Constant>::attach_semantics(f);
+			ReferenceBase<TargetT, Value>::attach_semantics(f);
 		}
 	}
 

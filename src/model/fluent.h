@@ -16,16 +16,16 @@ class InitialValue
 , public NoScopeOwner
 , public LanguageElement<InitialValue> {
 public:
-	InitialValue(const vector<Constant *> &args, Constant *value);
-	InitialValue(const boost::optional<vector<Constant *>> &args, Constant *value);
+	InitialValue(const vector<Value *> &args, Value *value);
+	InitialValue(const boost::optional<vector<Value *>> &args, Value *value);
 
-	const vector<unique_ptr<Constant>> &args() const;
-	vector<unique_ptr<Constant>> &args();
-	void set_args(const vector<Constant *> &args);
+	const vector<unique_ptr<Value>> &args() const;
+	vector<unique_ptr<Value>> &args();
+	void set_args(const vector<Value *> &args);
 
-	const Constant &value() const;
-	Constant &value();
-	void set_value(Constant *value);
+	const Value &value() const;
+	Value &value();
+	void set_value(Value *value);
 
 	Fluent &fluent();
 	const Fluent &fluent() const;
@@ -39,8 +39,8 @@ public:
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	vector<unique_ptr<Constant>> args_;
-	unique_ptr<Constant> value_;
+	vector<unique_ptr<Value>> args_;
+	unique_ptr<Value> value_;
 	Fluent *fluent_;
 };
 

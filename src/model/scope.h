@@ -213,7 +213,7 @@ public:
 	void declare_domain(const string &name, const string &type_name);
 	void define_domain(const string &name, const string &type_name, const Domain &input);
 
-	Constant *get_symbol(const string &name);
+	Value *get_symbol(const string &name);
 
 	virtual string to_string(const string &pfx) const override;
 

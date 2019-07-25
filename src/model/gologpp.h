@@ -64,7 +64,7 @@ class Fluent;
 class InitialValue;
 
 class Variable;
-class Constant;
+class Value;
 class Domain;
 
 class ArithmeticOperation;
@@ -124,7 +124,7 @@ using VariableReference = Reference<Variable>;
 	(EffectAxiom<Reference<Fluent>>) \
 	(EffectAxiom<FieldAccess>) \
 	(InitialValue)(Fluent)(Variable) \
-	(Constant) \
+	(Value) \
 	(FluentAssignment)(VariableAssignment) \
 	(FluentReference)(VariableReference)(Pick)(Return) \
 	(FieldAccess) \
