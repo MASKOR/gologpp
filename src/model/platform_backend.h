@@ -44,11 +44,11 @@ public:
 	void start_activity(shared_ptr<Transition>);
 	virtual void preempt_activity(shared_ptr<Transition>) = 0;
 
+	void update_activity(shared_ptr<Transition>, Value *sensing_result = nullptr);
+
 	virtual Clock::time_point time() const noexcept = 0;
 	void set_context(AExecutionContext *ctx);
 
-protected:
-	void update_activity(shared_ptr<Transition>, Value *sensing_result = nullptr);
 
 private:
 	virtual void execute_activity(shared_ptr<Activity> a) = 0;
