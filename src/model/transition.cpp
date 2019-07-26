@@ -65,6 +65,12 @@ Activity::State Activity::state() const
 shared_ptr<Transition> Activity::transition(Transition::Hook hook)
 { return std::make_shared<Transition>(target(), copy(args()), hook); }
 
+Value Activity::mapped_arg_value(const string &name) const
+{
+	// TODO: stub
+	return Value("Number", 0);
+}
+
 string Activity::to_string(const string &pfx) const
 { return pfx + "state(" + Grounding<Action>::to_string("") + ") = " + gologpp::to_string(state()); }
 

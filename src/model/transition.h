@@ -44,6 +44,8 @@ public:
 
 	shared_ptr<Transition> transition(Transition::Hook hook);
 
+	Value mapped_arg_value(const string &name) const;
+
 	virtual string to_string(const string &pfx) const override;
 
 	virtual void attach_semantics(SemanticsFactory &) override;
