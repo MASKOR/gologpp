@@ -44,6 +44,7 @@ public:
 
 	shared_ptr<Transition> transition(Transition::Hook hook);
 
+	const std::string &mapped_name() const;
 	Value mapped_arg_value(const string &name) const;
 
 	virtual string to_string(const string &pfx) const override;
