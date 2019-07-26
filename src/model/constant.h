@@ -61,9 +61,23 @@ public:
 
 	virtual size_t hash() const;
 
-	template<class T>
-	operator T () const
-	{ return boost::get<T>(variant()); }
+	operator int () const
+	{ return boost::get<int>(variant()); }
+
+	operator long () const
+	{ return boost::get<long>(variant()); }
+
+	operator double () const
+	{ return boost::get<double>(variant()); }
+
+	operator string () const
+	{ return boost::get<string>(variant()); }
+
+	operator bool () const
+	{ return boost::get<bool>(variant()); }
+
+	operator CompoundType::Representation () const
+	{ return boost::get<CompoundType::Representation>(variant()); }
 
 	LiteralVariant &variant()
 	{ return representation_; }
