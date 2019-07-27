@@ -40,7 +40,7 @@ class ReferenceBase
 , public NoScopeOwner
 {
 public:
-	ReferenceBase(const shared_ptr<TargetT> &target, vector<unique_ptr<ExprT>> &&args)
+	ReferenceBase(const shared_ptr<TargetT> &target, vector<unique_ptr<ArgsT>> &&args)
 	: args_(std::move(args))
 	, target_(target)
 	{
@@ -98,13 +98,13 @@ public:
 
 	virtual bool consistent() const override
 	{
-		if (!bound() || args().size() != target()->args().size())
+		if (!bound() || args().size() != target()->params().size())
 			return false;
 
 		// Compare target argument types with this reference's argument types
 		auto it_rarg = args().begin();
-		auto it_targ = target()->args().begin();
-		for (; it_rarg < args().end() && it_targ < target()->args().end(); ++it_rarg, ++it_targ) {
+		auto it_targ = target()->params().begin();
+		for (; it_rarg < args().end() && it_targ < target()->params().end(); ++it_rarg, ++it_targ) {
 			const Type &t_ref = (*it_rarg)->type();
 			const Type &t_tgt = (*it_targ)->type();
 			if (t_ref != t_tgt

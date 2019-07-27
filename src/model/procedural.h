@@ -307,14 +307,14 @@ public:
 		Scope *own_scope,
 		const string &type_name,
 		const string &name,
-		const vector<shared_ptr<Variable>> &args
+		const vector<shared_ptr<Variable>> &params
 	);
 
 	Function(
 		Scope *own_scope,
 		const string &type_name,
 		const string &name,
-		const boost::optional<vector<shared_ptr<Variable>>> &args
+		const boost::optional<vector<shared_ptr<Variable>>> &params
 	);
 
 
@@ -322,8 +322,8 @@ public:
 	void define(Expression *definition);
 	virtual void compile(AExecutionContext &ctx) override;
 
-	Reference<Function> *make_ref(const vector<Expression *> &args);
-	virtual Expression *ref(const vector<Expression *> &args) override;
+	Reference<Function> *make_ref(const vector<Expression *> &params);
+	virtual Expression *ref(const vector<Expression *> &params) override;
 
 	virtual string to_string(const string &pfx) const override;
 
@@ -331,7 +331,7 @@ public:
 
 private:
 	SafeExprOwner<VoidType> definition_;
-	vector<shared_ptr<Variable>> args_;
+	vector<shared_ptr<Variable>> params_;
 };
 
 

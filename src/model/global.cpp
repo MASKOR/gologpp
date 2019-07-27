@@ -11,18 +11,18 @@ namespace gologpp {
 
 Global::Global(const string &name, const vector<shared_ptr<Variable>> &args)
 : Identifier (name, static_cast<arity_t>(args.size()))
-{ set_args(args); }
+{ set_params(args); }
 
-const vector<shared_ptr<Variable>> &Global::args() const
-{ return args_; }
+const vector<shared_ptr<Variable>> &Global::params() const
+{ return params_; }
 
-vector<shared_ptr<Variable>> &Global::args()
-{ return args_; }
+vector<shared_ptr<Variable>> &Global::params()
+{ return params_; }
 
-shared_ptr<Variable> Global::argument(arity_t idx) const
-{ return args_[idx]; }
+shared_ptr<Variable> Global::parameter(arity_t idx) const
+{ return params_[idx]; }
 
-void Global::set_args(const vector<shared_ptr<Variable>> &args)
+void Global::set_params(const vector<shared_ptr<Variable>> &args)
 {
 	if (static_cast<arity_t>(args.size()) != arity() &&
 		global_scope().exists_global(this->name(), this->arity())
@@ -30,16 +30,16 @@ void Global::set_args(const vector<shared_ptr<Variable>> &args)
 		throw Bug("Cannot change the arity of a Global that is already registered.");
 
 	for (const shared_ptr<Variable> &var : args) {
-		args_.push_back(var);
+		params_.push_back(var);
 		dynamic_cast<Expression *>(var.get())->set_parent(this);
 	}
 	set_arity(static_cast<arity_t>(args.size()));
 }
 
 
-Reference<Variable> *Global::arg_ref(const string &name)
+Reference<Variable> *Global::param_ref(const string &name)
 {
-	for (shared_ptr<Variable> &var : args_)
+	for (shared_ptr<Variable> &var : params_)
 		if (var->name() == name)
 			return std::dynamic_pointer_cast<Variable>(var)->ref();
 

@@ -15,7 +15,7 @@ EC_word Semantics<Function>::plterm()
 {
 	if (function_.arity() > 0)
 		return ::term(EC_functor(function_.name().c_str(), function_.arity()),
-			to_ec_words(function_.args()).data()
+			to_ec_words(function_.params()).data()
 		);
 	else
 		return EC_atom(function_.name().c_str());

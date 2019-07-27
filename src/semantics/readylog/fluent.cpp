@@ -78,7 +78,7 @@ EC_word Semantics<Fluent>::plterm()
 	if (fluent_.arity() > 0)
 		return ::term(
 			EC_functor(fluent_.name().c_str(), fluent_.arity()),
-			to_ec_words(fluent_.args()).data()
+			to_ec_words(fluent_.params()).data()
 		);
 	else
 		return EC_atom(fluent_.name().c_str());
@@ -100,7 +100,7 @@ EC_word Semantics<Fluent>::prim_fluent()
 	fluent_.scope().semantics().init_vars();
 
 	vector<EC_word> arg_domains;
-	for (const shared_ptr<Variable> &arg : fluent_.args())
+	for (const shared_ptr<Variable> &arg : fluent_.params())
 		if (arg->domain().is_defined())
 			arg_domains.emplace_back(
 				arg->semantics().member_restriction()

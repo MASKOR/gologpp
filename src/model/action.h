@@ -32,7 +32,7 @@ public:
 		Scope *own_scope,
 		const string &,
 		const string &name,
-		const vector<shared_ptr<Variable>> &args
+		const vector<shared_ptr<Variable>> &params
 	);
 
 	virtual ~AbstractAction() override = default;
@@ -80,8 +80,8 @@ public:
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
-	virtual Expression *ref(const vector<Expression *> &args) override;
-	Reference<Action> *make_ref(const vector<Expression *> &args);
+	virtual Expression *ref(const vector<Expression *> &params) override;
+	Reference<Action> *make_ref(const vector<Expression *> &params);
 
 	unique_ptr<Reference<Fluent>> &senses();
 	const unique_ptr<Reference<Fluent>> &senses() const;
@@ -103,8 +103,8 @@ public:
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
-	virtual Expression *ref(const vector<Expression *> &args) override;
-	Reference<ExogAction> *make_ref(const vector<Expression *> &args);
+	virtual Expression *ref(const vector<Expression *> &params) override;
+	Reference<ExogAction> *make_ref(const vector<Expression *> &params);
 };
 
 

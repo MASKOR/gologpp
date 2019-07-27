@@ -24,10 +24,10 @@ EC_word Semantics<Action>::durative_action()
 	action_.scope().semantics().init_vars();
 
 	vector<EC_word> arg_domains;
-	for (const shared_ptr<Variable> &arg : action_.args())
-		if (arg->domain().is_defined())
+	for (const shared_ptr<Variable> &param : action_.params())
+		if (param->domain().is_defined())
 			arg_domains.emplace_back(
-				arg->semantics<Variable>().member_restriction()
+				param->semantics<Variable>().member_restriction()
 			);
 
 	EC_word prim_action = ::term(EC_functor("durative_action", 1), plterm());
@@ -47,7 +47,7 @@ EC_word Semantics<Action>::plterm()
 	if (action_.arity() > 0)
 		return ::term(
 			EC_functor(action_.name().c_str(), action_.arity()),
-			to_ec_words(action_.args()).data()
+			to_ec_words(action_.params()).data()
 		);
 	else
 		return EC_atom(action_.name().c_str());
@@ -99,7 +99,7 @@ EC_word Semantics<ExogAction>::plterm()
 	if (exog_.arity() > 0)
 		return ::term(
 			EC_functor(exog_.name().c_str(), exog_.arity()),
-			to_ec_words(exog_.args()).data()
+			to_ec_words(exog_.params()).data()
 		);
 	else
 		return EC_atom(exog_.name().c_str());

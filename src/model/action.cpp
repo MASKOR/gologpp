@@ -41,7 +41,7 @@ void AbstractAction::compile(AExecutionContext &ctx)
 
 string AbstractAction::to_string(const string &pfx) const
 {
-	return name() + '(' + concat_list(args(), ", ", "") + ")" + " {"
+	return name() + '(' + concat_list(params(), ", ", "") + ")" + " {"
 		+ linesep + pfx + "precondition:" + linesep + precondition().to_string(pfx + indent)
 		+ linesep + pfx + "effect:" + linesep + concat_list(effects(), ";" linesep, pfx) + linesep "}";
 }

@@ -354,7 +354,7 @@ string Function::to_string(const string &pfx) const
 		fn = type().name() + " function ";
 
 	return linesep + pfx + fn + name() + '('
-	+ concat_list(args(), ", ")
+	+ concat_list(params(), ", ")
 	+ ") " + definition().to_string(pfx);
 }
 

@@ -53,7 +53,7 @@ class Fluent
 , public LanguageElement<Fluent>
 {
 public:
-	Fluent(Scope *own_scope, const string &type_name, const string &name, const vector<shared_ptr<Variable>> &args);
+	Fluent(Scope *own_scope, const string &type_name, const string &name, const vector<shared_ptr<Variable>> &params);
 	//Fluent(Scope &parent_scope, const string &name);
 
 	virtual ~Fluent() override = default;
@@ -63,8 +63,8 @@ public:
 	void define(const vector<InitialValue *> &initial_values);
 	void define(const boost::optional<vector<InitialValue *>> &initial_values);
 
-	Reference<Fluent> *make_ref(const vector<Expression *> &args);
-	virtual Expression *ref(const vector<Expression *> &args) override;
+	Reference<Fluent> *make_ref(const vector<Expression *> &params);
+	virtual Expression *ref(const vector<Expression *> &params) override;
 
 	virtual void attach_semantics(SemanticsFactory &implementor) override;
 

@@ -104,7 +104,7 @@ void Fluent::compile(AExecutionContext &ctx)
 
 void Fluent::define(const boost::optional<vector<InitialValue *>> &initial_values)
 {
-	for (shared_ptr<Variable> &arg : args())
+	for (shared_ptr<Variable> &arg : params())
 		if (arg->domain().is_implicit())
 			arg->define_implicit_domain("implicit_domain("
 			+ arg->str() + "@" + name() + "/" + std::to_string(arity()) +
@@ -118,7 +118,7 @@ void Fluent::define(const boost::optional<vector<InitialValue *>> &initial_value
 				throw UserError("Fluent " + str() + ": Arity mismatch with initial value " + ival->str());
 
 			for (arity_t arg_idx = 0; arg_idx < arity(); ++arg_idx) {
-				Variable &arg = *args()[arg_idx];
+				Variable &arg = *params()[arg_idx];
 				Value &arg_value = *ival->args()[arg_idx];
 
 				ensure_type_equality(arg, arg_value);
@@ -150,7 +150,7 @@ void Fluent::attach_semantics(SemanticsFactory &implementor)
 string Fluent::to_string(const string &pfx) const
 {
 	return linesep + pfx + type().name() + " fluent " + name() + '('
-	+ concat_list(args(), ", ", "") + ") {" + linesep
+	+ concat_list(params(), ", ", "") + ") {" + linesep
 	+ pfx + "initially:" + linesep
 	+ pfx + concat_list(initially(), ";" linesep + pfx, pfx) + linesep
 	+ pfx + '}';
