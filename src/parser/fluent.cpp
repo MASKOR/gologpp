@@ -73,9 +73,9 @@ FluentParser::FluentParser()
 	on_error<rethrow>(fluent, delete_(_a));
 
 	initially = (lit('(')
-		> -(any_constant() % ',')
+		> -(any_value() % ',')
 		> ')' > '='
-		> constant()(_r1, false)
+		> value()(_r1, false)
 		> ';'
 	) [
 		_val = new_<InitialValue>(_1, _2)

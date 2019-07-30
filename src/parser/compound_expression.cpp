@@ -38,7 +38,7 @@ CompoundExpressionParser::CompoundExpressionParser()
 	field_access.name("nestable_compound_field_access");
 
 	compound_atom =
-		compound_constant()
+		compound_value()
 		| typed_reference<Fluent>()(_r1, CompoundType::name())
 		| typed_reference<Function>()(_r1, CompoundType::name())
 		| var_ref(_r1)

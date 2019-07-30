@@ -93,7 +93,7 @@ rule<shared_ptr<Variable>(Scope &)> &any_var_usage() {
 
 
 
-rule<Value *()> &numeric_constant() {
+rule<Value *()> &numeric_value() {
 	static real_parser<double, strict_real_policies<double>> strict_double;
 	static rule<Value *()> rv {
 		strict_double [
@@ -108,7 +108,7 @@ rule<Value *()> &numeric_constant() {
 	return rv;
 }
 
-rule<Value *()> &boolean_constant() {
+rule<Value *()> &boolean_value() {
 	static rule<Value *()> rv {
 		lit("true") [
 			_val = new_<Value>(BoolType::name(), true)
@@ -123,7 +123,7 @@ rule<Value *()> &boolean_constant() {
 }
 
 
-rule<Value *()> &string_constant() {
+rule<Value *()> &string_value() {
 	static rule<Value *()> rv {
 		raw_string_literal() [
 			_val = new_<Value>(StringType::name(), _1)
@@ -135,7 +135,7 @@ rule<Value *()> &string_constant() {
 }
 
 
-rule<Value *()> &symbolic_constant() {
+rule<Value *()> &symbolic_value() {
 		static rule<Value *()> rv {
 		r_name() [
 			_val = phoenix::bind(&Scope::get_symbol, phoenix::bind(&global_scope), _1),
@@ -150,7 +150,7 @@ rule<Value *()> &symbolic_constant() {
 }
 
 
-rule<Value *()> &symbolic_constant_def() {
+rule<Value *()> &symbolic_value_def() {
 	static rule<Value *()> rv {
 		r_name() [ _val = new_<Value>(val(SymbolType::name()), _1) ],
 		"symbolic_constant_definition"
@@ -175,8 +175,8 @@ struct CompoundConstantParser : grammar<Value *()> {
 		compound_constant_.name("compound_constant");
 
 		any_constant_ =
-			boolean_constant() | numeric_constant()
-			| symbolic_constant() | string_constant()
+			boolean_value() | numeric_value()
+			| symbolic_value() | string_value()
 			| compound_constant_
 		;
 		any_constant_.name("any_constant");
@@ -189,7 +189,7 @@ struct CompoundConstantParser : grammar<Value *()> {
 };
 
 
-rule<Value *()> &compound_constant() {
+rule<Value *()> &compound_value() {
 	static CompoundConstantParser ccp;
 	static rule<Value *()> rv { ccp };
 	return rv;
@@ -197,11 +197,11 @@ rule<Value *()> &compound_constant() {
 
 
 
-rule<Value *()> &any_constant() {
+rule<Value *()> &any_value() {
 	static rule<Value *()> rv {
-		boolean_constant() | numeric_constant()
-			| symbolic_constant() | string_constant()
-			| compound_constant()
+		boolean_value() | numeric_value()
+			| symbolic_value() | string_value()
+			| compound_value()
 		, "any_constant"
 	};
 //	GOLOGPP_DEBUG_NODE(rv)
@@ -219,25 +219,25 @@ static rule<Value *()> &get_constant_parser(Typename type, bool allow_symbol_def
 		>
 	>
 	constant_parser_map {
-		{ BoolType::name(), boolean_constant() },
-		{ NumberType::name(), numeric_constant() },
-		{ StringType::name(), string_constant() },
-		{ SymbolType::name(), symbolic_constant() },
+		{ BoolType::name(), boolean_value() },
+		{ NumberType::name(), numeric_value() },
+		{ StringType::name(), string_value() },
+		{ SymbolType::name(), symbolic_value() },
 	};
 
 	if (type == SymbolType::name() && allow_symbol_def)
-		return symbolic_constant_def();
+		return symbolic_value_def();
 
 	auto it = constant_parser_map.find(type);
 	if (it == constant_parser_map.end())
-		return compound_constant();
+		return compound_value();
 	else
 		return it->second;
 }
 
 
 
-rule<Value *(Typename, bool)> &constant() {
+rule<Value *(Typename, bool)> &value() {
 	static rule<Value *(Typename, bool)> rv {
 		lazy(phoenix::bind(&get_constant_parser, _r1, _r2))
 	};
