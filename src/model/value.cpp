@@ -78,7 +78,7 @@ bool Value::operator != (const Value &other) const
 { return !(*this == other); }
 
 
-Value::Value(LiteralVariant &&l)
+Value::Value(Representation &&l)
 : representation_(std::move(l))
 {}
 
@@ -109,12 +109,12 @@ template
 Value::Value(const string &type_name, double);
 
 
-Value::Value(const string &type_name, const vector<fusion_wtf_vector<string, Value *>> &definition)
+Value::Value(const string &type_name, const vector<fusion_wtf_vector<string, Value *>> &compound_values)
 {
 	set_type_by_name(type_name);
 	const CompoundType &this_type = dynamic_cast<const CompoundType &>(type());
 	CompoundType::Representation tmp_value;
-	for (const boost::fusion::vector<string, Value *> &v : definition) {
+	for (const boost::fusion::vector<string, Value *> &v : compound_values) {
 		const string &field_name = boost::fusion::at_c<0>(v);
 		const Type &field_type = this_type.field_type(field_name);
 		Value *field_value = boost::fusion::at_c<1>(v);
@@ -186,7 +186,7 @@ Value *Value::copy() const
 bool Value::operator == (const Value &c) const
 {
 	return this->type() == c.type()
-		&& variant() == c.variant();
+		&& representation() == c.representation();
 }
 
 

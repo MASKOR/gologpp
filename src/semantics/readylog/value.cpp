@@ -16,11 +16,11 @@ EC_word Semantics<Value>::plterm()
 			return EC_atom("fail");
 	}
 	else if (value_.type().is<NumberType>()) {
-		if (value_.variant().type() == boost::typeindex::type_id<double>())
+		if (value_.representation().type() == boost::typeindex::type_id<double>())
 			return EC_word(static_cast<double>(value_));
-		else if (value_.variant().type() == boost::typeindex::type_id<int>())
+		else if (value_.representation().type() == boost::typeindex::type_id<int>())
 			return EC_word(static_cast<int>(value_));
-		else if (value_.variant().type() == boost::typeindex::type_id<long>())
+		else if (value_.representation().type() == boost::typeindex::type_id<long>())
 			return EC_word(static_cast<long>(value_));
 		else
 			throw std::runtime_error("Unknown Constant type");
