@@ -32,7 +32,7 @@
 #include <model/scope.h>
 #include <model/reference.h>
 #include <model/variable.h>
-#include <model/constant.h>
+#include <model/value.h>
 
 #include <unordered_map>
 #include <functional>

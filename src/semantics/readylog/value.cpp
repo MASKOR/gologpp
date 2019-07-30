@@ -1,5 +1,5 @@
-#include "constant.h"
-#include <model/constant.h>
+#include "value.h"
+#include <model/value.h>
 
 namespace gologpp {
 
