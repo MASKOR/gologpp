@@ -11,17 +11,23 @@ AbstractAction::AbstractAction(
 	Scope *own_scope,
 	const string &, // ignored type_name
 	const string &name,
-	const vector<shared_ptr<Variable>> &args
+	const vector<shared_ptr<Variable>> &params
 )
-: Global(name, args)
+: Global(name, params)
 , ScopeOwner(own_scope)
 {
 	set_type_by_name(VoidType::name());
 	set_precondition(new Value(BoolType::name(), true));
-	vector<Expression *> mapping_args;
-	for (const shared_ptr<Variable> &arg : args)
-		mapping_args.push_back(new Reference<Variable>(arg));
-	mapping_.reset(new ActionMapping(name, mapping_args));
+
+	vector<fusion_wtf_vector<string, Expression *>> default_mapping;
+	for (const shared_ptr<Variable> &param : params)
+		default_mapping.push_back(
+			fusion_wtf_vector<string, Expression *> {
+				param->name(),
+				new Reference<Variable>(param)
+			}
+		);
+	set_mapping(new ActionMapping(name, default_mapping));
 }
 
 
@@ -69,7 +75,10 @@ ActionMapping& AbstractAction::mapping()
 { return *mapping_; }
 
 void AbstractAction::set_mapping(ActionMapping *mapping)
-{ mapping_.reset(mapping); }
+{
+	mapping_.reset(mapping);
+	mapping_->set_action(this);
+}
 
 
 void AbstractAction::attach_semantics(SemanticsFactory &implementor)
@@ -115,7 +124,8 @@ const unique_ptr<Reference<Fluent>> &Action::senses() const
 void Action::define(
 	boost::optional<Expression *> precondition,
 	boost::optional<vector<AbstractEffectAxiom *>> effects,
-	boost::optional<Reference<Fluent> *> senses
+	boost::optional<Reference<Fluent> *> senses,
+	boost::optional<ActionMapping *> mapping
 ) {
 	if (precondition)
 		set_precondition(precondition.value());
@@ -124,6 +134,8 @@ void Action::define(
 			add_effect(e);
 	if (senses)
 		set_senses(senses.value());
+	if (mapping)
+		set_mapping(mapping.value());
 }
 
 
@@ -148,13 +160,16 @@ Expression *ExogAction::ref(const vector<Expression *> &args)
 
 void ExogAction::define(
 	boost::optional<Expression *> precondition,
-	boost::optional<vector<AbstractEffectAxiom *>> effects
+	boost::optional<vector<AbstractEffectAxiom *>> effects,
+	boost::optional<ActionMapping *> mapping
 ) {
 	if (precondition)
 		set_precondition(precondition.value());
 	if (effects)
 		for (AbstractEffectAxiom *e : *effects)
 			add_effect(e);
+	if (mapping)
+		set_mapping(mapping.value());
 }
 
 

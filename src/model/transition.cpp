@@ -68,17 +68,21 @@ shared_ptr<Transition> Activity::transition(Transition::Hook hook)
 
 Value Activity::mapped_arg_value(const string &name) const
 {
-	// TODO: stub
-	return Value("Number", 0);
+	const Expression &mapped_expr = target()->mapping().mapped_expr(name);
+	if (mapped_expr.is_a<Value>())
+		return dynamic_cast<const Value &>(mapped_expr);
+	else if (mapped_expr.is_a<Variable>())
+		return arg_for_param(
+			dynamic_cast<const Variable &>(mapped_expr).shared_from_this()
+		);
+	else
+		throw Bug("Invalid mappping for " + target()->str() + ": " + name
+			+ " -> " + mapped_expr.str() + " does not map to either a parameter or a value");
 }
 
 
 const std::string &Activity::mapped_name() const
-{
-	// TODO: stub
-	return "";
-}
-
+{ return target()->mapping().backend_name(); }
 
 string Activity::to_string(const string &pfx) const
 { return pfx + "state(" + Grounding<Action>::to_string("") + ") = " + gologpp::to_string(state()); }

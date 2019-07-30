@@ -149,6 +149,7 @@ if (${BUILD_PARSER})
 		src/parser/domain.cpp
 		src/parser/compound_expression.cpp
 		src/parser/field_access.cpp
+		src/parser/mapping.cpp
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
@@ -179,6 +180,7 @@ if (${BUILD_PARSER})
 		src/parser/domain.h
 		src/parser/compound_expression.h
 		src/parser/field_access.h
+		src/parser/mapping.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)
 

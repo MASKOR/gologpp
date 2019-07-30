@@ -33,7 +33,7 @@ public:
 
 
 
-template<class TargetT, class ExprT>
+template<class TargetT, class ArgsT>
 class ReferenceBase
 : public Expression
 , public virtual AbstractReference
@@ -44,29 +44,35 @@ public:
 	: args_(std::move(args))
 	, target_(target)
 	{
-		for (unique_ptr<ExprT> &a : args_)
-			dynamic_cast<Expression *>(a.get())->set_parent(this);
+		size_t idx = 0;
+		while (idx < this->args().size() && idx < this->target()->params().size()) {
+			ArgsT &arg = *this->args()[idx];
+			shared_ptr<Variable> param = this->target()->params()[idx];
+			params_to_args_.insert( { param, arg } );
+			dynamic_cast<Expression &>(arg).set_parent(this);
+			++idx;
+		}
 		ensure_consistent();
 	}
 
 
-	ReferenceBase(const shared_ptr<TargetT> &target, const vector<ExprT *> &args)
-	: ReferenceBase(target, vector<unique_ptr<ExprT>>(args.begin(), args.end()))
+	ReferenceBase(const shared_ptr<TargetT> &target, const vector<ArgsT *> &args)
+	: ReferenceBase(target, vector<unique_ptr<ArgsT>>(args.begin(), args.end()))
 	{}
 
 
-	ReferenceBase(const string &target_name, const vector<ExprT *> &args)
+	ReferenceBase(const string &target_name, const vector<ArgsT *> &args)
 	: ReferenceBase(
 		global_scope().lookup_global<TargetT>(target_name, arity_t(args.size())),
 		args
 	)
 	{}
 
-	ReferenceBase(const string &target_name, const boost::optional<vector<ExprT *>> &args)
+	ReferenceBase(const string &target_name, const boost::optional<vector<ArgsT *>> &args)
 	: ReferenceBase(target_name, args.get_value_or({}))
 	{}
 
-	ReferenceBase(ReferenceBase<TargetT, ExprT> &&other)
+	ReferenceBase(ReferenceBase<TargetT, ArgsT> &&other)
 	: args_(std::move(other.args_))
 	, target_(std::move(other.target_))
 	{ ensure_consistent(); }
@@ -89,11 +95,21 @@ public:
 	virtual bool bound() const override
 	{ return !target_.expired(); }
 
-	const vector<unique_ptr<ExprT>> &args() const
+	const vector<unique_ptr<ArgsT>> &args() const
 	{ return args_; }
 
-	vector<unique_ptr<ExprT>> &args()
+	vector<unique_ptr<ArgsT>> &args()
 	{ return args_; }
+
+
+	const ArgsT &arg_for_param(shared_ptr<const Variable> param) const
+	{
+		auto it = params_to_args_.find(param);
+		if (it == params_to_args_.end())
+			throw Bug(target()->str() + " has no parameter by the name " + param->str());
+
+		return it->second;
+	}
 
 
 	virtual bool consistent() const override
@@ -129,10 +145,10 @@ public:
 	{ return std::dynamic_pointer_cast<const TargetT>(target_.lock()); }
 
 
-	virtual void attach_semantics(SemanticsFactory &implementor) override
+	virtual void attach_semantics(SemanticsFactory &f) override
 	{
-		for (unique_ptr<ExprT> &expr : args_)
-			expr->attach_semantics(implementor);
+		for (unique_ptr<ArgsT> &expr : args_)
+			expr->attach_semantics(f);
 	}
 
 	virtual string to_string(const string &pfx) const override
@@ -142,8 +158,13 @@ public:
 	{ return this->target()->type(); }
 
 private:
-	vector<unique_ptr<ExprT>> args_;
+	vector<unique_ptr<ArgsT>> args_;
 	weak_ptr<TargetT> target_;
+
+	std::unordered_map<
+		shared_ptr<const Variable>,
+		std::reference_wrapper<ArgsT>
+	> params_to_args_;
 };
 
 

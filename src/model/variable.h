@@ -57,8 +57,14 @@ namespace std {
 
 template<>
 struct hash<shared_ptr<gologpp::Variable>> {
-	size_t operator () (const shared_ptr<gologpp::Variable> &o) const
+	size_t operator () (const shared_ptr<const gologpp::Variable> &o) const
 	{ return o->hash(); }
+};
+
+template<>
+struct equal_to<shared_ptr<gologpp::Variable>> {
+	bool operator () (const shared_ptr<const gologpp::Variable> &lhs, const shared_ptr<const gologpp::Variable> &rhs) const
+	{ return *lhs == *rhs; }
 };
 
 } // namespace std

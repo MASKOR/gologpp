@@ -75,7 +75,8 @@ public:
 	void define(
 		boost::optional<Expression *> precondition,
 		boost::optional<vector<AbstractEffectAxiom *>> effects,
-		boost::optional<Reference<Fluent> *> senses
+		boost::optional<Reference<Fluent> *> senses,
+		boost::optional<ActionMapping *> mapping
 	);
 
 	virtual void attach_semantics(SemanticsFactory &) override;
@@ -98,7 +99,8 @@ public:
 
 	void define(
 		boost::optional<Expression *> precondition,
-		boost::optional<vector<AbstractEffectAxiom *>> effects
+		boost::optional<vector<AbstractEffectAxiom *>> effects,
+		boost::optional<ActionMapping *> mapping
 	);
 
 	virtual void attach_semantics(SemanticsFactory &) override;
