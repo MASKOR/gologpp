@@ -15,10 +15,10 @@ ActionMapping::ActionMapping(
 : backend_name_(backend_name)
 {
 	for (auto &pair : arg_mapping)
-		arg_mapping_.insert( {
+		arg_mapping_.emplace(
 			boost::fusion::at_c<0>(pair),
 			unique_ptr<Expression>(boost::fusion::at_c<1>(pair))
-		} );
+		);
 }
 
 
