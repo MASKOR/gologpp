@@ -71,9 +71,9 @@ Value Activity::mapped_arg_value(const string &name) const
 	const Expression &mapped_expr = target()->mapping().mapped_expr(name);
 	if (mapped_expr.is_a<Value>())
 		return dynamic_cast<const Value &>(mapped_expr);
-	else if (mapped_expr.is_a<Variable>())
+	else if (mapped_expr.is_a<Reference<Variable>>())
 		return arg_for_param(
-			dynamic_cast<const Variable &>(mapped_expr).shared_from_this()
+			dynamic_cast<const Reference<Variable> &>(mapped_expr).target()
 		);
 	else
 		throw Bug("Invalid mappping for " + target()->str() + ": " + name
