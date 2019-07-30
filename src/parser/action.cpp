@@ -47,6 +47,7 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 		^ ( "effect:" > +(effect(*_r2) > ';') )
 		^ ( "senses:" > senses(*_r2) )
 		^ ( "domain:" > +(domain_assignment()(*_r2, false)) )
+		^ ( "mapping:" > mapping(*_r2) )
 		^ qi::eps
 	) > '}' ) [
 		phoenix::bind(
@@ -54,10 +55,11 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 				Action,
 				boost::optional<Expression *>,
 				boost::optional<vector<AbstractEffectAxiom *>>,
-				boost::optional<Reference<Fluent> *>
+				boost::optional<Reference<Fluent> *>,
+				boost::optional<ActionMapping *>
 			>,
 			_r1,
-			_r2, val(""), _r3, _r4, _1, _2, _3
+			_r2, val(""), _r3, _r4, _1, _2, _3, _4
 		)
 	];
 
@@ -74,16 +76,18 @@ ActionDefinitionParser<ExogAction>::ActionDefinitionParser()
 		( "precondition:" > boolean_expression(*_r2) )
 		^ ( "effect:" > +(effect(*_r2) > ';') )
 		^ ( "domain:" > +(domain_assignment()(*_r2, false)) )
+		^ ( "mapping:" > mapping(*_r2) )
 		^ qi::eps
 	) > '}' ) [
 		phoenix::bind(
 			&Scope::define_global<
 				ExogAction,
 				boost::optional<Expression *>,
-				boost::optional<vector<AbstractEffectAxiom *>>
+				boost::optional<vector<AbstractEffectAxiom *>>,
+				boost::optional<ActionMapping *>
 			>,
 			_r1,
-			_r2, val(""), _r3, _r4, _1, _2
+			_r2, val(""), _r3, _r4, _1, _2, _3
 		)
 	];
 
