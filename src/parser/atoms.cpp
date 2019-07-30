@@ -10,13 +10,10 @@
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_int.hpp>
 #include <boost/spirit/include/qi_real.hpp>
-#include <boost/spirit/include/qi_lexeme.hpp>
-#include <boost/spirit/include/qi_char_class.hpp>
-#include <boost/spirit/include/qi_char_.hpp>
+#include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_difference.hpp>
 #include <boost/spirit/include/qi_kleene.hpp>
 #include <boost/spirit/include/qi_no_skip.hpp>
-#include <boost/spirit/include/qi_as_string.hpp>
 #include <boost/spirit/include/qi_list.hpp>
 #include <boost/spirit/include/qi_lazy.hpp>
 #include <boost/spirit/include/qi_lit.hpp>
@@ -128,9 +125,7 @@ rule<Value *()> &boolean_constant() {
 
 rule<Value *()> &string_constant() {
 	static rule<Value *()> rv {
-		qi::as_string [ qi::lexeme [
-			lit('"') > *(char_ - '"') > lit('"')
-		] ] [
+		raw_string_literal() [
 			_val = new_<Value>(StringType::name(), _1)
 		],
 		"string_constant"

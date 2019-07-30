@@ -57,6 +57,8 @@ using grammar = boost::spirit::qi::grammar<iterator, gologpp_skipper, SignatureT
 
 rule<string()> &r_name();
 
+rule<string()> &raw_string_literal();
+
 
 void handle_error(
 	const iterator &begin,

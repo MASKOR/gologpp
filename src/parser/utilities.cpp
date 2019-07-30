@@ -6,6 +6,9 @@
 #include <boost/spirit/include/qi_not_predicate.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_difference.hpp>
+#include <boost/spirit/include/qi_lexeme.hpp>
+#include <boost/spirit/include/qi_char_class.hpp>
+#include <boost/spirit/include/qi_as_string.hpp>
 
 #include <boost/spirit/include/qi_eol.hpp>
 #include <boost/spirit/include/qi_omit.hpp>
@@ -27,6 +30,19 @@ rule<string()> &r_name() {
 	};
 	return rv;
 };
+
+
+rule<string()> &raw_string_literal() {
+	static rule<string()> rv {
+		qi::as_string [ qi::lexeme [
+			lit('"') > *(char_ - '"') > lit('"')
+		] ]
+		, "raw_string_literal"
+	};
+//	GOLOGPP_DEBUG_NODE(rv)
+	return rv;
+}
+
 
 
 
