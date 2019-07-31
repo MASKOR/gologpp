@@ -132,6 +132,24 @@ private:
 
 
 
+class ListType : public Type {
+public:
+	using Representation = vector<unique_ptr<Value>>;
+
+	ListType(const Type &elem_type);
+
+	static string name();
+
+	const Type &element_type() const;
+
+	virtual bool is_compound() const override;
+	virtual bool is_simple() const override;
+
+private:
+	shared_ptr<const Type> elem_type_;
+};
+
+
 }
 
 #endif // GOLOGPP_COMPOUND_TYPE_H_

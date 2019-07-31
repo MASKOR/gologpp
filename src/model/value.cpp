@@ -34,6 +34,16 @@ struct Value::to_string_visitor {
 		return rv + pfx + "}" linesep;
 	}
 
+	string operator() (const ListType::Representation &c) const
+	{
+		string rv = pfx + "[";
+		for (const auto &elem : c)
+			rv += elem->str() + ", ";
+		if (c.size() > 0)
+			rv = rv.substr(0, rv.length() - 2);
+		return rv + "]";
+	}
+
 	template<class T>
 	string operator() (const T &o) const
 	{ return pfx + std::to_string(o); }
@@ -129,6 +139,16 @@ Value::Value(const string &type_name, const vector<fusion_wtf_vector<string, Val
 	representation_ = std::move(tmp_value);
 
 	// TODO: check if all fields have been assigned!
+}
+
+
+Value::Value(const string &type_name, const vector<Value *> &list_values)
+{
+	set_type_by_name(type_name);
+	ListType::Representation list_repr;
+	for (Value *v : list_values)
+		list_repr.emplace_back(v);
+	representation_ = std::move(list_repr);
 }
 
 

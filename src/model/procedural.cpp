@@ -437,5 +437,47 @@ FieldAccess *nested_field_access(Expression *subject, const vector<string> &fiel
 
 
 
+ListAccess::ListAccess(Expression *subject, Expression *index)
+: subject_(subject)
+, index_(index)
+{
+	subject_->set_parent(this);
+	index_->set_parent(this);
+}
+
+const Expression &ListAccess::subject() const
+{ return *subject_; }
+
+const Expression &ListAccess::index() const
+{ return *index_; }
+
+
+const Type &ListAccess::type() const
+{
+	return dynamic_cast<const ListType &>(
+		subject_->type()
+	).element_type();
+}
+
+string ListAccess::to_string(const string &pfx) const
+{ return subject_->to_string(pfx) + '[' + index_->str() + ']'; }
+
+
+
+ListLength::ListLength(Expression *subject)
+: subject_(subject)
+{ subject_->set_parent(this); }
+
+const Expression &ListLength::subject() const
+{ return *subject_; }
+
+string ListLength::to_string(const string &pfx) const
+{ return "length(" + subject_->to_string(pfx) + ')'; }
+
+
+
 } // namespace gologpp
+
+
+
 

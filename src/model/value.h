@@ -45,12 +45,19 @@ class Value
 , public LanguageElement<Value>
 {
 public:
-	using LiteralVariant = boost::variant<int, long, double, string, bool, CompoundType::Representation>;
+	using Representation = boost::variant <
+		int, long, double, // NumberType
+		string, // StringType, SymbolType
+		bool, // BoolType
+		CompoundType::Representation,
+		ListType::Representation
+	>;
 
 	template<class ReprT>
 	Value(const string &type_name, ReprT repr);
 
 	Value(const string &type_name, const vector<fusion_wtf_vector<string, Value *>> &compound_values);
+	Value(const string &type_name, const vector<Value *> &list_values);
 	Value(Value &&c);
 	Value(const Value &c);
 
@@ -78,6 +85,9 @@ public:
 
 	operator CompoundType::Representation () const
 	{ return boost::get<CompoundType::Representation>(representation()); }
+
+	operator ListType::Representation () const
+	{ return boost::get<ListType::Representation>(representation()); }
 
 	Representation &representation()
 	{ return representation_; }

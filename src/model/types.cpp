@@ -149,6 +149,26 @@ bool CompoundType::is_compound() const
 { return true; }
 
 
+
+ListType::ListType(const Type &elem_type)
+: Type(elem_type.name() + "[]")
+, elem_type_(elem_type.shared_from_this())
+{}
+
+string ListType::name()
+{ return "list"; }
+
+const Type &ListType::element_type() const
+{ return *elem_type_; }
+
+bool ListType::is_compound() const
+{ return false; }
+
+bool ListType::is_simple() const
+{ return false; }
+
+
+
 }
 
 

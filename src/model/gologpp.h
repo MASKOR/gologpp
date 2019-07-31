@@ -52,6 +52,7 @@ class StringType;
 class SymbolType;
 class VoidType;
 class CompoundType;
+class ListType;
 
 class AbstractEffectAxiom;
 template<class> class EffectAxiom;
@@ -90,6 +91,8 @@ class While;
 class Return;
 class DurativeCall;
 class FieldAccess;
+class ListAccess;
+class ListLength;
 
 class Function;
 
@@ -118,7 +121,7 @@ using VariableReference = Reference<Variable>;
 	(NumberType)(BoolType)(StringType)(SymbolType)(VoidType)
 
 #define GOLOGPP_TYPES \
-	GOLOGPP_PREDEFINED_TYPES(CompoundType)
+	GOLOGPP_PREDEFINED_TYPES(CompoundType)(ListType)
 
 #define GOLOGPP_SEMANTIC_TYPES \
 	(EffectAxiom<Reference<Fluent>>) \
@@ -129,6 +132,7 @@ using VariableReference = Reference<Variable>;
 	(FluentReference)(VariableReference)(Pick)(Return) \
 	(FieldAccess) \
 	(FieldAssignment) \
+	(ListAccess)(ListLength) \
 	(Domain) \
 	(Function)(FunctionReference) \
 	(Action)(Activity)(Transition) \
