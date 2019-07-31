@@ -17,7 +17,6 @@ Block::Block(Scope *own_scope, const vector<Expression *> &elements)
 : ScopeOwner(own_scope)
 {
 	for (Expression *stmt : elements) {
-		stmt->ensure_type<VoidType>();
 		stmt->set_parent(this);
 		elements_.emplace_back(stmt);
 	}
@@ -120,7 +119,6 @@ Concurrent::Concurrent(Scope *own_scope, const vector<Expression *> &procs)
 : ScopeOwner(own_scope)
 {
 	for (Expression *p : procs) {
-		p->ensure_type<VoidType>();
 		p->set_parent(this);
 		procs_.emplace_back(p);
 	}
@@ -202,7 +200,6 @@ void Pick::attach_semantics(SemanticsFactory &f)
 Search::Search(Expression *statement)
 : statement_(statement)
 {
-	statement->ensure_type<VoidType>();
 	statement_->set_parent(this);
 }
 
@@ -363,7 +360,9 @@ string Function::to_string(const string &pfx) const
 DurativeCall::DurativeCall(DurativeCall::Hook type, Reference<Action> *action)
 : hook_(type)
 , action_(action)
-{}
+{
+	action_->set_parent(this);
+}
 
 DurativeCall::Hook DurativeCall::hook() const
 { return hook_; }
@@ -394,9 +393,10 @@ string to_string(DurativeCall::Hook hook)
 
 
 FieldAccess::FieldAccess(Expression *subject, const string &field_name)
-: field_name_(field_name)
+: subject_(subject)
+, field_name_(field_name)
 {
-	subject_ = subject;
+	subject_->set_parent(this);
 }
 
 const Expression &FieldAccess::subject() const

@@ -317,7 +317,6 @@ public:
 		const boost::optional<vector<shared_ptr<Variable>>> &params
 	);
 
-
 	const Expression &definition() const;
 	void define(Expression *definition);
 	virtual void compile(AExecutionContext &ctx) override;
