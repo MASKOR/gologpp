@@ -17,8 +17,6 @@ namespace parser {
 
 
 
-
-
 struct StatementParser : grammar<Expression *(Scope &)> {
 	StatementParser();
 
@@ -35,6 +33,9 @@ struct StatementParser : grammar<Expression *(Scope &)> {
 	rule<Test *(Scope &)> test;
 	rule<While *(Scope &)> r_while;
 	rule<Concurrent *(Scope &), locals<Scope *>> concurrent;
+
+	rule<ListPop *(Scope &), locals<ListOpEnd>> list_pop;
+	rule<ListPush *(Scope &), locals<ListOpEnd, Typename>> list_push;
 
 	rule<Expression *(Scope &)> empty_statement;
 

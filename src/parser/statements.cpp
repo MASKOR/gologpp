@@ -15,8 +15,10 @@
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/object/dynamic_cast.hpp>
 #include <boost/phoenix/object/construct.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
+#include <boost/phoenix/bind/bind_function.hpp>
 
 #include "types.h"
 #include "formula.h"
@@ -25,6 +27,10 @@
 
 namespace gologpp {
 namespace parser {
+
+
+static string element_type_name(const Expression *list_expr)
+{ return dynamic_cast<const ListType &>(list_expr->type()).element_type().name(); }
 
 
 StatementParser::StatementParser()
@@ -123,6 +129,30 @@ StatementParser::StatementParser()
 	];
 	choose.name("concurrent");
 	on_error<rethrow>(concurrent, delete_(_a));
+
+	list_pop = (
+		(
+			lit("pop_front") [ _a = ListOpEnd::FRONT ]
+			| lit("pop_back") [ _a = ListOpEnd::BACK ]
+		) > '(' > list_expression(_r1) > ')'
+	) [
+		_val = new_<ListPop>(_1, _a)
+	];
+
+	list_push = (
+		(
+			lit("push_front") [ _a = ListOpEnd::FRONT ]
+			| lit("push_back") [ _a = ListOpEnd::BACK ]
+		) > '('
+		> list_expression(_r1) [
+			_b = phoenix::bind(&element_type_name, _1)
+		]
+		> ',' > typed_expression()(_r1, _b)
+		> ')'
+	) [
+		_val = new_<ListPush>(_1, _a, _2)
+	]
+	;
 
 	return_stmt = (lit("return") >> value_expression()(_r1)) [
 		_val = new_<Return>(_1)
