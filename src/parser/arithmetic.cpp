@@ -32,7 +32,7 @@ NumericExpressionParser::NumericExpressionParser()
 		| num_var_ref(_r1)
 		| typed_reference<Fluent>()(_r1, NumberType::name())
 		| typed_reference<Function>()(_r1, NumberType::name())
-		| field_access()(_r1, val(NumberType::name()))
+		| field_access()(_r1, NumberType::name())
 		| list_access()(_r1, NumberType::name())
 	;
 	unary_expr.name("unary_numeric_expression");
@@ -57,7 +57,7 @@ NumericExpressionParser::NumericExpressionParser()
 	;
 	arith_operator.name("arithmetic_operator");
 
-	num_var_ref = var_usage()(_r1, val(NumberType::name())) [
+	num_var_ref = var_usage()(_r1, NumberType::name()) [
 		_val = new_<Reference<Variable>>(_1)
 	];
 	num_var_ref.name("reference_to_numeric_variable");

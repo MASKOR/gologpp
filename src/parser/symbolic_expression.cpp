@@ -23,7 +23,7 @@ SymbolicExpressionParser::SymbolicExpressionParser()
 	expression = symbolic_value() | var_ref(_r1)
 		| typed_reference<Fluent>()(_r1, SymbolType::name())
 		| typed_reference<Function>()(_r1, SymbolType::name())
-		| field_access()(_r1, val(SymbolType::name()));
+		| field_access()(_r1, SymbolType::name())
 		| list_access()(_r1, SymbolType::name())
 	;
 	expression.name("symbolic_expression");

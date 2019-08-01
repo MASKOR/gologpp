@@ -148,7 +148,7 @@ BooleanExpressionParser::BooleanExpressionParser()
 		| comparison(_r1)
 		| typed_reference<Fluent>()(_r1, BoolType::name())
 		| typed_reference<Function>()(_r1, BoolType::name())
-		| field_access()(_r1, val(BoolType::name()))
+		| field_access()(_r1, BoolType::name())
 		| list_access()(_r1, BoolType::name())
 	;
 	unary_expr.name("unary_boolean_expression");

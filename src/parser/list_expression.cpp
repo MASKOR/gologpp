@@ -42,7 +42,5 @@ ListExpressionParser::ListExpressionParser()
 }
 
 
-
-
 } // namespace parser
 } // namespace gologpp

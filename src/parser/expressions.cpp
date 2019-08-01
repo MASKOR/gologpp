@@ -130,7 +130,7 @@ rule<Expression *(Scope &, Typename)> &typed_expression()
 	/// cf. @a https://stackoverflow.com/questions/56221006/boostspirit-lazy-parser-with-arguments
 	/// Note that the argument to the lazily returned parser must be copyable, so the
 	/// Scope& has to become Scope* here.
-	static rule<
+	static rule <
 		Expression *(
 			Scope &,
 			rule<Expression *(Scope *)>

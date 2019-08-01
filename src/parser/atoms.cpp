@@ -253,8 +253,7 @@ static rule<Value *()> &get_constant_parser(Typename type, bool allow_symbol_def
 		std::reference_wrapper <
 			rule<Value *()>
 		>
-	>
-	constant_parser_map {
+	> constant_parser_map {
 		{ BoolType::name(), boolean_value() },
 		{ NumberType::name(), numeric_value() },
 		{ StringType::name(), string_value() },
