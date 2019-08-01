@@ -2,6 +2,7 @@
 
 #include <boost/spirit/include/qi_expect.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
+#include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_list.hpp>
 #include <boost/spirit/include/qi_lit.hpp>
@@ -24,10 +25,12 @@ namespace gologpp {
 namespace parser {
 
 
-CompoundTypeParser::CompoundTypeParser()
-: CompoundTypeParser::base_type(type_definition, "compound_type_definition")
+TypeDefinitionParser::TypeDefinitionParser()
+: TypeDefinitionParser::base_type(type_definition, "compound_type_definition")
 {
-	type_definition = (lit("compound") > r_name() > '{') [
+	type_definition = compound_type_def(_r1) | list_type_def(_r1);
+
+	compound_type_def = (lit("compound") > r_name() > '{') [
 		_val = new_<CompoundType>(_1)
 	] > ((any_type_specifier() > r_name()) [
 		phoenix::bind(&CompoundType::add_field, _val, _2, _1)
@@ -37,6 +40,12 @@ CompoundTypeParser::CompoundTypeParser()
 	;
 	type_definition.name("compound_type_definition");
 	on_error<rethrow>(type_definition, delete_(_val));
+
+	list_type_def = (lit("list") > any_type_specifier() > "[]") [
+		_val = new_<ListType>(_1),
+		phoenix::bind(&Scope::register_type, _r1, _val)
+	];
+	list_type_def.name("list_type_definition");
 }
 
 

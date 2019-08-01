@@ -55,7 +55,7 @@ struct ProgramParser : grammar<Expression *(Scope &)> {
 	ActionParser<ExogAction> exog_action;
 	FunctionParser function;
 	StatementParser statement;
-	CompoundTypeParser type_definition;
+	TypeDefinitionParser type_definition;
 	FluentParser fluent;
 };
 

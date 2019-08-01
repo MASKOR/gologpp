@@ -11,10 +11,12 @@ namespace gologpp {
 namespace parser {
 
 
-struct CompoundTypeParser : public grammar<CompoundType *(Scope &)> {
-	CompoundTypeParser();
+struct TypeDefinitionParser : public grammar<Type *(Scope &)> {
+	TypeDefinitionParser();
 
-	rule<CompoundType *(Scope &)> type_definition;
+	rule<Type *(Scope &)> type_definition;
+	rule<CompoundType *(Scope &)> compound_type_def;
+	rule<ListType *(Scope &)> list_type_def;
 };
 
 

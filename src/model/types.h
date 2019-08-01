@@ -137,6 +137,7 @@ public:
 	using Representation = vector<unique_ptr<Value>>;
 
 	ListType(const Type &elem_type);
+	ListType(const string &elem_type_name);
 
 	static string name();
 
@@ -146,7 +147,7 @@ public:
 	virtual bool is_simple() const override;
 
 private:
-	shared_ptr<const Type> elem_type_;
+	const Type &elem_type_;
 };
 
 

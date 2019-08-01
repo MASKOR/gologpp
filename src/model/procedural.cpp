@@ -484,6 +484,7 @@ string to_string(ListOpEnd which_end)
 	case BACK:
 		return "back";
 	}
+	throw Bug(string("Unhandled ") + typeid(which_end).name());
 }
 
 

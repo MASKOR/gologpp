@@ -152,14 +152,18 @@ bool CompoundType::is_compound() const
 
 ListType::ListType(const Type &elem_type)
 : Type(elem_type.name() + "[]")
-, elem_type_(elem_type.shared_from_this())
+, elem_type_(elem_type)
+{}
+
+ListType::ListType(const string &elem_type_name)
+: ListType(*global_scope().lookup_type<Type>(elem_type_name))
 {}
 
 string ListType::name()
 { return "list"; }
 
 const Type &ListType::element_type() const
-{ return *elem_type_; }
+{ return elem_type_; }
 
 bool ListType::is_compound() const
 { return false; }
