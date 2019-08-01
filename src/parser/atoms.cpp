@@ -177,6 +177,7 @@ struct CompoundConstantParser : grammar<Value *()> {
 		any_constant_ =
 			boolean_value() | numeric_value()
 			| symbolic_value() | string_value()
+			| list_literal()
 			| compound_constant_
 		;
 		any_constant_.name("any_constant");
@@ -197,11 +198,46 @@ rule<Value *()> &compound_value() {
 
 
 
+struct ListLiteralParser : grammar<Value *()> {
+	ListLiteralParser()
+	: ListLiteralParser::base_type(list_literal_, "list_value")
+	{
+		list_literal_ = (
+			(any_type_specifier() >> '[')
+			> (any_literal_ % ',')
+			> ']'
+		) [
+			_val = new_<Value>(_1, _2)
+		];
+
+		any_literal_ =
+			boolean_value() | numeric_value()
+			| symbolic_value() | string_value()
+			| compound_value()
+			| list_literal_
+		;
+		any_literal_.name("any_value");
+	}
+
+	rule<Value *()> list_literal_;
+	rule<Value *()> any_literal_;
+};
+
+
+rule<Value *()> &list_literal() {
+	static ListLiteralParser lvp;
+	static rule<Value *()> rv { lvp };
+	return rv;
+}
+
+
+
 rule<Value *()> &any_value() {
 	static rule<Value *()> rv {
 		boolean_value() | numeric_value()
 			| symbolic_value() | string_value()
 			| compound_value()
+			| list_literal()
 		, "any_constant"
 	};
 //	GOLOGPP_DEBUG_NODE(rv)
@@ -229,10 +265,17 @@ static rule<Value *()> &get_constant_parser(Typename type, bool allow_symbol_def
 		return symbolic_value_def();
 
 	auto it = constant_parser_map.find(type);
-	if (it == constant_parser_map.end())
-		return compound_value();
-	else
+	if (it != constant_parser_map.end())
 		return it->second;
+	else {
+		shared_ptr<const Type> tt = global_scope().lookup_type(type);
+		if (tt->is<CompoundType>())
+			return compound_value();
+		else if (tt->is<ListType>())
+			return list_literal();
+		else
+			throw Bug("Unknown type " + type);
+	}
 }
 
 

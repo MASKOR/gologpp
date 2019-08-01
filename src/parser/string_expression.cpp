@@ -5,6 +5,7 @@
 #include "formula.h"
 #include "arithmetic.h"
 #include "expressions.h"
+#include "list_access.h"
 
 #include <model/fluent.h>
 #include <model/procedural.h>
@@ -39,6 +40,7 @@ StringExpressionParser::StringExpressionParser()
 		| typed_reference<Fluent>()(_r1, StringType::name())
 		| typed_reference<Function>()(_r1, StringType::name())
 		| field_access()(_r1, val(StringType::name()))
+		| list_access()(_r1, StringType::name())
 	;
 	unary_expr.name("unary_string_expression");
 

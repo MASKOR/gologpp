@@ -25,6 +25,7 @@ extern rule<Expression *(Scope &)> numeric_expression;
 extern rule<Expression *(Scope &)> string_expression;
 extern rule<Expression *(Scope &)> symbolic_expression;
 extern rule<Expression *(Scope &)> compound_expression;
+extern rule<Expression *(Scope &)> list_expression;
 
 
 

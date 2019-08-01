@@ -20,6 +20,7 @@ rule<Value *()> &string_value();
 rule<Value *()> &symbolic_value();
 rule<Value *()> &symbolic_value_def();
 rule<Value *()> &compound_value();
+rule<Value *()> &list_literal();
 
 rule<Value *()> &any_value();
 

@@ -1,5 +1,6 @@
 #include "symbolic_expression.h"
 #include "atoms.h"
+#include "list_access.h"
 
 #include <model/fluent.h>
 #include <model/procedural.h>
@@ -23,6 +24,8 @@ SymbolicExpressionParser::SymbolicExpressionParser()
 		| typed_reference<Fluent>()(_r1, SymbolType::name())
 		| typed_reference<Function>()(_r1, SymbolType::name())
 		| field_access()(_r1, val(SymbolType::name()));
+		| list_access()(_r1, SymbolType::name())
+	;
 	expression.name("symbolic_expression");
 
 	var_ref = var_usage()(_r1, val(SymbolType::name())) [

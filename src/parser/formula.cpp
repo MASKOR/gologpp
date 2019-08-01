@@ -6,6 +6,7 @@
 #include "field_access.h"
 #include "expressions.h"
 #include "atoms.h"
+#include "list_access.h"
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_plus.hpp>
@@ -148,6 +149,7 @@ BooleanExpressionParser::BooleanExpressionParser()
 		| typed_reference<Fluent>()(_r1, BoolType::name())
 		| typed_reference<Function>()(_r1, BoolType::name())
 		| field_access()(_r1, val(BoolType::name()))
+		| list_access()(_r1, BoolType::name())
 	;
 	unary_expr.name("unary_boolean_expression");
 

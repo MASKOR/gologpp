@@ -1,5 +1,6 @@
 #include "arithmetic.h"
 #include "atoms.h"
+#include "list_access.h"
 
 #include <model/fluent.h>
 #include <model/procedural.h>
@@ -32,6 +33,7 @@ NumericExpressionParser::NumericExpressionParser()
 		| typed_reference<Fluent>()(_r1, NumberType::name())
 		| typed_reference<Function>()(_r1, NumberType::name())
 		| field_access()(_r1, val(NumberType::name()))
+		| list_access()(_r1, NumberType::name())
 	;
 	unary_expr.name("unary_numeric_expression");
 

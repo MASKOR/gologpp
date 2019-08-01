@@ -150,6 +150,8 @@ if (${BUILD_PARSER})
 		src/parser/compound_expression.cpp
 		src/parser/field_access.cpp
 		src/parser/mapping.cpp
+		src/parser/list_expression.cpp
+		src/parser/list_access.cpp
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
@@ -181,6 +183,8 @@ if (${BUILD_PARSER})
 		src/parser/compound_expression.h
 		src/parser/field_access.h
 		src/parser/mapping.h
+		src/parser/list_expression.h
+		src/parser/list_access.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)
 
