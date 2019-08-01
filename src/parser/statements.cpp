@@ -44,6 +44,7 @@ StatementParser::StatementParser()
 		| durative_call(_r1)
 		| field_assignment(_r1)
 		| fluent_assignment(_r1)
+		| list_element_assignment(_r1)
 		| action_call(_r1)
 		| typed_reference<Function>()(_r1, VoidType::name()))
 		> ';';

@@ -10,6 +10,8 @@
 #include "string_expression.h"
 #include "symbolic_expression.h"
 #include "compound_expression.h"
+#include "list_expression.h"
+#include "list_access.h"
 
 
 namespace gologpp {
@@ -46,6 +48,7 @@ struct StatementParser : grammar<Expression *(Scope &)> {
 
 	AssignmentParser<Reference<Fluent>> fluent_assignment;
 	AssignmentParser<FieldAccess> field_assignment;
+	AssignmentParser<ListAccess> list_element_assignment;
 
 	BooleanExpressionParser boolean_expression;
 	NumericExpressionParser numeric_expression;

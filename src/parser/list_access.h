@@ -10,6 +10,8 @@ namespace parser {
 
 rule<Expression *(Scope &, Typename)> &list_access();
 
+rule<Expression *(Scope &)> &any_list_access();
+
 
 } // namespace parser
 } // namespace gologpp

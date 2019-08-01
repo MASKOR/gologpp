@@ -46,6 +46,19 @@ rule<Expression *(Scope &, Typename)> &list_access()
 }
 
 
+rule<Expression *(Scope &)> &any_list_access()
+{
+	static rule<Expression *(Scope &)> rv {
+		(list_expression(_r1) >> '[' >> numeric_expression(_r1) >> ']') [
+			_val = new_<ListAccess>(_1, _2)
+		]
+		, "list_access"
+	};
+
+	return rv;
+}
+
+
 
 } // namespace parser
 } // namespace gologpp
