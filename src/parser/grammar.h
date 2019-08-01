@@ -42,6 +42,9 @@ struct ProgramParser : grammar<Expression *(Scope &)> {
 			phoenix::bind(&handle_error, _1, _3, _2, _4)
 		);
 
+		// The rules that parse all the different expression types have to be defined
+		// after all of the other high-level grammars have been initialized to break
+		// the dependency cyle. Fortunately, we can reference a rule before it is defined.
 		define_expression_rules();
 
 		GOLOGPP_DEBUG_NODE(program);
