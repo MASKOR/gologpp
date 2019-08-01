@@ -36,7 +36,7 @@ StringExpressionParser::StringExpressionParser()
 
 	unary_expr =
 		conversion(_r1)
-		| string_value() | var_ref(_r1)
+		| string_literal() | var_ref(_r1)
 		| typed_reference<Fluent>()(_r1, StringType::name())
 		| typed_reference<Function>()(_r1, StringType::name())
 		| field_access()(_r1, StringType::name())

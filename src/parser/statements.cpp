@@ -90,7 +90,7 @@ StatementParser::StatementParser()
 		] > var_decl()(*_a) [
 			_b = _1
 		] > -(lit("in") > '{'
-		> value()(phoenix::bind(&Expression::type_name, *_b), false) % ','
+		> literal()(phoenix::bind(&Expression::type_name, *_b), false) % ','
 		> '}')
 		> ')' > statement(*_a)
 	) [
