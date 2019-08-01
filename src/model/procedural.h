@@ -431,6 +431,56 @@ private:
 
 
 
+enum ListOpEnd {
+	FRONT, BACK
+};
+
+
+
+class ListPop
+: public Expression
+, public NoScopeOwner
+, public LanguageElement<ListPop>
+{
+public:
+	ListPop(Expression *list, ListOpEnd which_end);
+	const Expression &list() const;
+	ListOpEnd which_end() const;
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*list_)
+
+	string to_string(const string &pfx) const override;
+
+private:
+	SafeExprOwner<ListType> list_;
+	ListOpEnd which_end_;
+};
+
+
+
+class ListPush
+: public Expression
+, public NoScopeOwner
+, public LanguageElement<ListPush>
+{
+public:
+	ListPush(Expression *list, ListOpEnd which_end, Expression *what);
+	const Expression &list() const;
+	ListOpEnd which_end() const;
+	const Expression &what() const;
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*list_, *what_)
+
+	string to_string(const string &pfx) const override;
+
+private:
+	SafeExprOwner<ListType> list_;
+	ListOpEnd which_end_;
+	unique_ptr<Expression> what_;
+};
+
+
+
 } // namespace gologpp
 
 

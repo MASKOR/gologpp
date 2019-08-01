@@ -476,6 +476,64 @@ string ListLength::to_string(const string &pfx) const
 
 
 
+string to_string(ListOpEnd which_end)
+{
+	switch (which_end) {
+	case FRONT:
+		return "front";
+	case BACK:
+		return "back";
+	}
+}
+
+
+
+ListPop::ListPop(Expression *list, ListOpEnd which_end)
+: list_(list)
+, which_end_(which_end)
+{ list_->set_parent(this); }
+
+const Expression &ListPop::list() const
+{ return *list_; }
+
+ListOpEnd ListPop::which_end() const
+{ return which_end_; }
+
+string ListPop::to_string(const string &pfx) const
+{ return pfx + "pop_" + gologpp::to_string(which_end_) + '(' + list_->str() + ')'; }
+
+
+
+ListPush::ListPush(Expression *list, ListOpEnd which_end, Expression *what)
+: list_(list)
+, which_end_(which_end)
+{
+	list_->set_parent(this);
+
+	what->ensure_type(
+		dynamic_cast<const ListType &>(
+			list_->type()
+		).element_type()
+	);
+	what_.reset(what);
+	what_->set_parent(this);
+}
+
+const Expression &ListPush::list() const
+{ return *list_; }
+
+ListOpEnd ListPush::which_end() const
+{ return which_end_; }
+
+const Expression &ListPush::what() const
+{ return *what_; }
+
+string ListPush::to_string(const string &pfx) const
+{ return pfx + "pop_" + gologpp::to_string(which_end_) + '(' + list_->str() + ')'; }
+
+
+
+
 } // namespace gologpp
 
 

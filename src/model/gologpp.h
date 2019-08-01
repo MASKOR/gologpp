@@ -93,6 +93,8 @@ class DurativeCall;
 class FieldAccess;
 class ListAccess;
 class ListLength;
+class ListPop;
+class ListPush;
 
 class Function;
 
@@ -129,10 +131,12 @@ using VariableReference = Reference<Variable>;
 	(InitialValue)(Fluent)(Variable) \
 	(Value) \
 	(FluentAssignment)(VariableAssignment) \
+	(Assignment<ListAccess>) \
 	(FluentReference)(VariableReference)(Pick)(Return) \
 	(FieldAccess) \
 	(FieldAssignment) \
 	(ListAccess)(ListLength) \
+	(ListPop)(ListPush) \
 	(Domain) \
 	(Function)(FunctionReference) \
 	(Action)(Activity)(Transition) \
