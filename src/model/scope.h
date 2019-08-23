@@ -217,7 +217,7 @@ public:
 
 	virtual string to_string(const string &pfx) const override;
 
-	vector<shared_ptr<const Global>> globals() const;
+	vector<shared_ptr<Global>> globals() const;
 
 
 private:

@@ -289,9 +289,9 @@ void Scope::define_domain(const string &name, const string &type_name, const Dom
 }
 
 
-vector<shared_ptr<const Global>> Scope::globals() const
+vector<shared_ptr<Global>> Scope::globals() const
 {
-	vector<shared_ptr<const Global>> rv;
+	vector<shared_ptr<Global>> rv;
 	for (const GlobalsMap::value_type &entry : *globals_)
 		rv.push_back(entry.second);
 	return rv;
