@@ -155,7 +155,7 @@ Value::Value(const string &type_name, const vector<Value *> &list_values)
 Value::Value(Value &&c)
 {
 	semantics_ = std::move(c.semantics_);
-	type_ = std::move(c.type_);
+	set_type(c.type());
 	representation_ = std::move(c.representation_);
 }
 
@@ -166,7 +166,7 @@ Value::Value(const Value &c)
 		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
 
 	this->representation_ = c.representation_;
-	this->type_ = c.type_;
+	set_type(c.type());
 }
 
 
@@ -177,7 +177,7 @@ Value &Value::operator = (const Value &c)
 		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
 
 	this->representation_ = c.representation_;
-	this->type_ = c.type_;
+	set_type(c.type());
 
 	return *this;
 }
@@ -186,7 +186,7 @@ Value &Value::operator = (const Value &c)
 Value &Value::operator = (Value &&c)
 {
 	representation_ = std::move(c.representation_);
-	type_ = std::move(c.type_);
+	set_type(c.type());
 	semantics_ = std::move(c.semantics_);
 
 	return *this;

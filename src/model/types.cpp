@@ -16,10 +16,10 @@ Type::Type(const string &name)
 {}
 
 bool Type::operator == (const Type &other) const
-{ return this == &other || typeid(*this) == typeid(other); }
+{ return this == &other || typeid(*this) == typeid(other) || other.is<UndefinedType>(); }
 
 bool Type::operator == (const string &type_name) const
-{ return name() == type_name; }
+{ return name() == type_name || type_name == UndefinedType::name(); }
 
 bool Type::operator != (const Type &other) const
 { return !(*this == other); }
@@ -47,6 +47,12 @@ void Type::ensure_match(const AbstractLanguageElement &e) const
 UndefinedType::UndefinedType()
 : Type(name())
 {}
+
+bool UndefinedType::operator == (const Type &) const
+{ return true; }
+
+bool UndefinedType::operator == (const string &) const
+{ return true; }
 
 bool UndefinedType::is_simple() const
 { return false; }
@@ -122,7 +128,7 @@ void CompoundType::add_field(const string &name, const string &type)
 }
 
 bool CompoundType::has_field_of_type(const string &field_name, const string &type_name) const
-{ return has_field(field_name) && field_type(field_name).name() == type_name; }
+{ return has_field(field_name) && field_type(field_name) == type_name; }
 
 bool CompoundType::has_field(const string &name) const
 { return fields_.find(name) != fields_.end(); }
@@ -130,6 +136,9 @@ bool CompoundType::has_field(const string &name) const
 
 bool CompoundType::operator == (const Type &other) const
 {
+	if (other.is<UndefinedType>())
+		return true;
+
 	try {
 		const CompoundType o = dynamic_cast<const CompoundType &>(other);
 		for (auto pair : fields_) {
@@ -143,7 +152,7 @@ bool CompoundType::operator == (const Type &other) const
 }
 
 bool CompoundType::operator == (const string &type_name) const
-{ return name() == type_name || type_name == CompoundType::name(); }
+{ return name() == type_name || type_name == CompoundType::name() || type_name == UndefinedType::name(); }
 
 bool CompoundType::is_compound() const
 { return true; }
