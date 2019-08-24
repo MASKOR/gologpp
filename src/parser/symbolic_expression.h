@@ -2,9 +2,6 @@
 #define GOLOGPP_PARSER_SYMBOLIC_EXPRESSION_H_
 
 #include "utilities.h"
-#include "atoms.h"
-#include "reference.h"
-#include "field_access.h"
 
 #include <model/expressions.h>
 

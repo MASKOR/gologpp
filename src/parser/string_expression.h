@@ -2,7 +2,6 @@
 #define GOLOGPP_PARSER_STRING_EXPRESSION_H_
 
 #include "utilities.h"
-#include "reference.h"
 
 namespace gologpp {
 namespace parser {

@@ -57,7 +57,7 @@ void AssignmentParser<Reference<Fluent>>::init()
 template<>
 void AssignmentParser<FieldAccess>::init()
 {
-	lhs_parser = any_field_access()(_r1);
+	lhs_parser = mixed_field_access()(_r1, UndefinedType::name());
 	lhs_parser.name("field_access_lhs");
 }
 
@@ -65,7 +65,7 @@ void AssignmentParser<FieldAccess>::init()
 template<>
 void AssignmentParser<ListAccess>::init()
 {
-	lhs_parser = any_list_access()(_r1);
+	lhs_parser = mixed_list_access()(_r1, UndefinedType::name());
 	lhs_parser.name("list_access_lhs");
 }
 

@@ -8,9 +8,11 @@ namespace gologpp {
 namespace parser {
 
 
-rule<Expression *(Scope &, Typename)> &list_access();
+rule<ListAccess *(Scope &, Expression *, Typename)> &single_list_access();
 
-rule<Expression *(Scope &)> &any_list_access();
+rule<ListAccess *(Scope &, Expression *, Typename)> &deep_list_access();
+
+rule<Expression *(Scope &, Typename)> &mixed_list_access();
 
 
 } // namespace parser

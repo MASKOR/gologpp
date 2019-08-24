@@ -159,6 +159,12 @@ rule<Value *()> &symbolic_literal_def() {
 	return rv;
 }
 
+
+
+static rule<Value *()> list_literal_;
+
+
+
 struct CompoundConstantParser : grammar<Value *()> {
 	CompoundConstantParser()
 	: CompoundConstantParser::base_type(compound_constant_, "compound_literal")
@@ -177,7 +183,7 @@ struct CompoundConstantParser : grammar<Value *()> {
 		any_constant_ =
 			boolean_literal() | numeric_literal()
 			| symbolic_literal() | string_literal()
-			| list_literal()
+			| list_literal_
 			| compound_constant_
 		;
 		any_constant_.name("any_literal");
@@ -195,7 +201,6 @@ rule<Value *()> &compound_literal() {
 	static rule<Value *()> rv { ccp };
 	return rv;
 }
-
 
 
 struct ListLiteralParser : grammar<Value *()> {
@@ -228,6 +233,12 @@ rule<Value *()> &list_literal() {
 	static ListLiteralParser lvp;
 	static rule<Value *()> rv { lvp };
 	return rv;
+}
+
+
+void initialize_cyclic_literals()
+{
+	list_literal_ = list_literal();
 }
 
 

@@ -29,6 +29,9 @@ rule<Value *(Typename, bool)> &literal();
 rule<Expression *()> &atom();
 
 
+void initialize_cyclic_literals();
+
+
 } // namespace parser
 } // namespace gologpp
 

@@ -4,10 +4,6 @@
 #include <model/formula.h>
 
 #include "utilities.h"
-#include "reference.h"
-#include "arithmetic.h"
-#include "symbolic_expression.h"
-#include "string_expression.h"
 
 
 namespace gologpp {
@@ -20,7 +16,6 @@ struct ComparisonParser : grammar<Comparison *(Scope &), locals<Typename>> {
 	rule<Comparison *(Scope &), locals<Typename>> comparison;
 	rule<ComparisonOperator()> cmp_op;
 	rule<Expression *(Scope &)> comparable_expr;
-	rule<Expression *(Scope &, Typename)> typed_expr;
 };
 
 

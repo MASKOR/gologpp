@@ -4,9 +4,10 @@
 #include "formula.h"
 #include "types.h"
 #include "field_access.h"
-#include "expressions.h"
-#include "atoms.h"
 #include "list_access.h"
+#include "reference.h"
+#include "atoms.h"
+#include "expressions.h"
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_plus.hpp>
@@ -62,23 +63,18 @@ ComparisonParser::ComparisonParser()
 		(comparable_expr(_r1) >> cmp_op) [
 			_a = phoenix::bind(&Expression::type_name, *_1)
 		]
-		> typed_expr(_r1, _a)
+		> typed_expression()(_r1, _a)
 	) [
 		_val = new_<Comparison>(at_c<0>(_1), at_c<1>(_1), _2)
 	];
 	comparison.name("comparison");
-
-	typed_expr = comparable_expr(_r1) [
-		_val = _1,
-		_pass = phoenix::bind(&Expression::type_name, *_val) == _r2
-	];
 
 	comparable_expr = numeric_expression(_r1)
 		| string_expression(_r1)
 		| symbolic_expression(_r1);
 	comparable_expr.name("comparable_lhs");
 
-	GOLOGPP_DEBUG_NODES((comparison)(comparable_expr)(typed_expr))
+	GOLOGPP_DEBUG_NODES((comparison)(comparable_expr))
 }
 
 
@@ -145,11 +141,11 @@ BooleanExpressionParser::BooleanExpressionParser()
 
 	unary_expr = quantification(_r1) | negation(_r1) | boolean_literal()
 		| bool_var_ref(_r1) | brace(_r1)
+		| mixed_field_access()(_r1, BoolType::name())
+		| mixed_list_access()(_r1, BoolType::name())
 		| comparison(_r1)
 		| typed_reference<Fluent>()(_r1, BoolType::name())
 		| typed_reference<Function>()(_r1, BoolType::name())
-		| field_access()(_r1, BoolType::name())
-		| list_access()(_r1, BoolType::name())
 	;
 	unary_expr.name("unary_boolean_expression");
 

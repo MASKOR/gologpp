@@ -7,13 +7,12 @@ namespace gologpp {
 namespace parser {
 
 
-struct ListExpressionParser : grammar<Expression *(Scope &)> {
-	ListExpressionParser();
+extern rule<Expression *(Scope &)> list_atom;
 
-	rule<Expression *(Scope &)> expression;
-	rule<Expression *(Scope &)> list_expression;
-	rule<Reference<Variable> *(Scope &)> var_ref;
-};
+extern rule<Expression *(Scope &)> list_expression;
+
+
+void initialize_list_exprs();
 
 
 } // namespace parser
