@@ -174,4 +174,15 @@ void ExogAction::define(
 
 
 
+void ExogEvent::attach_semantics(SemanticsFactory &f)
+{
+	if (!semantics_) {
+		semantics_ = f.make_semantics(*this);
+		for (auto &v : args())
+			v->attach_semantics(f);
+	}
+}
+
+
+
 } // namespace gologpp
