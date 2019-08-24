@@ -112,13 +112,6 @@ class ExecutionContext;
 
 class PlatformBackend;
 
-using FluentAssignment = Assignment<Reference<Fluent>>;
-using VariableAssignment = Assignment<Reference<Variable>>;
-using FieldAssignment = Assignment<FieldAccess>;
-using FluentReference = Reference<Fluent>;
-using FunctionReference = Reference<Function>;
-using VariableReference = Reference<Variable>;
-
 #define GOLOGPP_PREDEFINED_TYPES \
 	(NumberType)(BoolType)(StringType)(SymbolType)(VoidType)
 
@@ -128,17 +121,22 @@ using VariableReference = Reference<Variable>;
 #define GOLOGPP_SEMANTIC_TYPES \
 	(EffectAxiom<Reference<Fluent>>) \
 	(EffectAxiom<FieldAccess>) \
+	(EffectAxiom<ListAccess>) \
 	(InitialValue)(Fluent)(Variable) \
 	(Value) \
-	(FluentAssignment)(VariableAssignment) \
+	(Assignment<Reference<Fluent>>) \
+	(Assignment<Reference<Variable>>) \
+	(Assignment<FieldAccess>) \
 	(Assignment<ListAccess>) \
-	(FluentReference)(VariableReference)(Pick)(Return) \
+	(Reference<Fluent>) \
+	(Reference<Variable>) \
+	(Reference<Function>) \
+	(Pick)(Return) \
 	(FieldAccess) \
-	(FieldAssignment) \
 	(ListAccess)(ListLength) \
 	(ListPop)(ListPush) \
 	(Domain) \
-	(Function)(FunctionReference) \
+	(Function) \
 	(Action)(Activity)(Transition) \
 	(ExogAction)(ExogEvent) \
 	(Scope)(ArithmeticOperation) \
