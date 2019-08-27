@@ -251,7 +251,7 @@ public:
 	virtual string to_string(const string &pfx) const override;
 
 protected:
-	SafeExprOwner<VoidType> expression_;
+	SafeExprOwner<BoolType> expression_;
 };
 
 

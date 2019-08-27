@@ -246,7 +246,9 @@ Semantics<Test>::Semantics(const Test &test)
 
 EC_word Semantics<Test>::plterm()
 {
-	return test_.expression().semantics().plterm();
+	return ::term(EC_functor("?", 1),
+		test_.expression().semantics().plterm()
+	);
 }
 
 
