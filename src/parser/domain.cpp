@@ -81,7 +81,7 @@ rule<void(Scope &), locals<string, Typename>> &domain_decl()
 {
 	static DomainExpressionParser domain_expr_;
 	static rule<void(Scope &), locals<string, Typename>> rv {
-		((any_type_specifier() >> "domain") > r_name()) [
+		((any_type_specifier()(_r1) >> "domain") > r_name()) [
 			_a = _1, // type name
 			_b = _2  // domain name
 		]

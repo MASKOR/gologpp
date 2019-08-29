@@ -34,7 +34,7 @@ static rule<Typename(Scope &)> decl_prefix {
 	lit("procedure") [
 		_val = val(VoidType::name())
 	]
-	| any_type_specifier() [ _val = _1 ] >> "function"
+	| any_type_specifier()(_r1) [ _val = _1 ] >> "function"
 };
 
 

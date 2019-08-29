@@ -20,7 +20,14 @@ struct TypeDefinitionParser : public grammar<Type *(Scope &)> {
 };
 
 
-rule<Typename()> &any_type_specifier();
+struct TypeNameParser : public grammar<Typename(Scope &)> {
+	TypeNameParser();
+
+	rule<Typename(Scope &)> list_type_name;
+	rule<Typename(Scope &)> type_name;
+};
+
+rule<Typename(Scope &)> &any_type_specifier();
 
 
 

@@ -57,7 +57,7 @@ public:
 	Value(const string &type_name, ReprT repr);
 
 	Value(const string &type_name, const vector<fusion_wtf_vector<string, Value *>> &compound_values);
-	Value(const string &type_name, const vector<Value *> &list_values);
+	Value(const string &type_name, const boost::optional<vector<Value *>> &list_values);
 	Value(Value &&c);
 	Value(const Value &c);
 

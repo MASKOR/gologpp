@@ -160,7 +160,7 @@ bool CompoundType::is_compound() const
 
 
 ListType::ListType(const Type &elem_type)
-: Type(elem_type.name() + "[]")
+: Type("list[" + elem_type.name() + "]")
 , elem_type_(elem_type)
 {}
 

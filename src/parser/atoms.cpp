@@ -44,7 +44,7 @@ namespace parser {
 
 rule<shared_ptr<Variable>(Scope &)> &var_decl() {
 	static rule<shared_ptr<Variable>(Scope &)> rv {
-		(any_type_specifier() >> r_name()) [
+		(any_type_specifier()(_r1) >> r_name()) [
 			_val = phoenix::bind(
 				&Scope::get_var, _r1,
 				VarDefinitionMode::FORCE,
@@ -170,7 +170,7 @@ struct CompoundConstantParser : grammar<Value *()> {
 	: CompoundConstantParser::base_type(compound_constant_, "compound_literal")
 	{
 		compound_constant_ = (
-			(any_type_specifier() >> '{')
+			(any_type_specifier()(phoenix::bind(&global_scope)) >> '{')
 				> (
 					r_name() > '=' > any_constant_
 				) % ',' > '}'
@@ -208,12 +208,14 @@ struct ListLiteralParser : grammar<Value *()> {
 	: ListLiteralParser::base_type(list_literal_, "list_literal")
 	{
 		list_literal_ = (
-			(any_type_specifier() >> '[')
-			> (any_literal_ % ',')
-			> ']'
+			any_type_specifier()(phoenix::bind(&global_scope))
+			>> '['
+			>> -(any_literal_ % ',')
+			>> ']'
 		) [
 			_val = new_<Value>(_1, _2)
 		];
+		list_literal_.name("list_literal");
 
 		any_literal_ =
 			boolean_literal() | numeric_literal()
@@ -222,6 +224,10 @@ struct ListLiteralParser : grammar<Value *()> {
 			| list_literal_
 		;
 		any_literal_.name("any_literal");
+
+		GOLOGPP_DEBUG_NODES(
+			(list_literal_)
+		)
 	}
 
 	rule<Value *()> list_literal_;
@@ -239,6 +245,8 @@ rule<Value *()> &list_literal() {
 void initialize_cyclic_literals()
 {
 	list_literal_ = list_literal();
+	list_literal_.name("list_literal");
+	GOLOGPP_DEBUG_NODE(list_literal_)
 }
 
 

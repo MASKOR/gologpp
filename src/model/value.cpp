@@ -142,11 +142,11 @@ Value::Value(const string &type_name, const vector<fusion_wtf_vector<string, Val
 }
 
 
-Value::Value(const string &type_name, const vector<Value *> &list_values)
+Value::Value(const string &type_name, const boost::optional<vector<Value *>> &list_values)
 {
 	set_type_by_name(type_name);
 	ListType::Representation list_repr;
-	for (Value *v : list_values)
+	for (Value *v : list_values.get_value_or({}))
 		list_repr.emplace_back(v);
 	representation_ = std::move(list_repr);
 }
