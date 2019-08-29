@@ -145,6 +145,9 @@ public:
 
 	const Type &element_type() const;
 
+	virtual bool operator == (const Type &other) const override;
+	virtual bool operator == (const string &type_name) const override;
+
 	virtual bool is_compound() const override;
 	virtual bool is_simple() const override;
 

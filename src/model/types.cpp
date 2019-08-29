@@ -174,6 +174,12 @@ string ListType::name()
 const Type &ListType::element_type() const
 { return elem_type_; }
 
+bool ListType::operator == (const Type &other) const
+{ return other.is<ListType>() || Type::operator == (other); }
+
+bool ListType::operator == (const string &other) const
+{ return other == ListType::name() || Type::operator == (other); }
+
 bool ListType::is_compound() const
 { return false; }
 
