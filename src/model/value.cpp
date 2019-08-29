@@ -233,6 +233,7 @@ void Value::attach_semantics(SemanticsFactory &f)
 }
 
 
+
 vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v)
 {
 	vector<unique_ptr<Value>> rv;
@@ -240,8 +241,6 @@ vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v)
 		rv.emplace_back(c->copy());
 	return rv;
 }
-
-
 
 
 
