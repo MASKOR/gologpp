@@ -440,7 +440,7 @@ enum ListOpEnd {
 class ListPop
 : public Expression
 , public NoScopeOwner
-, public LanguageElement<ListPop>
+, public LanguageElement<ListPop, VoidType>
 {
 public:
 	ListPop(Expression *list, ListOpEnd which_end);
@@ -461,7 +461,7 @@ private:
 class ListPush
 : public Expression
 , public NoScopeOwner
-, public LanguageElement<ListPush>
+, public LanguageElement<ListPush, VoidType>
 {
 public:
 	ListPush(Expression *list, ListOpEnd which_end, Expression *what);
