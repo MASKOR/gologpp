@@ -55,7 +55,7 @@ rule<FieldAccess *(Expression *, Typename)> &deep_field_access()
 {
 	static rule<FieldAccess *(Expression *, Typename), locals<Expression *>> internal {
 		eps [ _a = _r1 ]
-		>> +(
+		>> *(
 			single_field_access()(_a, CompoundType::name()) [
 				_a = _1
 			]
@@ -74,20 +74,24 @@ rule<FieldAccess *(Expression *, Typename)> &deep_field_access()
 rule<Expression *(Scope &, Typename)> &mixed_field_access()
 {
 	static rule<Expression *(Scope &, Typename), locals<Expression *>> internal {
-		compound_atom(_r1) [
-			_a = _1
-		] >> (
-			(
-				*(
-					deep_field_access()(_a, ListType::name()) [
-						_a = _1
-					] >> deep_list_access()(_r1, _a, CompoundType::name()) [
-						_a = _1
-					]
-				) >> deep_field_access()(_a, _r2) [
-					_val = _1
+		(
+			compound_atom(_r1) [
+				_a = _1
+			]
+			>> *(
+				deep_field_access()(_a, ListType::name()) [
+					_a = _1
+				] >> deep_list_access()(_r1, _a, CompoundType::name()) [
+					_a = _1
 				]
-			) | +(
+			) >> deep_field_access()(_a, _r2) [
+				_val = _1
+			]
+		) | (
+			compound_atom(_r1) [
+				_a = _1
+			]
+			>> +(
 				deep_field_access()(_a, ListType::name()) [
 					_a = _1
 				] >> deep_list_access()(_r1, _a, _r2) [

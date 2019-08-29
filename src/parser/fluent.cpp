@@ -75,7 +75,7 @@ FluentParser::FluentParser()
 	initially = (lit('(')
 		> -(any_literal() % ',')
 		> ')' > '='
-		> literal()(_r1, false)
+		>> literal()(_r1, false)
 		> ';'
 	) [
 		_val = new_<InitialValue>(_1, _2)

@@ -29,9 +29,9 @@ rule<Expression *(Scope &)> list_expression;
 void initialize_list_exprs()
 {
 	list_atom = {
-		list_literal()
-			| typed_reference<Fluent>()(_r1, ListType::name())
-			| typed_reference<Function>()(_r1, ListType::name())
+		list_literal() [ _val = _1 ]
+			| typed_reference<Fluent>()(_r1, ListType::name()) [ _val = _1 ]
+			| typed_reference<Function>()(_r1, ListType::name()) [ _val = _1 ]
 			| var_usage()(_r1, ListType::name()) [
 				_val = new_<Reference<Variable>>(_1)
 			]
@@ -40,9 +40,15 @@ void initialize_list_exprs()
 
 	list_expression = {
 		mixed_field_access()(_r1, ListType::name())
-		| mixed_list_access()(_r1, ListType::name())
-		| list_atom(_r1)
+			| mixed_list_access()(_r1, ListType::name())
+			| list_atom(_r1)
+		, "list_expression"
 	};
+
+	GOLOGPP_DEBUG_NODES(
+		(list_atom)
+		(list_expression)
+	)
 };
 
 

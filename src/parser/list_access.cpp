@@ -14,6 +14,7 @@
 #include <boost/spirit/include/qi_plus.hpp>
 
 #include <boost/phoenix/object/new.hpp>
+#include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/operator/self.hpp>
 #include <boost/phoenix/operator/comparison.hpp>
 #include <boost/phoenix/object/dynamic_cast.hpp>
@@ -50,8 +51,8 @@ rule<ListAccess *(Scope &, Expression *, Typename)> &deep_list_access()
 {
 	static rule<ListAccess *(Scope &, Expression *, Typename), locals<Expression *>> internal {
 		eps [ _a = _r2 ]
-		>> +(
-			single_list_access()(_r1, _r2, ListType::name()) [
+		>> *(
+			single_list_access()(_r1, _a, ListType::name()) [
 				_a = _1
 			]
 		) >> single_list_access()(_r1, _a, _r3) [
@@ -68,10 +69,11 @@ rule<ListAccess *(Scope &, Expression *, Typename)> &deep_list_access()
 rule<Expression *(Scope &, Typename)> &mixed_list_access()
 {
 	static rule<Expression *(Scope &, Typename), locals<Expression *>> internal {
-		list_atom(_r1) [
-			_a = _1
-		] >> (
-			*(
+		 (
+			list_atom(_r1) [
+				_a = _1
+			]
+			>> *(
 				deep_list_access()(_r1, _a, CompoundType::name()) [
 					_a = _1
 				] >> deep_field_access()(_a, ListType::name()) [
@@ -80,13 +82,21 @@ rule<Expression *(Scope &, Typename)> &mixed_list_access()
 			) >> deep_list_access()(_r1, _a, _r2) [
 				_val = _1
 			]
-		) | +(
-			deep_list_access()(_r1, _a, CompoundType::name()) [
-				_a = _1
-			] >> deep_field_access()(_a, _r2) [
+		) | (
+			list_atom(_r1) [
+				delete_(_a),
 				_a = _1
 			]
-		)
+			>> +(
+				deep_list_access()(_r1, _a, CompoundType::name()) [
+					_a = _1
+				] >> deep_field_access()(_a, _r2) [
+					_a = _1
+				]
+			)
+		) [
+			_val = _a
+		]
 		, "mixed_list_access"
 	};
 	GOLOGPP_DEBUG_NODE(internal)

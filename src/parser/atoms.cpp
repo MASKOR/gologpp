@@ -17,12 +17,14 @@
 #include <boost/spirit/include/qi_list.hpp>
 #include <boost/spirit/include/qi_lazy.hpp>
 #include <boost/spirit/include/qi_lit.hpp>
+#include <boost/spirit/include/qi_optional.hpp>
 
 #include <boost/phoenix/bind/bind_function.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/operator/self.hpp>
 #include <boost/phoenix/operator/comparison.hpp>
+#include <boost/phoenix/operator/arithmetic.hpp>
 #include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/fusion/at.hpp>
 #include <boost/phoenix/operator/logical.hpp>
