@@ -46,6 +46,8 @@ StatementParser::StatementParser()
 		| fluent_assignment(_r1)
 		| list_element_assignment(_r1)
 		| action_call(_r1)
+		| list_pop(_r1)
+		| list_push(_r1)
 		| typed_reference<Function>()(_r1, VoidType::name()))
 		> ';';
 	simple_statement.name("simple_statement");
@@ -139,6 +141,7 @@ StatementParser::StatementParser()
 	) [
 		_val = new_<ListPop>(_1, _a)
 	];
+	list_pop.name("list_pop");
 
 	list_push = (
 		(
@@ -152,8 +155,8 @@ StatementParser::StatementParser()
 		> ')'
 	) [
 		_val = new_<ListPush>(_1, _a, _2)
-	]
-	;
+	];
+	list_push.name("list_push");
 
 	return_stmt = (lit("return") >> value_expression()(_r1)) [
 		_val = new_<Return>(_1)
@@ -177,7 +180,9 @@ StatementParser::StatementParser()
 
 	GOLOGPP_DEBUG_NODES((statement)(simple_statement)(compound_statement)
 		(block)(choose)(conditional)(search)(solve)(test)(r_while)
-		(return_stmt)(pick))
+		(return_stmt)(pick)
+		(list_pop)(list_push)
+	)
 }
 
 
