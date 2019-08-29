@@ -176,7 +176,7 @@ Value::Value(Value &&c)
 
 Value::Value(const Value &c)
 {
-	if (semantics_)
+	if (c.semantics_)
 		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
 
 	this->representation_ = c.representation_;
@@ -187,7 +187,7 @@ Value::Value(const Value &c)
 
 Value &Value::operator = (const Value &c)
 {
-	if (semantics_)
+	if (c.semantics_)
 		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
 
 	this->representation_ = c.representation_;
