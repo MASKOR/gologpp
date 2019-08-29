@@ -30,7 +30,7 @@ struct Value::to_string_visitor {
 	{
 		string rv = pfx + "{" linesep;
 		for (const auto &pair : c)
-			rv += pfx + pfx + pair.first + " = " + pair.second->to_string("") + ", " linesep;
+			rv += pfx + indent + pair.first + " = " + pair.second->to_string("") + ", " linesep;
 		return rv + pfx + "}" linesep;
 	}
 

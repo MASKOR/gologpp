@@ -56,7 +56,7 @@ void InitialValue::attach_semantics(SemanticsFactory &implementor)
 
 
 string InitialValue::to_string(const string &pfx) const
-{ return '(' + concat_list(args(), ", ", pfx) + ") = " + value().to_string(pfx); }
+{ return pfx + '(' + concat_list(args(), ", ", pfx) + ") = " + value().to_string(pfx); }
 
 Fluent &InitialValue::fluent()
 { return *fluent_; }

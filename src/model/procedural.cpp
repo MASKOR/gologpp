@@ -530,7 +530,7 @@ const Expression &ListPush::what() const
 { return *what_; }
 
 string ListPush::to_string(const string &pfx) const
-{ return pfx + "pop_" + gologpp::to_string(which_end_) + '(' + list_->str() + ')'; }
+{ return pfx + "push_" + gologpp::to_string(which_end_) + '(' + list_->str() + ')'; }
 
 
 
