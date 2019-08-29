@@ -12,7 +12,7 @@ Domain::Domain(const string &name, const string &type_name, const vector<Value *
 }
 
 Domain::Domain(const string &type_name)
-: Domain("", type_name, {}, true)
+: Domain("~unnamed~", type_name, {}, true)
 {}
 
 Domain::Domain(const string &name, const Domain &other)
@@ -26,7 +26,7 @@ Domain::Domain(const Domain &other)
 }
 
 Domain::Domain()
-: Name("")
+: Name("~unnamed~")
 , implicit_(false)
 {}
 
