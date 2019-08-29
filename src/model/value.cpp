@@ -63,6 +63,14 @@ struct Value::hash_visitor {
 
 		return rv;
 	}
+
+	size_t operator () (const ListType::Representation &l) const
+	{
+		size_t rv = 0;
+		for (const auto &p : l)
+			boost::hash_combine(rv, p->hash());
+		return rv;
+	}
 };
 
 
@@ -77,6 +85,12 @@ struct Value::attach_semantics_visitor {
 	{
 		for (auto &pair : v)
 			pair.second->attach_semantics(f);
+	}
+
+	void operator () (ListType::Representation &vec) const
+	{
+		for (auto &p_val : vec)
+			p_val->attach_semantics(f);
 	}
 };
 
