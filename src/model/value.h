@@ -35,6 +35,9 @@ public:
 	unique_ptr(const unique_ptr<Value> &c);
 
 	unique_ptr<Value> &operator = (const unique_ptr<Value> &c);
+
+	bool operator == (const unique_ptr<Value> &other) const;
+	bool operator != (const unique_ptr<Value> &other) const;
 };
 
 

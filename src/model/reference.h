@@ -157,6 +157,16 @@ public:
 	virtual const Type &type() const override
 	{ return this->target()->type(); }
 
+	size_t hash() const
+	{
+		size_t rv = this->target()->hash();
+		for (const unique_ptr<ArgsT> &c : this->args())
+			boost::hash_combine(rv, c->hash());
+
+		return rv;
+	}
+
+
 private:
 	vector<unique_ptr<ArgsT>> args_;
 	weak_ptr<TargetT> target_;
@@ -241,16 +251,6 @@ public:
 
 	bool operator != (const Grounding<TargetT> &other) const
 	{ return !(*this == other); }
-
-
-	size_t hash() const
-	{
-		size_t rv = this->target()->hash();
-		for (const unique_ptr<Value> &c : this->args())
-			boost::hash_combine(rv, c->hash());
-
-		return rv;
-	}
 
 
 	virtual void attach_semantics(SemanticsFactory &f) override

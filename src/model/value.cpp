@@ -16,6 +16,12 @@ unique_ptr<Value> &unique_ptr<Value>::operator = (const unique_ptr<Value> &c)
 	return *this;
 }
 
+bool unique_ptr<Value>::operator == (const unique_ptr<Value> &other) const
+{ return **this == *other; }
+
+bool unique_ptr<Value>::operator != (const unique_ptr<Value> &other) const
+{ return **this != *other; }
+
 
 struct Value::to_string_visitor {
 	string pfx;
