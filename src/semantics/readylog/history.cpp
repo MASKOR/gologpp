@@ -40,38 +40,104 @@ string Semantics<History>::get_head_name(EC_word head)
 }
 
 
-
-
-vector<unique_ptr<Value>> get_args(EC_word head) {
-	EC_word term;
+Value *pl_term_to_value(EC_word term) {
+	EC_word type, list, list_head, list_tail;
 	EC_atom did;
+	EC_functor ftor;
 	double d;
 	long i;
 	char *s;
 
-	vector<unique_ptr<Value>> args;
+	if (EC_succeed == term.is_long(&i))
+		return new Value(NumberType::name(), i);
+	else if (EC_succeed == term.is_double(&d))
+		return new Value(NumberType::name(), d);
+	else if (EC_succeed == term.is_atom(&did)) {
+		if (did == EC_atom("true"))
+			return new Value(BoolType::name(), true);
+		else if (did == EC_atom("fail"))
+			return new Value(BoolType::name(), false);
+		else
+			return new Value(SymbolType::name(), string(did.name()));
+	}
+	else if (EC_succeed == term.is_string(&s))
+		return new Value(StringType::name(), string(s));
+	else if (
+		term.functor(&ftor) == EC_succeed
+		&& ftor.name() == string("gpp_list")
+		&& ftor.arity() == 2
+		&& term.arg(1, type) == EC_succeed
+		&& type.is_atom(&did) == EC_succeed
+		&& term.arg(2, list) == EC_succeed
+		&& list.is_list(list_head, list_tail) == EC_succeed
+	) {
+		vector<Value *> list_repr;
+		do {
+			list_repr.push_back(pl_term_to_value(list_head));
+		} while (EC_succeed == list_tail.is_list(list_head, list_tail));
+
+		string elem_t(did.name());
+		elem_t = elem_t.substr(1); // remove # prefix that is added to avoid name clashes
+
+		return new Value {
+			"list[" + elem_t + "]",
+			boost::optional<vector<Value *>> { list_repr }
+		};
+	}
+	else if (
+		term.functor(&ftor) == EC_succeed
+		&& ftor.name() == string("gpp_compound")
+		&& ftor.arity() == 2
+		&& term.arg(1, type) == EC_succeed
+		&& type.is_atom(&did) == EC_succeed
+		&& term.arg(2, list) == EC_succeed
+		&& list.is_list(list_head, list_tail) == EC_succeed
+	) {
+		vector<fusion_wtf_vector<string, Value *>> compound_repr;
+		do {
+			EC_functor field_ftor;
+			EC_word field_value;
+			if (
+				list_head.functor(&field_ftor) == EC_succeed
+				&& field_ftor.arity() == 1
+				&& list_head.arg(0, field_value)
+			) {
+				compound_repr.push_back(
+					fusion_wtf_vector<string, Value *> {
+						string(field_ftor.name()), pl_term_to_value(list_head)
+					}
+				);
+			}
+			else
+				return nullptr;
+		} while (EC_succeed == list_tail.is_list(list_head, list_tail));
+
+		string type_name(did.name());
+		type_name = type_name.substr(1); // remove # prefix that is added to avoid name clashes
+
+		return new Value(type_name, compound_repr);
+	}
+
+	else
+		return nullptr;
+}
+
+
+vector<unique_ptr<Value>> get_args(EC_word head) {
+	EC_word term;
+	vector<unique_ptr<Value>> rv;
 
 	for (int j = 1; j <= head.arity(); j++) {
 		head.arg(j,term);
-		if (EC_succeed == term.is_long(&i))
-			args.emplace_back(new Value(NumberType::name(), i));
-		else if (EC_succeed == term.is_double(&d))
-			args.emplace_back(new Value(NumberType::name(), d));
-		else if (EC_succeed == term.is_atom(&did)) {
-			if (did == EC_atom("true"))
-				args.emplace_back(new Value(BoolType::name(), true));
-			else if (did == EC_atom("fail"))
-				args.emplace_back(new Value(BoolType::name(), false));
-			else
-				args.emplace_back(new Value(SymbolType::name(), string(did.name())));
-		}
-		else if (EC_succeed == term.is_string(&s))
-			args.emplace_back(new Value(StringType::name(), string(s)));
-		else
+		Value *v = pl_term_to_value(term);
+
+		if (!v)
 			throw Bug("Invalid argument #" + std::to_string(j) + " in expression " + ReadylogContext::instance().to_string(head));
+
+		rv.emplace_back(v);
 	}
 
-	return args;
+	return rv;
 }
 
 

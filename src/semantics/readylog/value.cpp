@@ -39,8 +39,21 @@ EC_word Semantics<Value>::plterm()
 				),
 				field_list
 			);
-		return ::term(EC_functor("gpp_compound", 1),
+		return ::term(EC_functor("gpp_compound", 2),
+			EC_atom(("#" + value_.type_name()).c_str()),
 			field_list
+		);
+	}
+	else if (value_.type().is<ListType>()) {
+		EC_word list = ::nil();
+
+		const ListType::Representation &list_repr = static_cast<const ListType::Representation &>(value_);
+		ListType::Representation::const_reverse_iterator it = list_repr.rbegin();
+		while (it != list_repr.rend())
+			list = ::list((*it++)->semantics().plterm(), list);
+		return ::term(EC_functor("gpp_list", 2),
+			EC_atom(("#" + dynamic_cast<const ListType &>(value_.type()).element_type().name()).c_str()),
+			list
 		);
 	}
 	else

@@ -102,7 +102,7 @@ public:
 	}
 
 	virtual EC_word plterm() override
-	{ return EC_atom("fail"); }
+	{ throw std::runtime_error(string("Assignment to ") + typeid(LhsT).name() + " is not implemented"); }
 
 private:
 	const Assignment<LhsT> &assignment_;
@@ -133,6 +133,20 @@ public:
 private:
 	const Assignment<FieldAccess> &assignment_;
 	const FieldAccess &field_access_;
+};
+
+
+
+template<>
+class Semantics<Assignment<ListAccess>> : public ReadylogSemantics {
+public:
+	Semantics(const Assignment<ListAccess> &ass);
+
+	virtual EC_word plterm() override;
+
+private:
+	const Assignment<ListAccess> &assignment_;
+	const ListAccess &field_access_;
 };
 
 
@@ -220,6 +234,9 @@ private:
 };
 
 
+std::pair<const Reference<Fluent> *, EC_word>
+traverse_mixed_field_access(const FieldAccess *fa, const ListAccess *la);
+
 
 template<>
 class Semantics<FieldAccess> : public ReadylogSemantics {
@@ -228,11 +245,65 @@ public:
 
 	virtual EC_word plterm() override;
 	EC_word field_assign(const Expression &value);
+	EC_atom pl_field_name();
 	void set_lvalue(bool lvalue);
 
 private:
 	const FieldAccess &field_access_;
 	bool is_lvalue_;
+};
+
+
+
+template<>
+class Semantics<ListAccess> : public ReadylogSemantics {
+public:
+	Semantics(const ListAccess &list_access);
+
+	virtual EC_word plterm() override;
+	EC_word pl_index();
+
+private:
+	const ListAccess &list_access_;
+};
+
+
+
+template<>
+class Semantics<ListPop> : public ReadylogSemantics {
+public:
+	Semantics(const ListPop &list_access);
+
+	virtual EC_word plterm() override;
+
+private:
+	const ListPop &list_pop_;
+};
+
+
+
+template<>
+class Semantics<ListPush> : public ReadylogSemantics {
+public:
+	Semantics(const ListPush &list_access);
+
+	virtual EC_word plterm() override;
+
+private:
+	const ListPush &list_push_;
+};
+
+
+
+template<>
+class Semantics<ListLength> : public ReadylogSemantics {
+public:
+	Semantics(const ListLength &list_access);
+
+	virtual EC_word plterm() override;
+
+private:
+	const ListLength &list_length_;
 };
 
 
