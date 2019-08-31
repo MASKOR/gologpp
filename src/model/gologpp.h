@@ -51,6 +51,7 @@ class NumberType;
 class StringType;
 class SymbolType;
 class VoidType;
+class UndefinedType;
 class CompoundType;
 class ListType;
 
@@ -113,7 +114,7 @@ class ExecutionContext;
 class PlatformBackend;
 
 #define GOLOGPP_PREDEFINED_TYPES \
-	(NumberType)(BoolType)(StringType)(SymbolType)(VoidType)
+	(NumberType)(BoolType)(StringType)(SymbolType)(VoidType)(UndefinedType)
 
 #define GOLOGPP_TYPES \
 	GOLOGPP_PREDEFINED_TYPES(CompoundType)(ListType)
