@@ -142,6 +142,11 @@ Value::Value(const string &type_name, double);
 Value::Value(const string &type_name, const vector<fusion_wtf_vector<string, Value *>> &compound_values)
 {
 	set_type_by_name(type_name);
+
+	if (!type().is_compound())
+		throw TypeError("Attempt to construct compound value, but type name \""
+			+ type_name + "\" does not refer to a compound type");
+
 	const CompoundType &this_type = dynamic_cast<const CompoundType &>(type());
 	CompoundType::Representation tmp_value;
 	for (const boost::fusion::vector<string, Value *> &v : compound_values) {
@@ -165,6 +170,11 @@ Value::Value(const string &type_name, const vector<fusion_wtf_vector<string, Val
 Value::Value(const string &type_name, const boost::optional<vector<Value *>> &list_values)
 {
 	set_type_by_name(type_name);
+
+	if (!type().is<ListType>())
+		throw TypeError("Attempt to construct list value, but type name \""
+			+ type_name + "\" does not refer to a list type");
+
 	ListType::Representation list_repr;
 	for (Value *v : list_values.get_value_or({}))
 		list_repr.emplace_back(v);

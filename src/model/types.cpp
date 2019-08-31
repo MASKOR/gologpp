@@ -140,7 +140,7 @@ bool CompoundType::operator == (const Type &other) const
 		return true;
 
 	try {
-		const CompoundType o = dynamic_cast<const CompoundType &>(other);
+		const CompoundType &o = dynamic_cast<const CompoundType &>(other);
 		for (auto pair : fields_) {
 			if (o.field_type(pair.first) != *pair.second)
 				return false;
