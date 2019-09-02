@@ -12,7 +12,7 @@ namespace gologpp {
 class ToString
 : public Expression
 , public NoScopeOwner
-, public LanguageElement<ToString> {
+, public LanguageElement<ToString, StringType> {
 public:
 	ToString(Expression *expr);
 
@@ -28,7 +28,7 @@ private:
 
 
 
-class StringConcatenation : public Expression, public NoScopeOwner, public LanguageElement<StringConcatenation> {
+class StringConcatenation : public Expression, public NoScopeOwner, public LanguageElement<StringConcatenation, StringType> {
 public:
 	StringConcatenation(Expression *lhs, Expression *rhs);
 
