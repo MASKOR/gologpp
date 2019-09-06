@@ -1,6 +1,7 @@
 #include "arithmetic.h"
 #include "atoms.h"
 #include "list_access.h"
+#include "list_expression.h"
 #include "field_access.h"
 
 #include <model/fluent.h>
@@ -31,12 +32,17 @@ NumericExpressionParser::NumericExpressionParser()
 
 	unary_expr = brace(_r1) | numeric_literal()
 		| num_var_ref(_r1)
+		| list_length(_r1)
 		| typed_reference<Fluent>()(_r1, NumberType::name())
 		| typed_reference<Function>()(_r1, NumberType::name())
 		| mixed_list_access()(_r1, NumberType::name())
 		| mixed_field_access()(_r1, NumberType::name())
 	;
 	unary_expr.name("unary_numeric_expression");
+
+	list_length = (lit("length") > '(' > list_expression(_r1) > ')') [
+		_val = new_<ListLength>(_1)
+	];
 
 	binary_expr = (
 		(unary_expr(_r1) >> arith_operator) > expression(_r1)
