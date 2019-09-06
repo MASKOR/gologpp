@@ -417,26 +417,6 @@ string FieldAccess::to_string(const string &pfx) const
 
 
 
-FieldAccess *nested_field_access_(
-	Expression *subject,
-	vector<string>::const_iterator it,
-	vector<string>::const_iterator end)
-{
-	if (it + 1 < end)
-		return new FieldAccess(
-			nested_field_access_(subject, it + 1, end),
-			*it
-		);
-	else
-		return new FieldAccess(subject, *it);
-}
-
-
-FieldAccess *nested_field_access(Expression *subject, const vector<string> &fields)
-{ return nested_field_access_(subject, fields.begin(), fields.end()); }
-
-
-
 ListAccess::ListAccess(Expression *subject, Expression *index)
 : subject_(subject)
 , index_(index)

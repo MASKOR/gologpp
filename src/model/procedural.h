@@ -385,10 +385,6 @@ private:
 
 
 
-FieldAccess *nested_field_access(Expression *subject, const vector<string> &fields);
-
-
-
 class ListAccess
 : public Expression
 , public NoScopeOwner
