@@ -35,6 +35,7 @@ struct ActionDefinitionParser
 	rule<AbstractEffectAxiom *(Scope &)> effect;
 	EffectParser<Reference<Fluent>> fluent_effect;
 	EffectParser<FieldAccess> field_effect;
+	EffectParser<ListAccess> list_effect;
 	ReferenceParser<Fluent> senses;
 	MappingParser mapping;
 	BooleanExpressionParser boolean_expression;
