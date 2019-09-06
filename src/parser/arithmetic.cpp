@@ -69,8 +69,10 @@ NumericExpressionParser::NumericExpressionParser()
 	];
 	num_var_ref.name("reference_to_numeric_variable");
 
-	GOLOGPP_DEBUG_NODES((expression)(binary_expr)(unary_expr)
-	(operation)(brace)(num_var_ref)(arith_operator))
+	GOLOGPP_DEBUG_NODES(
+		//(expression)(binary_expr)(unary_expr)
+		//(operation)(brace)(num_var_ref)(arith_operator)
+	)
 }
 
 

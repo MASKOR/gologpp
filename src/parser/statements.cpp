@@ -178,10 +178,11 @@ StatementParser::StatementParser()
 	durative_call.name("durative_action_call");
 
 
-	GOLOGPP_DEBUG_NODES((statement)(simple_statement)(compound_statement)
-		(block)(choose)(conditional)(search)(solve)(test)(r_while)
-		(return_stmt)(pick)
-		(list_pop)(list_push)
+	GOLOGPP_DEBUG_NODES(
+		//(statement)(simple_statement)(compound_statement)
+		//(block)(choose)(conditional)(search)(solve)(test)(r_while)
+		//(return_stmt)(pick)
+		//(list_pop)(list_push)
 	)
 }
 

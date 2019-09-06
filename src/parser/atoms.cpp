@@ -228,7 +228,7 @@ struct ListLiteralParser : grammar<Value *()> {
 		any_literal_.name("any_literal");
 
 		GOLOGPP_DEBUG_NODES(
-			(list_literal_)
+			//(list_literal_)
 		)
 	}
 
@@ -248,7 +248,7 @@ void initialize_cyclic_literals()
 {
 	list_literal_ = list_literal();
 	list_literal_.name("list_literal");
-	GOLOGPP_DEBUG_NODE(list_literal_)
+	//GOLOGPP_DEBUG_NODE(list_literal_)
 }
 
 

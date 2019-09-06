@@ -58,7 +58,7 @@ ReferenceParser<GologT>::ReferenceParser()
 	];
 	pred_ref.name("reference");
 
-	GOLOGPP_DEBUG_NODE(pred_ref)
+	//GOLOGPP_DEBUG_NODE(pred_ref)
 }
 
 
@@ -104,7 +104,7 @@ rule<Reference<GologT> *(Scope &, Typename)> &typed_reference()
 		],
 		"typed_reference"
 	};
-	GOLOGPP_DEBUG_NODE(rv)
+	//GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 

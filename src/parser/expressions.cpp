@@ -51,8 +51,9 @@ void initialize_cyclic_expressions()
 	initialize_list_exprs();
 	initialize_compound_exprs();
 
-	GOLOGPP_DEBUG_NODES((boolean_expression)(numeric_expression)
-		(string_expression)(symbolic_expression)
+	GOLOGPP_DEBUG_NODES(
+		//(boolean_expression)(numeric_expression)
+		//(string_expression)(symbolic_expression)
 	)
 }
 
@@ -68,7 +69,7 @@ rule<Expression *(Scope &)> &value_expression()
 		| list_expression(_r1)
 		, "value_expression"
 	};
-	GOLOGPP_DEBUG_NODE(rv)
+	//GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
@@ -101,10 +102,10 @@ static rule<Expression *(Scope *)> &get_expression_parser(Typename t)
 		{ SymbolType::name(), { symbolic_expression_(*_r1), "symbolic_expression" } },
 	};
 
-	GOLOGPP_DEBUG_NODE(expr_parser_map[NumberType::name()])
-	GOLOGPP_DEBUG_NODE(expr_parser_map[BoolType::name()])
-	GOLOGPP_DEBUG_NODE(expr_parser_map[StringType::name()])
-	GOLOGPP_DEBUG_NODE(expr_parser_map[SymbolType::name()])
+	//GOLOGPP_DEBUG_NODE(expr_parser_map[NumberType::name()])
+	//GOLOGPP_DEBUG_NODE(expr_parser_map[BoolType::name()])
+	//GOLOGPP_DEBUG_NODE(expr_parser_map[StringType::name()])
+	//GOLOGPP_DEBUG_NODE(expr_parser_map[SymbolType::name()])
 
 	auto it = expr_parser_map.find(t);
 	if (it != expr_parser_map.end())
@@ -140,7 +141,7 @@ rule<Expression *(Scope &, Typename)> &typed_expression()
 		lazyinvoke(_r1, phoenix::bind(&get_expression_parser, _r2))
 		, "typed_expression"
 	};
-	GOLOGPP_DEBUG_NODE(rv)
+	//GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 

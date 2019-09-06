@@ -125,7 +125,7 @@ ActionParser<ActionT>::ActionParser()
 	);
 	action.name("action_declaration");
 
-	//GOLOGPP_DEBUG_NODES((action));
+	GOLOGPP_DEBUG_NODES((action));
 }
 
 

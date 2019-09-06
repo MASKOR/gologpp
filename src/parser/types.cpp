@@ -75,7 +75,7 @@ TypeNameParser::TypeNameParser()
 	];
 	list_type_name.name("list_type_name");
 
-	GOLOGPP_DEBUG_NODES((type_name)(list_type_name))
+	//GOLOGPP_DEBUG_NODES((type_name)(list_type_name))
 }
 
 

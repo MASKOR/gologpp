@@ -67,7 +67,7 @@ ComparisonParser::ComparisonParser()
 		| symbolic_expression(_r1);
 	comparable_expr.name("comparable_lhs");
 
-	GOLOGPP_DEBUG_NODES((comparison)(comparable_expr))
+	//GOLOGPP_DEBUG_NODES((comparison)(comparable_expr))
 }
 
 
@@ -186,9 +186,9 @@ BooleanExpressionParser::BooleanExpressionParser()
 	bool_var_ref.name("reference_to_boolean_variable");
 
 	GOLOGPP_DEBUG_NODES(
-		(expression)(unary_expr)
-		(operation_seq)
-		(bool_op)
+		//(expression)(unary_expr)
+		//(operation_seq)
+		//(bool_op)
 		//(negation)(brace)(bool_var_ref)(quantification)
 		//(quantification_op)
 	)
