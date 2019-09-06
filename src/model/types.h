@@ -48,6 +48,8 @@ class UndefinedType : public Type {
 public:
 	UndefinedType();
 
+	virtual bool operator == (const Type &other) const override;
+	virtual bool operator == (const string &type_name) const override;
 	virtual operator bool () const override;
 	virtual bool is_simple() const override;
 	static string name();
@@ -130,6 +132,28 @@ private:
 	std::unordered_map<string, shared_ptr<const Type>> fields_;
 };
 
+
+
+class ListType : public Type {
+public:
+	using Representation = vector<unique_ptr<Value>>;
+
+	ListType(const Type &elem_type);
+	ListType(const string &elem_type_name);
+
+	static string name();
+
+	const Type &element_type() const;
+
+	virtual bool operator == (const Type &other) const override;
+	virtual bool operator == (const string &type_name) const override;
+
+	virtual bool is_compound() const override;
+	virtual bool is_simple() const override;
+
+private:
+	const Type &elem_type_;
+};
 
 
 }

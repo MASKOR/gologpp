@@ -17,12 +17,14 @@
 #include <boost/spirit/include/qi_list.hpp>
 #include <boost/spirit/include/qi_lazy.hpp>
 #include <boost/spirit/include/qi_lit.hpp>
+#include <boost/spirit/include/qi_optional.hpp>
 
 #include <boost/phoenix/bind/bind_function.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/operator/self.hpp>
 #include <boost/phoenix/operator/comparison.hpp>
+#include <boost/phoenix/operator/arithmetic.hpp>
 #include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/fusion/at.hpp>
 #include <boost/phoenix/operator/logical.hpp>
@@ -32,7 +34,7 @@
 #include <model/scope.h>
 #include <model/reference.h>
 #include <model/variable.h>
-#include <model/constant.h>
+#include <model/value.h>
 
 #include <unordered_map>
 #include <functional>
@@ -44,7 +46,7 @@ namespace parser {
 
 rule<shared_ptr<Variable>(Scope &)> &var_decl() {
 	static rule<shared_ptr<Variable>(Scope &)> rv {
-		(any_type_specifier() >> r_name()) [
+		(any_type_specifier()(_r1) >> r_name()) [
 			_val = phoenix::bind(
 				&Scope::get_var, _r1,
 				VarDefinitionMode::FORCE,
@@ -93,7 +95,7 @@ rule<shared_ptr<Variable>(Scope &)> &any_var_usage() {
 
 
 
-rule<Value *()> &numeric_value() {
+rule<Value *()> &numeric_literal() {
 	static real_parser<double, strict_real_policies<double>> strict_double;
 	static rule<Value *()> rv {
 		strict_double [
@@ -102,13 +104,13 @@ rule<Value *()> &numeric_value() {
 		| int_ [
 			_val = new_<Value>(NumberType::name(), _1)
 		],
-		"numeric_constant"
+		"numeric_literal"
 	};
 //	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
-rule<Value *()> &boolean_value() {
+rule<Value *()> &boolean_literal() {
 	static rule<Value *()> rv {
 		lit("true") [
 			_val = new_<Value>(BoolType::name(), true)
@@ -116,26 +118,26 @@ rule<Value *()> &boolean_value() {
 		| lit("false") [
 			_val = new_<Value>(BoolType::name(), false)
 		],
-		"boolean_constant"
+		"boolean_literal"
 	};
 //	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
 
-rule<Value *()> &string_value() {
+rule<Value *()> &string_literal() {
 	static rule<Value *()> rv {
 		raw_string_literal() [
 			_val = new_<Value>(StringType::name(), _1)
 		],
-		"string_constant"
+		"string_literal"
 	};
 //	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
 
-rule<Value *()> &symbolic_value() {
+rule<Value *()> &symbolic_literal() {
 		static rule<Value *()> rv {
 		r_name() [
 			_val = phoenix::bind(&Scope::get_symbol, phoenix::bind(&global_scope), _1),
@@ -143,28 +145,34 @@ rule<Value *()> &symbolic_value() {
 				_pass = false
 			]
 		],
-		"symbolic_constant_usage"
+		"symbolic_literal_usage"
 	};
 //	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
 
 
-rule<Value *()> &symbolic_value_def() {
+rule<Value *()> &symbolic_literal_def() {
 	static rule<Value *()> rv {
 		r_name() [ _val = new_<Value>(val(SymbolType::name()), _1) ],
-		"symbolic_constant_definition"
+		"symbolic_literal_definition"
 	};
 //	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
+
+
+
+static rule<Value *()> list_literal_;
+
+
 
 struct CompoundConstantParser : grammar<Value *()> {
 	CompoundConstantParser()
-	: CompoundConstantParser::base_type(compound_constant_, "compound_constant")
+	: CompoundConstantParser::base_type(compound_constant_, "compound_literal")
 	{
 		compound_constant_ = (
-			(any_type_specifier() >> '{')
+			(any_type_specifier()(phoenix::bind(&global_scope)) >> '{')
 				> (
 					r_name() > '=' > any_constant_
 				) % ',' > '}'
@@ -172,14 +180,15 @@ struct CompoundConstantParser : grammar<Value *()> {
 				_val = new_<Value>(_1, _2)
 			]
 		;
-		compound_constant_.name("compound_constant");
+		compound_constant_.name("compound_literal");
 
 		any_constant_ =
-			boolean_value() | numeric_value()
-			| symbolic_value() | string_value()
+			boolean_literal() | numeric_literal()
+			| symbolic_literal() | string_literal()
+			| list_literal_
 			| compound_constant_
 		;
-		any_constant_.name("any_constant");
+		any_constant_.name("any_literal");
 
 //		GOLOGPP_DEBUG_NODES((compound_constant_)(any_constant_))
 	}
@@ -189,20 +198,68 @@ struct CompoundConstantParser : grammar<Value *()> {
 };
 
 
-rule<Value *()> &compound_value() {
+rule<Value *()> &compound_literal() {
 	static CompoundConstantParser ccp;
 	static rule<Value *()> rv { ccp };
 	return rv;
 }
 
 
+struct ListLiteralParser : grammar<Value *()> {
+	ListLiteralParser()
+	: ListLiteralParser::base_type(list_literal_, "list_literal")
+	{
+		list_literal_ = (
+			any_type_specifier()(phoenix::bind(&global_scope))
+			>> '['
+			>> -(any_literal_ % ',')
+			>> ']'
+		) [
+			_val = new_<Value>(_1, _2)
+		];
+		list_literal_.name("list_literal");
 
-rule<Value *()> &any_value() {
+		any_literal_ =
+			boolean_literal() | numeric_literal()
+			| symbolic_literal() | string_literal()
+			| compound_literal()
+			| list_literal_
+		;
+		any_literal_.name("any_literal");
+
+		GOLOGPP_DEBUG_NODES(
+			(list_literal_)
+		)
+	}
+
+	rule<Value *()> list_literal_;
+	rule<Value *()> any_literal_;
+};
+
+
+rule<Value *()> &list_literal() {
+	static ListLiteralParser lvp;
+	static rule<Value *()> rv { lvp };
+	return rv;
+}
+
+
+void initialize_cyclic_literals()
+{
+	list_literal_ = list_literal();
+	list_literal_.name("list_literal");
+	GOLOGPP_DEBUG_NODE(list_literal_)
+}
+
+
+
+rule<Value *()> &any_literal() {
 	static rule<Value *()> rv {
-		boolean_value() | numeric_value()
-			| symbolic_value() | string_value()
-			| compound_value()
-		, "any_constant"
+		boolean_literal() | numeric_literal()
+			| symbolic_literal() | string_literal()
+			| compound_literal()
+			| list_literal()
+		, "any_literal"
 	};
 //	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
@@ -210,36 +267,42 @@ rule<Value *()> &any_value() {
 
 
 
-static rule<Value *()> &get_constant_parser(Typename type, bool allow_symbol_def)
+static rule<Value *()> &get_literal_parser(Typename type, bool allow_symbol_def)
 {
 	static std::unordered_map <
 		Typename,
 		std::reference_wrapper <
 			rule<Value *()>
 		>
-	>
-	constant_parser_map {
-		{ BoolType::name(), boolean_value() },
-		{ NumberType::name(), numeric_value() },
-		{ StringType::name(), string_value() },
-		{ SymbolType::name(), symbolic_value() },
+	> literal_parser_map {
+		{ BoolType::name(), boolean_literal() },
+		{ NumberType::name(), numeric_literal() },
+		{ StringType::name(), string_literal() },
+		{ SymbolType::name(), symbolic_literal() },
 	};
 
 	if (type == SymbolType::name() && allow_symbol_def)
-		return symbolic_value_def();
+		return symbolic_literal_def();
 
-	auto it = constant_parser_map.find(type);
-	if (it == constant_parser_map.end())
-		return compound_value();
-	else
+	auto it = literal_parser_map.find(type);
+	if (it != literal_parser_map.end())
 		return it->second;
+	else {
+		shared_ptr<const Type> tt = global_scope().lookup_type(type);
+		if (tt->is<CompoundType>())
+			return compound_literal();
+		else if (tt->is<ListType>())
+			return list_literal();
+		else
+			throw Bug("Unknown type " + type);
+	}
 }
 
 
 
-rule<Value *(Typename, bool)> &value() {
+rule<Value *(Typename, bool)> &literal() {
 	static rule<Value *(Typename, bool)> rv {
-		lazy(phoenix::bind(&get_constant_parser, _r1, _r2))
+		lazy(phoenix::bind(&get_literal_parser, _r1, _r2))
 	};
 //	GOLOGPP_DEBUG_NODE(rv)
 	return rv;

@@ -46,6 +46,16 @@ class Semantics<EffectAxiom<FieldAccess>> : public Semantics<AbstractEffectAxiom
 };
 
 
+template<>
+class Semantics<EffectAxiom<ListAccess>> : public Semantics<AbstractEffectAxiom> {
+	using Semantics<AbstractEffectAxiom>::Semantics;
+
+	const EffectAxiom<ListAccess> &effect() const;
+	virtual EC_word plterm() override;
+};
+
+
+
 } /* namespace gologpp */
 
 #endif /* READYLOG_EFFECTAXIOM_H_ */

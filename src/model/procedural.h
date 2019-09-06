@@ -317,7 +317,6 @@ public:
 		const boost::optional<vector<shared_ptr<Variable>>> &params
 	);
 
-
 	const Expression &definition() const;
 	void define(Expression *definition);
 	virtual void compile(AExecutionContext &ctx) override;
@@ -386,10 +385,102 @@ private:
 
 
 
-FieldAccess *nested_field_access(Expression *subject, const vector<string> &fields);
+class ListAccess
+: public Expression
+, public NoScopeOwner
+, public LanguageElement<ListAccess>
+{
+public:
+	ListAccess(Expression *subject, Expression *index);
+	const Expression &subject() const;
+	const Expression &index() const;
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*subject_, *index_)
+
+	virtual const Type &type() const override;
+
+	string to_string(const string &pfx) const override;
+
+private:
+	SafeExprOwner<ListType> subject_;
+	SafeExprOwner<NumberType> index_;
+};
+
+
+
+class ListLength
+: public Expression
+, public NoScopeOwner
+, public LanguageElement<ListLength, NumberType>
+{
+public:
+	ListLength(Expression *subject);
+	const Expression &subject() const;
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*subject_)
+
+	string to_string(const string &pfx) const override;
+
+private:
+	SafeExprOwner<ListType> subject_;
+};
+
+
+
+enum ListOpEnd {
+	FRONT, BACK
+};
+
+
+
+class ListPop
+: public Expression
+, public NoScopeOwner
+, public LanguageElement<ListPop, VoidType>
+{
+public:
+	ListPop(Expression *list, ListOpEnd which_end);
+	const Expression &list() const;
+	ListOpEnd which_end() const;
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*list_)
+
+	string to_string(const string &pfx) const override;
+
+private:
+	SafeExprOwner<ListType> list_;
+	ListOpEnd which_end_;
+};
+
+
+
+class ListPush
+: public Expression
+, public NoScopeOwner
+, public LanguageElement<ListPush, VoidType>
+{
+public:
+	ListPush(Expression *list, ListOpEnd which_end, Expression *what);
+	const Expression &list() const;
+	ListOpEnd which_end() const;
+	const Expression &what() const;
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*list_, *what_)
+
+	string to_string(const string &pfx) const override;
+
+private:
+	SafeExprOwner<ListType> list_;
+	ListOpEnd which_end_;
+	unique_ptr<Expression> what_;
+};
+
 
 
 } // namespace gologpp
 
 
+
 #endif // PROCEDURE_H
+
+

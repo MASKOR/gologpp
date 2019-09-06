@@ -36,7 +36,7 @@ FluentParser::FluentParser()
 : FluentParser::base_type(fluent)
 {
 	fluent = (
-		(((any_type_specifier() >> "fluent") > r_name() > '(') [
+		(((any_type_specifier()(_r1) >> "fluent") > r_name() > '(') [
 			_a = new_<Scope>(_r1),
 			_b = _2, // fluent name
 			_d = _1  // type name
@@ -73,9 +73,9 @@ FluentParser::FluentParser()
 	on_error<rethrow>(fluent, delete_(_a));
 
 	initially = (lit('(')
-		> -(any_value() % ',')
+		> -(any_literal() % ',')
 		> ')' > '='
-		> value()(_r1, false)
+		>> literal()(_r1, false)
 		> ';'
 	) [
 		_val = new_<InitialValue>(_1, _2)

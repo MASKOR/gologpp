@@ -10,12 +10,12 @@
 #include "string_expression.h"
 #include "symbolic_expression.h"
 #include "compound_expression.h"
+#include "list_expression.h"
+#include "list_access.h"
 
 
 namespace gologpp {
 namespace parser {
-
-
 
 
 
@@ -36,6 +36,9 @@ struct StatementParser : grammar<Expression *(Scope &)> {
 	rule<While *(Scope &)> r_while;
 	rule<Concurrent *(Scope &), locals<Scope *>> concurrent;
 
+	rule<ListPop *(Scope &), locals<ListOpEnd>> list_pop;
+	rule<ListPush *(Scope &), locals<ListOpEnd, Typename>> list_push;
+
 	rule<Expression *(Scope &)> empty_statement;
 
 	rule<Return *(Scope &)> return_stmt;
@@ -45,6 +48,7 @@ struct StatementParser : grammar<Expression *(Scope &)> {
 
 	AssignmentParser<Reference<Fluent>> fluent_assignment;
 	AssignmentParser<FieldAccess> field_assignment;
+	AssignmentParser<ListAccess> list_element_assignment;
 
 	BooleanExpressionParser boolean_expression;
 	NumericExpressionParser numeric_expression;

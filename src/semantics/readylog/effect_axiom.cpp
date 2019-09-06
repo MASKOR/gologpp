@@ -39,12 +39,43 @@ const EffectAxiom<FieldAccess> &Semantics<EffectAxiom<FieldAccess>>::effect() co
 
 EC_word Semantics<EffectAxiom<FieldAccess>>::plterm()
 {
+	std::pair<const Reference<Fluent> *, EC_word> fluent_access
+		= traverse_mixed_field_access(&effect().lhs(), nullptr);
+
 	return ::term(EC_functor(cv_functor.c_str(), 4),
 		effect().action().semantics().plterm(),
-		effect().lhs().subject().semantics().plterm(),
-		effect().lhs().semantics().field_assign(effect().value()),
+		fluent_access.first->semantics().plterm(),
+		::term(EC_functor("gpp_mixed_assign", 3),
+			fluent_access.second,
+			effect().value().semantics().plterm(),
+			fluent_access.first->semantics().plterm()
+		),
 		effect().condition().semantics().plterm()
 	);
 }
+
+
+const EffectAxiom<ListAccess> &Semantics<EffectAxiom<ListAccess>>::effect() const
+{ return dynamic_cast<const EffectAxiom<ListAccess> &>(effect_); }
+
+EC_word Semantics<EffectAxiom<ListAccess>>::plterm()
+{
+	std::pair<const Reference<Fluent> *, EC_word> fluent_access
+		= traverse_mixed_field_access(nullptr, &effect().lhs());
+
+	return ::term(EC_functor(cv_functor.c_str(), 4),
+		effect().action().semantics().plterm(),
+		fluent_access.first->semantics().plterm(),
+		::term(EC_functor("gpp_mixed_assign", 3),
+			fluent_access.second,
+			effect().value().semantics().plterm(),
+			fluent_access.first->semantics().plterm()
+		),
+		effect().condition().semantics().plterm()
+	);
+}
+
+
+
 
 }

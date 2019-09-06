@@ -14,17 +14,19 @@ namespace parser {
 ****************************/
 
 
-void define_expression_rules();
+void initialize_cyclic_expressions();
 
 rule<Expression *(Scope &)> &value_expression();
 
 rule<Expression *(Scope &, Typename)> &typed_expression();
+
 
 extern rule<Expression *(Scope &)> boolean_expression;
 extern rule<Expression *(Scope &)> numeric_expression;
 extern rule<Expression *(Scope &)> string_expression;
 extern rule<Expression *(Scope &)> symbolic_expression;
 extern rule<Expression *(Scope &)> compound_expression;
+extern rule<Expression *(Scope &)> list_expression;
 
 
 

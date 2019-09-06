@@ -16,10 +16,10 @@ Type::Type(const string &name)
 {}
 
 bool Type::operator == (const Type &other) const
-{ return this == &other || typeid(*this) == typeid(other); }
+{ return this == &other || typeid(*this) == typeid(other) || other.is<UndefinedType>(); }
 
 bool Type::operator == (const string &type_name) const
-{ return name() == type_name; }
+{ return name() == type_name || type_name == UndefinedType::name(); }
 
 bool Type::operator != (const Type &other) const
 { return !(*this == other); }
@@ -47,6 +47,12 @@ void Type::ensure_match(const AbstractLanguageElement &e) const
 UndefinedType::UndefinedType()
 : Type(name())
 {}
+
+bool UndefinedType::operator == (const Type &) const
+{ return true; }
+
+bool UndefinedType::operator == (const string &) const
+{ return true; }
 
 bool UndefinedType::is_simple() const
 { return false; }
@@ -122,7 +128,7 @@ void CompoundType::add_field(const string &name, const string &type)
 }
 
 bool CompoundType::has_field_of_type(const string &field_name, const string &type_name) const
-{ return has_field(field_name) && field_type(field_name).name() == type_name; }
+{ return has_field(field_name) && field_type(field_name) == type_name; }
 
 bool CompoundType::has_field(const string &name) const
 { return fields_.find(name) != fields_.end(); }
@@ -130,8 +136,11 @@ bool CompoundType::has_field(const string &name) const
 
 bool CompoundType::operator == (const Type &other) const
 {
+	if (other.is<UndefinedType>())
+		return true;
+
 	try {
-		const CompoundType o = dynamic_cast<const CompoundType &>(other);
+		const CompoundType &o = dynamic_cast<const CompoundType &>(other);
 		for (auto pair : fields_) {
 			if (o.field_type(pair.first) != *pair.second)
 				return false;
@@ -143,10 +152,40 @@ bool CompoundType::operator == (const Type &other) const
 }
 
 bool CompoundType::operator == (const string &type_name) const
-{ return name() == type_name || type_name == CompoundType::name(); }
+{ return name() == type_name || type_name == CompoundType::name() || type_name == UndefinedType::name(); }
 
 bool CompoundType::is_compound() const
 { return true; }
+
+
+
+ListType::ListType(const Type &elem_type)
+: Type("list[" + elem_type.name() + "]")
+, elem_type_(elem_type)
+{}
+
+ListType::ListType(const string &elem_type_name)
+: ListType(*global_scope().lookup_type<Type>(elem_type_name))
+{}
+
+string ListType::name()
+{ return "list"; }
+
+const Type &ListType::element_type() const
+{ return elem_type_; }
+
+bool ListType::operator == (const Type &other) const
+{ return other.is<ListType>() || Type::operator == (other); }
+
+bool ListType::operator == (const string &other) const
+{ return other == ListType::name() || Type::operator == (other); }
+
+bool ListType::is_compound() const
+{ return false; }
+
+bool ListType::is_simple() const
+{ return false; }
+
 
 
 }

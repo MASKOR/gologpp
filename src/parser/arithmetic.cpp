@@ -1,5 +1,8 @@
 #include "arithmetic.h"
 #include "atoms.h"
+#include "list_access.h"
+#include "list_expression.h"
+#include "field_access.h"
 
 #include <model/fluent.h>
 #include <model/procedural.h>
@@ -27,13 +30,19 @@ NumericExpressionParser::NumericExpressionParser()
 	expression = binary_expr(_r1) | unary_expr(_r1);
 	expression.name("numeric_expression");
 
-	unary_expr = brace(_r1) | numeric_value()
+	unary_expr = brace(_r1) | numeric_literal()
 		| num_var_ref(_r1)
+		| list_length(_r1)
 		| typed_reference<Fluent>()(_r1, NumberType::name())
 		| typed_reference<Function>()(_r1, NumberType::name())
-		| field_access()(_r1, val(NumberType::name()))
+		| mixed_list_access()(_r1, NumberType::name())
+		| mixed_field_access()(_r1, NumberType::name())
 	;
 	unary_expr.name("unary_numeric_expression");
+
+	list_length = (lit("length") > '(' > list_expression(_r1) > ')') [
+		_val = new_<ListLength>(_1)
+	];
 
 	binary_expr = (
 		(unary_expr(_r1) >> arith_operator) > expression(_r1)
@@ -55,7 +64,7 @@ NumericExpressionParser::NumericExpressionParser()
 	;
 	arith_operator.name("arithmetic_operator");
 
-	num_var_ref = var_usage()(_r1, val(NumberType::name())) [
+	num_var_ref = var_usage()(_r1, NumberType::name()) [
 		_val = new_<Reference<Variable>>(_1)
 	];
 	num_var_ref.name("reference_to_numeric_variable");

@@ -52,7 +52,7 @@ set(GOLOGPP_VERSION 0.0.1)
 set(INTERFACE_SRC
 	src/model/action.cpp
 	src/model/variable.cpp
-	src/model/constant.cpp
+	src/model/value.cpp
 	src/model/effect_axiom.cpp
 	src/model/fluent.cpp
 	src/model/expressions.cpp
@@ -87,7 +87,7 @@ install(FILES
 	src/model/formula.h
 	src/model/effect_axiom.h
 	src/model/variable.h
-	src/model/constant.h
+	src/model/value.h
 	src/model/arithmetic.h
 	src/model/procedural.h
 	src/model/error.h
@@ -150,6 +150,8 @@ if (${BUILD_PARSER})
 		src/parser/compound_expression.cpp
 		src/parser/field_access.cpp
 		src/parser/mapping.cpp
+		src/parser/list_expression.cpp
+		src/parser/list_access.cpp
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
@@ -181,6 +183,8 @@ if (${BUILD_PARSER})
 		src/parser/compound_expression.h
 		src/parser/field_access.h
 		src/parser/mapping.h
+		src/parser/list_expression.h
+		src/parser/list_access.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)
 
@@ -209,7 +213,7 @@ if (${BUILD_READYLOG_IMPL})
 	set(READYLOG_SRC
 		src/semantics/readylog/action.cpp
 		src/semantics/readylog/variable.cpp
-		src/semantics/readylog/constant.cpp
+		src/semantics/readylog/value.cpp
 		src/semantics/readylog/domain.cpp
 		src/semantics/readylog/arithmetic.cpp
 		src/semantics/readylog/execution.cpp
@@ -239,7 +243,7 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/formula.h
 		src/semantics/readylog/effect_axiom.h
 		src/semantics/readylog/variable.h
-		src/semantics/readylog/constant.h
+		src/semantics/readylog/value.h
 		src/semantics/readylog/domain.h
 		src/semantics/readylog/arithmetic.h
 		src/semantics/readylog/procedural.h

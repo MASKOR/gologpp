@@ -42,7 +42,11 @@ struct ProgramParser : grammar<Expression *(Scope &)> {
 			phoenix::bind(&handle_error, _1, _3, _2, _4)
 		);
 
-		define_expression_rules();
+		// The rules that parse all the different expression types have to be defined
+		// after all of the other high-level grammars have been initialized to break
+		// the dependency cyle. Fortunately, we can reference a rule before it is defined.
+		initialize_cyclic_expressions();
+		initialize_cyclic_literals();
 
 		GOLOGPP_DEBUG_NODE(program);
 	}
@@ -52,7 +56,7 @@ struct ProgramParser : grammar<Expression *(Scope &)> {
 	ActionParser<ExogAction> exog_action;
 	FunctionParser function;
 	StatementParser statement;
-	CompoundTypeParser type_definition;
+	TypeDefinitionParser type_definition;
 	FluentParser fluent;
 };
 

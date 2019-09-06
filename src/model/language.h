@@ -67,6 +67,8 @@ public:
 
 protected:
 	unique_ptr<AbstractSemantics> semantics_;
+
+private:
 	shared_ptr<const Type> type_;
 };
 

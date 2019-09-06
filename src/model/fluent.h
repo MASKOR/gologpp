@@ -6,7 +6,7 @@
 #include "error.h"
 #include "global.h"
 #include "reference.h"
-#include "constant.h"
+#include "value.h"
 
 namespace gologpp {
 

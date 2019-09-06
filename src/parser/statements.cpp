@@ -15,8 +15,10 @@
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/object/dynamic_cast.hpp>
 #include <boost/phoenix/object/construct.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
+#include <boost/phoenix/bind/bind_function.hpp>
 
 #include "types.h"
 #include "formula.h"
@@ -25,6 +27,10 @@
 
 namespace gologpp {
 namespace parser {
+
+
+static string element_type_name(const Expression *list_expr)
+{ return dynamic_cast<const ListType &>(list_expr->type()).element_type().name(); }
 
 
 StatementParser::StatementParser()
@@ -38,7 +44,10 @@ StatementParser::StatementParser()
 		| durative_call(_r1)
 		| field_assignment(_r1)
 		| fluent_assignment(_r1)
+		| list_element_assignment(_r1)
 		| action_call(_r1)
+		| list_pop(_r1)
+		| list_push(_r1)
 		| typed_reference<Function>()(_r1, VoidType::name()))
 		> ';';
 	simple_statement.name("simple_statement");
@@ -84,7 +93,7 @@ StatementParser::StatementParser()
 		] > var_decl()(*_a) [
 			_b = _1
 		] > -(lit("in") > '{'
-		> value()(phoenix::bind(&Expression::type_name, *_b), false) % ','
+		> literal()(phoenix::bind(&Expression::type_name, *_b), false) % ','
 		> '}')
 		> ')' > statement(*_a)
 	) [
@@ -124,6 +133,31 @@ StatementParser::StatementParser()
 	choose.name("concurrent");
 	on_error<rethrow>(concurrent, delete_(_a));
 
+	list_pop = (
+		(
+			lit("pop_front") [ _a = ListOpEnd::FRONT ]
+			| lit("pop_back") [ _a = ListOpEnd::BACK ]
+		) > '(' > list_expression(_r1) > ')'
+	) [
+		_val = new_<ListPop>(_1, _a)
+	];
+	list_pop.name("list_pop");
+
+	list_push = (
+		(
+			lit("push_front") [ _a = ListOpEnd::FRONT ]
+			| lit("push_back") [ _a = ListOpEnd::BACK ]
+		) > '('
+		> list_expression(_r1) [
+			_b = phoenix::bind(&element_type_name, _1)
+		]
+		> ',' > typed_expression()(_r1, _b)
+		> ')'
+	) [
+		_val = new_<ListPush>(_1, _a, _2)
+	];
+	list_push.name("list_push");
+
 	return_stmt = (lit("return") >> value_expression()(_r1)) [
 		_val = new_<Return>(_1)
 	];
@@ -146,7 +180,9 @@ StatementParser::StatementParser()
 
 	GOLOGPP_DEBUG_NODES((statement)(simple_statement)(compound_statement)
 		(block)(choose)(conditional)(search)(solve)(test)(r_while)
-		(return_stmt)(pick))
+		(return_stmt)(pick)
+		(list_pop)(list_push)
+	)
 }
 
 

@@ -1,6 +1,10 @@
 :- external(exog_fluent_getValue/3, p_exog_fluent_getValue).
 :- dynamic managed_term/2.
 :- dynamic durative_action/1, durative_poss/2, durative_causes_val/4.
+:- lib(listut).
+
+% resolve name clash with lib(listut)
+:- import delete/3 from eclipse_language.
 
 function(strcat(X, Y), R, concat_atoms(X, Y, R)).
 function(to_string(V), R,
@@ -8,31 +12,145 @@ function(to_string(V), R,
 ).
 
 
-function(gpp_field_value(Name, gpp_compound(Fields)), Value,
-	and([
-		atom(Name), var(Value)
-		, Field_term =.. [Name, Value]
-		, member(Field_term, Fields)
-	])
+function(gpp_field_value(Name, Compound), Value,
+	pl_field_value(Name, Compound, Value)
 ).
-
-function(gpp_field_assign(Names, Value, gpp_compound(Fields)), Result,
-	and([
-		Names = [Name|Rest_names]
-		, atom(Name), var(Result), ground(Value)
-		, Field_current =.. [Name, Field_cur_value]
-		, delete(Field_current, Fields, Fields_without)
-		,
-		lif(Field_cur_value = gpp_compound(_),
-			% Nested compound, so recurse down
-			% hoping the length of Names matches the nesting depth
-			Field_new =.. [Name, gpp_field_assign(Rest_names, Value, Field_cur_value)]
-		,
-			Field_new =.. [Name, Value]
+pl_field_value(Name, Compound, Value) :-
+	atom(Name), var(Value)
+	, ( Compound = gpp_compound(_Type, Fields)
+		; (
+			sprintf(Msg, "Invalid function call: %W", [gpp_field_value(Name, Compound)])
+			, throw(Msg)
 		)
-		, Result = gpp_compound([Field_new | Fields_without])
-	])
+	)
+	, Field_term =.. [Name, Value]
+	, member(Field_term, Fields)
+.
+
+
+function(gpp_mixed_assign(Members, Value, Lhs), Result,
+	pl_mixed_assign(Members, Value, Lhs, Result)
 ).
+pl_mixed_assign(Members, Value, Lhs, Result) :-
+	Members = [M|Rest_mems]
+	, (number(M) ->
+		% List access
+		( Lhs = gpp_list(Type, List), length(List, _)
+			; sprintf(Msg, "gpp_mixed_assign: Invalid argument %W", [gpp_mixed_assign(Members, Value, Lhs)])
+			, throw(Msg)
+		)
+		, ( nth0(M, List, Mem_current, List_without)
+			; sprintf(Msg, "Accessing %W: Index %W is out of bounds", [List, M])
+			, throw(Msg)
+		)
+		, ( length(Rest_mems) > 0 ->
+			% Additional nesting levels: recurse down
+			pl_mixed_assign(Rest_mems, Value, Mem_current, Val_new)
+		;
+			Val_new = Value
+		)
+		, nth0(M, List_new, Val_new, List_without)
+		, Result = gpp_list(Type, List_new)
+	
+	; atom(M) ->
+		% Compound field access
+		( Lhs = gpp_compound(Type, Fields), length(Fields, _)
+			; sprintf(Msg, "gpp_mixed_assign: Invalid argument %W", [gpp_mixed_assign(Members, Value, Lhs)])
+			, throw(Msg)
+		)
+		, Field_acc =.. [M, Field_cur_value]
+		, delete(Field_acc, Fields, Fields_without)
+		, ( length(Rest_mems) > 0 ->
+			% Additional nesting levels: recurse down
+			pl_mixed_assign(Rest_mems, Value, Field_cur_value, Val_new)
+			, Field_new =.. [M, Val_new]
+		;
+			Field_new =.. [M, Value]
+		)
+		, Result = gpp_compound(Type, [Field_new | Fields_without])
+	;
+		sprintf(Msg, "gpp_mixed_assign: %W is not a list index or a field name", [M])
+		, throw(Msg)
+	)
+.
+
+function(gpp_list_access(Lhs, Idx), Result,
+	pl_list_access(Lhs, Idx, Result)
+).
+pl_list_access(Lhs, Idx, Result) :-
+	Lhs = gpp_list(Type, List)
+	, (length(List, _)
+		; throw("gpp_list_access: First arg must be a list")
+	)
+	, (number(Idx)
+		; throw("gpp_list_access: Second arg must be a number")
+	)
+	, nth0(Idx, List, Result)
+.
+
+function(gpp_list_length(Lhs), Result,
+	pl_list_length(Lhs, Result)
+).
+pl_list_length(Lhs, Result) :-
+	Lhs = gpp_list(Type, List)
+	, (length(List, Result)
+		; throw("gpp_list_length: Arg must be a list")
+	)
+.
+
+function(gpp_list_pop_front(Lhs), Result,
+	pl_list_pop_front(Lhs, Result)
+).
+pl_list_pop_front(Lhs, Result) :-
+	Lhs = gpp_list(Type, List)
+	, (length(List, _)
+		; throw("gpp_list_pop_front: Arg must be a list")
+	)
+	, List_new = [_ | Result]
+	, Result = gpp_list(Type, List_new)
+.
+
+function(gpp_list_pop_back(Lhs), Result,
+	pl_list_pop_back(Lhs, Result)
+).
+pl_list_pop_back(Lhs, Result) :-
+	Lhs = gpp_list(Type, List)
+	, (length(List, _)
+		; throw("gpp_list_pop_back: Arg must be a list")
+	)
+	, length(List, Len)
+	, nth1(Len, List, _, List_new)
+	, Result = gpp_list(Type, List_new)
+.
+
+function(gpp_list_push_front(Lhs, Elem), Result,
+	pl_list_push_front(Lhs, Elem, Result)
+).
+pl_list_push_front(Lhs, Elem, Result) :-
+	Lhs = gpp_list(Type, List)
+	, (length(List, _)
+		; throw("gpp_list_push_front: First arg must be a list")
+	)
+	, (number(Elem)
+		; throw("gpp_list_push_front: Second arg must be instantiated")
+	)
+	, Result = gpp_list(Type, [Elem | List])
+.
+
+function(gpp_list_push_back(Lhs, Elem), Result,
+	pl_list_push_back(Lhs, Elem, Result)
+).
+pl_list_push_back(Lhs, Elem, Result) :-
+	Lhs = gpp_list(Type, List)
+	, (length(List, _)
+		; throw("gpp_list_push_back: First arg must be a list")
+	)
+	, (number(Elem)
+		; throw("gpp_list_push_back: Second arg must be instantiated")
+	)
+	, append(List, [Elem], List_new)
+	, Result = gpp_list(Type, List_new)
+.
 
 
 /********************************

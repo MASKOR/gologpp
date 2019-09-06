@@ -21,6 +21,8 @@
 #include <model/action.h>
 #include <model/effect_axiom.h>
 
+#include <boost/optional/optional_io.hpp>
+
 namespace gologpp {
 namespace parser {
 
@@ -63,7 +65,10 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 		)
 	];
 
-	effect = fluent_effect(_r1) | field_effect(_r1);
+	effect = list_effect(_r1) | field_effect(_r1) | fluent_effect(_r1);
+	GOLOGPP_DEBUG_NODES(
+		(definition)(effect)
+	)
 }
 
 
@@ -91,7 +96,10 @@ ActionDefinitionParser<ExogAction>::ActionDefinitionParser()
 		)
 	];
 
-	effect = fluent_effect(_r1) | field_effect(_r1);
+	effect = list_effect(_r1) | field_effect(_r1) | field_effect(_r1);
+	GOLOGPP_DEBUG_NODES(
+		(definition)(effect)
+	)
 }
 
 

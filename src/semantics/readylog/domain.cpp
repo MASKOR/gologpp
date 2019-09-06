@@ -1,5 +1,5 @@
 #include "domain.h"
-#include "constant.h"
+#include "value.h"
 
 namespace gologpp {
 

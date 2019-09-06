@@ -51,7 +51,9 @@ class NumberType;
 class StringType;
 class SymbolType;
 class VoidType;
+class UndefinedType;
 class CompoundType;
+class ListType;
 
 class AbstractEffectAxiom;
 template<class> class EffectAxiom;
@@ -90,6 +92,10 @@ class While;
 class Return;
 class DurativeCall;
 class FieldAccess;
+class ListAccess;
+class ListLength;
+class ListPop;
+class ListPush;
 
 class Function;
 
@@ -107,30 +113,31 @@ class ExecutionContext;
 
 class PlatformBackend;
 
-using FluentAssignment = Assignment<Reference<Fluent>>;
-using VariableAssignment = Assignment<Reference<Variable>>;
-using FieldAssignment = Assignment<FieldAccess>;
-using FluentReference = Reference<Fluent>;
-using FunctionReference = Reference<Function>;
-using VariableReference = Reference<Variable>;
-
 #define GOLOGPP_PREDEFINED_TYPES \
-	(NumberType)(BoolType)(StringType)(SymbolType)(VoidType)
+	(NumberType)(BoolType)(StringType)(SymbolType)(VoidType)(UndefinedType)
 
 #define GOLOGPP_TYPES \
-	GOLOGPP_PREDEFINED_TYPES(CompoundType)
+	GOLOGPP_PREDEFINED_TYPES(CompoundType)(ListType)
 
 #define GOLOGPP_SEMANTIC_TYPES \
 	(EffectAxiom<Reference<Fluent>>) \
 	(EffectAxiom<FieldAccess>) \
+	(EffectAxiom<ListAccess>) \
 	(InitialValue)(Fluent)(Variable) \
 	(Value) \
-	(FluentAssignment)(VariableAssignment) \
-	(FluentReference)(VariableReference)(Pick)(Return) \
+	(Assignment<Reference<Fluent>>) \
+	(Assignment<Reference<Variable>>) \
+	(Assignment<FieldAccess>) \
+	(Assignment<ListAccess>) \
+	(Reference<Fluent>) \
+	(Reference<Variable>) \
+	(Reference<Function>) \
+	(Pick)(Return) \
 	(FieldAccess) \
-	(FieldAssignment) \
+	(ListAccess)(ListLength) \
+	(ListPop)(ListPush) \
 	(Domain) \
-	(Function)(FunctionReference) \
+	(Function) \
 	(Action)(Activity)(Transition) \
 	(ExogAction)(ExogEvent) \
 	(Scope)(ArithmeticOperation) \

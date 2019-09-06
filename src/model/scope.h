@@ -196,7 +196,7 @@ public:
 				types_->find(name)->second
 			);
 		else
-			return shared_ptr<const TypeT>();
+			return nullptr;
 	}
 
 	const Type *lookup_type_raw(const string &name);

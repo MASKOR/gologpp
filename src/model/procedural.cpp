@@ -17,7 +17,6 @@ Block::Block(Scope *own_scope, const vector<Expression *> &elements)
 : ScopeOwner(own_scope)
 {
 	for (Expression *stmt : elements) {
-		stmt->ensure_type<VoidType>();
 		stmt->set_parent(this);
 		elements_.emplace_back(stmt);
 	}
@@ -120,7 +119,6 @@ Concurrent::Concurrent(Scope *own_scope, const vector<Expression *> &procs)
 : ScopeOwner(own_scope)
 {
 	for (Expression *p : procs) {
-		p->ensure_type<VoidType>();
 		p->set_parent(this);
 		procs_.emplace_back(p);
 	}
@@ -202,7 +200,6 @@ void Pick::attach_semantics(SemanticsFactory &f)
 Search::Search(Expression *statement)
 : statement_(statement)
 {
-	statement->ensure_type<VoidType>();
 	statement_->set_parent(this);
 }
 
@@ -363,7 +360,9 @@ string Function::to_string(const string &pfx) const
 DurativeCall::DurativeCall(DurativeCall::Hook type, Reference<Action> *action)
 : hook_(type)
 , action_(action)
-{}
+{
+	action_->set_parent(this);
+}
 
 DurativeCall::Hook DurativeCall::hook() const
 { return hook_; }
@@ -394,9 +393,10 @@ string to_string(DurativeCall::Hook hook)
 
 
 FieldAccess::FieldAccess(Expression *subject, const string &field_name)
-: field_name_(field_name)
+: subject_(subject)
+, field_name_(field_name)
 {
-	subject_ = subject;
+	subject_->set_parent(this);
 }
 
 const Expression &FieldAccess::subject() const
@@ -417,25 +417,106 @@ string FieldAccess::to_string(const string &pfx) const
 
 
 
-FieldAccess *nested_field_access_(
-	Expression *subject,
-	vector<string>::const_iterator it,
-	vector<string>::const_iterator end)
+ListAccess::ListAccess(Expression *subject, Expression *index)
+: subject_(subject)
+, index_(index)
 {
-	if (it + 1 < end)
-		return new FieldAccess(
-			nested_field_access_(subject, it + 1, end),
-			*it
-		);
-	else
-		return new FieldAccess(subject, *it);
+	subject_->set_parent(this);
+	index_->set_parent(this);
+}
+
+const Expression &ListAccess::subject() const
+{ return *subject_; }
+
+const Expression &ListAccess::index() const
+{ return *index_; }
+
+
+const Type &ListAccess::type() const
+{
+	return dynamic_cast<const ListType &>(
+		subject_->type()
+	).element_type();
+}
+
+string ListAccess::to_string(const string &pfx) const
+{ return subject_->to_string(pfx) + '[' + index_->str() + ']'; }
+
+
+
+ListLength::ListLength(Expression *subject)
+: subject_(subject)
+{ subject_->set_parent(this); }
+
+const Expression &ListLength::subject() const
+{ return *subject_; }
+
+string ListLength::to_string(const string &pfx) const
+{ return "length(" + subject_->to_string(pfx) + ')'; }
+
+
+
+string to_string(ListOpEnd which_end)
+{
+	switch (which_end) {
+	case FRONT:
+		return "front";
+	case BACK:
+		return "back";
+	}
+	throw Bug(string("Unhandled ") + typeid(which_end).name());
 }
 
 
-FieldAccess *nested_field_access(Expression *subject, const vector<string> &fields)
-{ return nested_field_access_(subject, fields.begin(), fields.end()); }
+
+ListPop::ListPop(Expression *list, ListOpEnd which_end)
+: list_(list)
+, which_end_(which_end)
+{ list_->set_parent(this); }
+
+const Expression &ListPop::list() const
+{ return *list_; }
+
+ListOpEnd ListPop::which_end() const
+{ return which_end_; }
+
+string ListPop::to_string(const string &pfx) const
+{ return pfx + "pop_" + gologpp::to_string(which_end_) + '(' + list_->str() + ')'; }
+
+
+
+ListPush::ListPush(Expression *list, ListOpEnd which_end, Expression *what)
+: list_(list)
+, which_end_(which_end)
+{
+	list_->set_parent(this);
+
+	what->ensure_type(
+		dynamic_cast<const ListType &>(
+			list_->type()
+		).element_type()
+	);
+	what_.reset(what);
+	what_->set_parent(this);
+}
+
+const Expression &ListPush::list() const
+{ return *list_; }
+
+ListOpEnd ListPush::which_end() const
+{ return which_end_; }
+
+const Expression &ListPush::what() const
+{ return *what_; }
+
+string ListPush::to_string(const string &pfx) const
+{ return pfx + "push_" + gologpp::to_string(which_end_) + '(' + list_->str() + ')'; }
+
 
 
 
 } // namespace gologpp
+
+
+
 

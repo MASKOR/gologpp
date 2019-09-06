@@ -3,7 +3,7 @@
 #include "action.h"
 #include "fluent.h"
 #include "variable.h"
-#include "constant.h"
+#include "value.h"
 #include "formula.h"
 #include "procedural.h"
 #include "reference.h"

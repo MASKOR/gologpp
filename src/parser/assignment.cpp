@@ -5,6 +5,7 @@
 #include "formula.h"
 #include "types.h"
 #include "expressions.h"
+#include "list_access.h"
 
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_char.hpp>
@@ -56,8 +57,16 @@ void AssignmentParser<Reference<Fluent>>::init()
 template<>
 void AssignmentParser<FieldAccess>::init()
 {
-	lhs_parser = field_access()(_r1, val(""));
+	lhs_parser = mixed_field_access()(_r1, UndefinedType::name());
 	lhs_parser.name("field_access_lhs");
+}
+
+
+template<>
+void AssignmentParser<ListAccess>::init()
+{
+	lhs_parser = mixed_list_access()(_r1, UndefinedType::name());
+	lhs_parser.name("list_access_lhs");
 }
 
 
@@ -66,6 +75,9 @@ struct AssignmentParser<Reference<Fluent>>;
 
 template
 struct AssignmentParser<FieldAccess>;
+
+template
+struct AssignmentParser<ListAccess>;
 
 
 } // namespace parser

@@ -54,7 +54,7 @@ DomainExpressionParser::DomainExpressionParser()
 				_pass = false
 			]
 		]
-		| (lit('{') > (value()(_r2, _r3) % ',') > '}') [
+		| (lit('{') > (literal()(_r2, _r3) % ',') > '}') [
 			_val = construct<Domain>(val(""), _r2, _1)
 		]
 	;
@@ -81,7 +81,7 @@ rule<void(Scope &), locals<string, Typename>> &domain_decl()
 {
 	static DomainExpressionParser domain_expr_;
 	static rule<void(Scope &), locals<string, Typename>> rv {
-		((any_type_specifier() >> "domain") > r_name()) [
+		((any_type_specifier()(_r1) >> "domain") > r_name()) [
 			_a = _1, // type name
 			_b = _2  // domain name
 		]

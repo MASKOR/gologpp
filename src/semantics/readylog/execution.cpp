@@ -41,6 +41,8 @@ ReadylogContext::ReadylogContext(const eclipse_opts &options, unique_ptr<Platfor
 
 	if (options.trace)
 		post_goal("set_flag(debug_compile, on)");
+	else
+		post_goal("set_flag(debug_compile, off)");
 
 	post_goal(::term(EC_functor("compile", 1), EC_atom(READYLOG_PATH)));
 

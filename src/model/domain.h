@@ -5,7 +5,7 @@
 #include "language.h"
 #include "scope.h"
 #include "expressions.h"
-#include "constant.h"
+#include "value.h"
 #include "error.h"
 
 #include <unordered_set>

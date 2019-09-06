@@ -2,7 +2,7 @@
 #include "procedural.h"
 #include "reference.h"
 #include "execution.h"
-#include "constant.h"
+#include "value.h"
 
 #include <model/procedural.h>
 
@@ -154,6 +154,41 @@ EC_word Semantics<Assignment<Reference<Fluent>>>::plterm()
 }
 
 
+/**
+ * Transform nested field- and list accesses into a pair of the innermost subject (must be a
+ * list- or compound-valued fluent) and a sequence of list indices and field names. Only one of either
+ * @a fa or @a la may be set, depending on whether the outermost expression is a list access or a field access.
+ *
+ * @param fa The rightmost field access or nullptr
+ * @param la The rightmost list access or nullptr
+ * @return A reference to the fluent (either list- or compound-valued), and an eclipse list
+ *         with a mixture of list indices and field names that sequentially index (deeply) into the
+ *         returned fluent.
+ */
+std::pair<const Reference<Fluent> *, EC_word> traverse_mixed_field_access(const FieldAccess *fa, const ListAccess *la) {
+	const Expression *sub;
+	EC_word field_list = ::nil();
+
+	do {
+		if (fa) {
+			field_list = ::list(fa->semantics().pl_field_name(), field_list);
+			sub = &fa->subject();
+		}
+		else if (la) {
+			field_list = ::list(la->semantics().pl_index(), field_list);
+			sub = &la->subject();
+		}
+		else
+			throw Bug("Invalid FieldAccess statement: " + fa->str());
+
+		fa = dynamic_cast<const FieldAccess *>(sub);
+		la = dynamic_cast<const ListAccess *>(sub);
+	} while (sub->is_a<FieldAccess>() || sub->is_a<ListAccess>());
+
+	return { dynamic_cast<const Reference<Fluent> *>(sub), std::move(field_list) };
+};
+
+
 Semantics<Assignment<FieldAccess>>::Semantics(const Assignment<FieldAccess> &ass)
 : assignment_(ass)
 , field_access_(ass.lhs())
@@ -162,30 +197,41 @@ Semantics<Assignment<FieldAccess>>::Semantics(const Assignment<FieldAccess> &ass
 
 EC_word Semantics<Assignment<FieldAccess>>::plterm()
 {
-	const FieldAccess *fa = &assignment_.lhs();
-	const Reference<Fluent> *fluent = nullptr;
-	const Expression *sub;
-	EC_word field_list = ::nil();
-
-	do {
-		field_list = ::list(EC_atom(fa->field_name().c_str()), field_list);
-		sub = &fa->subject();
-		fa = dynamic_cast<const FieldAccess *>(sub);
-	} while (fa && fa->type().is<CompoundType>());
-
-	fluent = dynamic_cast<const Reference<Fluent> *>(sub);
+	std::pair<const Reference<Fluent> *, EC_word> fluent_access
+		= traverse_mixed_field_access(&assignment_.lhs(), nullptr);
 
 	return ::term(EC_functor("set", 2),
-		fluent->semantics().plterm(),
-		::term(EC_functor("gpp_field_assign", 3),
-			field_list,
+		fluent_access.first->semantics().plterm(),
+		::term(EC_functor("gpp_mixed_assign", 3),
+			fluent_access.second,
 			assignment_.rhs().semantics().plterm(),
-			fluent->semantics().plterm()
+			fluent_access.first->semantics().plterm()
 		)
 	);
 }
 
 
+
+Semantics<Assignment<ListAccess>>::Semantics(const Assignment<ListAccess> &ass)
+: assignment_(ass)
+, field_access_(ass.lhs())
+{}
+
+
+EC_word Semantics<Assignment<ListAccess>>::plterm()
+{
+	std::pair<const Reference<Fluent> *, EC_word> fluent_access
+		= traverse_mixed_field_access(nullptr, &assignment_.lhs());
+
+	return ::term(EC_functor("set", 2),
+		fluent_access.first->semantics().plterm(),
+		::term(EC_functor("gpp_mixed_assign", 3),
+			fluent_access.second,
+			assignment_.rhs().semantics().plterm(),
+			fluent_access.first->semantics().plterm()
+		)
+	);
+}
 
 Semantics<Pick>::Semantics(const Pick &pick)
 : pick_(pick)
@@ -321,24 +367,116 @@ Semantics<FieldAccess>::Semantics(const FieldAccess &field_access)
 EC_word Semantics<FieldAccess>::plterm()
 {
 	return ::term(EC_functor("gpp_field_value", 2),
-		EC_atom(field_access_.field_name().c_str()),
+		pl_field_name(),
 		field_access_.subject().semantics().plterm()
 	);
 }
+
+
+EC_atom Semantics<FieldAccess>::pl_field_name()
+{ return EC_atom(field_access_.field_name().c_str()); }
 
 
 EC_word Semantics<FieldAccess>::field_assign(const Expression &value)
 {
 	return ::term(EC_functor("gpp_field_assign", 3),
-		EC_atom(field_access_.field_name().c_str()),
+		pl_field_name(),
 		value.semantics().plterm(),
 		field_access_.subject().semantics().plterm()
 	);
 }
 
-
 void Semantics<FieldAccess>::set_lvalue(bool lvalue)
 { is_lvalue_ = lvalue; }
+
+
+
+Semantics<ListAccess>::Semantics(const ListAccess &list_access)
+: list_access_(list_access)
+{}
+
+EC_word Semantics<ListAccess>::pl_index()
+{ return list_access_.index().semantics().plterm(); }
+
+
+EC_word Semantics<ListAccess>::plterm()
+{
+	return ::term(EC_functor("gpp_list_access", 2),
+		list_access_.subject().semantics().plterm(),
+		pl_index()
+	);
+}
+
+
+
+Semantics<ListPop>::Semantics(const ListPop &list_pop)
+: list_pop_(list_pop)
+{}
+
+EC_word Semantics<ListPop>::plterm()
+{
+	string fn;
+	switch(list_pop_.which_end()) {
+	case ListOpEnd::BACK:
+		fn = "gpp_list_pop_back";
+		break;
+	case ListOpEnd::FRONT:
+		fn = "gpp_list_pop_front";
+	}
+
+	if (fn.empty())
+		throw Bug("Invalid ListOpEnd Enum value: " + std::to_string(list_pop_.which_end()));
+
+	return ::term(EC_functor("set", 2),
+		list_pop_.list().semantics().plterm(),
+		::term(EC_functor(fn.c_str(), 1),
+			list_pop_.list().semantics().plterm()
+		)
+	);
+
+}
+
+
+
+Semantics<ListPush>::Semantics(const ListPush &list_push)
+: list_push_(list_push)
+{}
+
+EC_word Semantics<ListPush>::plterm()
+{
+	string fn;
+	switch(list_push_.which_end()) {
+	case ListOpEnd::BACK:
+		fn = "gpp_list_push_back";
+		break;
+	case ListOpEnd::FRONT:
+		fn = "gpp_list_push_front";
+	}
+
+	if (fn.empty())
+		throw Bug("Invalid ListOpEnd Enum value: " + std::to_string(list_push_.which_end()));
+
+	return ::term(EC_functor("set", 2),
+		list_push_.list().semantics().plterm(),
+		::term(EC_functor(fn.c_str(), 2),
+			list_push_.list().semantics().plterm(),
+			list_push_.what().semantics().plterm()
+		)
+	);
+}
+
+
+
+Semantics<ListLength>::Semantics(const ListLength &list_length)
+: list_length_(list_length)
+{}
+
+EC_word Semantics<ListLength>::plterm()
+{
+	return ::term(EC_functor("gpp_list_length", 1),
+		list_length_.subject().semantics().plterm()
+	);
+}
 
 
 

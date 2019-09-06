@@ -19,6 +19,7 @@
 
 #include "reference.h"
 #include "field_access.h"
+#include "list_access.h"
 #include "expressions.h"
 
 
@@ -54,23 +55,33 @@ void EffectParser<Reference<Fluent>>::init()
 {
 	static ReferenceParser<Fluent> ref;
 	lhs = ref(_r1);
-	lhs.name("fluent_reference");
+	lhs.name("fluent_effect_lhs");
 }
 
 
 template<>
 void EffectParser<FieldAccess>::init()
 {
-	lhs = any_field_access()(_r1);
-	lhs.name("fluent_field_access");
+	lhs = mixed_field_access()(_r1, UndefinedType::name());
+	lhs.name("field_access_effect_lhs");
 }
 
+
+template<>
+void EffectParser<ListAccess>::init()
+{
+	lhs = mixed_list_access()(_r1, UndefinedType::name());
+	lhs.name("list_access_effect_lhs");
+}
 
 template
 struct EffectParser<Reference<Fluent>>;
 
 template
 struct EffectParser<FieldAccess>;
+
+template
+struct EffectParser<ListAccess>;
 
 
 }

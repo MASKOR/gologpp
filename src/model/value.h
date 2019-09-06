@@ -35,6 +35,9 @@ public:
 	unique_ptr(const unique_ptr<Value> &c);
 
 	unique_ptr<Value> &operator = (const unique_ptr<Value> &c);
+
+	bool operator == (const unique_ptr<Value> &other) const;
+	bool operator != (const unique_ptr<Value> &other) const;
 };
 
 
@@ -45,12 +48,19 @@ class Value
 , public LanguageElement<Value>
 {
 public:
-	using LiteralVariant = boost::variant<int, long, double, string, bool, CompoundType::Representation>;
+	using Representation = boost::variant <
+		int, long, double, // NumberType
+		string, // StringType, SymbolType
+		bool, // BoolType
+		CompoundType::Representation,
+		ListType::Representation
+	>;
 
 	template<class ReprT>
 	Value(const string &type_name, ReprT repr);
 
-	Value(const string &type_name, const vector<fusion_wtf_vector<string, Value *>> &definition);
+	Value(const string &type_name, const vector<fusion_wtf_vector<string, Value *>> &compound_values);
+	Value(const string &type_name, const boost::optional<vector<Value *>> &list_values);
 	Value(Value &&c);
 	Value(const Value &c);
 
@@ -62,27 +72,30 @@ public:
 	virtual size_t hash() const;
 
 	operator int () const
-	{ return boost::get<int>(variant()); }
+	{ return boost::get<int>(representation()); }
 
 	operator long () const
-	{ return boost::get<long>(variant()); }
+	{ return boost::get<long>(representation()); }
 
 	operator double () const
-	{ return boost::get<double>(variant()); }
+	{ return boost::get<double>(representation()); }
 
 	operator string () const
-	{ return boost::get<string>(variant()); }
+	{ return boost::get<string>(representation()); }
 
 	operator bool () const
-	{ return boost::get<bool>(variant()); }
+	{ return boost::get<bool>(representation()); }
 
-	operator CompoundType::Representation () const
-	{ return boost::get<CompoundType::Representation>(variant()); }
+	operator const CompoundType::Representation &() const
+	{ return boost::get<const CompoundType::Representation &>(representation()); }
 
-	LiteralVariant &variant()
+	operator const ListType::Representation &() const
+	{ return boost::get<const ListType::Representation &>(representation()); }
+
+	Representation &representation()
 	{ return representation_; }
 
-	const LiteralVariant &variant() const
+	const Representation &representation() const
 	{ return representation_; }
 
 	virtual string to_string(const string &) const override;
@@ -95,10 +108,10 @@ public:
 	virtual void attach_semantics(SemanticsFactory &f) override;
 
 protected:
-	Value(LiteralVariant &&repr);
+	Value(Representation &&repr);
 
 private:
-	LiteralVariant representation_;
+	Representation representation_;
 
 	struct to_string_visitor;
 	struct hash_visitor;

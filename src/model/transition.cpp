@@ -1,5 +1,5 @@
 #include "transition.h"
-#include "constant.h"
+#include "value.h"
 #include "action.h"
 
 namespace gologpp {
