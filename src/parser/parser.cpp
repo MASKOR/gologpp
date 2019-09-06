@@ -1,4 +1,6 @@
 #include <fstream>
+#include <chrono>
+#include <iostream>
 
 #include "grammar.h"
 #include "parser.h"
@@ -15,6 +17,8 @@ unique_ptr<Expression> parse_string(const std::string &code)
 {
 	Expression *rv = nullptr;
 	ProgramParser program_parser;
+
+
 	boost::spirit::qi::phrase_parse(
 		iterator(code.cbegin()),
 		iterator(code.cend()),
@@ -22,6 +26,8 @@ unique_ptr<Expression> parse_string(const std::string &code)
 		gologpp_skipper(),
 		rv
 	);
+
+
 	return unique_ptr<Expression>(rv);
 }
 
@@ -35,7 +41,16 @@ unique_ptr<Expression> parse_file(const std::string &filename)
 	buffer << file.rdbuf();
 	if (!file.good())
 		throw std::runtime_error(filename + ": " + ::strerror(errno));
-	return parse_string(buffer.str());
+
+	std::cout << "Parsing " << filename << "..." << std::endl;
+	auto t1 = std::chrono::high_resolution_clock::now();
+
+	unique_ptr<Expression> rv = parse_string(buffer.str());
+	std::chrono::duration<double> td = std::chrono::high_resolution_clock::now() - t1;
+
+	std::cout << "... done. Parsing took " << td.count() << " s." << std::endl;
+
+	return rv;
 }
 
 
