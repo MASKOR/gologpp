@@ -35,8 +35,12 @@ const Expression &ActionMapping::mapped_expr(const string &name) const
 	return *it->second;
 }
 
+bool ActionMapping::is_mapped(const string &arg_name) const
+{ return arg_mapping_.find(arg_name) != arg_mapping_.end(); }
 
-void ActionMapping::attach_semantics(SemanticsFactory &f) {
+
+void ActionMapping::attach_semantics(SemanticsFactory &f)
+{
 	for (auto &pair : arg_mapping_)
 		pair.second->attach_semantics(f);
 }
@@ -49,6 +53,9 @@ const Scope &ActionMapping::parent_scope() const
 
 void ActionMapping::set_action(AbstractAction *action)
 { action_ = action; }
+
+const ActionMapping::ArgMapping &ActionMapping::arg_mapping() const
+{ return arg_mapping_; }
 
 
 string ActionMapping::to_string(const string &pfx) const

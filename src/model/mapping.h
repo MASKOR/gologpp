@@ -22,6 +22,11 @@ using fusion_wtf_vector = boost::fusion::vector2<T1, T2>;
 
 class ActionMapping : public LanguageElement<ActionMapping>, public NoScopeOwner {
 public:
+	using ArgMapping = std::unordered_map<
+		string,
+		unique_ptr<Expression>
+	>;
+
 	ActionMapping(
 		const string &backend_name,
 		vector<fusion_wtf_vector<string, Expression *>> arg_mapping
@@ -29,6 +34,7 @@ public:
 
 	const string &backend_name() const;
 	const Expression &mapped_expr(const string &arg_name) const;
+	bool is_mapped(const string &arg_name) const;
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
@@ -36,15 +42,14 @@ public:
 	virtual Scope &parent_scope() override;
 	virtual const Scope &parent_scope() const override;
 
+	const ArgMapping &arg_mapping() const;
+
 	void set_action(AbstractAction *);
 
 private:
 	AbstractAction *action_;
 	string backend_name_;
-	std::unordered_map<
-		string,
-		unique_ptr<Expression>
-	> arg_mapping_;
+	ArgMapping arg_mapping_;
 };
 
 
