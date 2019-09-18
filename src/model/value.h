@@ -87,10 +87,10 @@ public:
 	{ return boost::get<bool>(representation()); }
 
 	operator const CompoundType::Representation &() const
-	{ return boost::get<const CompoundType::Representation &>(representation()); }
+	{ return boost::get<CompoundType::Representation>(representation()); }
 
 	operator const ListType::Representation &() const
-	{ return boost::get<const ListType::Representation &>(representation()); }
+	{ return boost::get<ListType::Representation>(representation()); }
 
 	Representation &representation()
 	{ return representation_; }
