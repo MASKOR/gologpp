@@ -86,6 +86,20 @@ public:
 	TargetT *operator -> () const
 	{ return &target(); }
 
+	bool operator == (const ReferenceBase<TargetT, ArgsT> &other) const
+	{
+		if (this->target() != other.target())
+			return false;
+		for (arity_t i = 0; i < this->target()->arity(); ++i) {
+			if (*this->args()[i] != *other.args()[i])
+				return false;
+		}
+		return true;
+	}
+
+	bool operator != (const ReferenceBase<TargetT, ArgsT> &other) const
+	{ return !(*this == other); }
+
 	const string &name() const
 	{ return target_.lock()->name(); }
 
@@ -238,21 +252,6 @@ public:
 	{ return global_scope(); }
 
 
-	bool operator == (const Grounding<TargetT> &other) const
-	{
-		if (this->target() != other.target())
-			return false;
-		for (arity_t i = 0; i < this->target()->arity(); ++i) {
-			if (*this->args()[i] != *other.args()[i])
-				return false;
-		}
-		return true;
-	}
-
-	bool operator != (const Grounding<TargetT> &other) const
-	{ return !(*this == other); }
-
-
 	virtual void attach_semantics(SemanticsFactory &f) override
 	{
 		if (!this->semantics_) {
@@ -338,6 +337,9 @@ public:
 	virtual const Type &type() const override
 	{ return target()->type(); }
 
+	size_t hash() const
+	{ return target()->hash(); }
+
 
 private:
 	shared_ptr<Variable> target_;
@@ -357,16 +359,6 @@ struct hash<gologpp::Reference<TargetT>> {
 	{ return o.hash(); }
 };
 
-template<class TargetT>
-struct equal_to<gologpp::Reference<TargetT>> {
-	bool operator () (
-		const gologpp::Reference<TargetT> &lhs,
-		const gologpp::Reference<TargetT> &rhs
-	) const {
-		return *lhs.target() == *rhs.target();
-	}
-};
-
 
 template<class TargetT>
 struct hash<gologpp::unique_ptr<gologpp::Reference<TargetT>>> {
@@ -380,7 +372,7 @@ struct equal_to<gologpp::unique_ptr<gologpp::Reference<TargetT>>> {
 		const gologpp::unique_ptr<gologpp::Reference<TargetT>> &lhs,
 		const gologpp::unique_ptr<gologpp::Reference<TargetT>> &rhs
 	) const {
-		return *lhs->target() == *rhs->target();
+		return *lhs == *rhs;
 	}
 };
 
