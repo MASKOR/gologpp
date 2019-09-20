@@ -318,6 +318,12 @@ public:
 	shared_ptr<const Variable> target() const
 	{ return std::dynamic_pointer_cast<const Variable>(target_); }
 
+	bool operator == (const Reference<Variable> &other) const
+	{ return *target() == *other.target(); }
+
+	bool operator != (const Reference<Variable> &other) const
+	{ return !(*this == other); }
+
 
 	virtual void attach_semantics(SemanticsFactory &implementor) override
 	{
