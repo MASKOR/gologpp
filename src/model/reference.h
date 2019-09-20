@@ -348,4 +348,43 @@ private:
 } // namespace gologpp
 
 
+
+namespace std {
+
+template<class TargetT>
+struct hash<gologpp::Reference<TargetT>> {
+	size_t operator () (const gologpp::Reference<TargetT> &o) const
+	{ return o.hash(); }
+};
+
+template<class TargetT>
+struct equal_to<gologpp::Reference<TargetT>> {
+	bool operator () (
+		const gologpp::Reference<TargetT> &lhs,
+		const gologpp::Reference<TargetT> &rhs
+	) const {
+		return *lhs.target() == *rhs.target();
+	}
+};
+
+
+template<class TargetT>
+struct hash<gologpp::unique_ptr<gologpp::Reference<TargetT>>> {
+	size_t operator () (const gologpp::unique_ptr<gologpp::Reference<TargetT>> &o) const
+	{ return o->hash(); }
+};
+
+template<class TargetT>
+struct equal_to<gologpp::unique_ptr<gologpp::Reference<TargetT>>> {
+	bool operator () (
+		const gologpp::unique_ptr<gologpp::Reference<TargetT>> &lhs,
+		const gologpp::unique_ptr<gologpp::Reference<TargetT>> &rhs
+	) const {
+		return *lhs->target() == *rhs->target();
+	}
+};
+
+
+}
+
 #endif // GOLOGPP_REFERENCE_H_
