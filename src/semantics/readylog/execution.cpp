@@ -1,6 +1,7 @@
 #include "execution.h"
 
 #include <eclipseclass.h>
+#include <experimental/filesystem>
 
 #include "action.h"
 #include "procedural.h"
@@ -37,14 +38,15 @@ ReadylogContext::ReadylogContext(const eclipse_opts &options, unique_ptr<Platfor
 
 	ec_start_ = new EC_ref();
 
-	std::cout << "Loading readylog from " << READYLOG_PATH " ..." << std::endl;
+  std::string readylog_path = find_readylog();
+	std::cout << "Loading readylog from " << readylog_path << " ..." << std::endl;
 
 	if (options.trace)
 		post_goal("set_flag(debug_compile, on)");
 	else
 		post_goal("set_flag(debug_compile, off)");
 
-	post_goal(::term(EC_functor("compile", 1), EC_atom(READYLOG_PATH)));
+	post_goal(::term(EC_functor("compile", 1), EC_atom(readylog_path.c_str())));
 
 	if ((last_rv_ = EC_resume(*ec_start_)) == EC_status::EC_succeed)
 		std::cout << "... done." << std::endl;
@@ -137,6 +139,29 @@ void ReadylogContext::compile_term(const EC_word &term)
 	ec_write(term);
 }
 
+std::string ReadylogContext::find_readylog() {
+  const char *readylog_pl = std::getenv("READYLOG_PL");
+  if (!readylog_pl) {
+    throw std::runtime_error(
+        "Could not find ReadyLog, environment variable READYLOG_PL not set");
+  }
+  std::string readylog_path_env(readylog_pl);
+  readylog_path_env += ":";
+  std::size_t last = 0;
+  std::size_t next;
+  while ((next = readylog_path_env.find(':', last)) != std::string::npos) {
+    std::string next_path = readylog_path_env.substr(last, next - last);
+    if (next_path != "") {
+      std::experimental::filesystem::path readylog_path(next_path);
+      readylog_path /= "preprocessor.pl";
+      if (std::experimental::filesystem::exists(readylog_path)) {
+        return std::string(readylog_path);
+      }
+    }
+    last = next + 1;
+  }
+  throw std::runtime_error("Could not find ReadyLog in " + readylog_path_env);
+}
 
 void ReadylogContext::postcompile()
 {
