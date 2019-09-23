@@ -45,6 +45,7 @@ private:
     ReadylogContext(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend);
 
     virtual void compile_term(const EC_word &term);
+    std::string find_readylog();
 
 	EC_ref *ec_start_;
 	int last_rv_;

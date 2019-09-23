@@ -206,10 +206,6 @@ if (${ECLIPSE_FOUND})
 	option(BUILD_READYLOG_IMPL "Build the readylog semantics (ECLiPSe Prolog)" ON)
 endif()
 if (${BUILD_READYLOG_IMPL})
-	find_file(READYLOG_PL preprocessor.pl
-		PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../
-		PATH_SUFFIXES /readylog/interpreter /kbsgolog/interpreters/readylog)
-
 	set(READYLOG_SRC
 		src/semantics/readylog/action.cpp
 		src/semantics/readylog/variable.cpp
@@ -231,10 +227,9 @@ if (${BUILD_READYLOG_IMPL})
 
 	link_directories(${ECLIPSE_LIBRARY_DIRS})
 	add_library(readylog++ SHARED ${READYLOG_SRC})
-	target_compile_definitions(readylog++ PRIVATE -DREADYLOG_PATH=\"${READYLOG_PL}\")
 	target_compile_definitions(readylog++ PUBLIC -DECLIPSE_DIR=\"${ECLIPSE_DIR}\" -DUSES_NO_ENGINE_HANDLE)
 	target_include_directories(readylog++ PUBLIC ${ECLIPSE_INCLUDE_DIRS})
-	target_link_libraries(readylog++ golog++ ${ECLIPSE_LIBRARIES})
+	target_link_libraries(readylog++ golog++ ${ECLIPSE_LIBRARIES} stdc++fs)
 	set_property(TARGET readylog++ PROPERTY CXX_STANDARD 14)
 	set_property(TARGET readylog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
 	install(TARGETS readylog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
