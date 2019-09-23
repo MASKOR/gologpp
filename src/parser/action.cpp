@@ -66,6 +66,7 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 	];
 
 	effect = list_effect(_r1) | field_effect(_r1) | fluent_effect(_r1);
+	effect.name("effect_axiom");
 	GOLOGPP_DEBUG_NODES(
 		(definition)(effect)
 	)
@@ -97,6 +98,7 @@ ActionDefinitionParser<ExogAction>::ActionDefinitionParser()
 	];
 
 	effect = list_effect(_r1) | field_effect(_r1) | field_effect(_r1);
+	effect.name("effect_axiom");
 	GOLOGPP_DEBUG_NODES(
 		(definition)(effect)
 	)
