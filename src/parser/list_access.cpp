@@ -10,6 +10,7 @@
 #include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_kleene.hpp>
 #include <boost/spirit/include/qi_plus.hpp>
+#include <boost/spirit/include/qi_alternative.hpp>
 
 #include <boost/phoenix/fusion/at.hpp>
 #include <boost/phoenix/object/new.hpp>
@@ -54,13 +55,23 @@ rule<Expression *(Scope &, Typename)> &mixed_list_access()
 {
 	static rule<Expression *(Scope &, Typename)> rv {
 		(
-			list_atom(_r1)
-			>> *(
+			list_atom(_r1) >> *(
 				+list_access(_r1)
 				>> +field_access
-			) >> *list_access(_r1)
+			) >> +list_access(_r1)
 		) [
 			_val = phoenix::bind(&build_mixed_list_access, _1, _2, _3),
+			if_(phoenix::bind(&AbstractLanguageElement::type, _val) != _r2) [
+				_pass = false
+			]
+		]
+		| (
+			list_atom(_r1) >> +(
+				+list_access(_r1)
+				>> +field_access
+			)
+		) [
+			_val = phoenix::bind(&build_mixed_list_access, _1, _2, val(vector<Expression *>{})),
 			if_(phoenix::bind(&AbstractLanguageElement::type, _val) != _r2) [
 				_pass = false
 			]

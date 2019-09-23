@@ -4,6 +4,7 @@
 #include "compound_expression.h"
 
 #include <boost/spirit/include/qi_sequence.hpp>
+#include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_kleene.hpp>
@@ -61,13 +62,26 @@ rule<Expression *(Scope &, Typename)> &mixed_field_access()
 			>> *(
 				+field_access
 				>> +list_access(_r1)
-			) >> *field_access
+			) >> +field_access
 		) [
 			_val = phoenix::bind(&build_mixed_field_access, _1, _2, _3),
 			if_(phoenix::bind(&AbstractLanguageElement::type, _val) != _r2) [
 				_pass = false
 			]
 		]
+		| (
+			compound_atom(_r1)
+			>> +(
+				+field_access
+				>> +list_access(_r1)
+			)
+		) [
+			_val = phoenix::bind(&build_mixed_field_access, _1, _2, val(vector<string>{})),
+			if_(phoenix::bind(&AbstractLanguageElement::type, _val) != _r2) [
+				_pass = false
+			]
+		]
+
 		, "mixed_field_access"
 	};
 	GOLOGPP_DEBUG_NODE(rv)
