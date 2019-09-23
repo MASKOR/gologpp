@@ -6,7 +6,10 @@ function(get_eclipse_flag ECLIPSE_BIN FLAG RESULT)
 	set(${RESULT} ${CMD_OUTPUT} PARENT_SCOPE)
 endfunction()
 
-execute_process(COMMAND /usr/bin/which eclipse OUTPUT_VARIABLE ECLIPSE_BIN RESULT_VARIABLE WHICH_RESULT)
+execute_process(COMMAND /usr/bin/which eclipse-clp OUTPUT_VARIABLE ECLIPSE_BIN RESULT_VARIABLE WHICH_RESULT)
+if (NOT ECLIPSE_BIN)
+  execute_process(COMMAND /usr/bin/which eclipse OUTPUT_VARIABLE ECLIPSE_BIN RESULT_VARIABLE WHICH_RESULT)
+endif()
 
 if (ECLIPSE_BIN)
 	string(STRIP ${ECLIPSE_BIN} ECLIPSE_BIN)
