@@ -55,6 +55,23 @@ public:
 		ensure_consistent();
 	}
 
+	ReferenceBase(const shared_ptr<TargetT> &target, std::unordered_map< Reference<Variable>, unique_ptr<ArgsT> > params_to_args)
+	: target_(target)
+	{
+		args_.resize(params_to_args.size());
+		for (auto it = params_to_args.begin(); it != params_to_args.end(); it++){
+
+			auto target_it = std::find(this->target()->params().begin(), this->target()->params().end(), it->first.target());
+			int pos_in_target = std::distance(this->target()->params().begin(), target_it);
+			args_[pos_in_target] = std::move(it->second);
+			std::reference_wrapper<ArgsT> var = std::ref((*args_[pos_in_target]));
+			params_to_args_.insert(std::make_pair(
+				it->first.target()
+				, var
+			));
+		}
+		ensure_consistent();
+	}
 
 	ReferenceBase(const shared_ptr<TargetT> &target, const vector<ArgsT *> &args)
 	: ReferenceBase(target, vector<unique_ptr<ArgsT>>(args.begin(), args.end()))
