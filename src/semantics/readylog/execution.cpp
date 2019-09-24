@@ -38,7 +38,7 @@ ReadylogContext::ReadylogContext(const eclipse_opts &options, unique_ptr<Platfor
 
 	ec_start_ = new EC_ref();
 
-  std::string readylog_path = find_readylog();
+	std::string readylog_path = find_readylog();
 	std::cout << "Loading readylog from " << readylog_path << " ..." << std::endl;
 
 	if (options.trace)
@@ -133,34 +133,33 @@ void ReadylogContext::compile(const Function &function)
 void ReadylogContext::compile_term(const EC_word &term)
 {
 	if (! ec_query (
-		::term(EC_functor("compile_term", 1), term)
+	::term(EC_functor("compile_term", 1), term)
 	) )
 		throw EclipseError("Failed to compile_term/1");
 	ec_write(term);
 }
 
 std::string ReadylogContext::find_readylog() {
-  const char *readylog_pl = std::getenv("READYLOG_PL");
-  if (!readylog_pl) {
-    throw std::runtime_error(
-        "Could not find ReadyLog, environment variable READYLOG_PL not set");
-  }
-  std::string readylog_path_env(readylog_pl);
-  readylog_path_env += ":";
-  std::size_t last = 0;
-  std::size_t next;
-  while ((next = readylog_path_env.find(':', last)) != std::string::npos) {
-    std::string next_path = readylog_path_env.substr(last, next - last);
-    if (next_path != "") {
-      std::experimental::filesystem::path readylog_path(next_path);
-      readylog_path /= "preprocessor.pl";
-      if (std::experimental::filesystem::exists(readylog_path)) {
-        return std::string(readylog_path);
-      }
-    }
-    last = next + 1;
-  }
-  throw std::runtime_error("Could not find ReadyLog in " + readylog_path_env);
+	const char *readylog_pl = std::getenv("READYLOG_PL");
+	if (!readylog_pl)
+		throw std::runtime_error(
+			"Could not find ReadyLog, environment variable READYLOG_PL not set"
+		);
+	std::string readylog_path_env(readylog_pl);
+	readylog_path_env += ":";
+	std::size_t last = 0;
+	std::size_t next;
+	while ((next = readylog_path_env.find(':', last)) != std::string::npos) {
+		std::string next_path = readylog_path_env.substr(last, next - last);
+		if (next_path != "") {
+			std::experimental::filesystem::path readylog_path(next_path);
+			readylog_path /= "preprocessor.pl";
+			if (std::experimental::filesystem::exists(readylog_path))
+				return std::string(readylog_path);
+		}
+		last = next + 1;
+	}
+	throw std::runtime_error("Could not find ReadyLog in " + readylog_path_env);
 }
 
 void ReadylogContext::postcompile()
