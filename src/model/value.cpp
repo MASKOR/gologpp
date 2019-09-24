@@ -244,7 +244,7 @@ void Value::attach_semantics(SemanticsFactory &f)
 {
 	if (!semantics_) {
 		boost::apply_visitor(attach_semantics_visitor { f }, representation_);
-		set_implementation(f.make_semantics(*this));
+		set_semantics(f.make_semantics(*this));
 	}
 }
 

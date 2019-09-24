@@ -25,7 +25,7 @@ Scope &AbstractLanguageElement::m_scope()
 string AbstractLanguageElement::str() const
 { return to_string(""); }
 
-void AbstractLanguageElement::set_implementation(unique_ptr<AbstractSemantics> &&impl)
+void AbstractLanguageElement::set_semantics(unique_ptr<AbstractSemantics> &&impl)
 { semantics_ = std::move(impl); }
 
 const Type &AbstractLanguageElement::type() const

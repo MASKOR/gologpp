@@ -36,7 +36,7 @@ public:
 	Semantics<GologT> &semantics() const
 	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
 
-	void set_implementation(unique_ptr<AbstractSemantics> &&impl);
+	void set_semantics(unique_ptr<AbstractSemantics> &&impl);
 	virtual void attach_semantics(SemanticsFactory &) = 0;
 
 	virtual string to_string(const string &pfx) const = 0;

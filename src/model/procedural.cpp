@@ -190,7 +190,7 @@ void Pick::attach_semantics(SemanticsFactory &f)
 	variable_->attach_semantics(f);
 	statement_->attach_semantics(f);
 
-	set_implementation(f.make_semantics(*this));
+	set_semantics(f.make_semantics(*this));
 }
 
 

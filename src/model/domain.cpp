@@ -64,7 +64,7 @@ void Domain::attach_semantics(SemanticsFactory &f)
 {
 	for (const unique_ptr<Value> &c : elements_)
 		c->attach_semantics(f);
-	set_implementation(f.make_semantics(*this));
+	set_semantics(f.make_semantics(*this));
 }
 
 
