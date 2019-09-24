@@ -66,6 +66,8 @@ public:
 	void ensure_type(const Type &t);
 
 protected:
+	void set_type_unchecked(const string &name);
+
 	unique_ptr<AbstractSemantics> semantics_;
 
 private:
@@ -83,7 +85,7 @@ public:
 	LanguageElement()
 	{
 		if (typeid(TypeT) != typeid(UndefinedType))
-			set_type_by_name(TypeT::name());
+			set_type_unchecked(TypeT::name());
 	}
 
 	virtual ~LanguageElement() = default;

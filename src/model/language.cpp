@@ -79,4 +79,8 @@ void AbstractLanguageElement::ensure_type(const Type &t) {
 }
 
 
+void AbstractLanguageElement::set_type_unchecked(const string &name)
+{ type_ = global_scope().lookup_type(name); }
+
+
 } // namespace gologpp
