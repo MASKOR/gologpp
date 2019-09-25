@@ -76,8 +76,14 @@ public:
 	operator int () const
 	{ return boost::get<int>(representation()); }
 
+	operator unsigned int () const
+	{ return boost::get<unsigned int>(representation()); }
+
 	operator long () const
 	{ return boost::get<long>(representation()); }
+
+	operator unsigned long () const
+	{ return boost::get<unsigned long>(representation()); }
 
 	operator double () const
 	{ return boost::get<double>(representation()); }
