@@ -113,32 +113,6 @@ Value::Value(Representation &&l)
 {}
 
 
-template<class ReprT>
-Value::Value(const string &type_name, ReprT repr)
-: representation_(repr)
-{
-	set_type_by_name(type_name);
-}
-
-template
-Value::Value(const string &type_name, const string &);
-
-template
-Value::Value(const string &type_name, string);
-
-template
-Value::Value(const string &type_name, bool);
-
-template
-Value::Value(const string &type_name, int);
-
-template
-Value::Value(const string &type_name, long);
-
-template
-Value::Value(const string &type_name, double);
-
-
 Value::Value(const string &type_name, const vector<fusion_wtf_vector<string, Value *>> &compound_values)
 {
 	set_type_by_name(type_name);
