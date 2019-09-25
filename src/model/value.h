@@ -57,7 +57,9 @@ public:
 	>;
 
 	template<class ReprT>
-	Value(const string &type_name, ReprT repr);
+	explicit Value(const string &type_name, ReprT repr) : representation_(repr) {
+		set_type_by_name(type_name);
+	}
 
 	Value(const string &type_name, const vector<fusion_wtf_vector<string, Value *>> &compound_values);
 	Value(const string &type_name, const boost::optional<vector<Value *>> &list_values);
