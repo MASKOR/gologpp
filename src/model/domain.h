@@ -69,7 +69,7 @@ public:
 	void remove(const Domain &other);
 
 	template<class DefinitionT>
-	void define(const DefinitionT def);
+	void define(const DefinitionT &def);
 
 	void attach_semantics(SemanticsFactory &f) override;
 
@@ -84,7 +84,7 @@ private:
 
 
 template<class DefinitionT>
-void Domain::define(const DefinitionT def)
+void Domain::define(const DefinitionT &def)
 {
 	if (is_defined())
 		throw RedefinitionError(this->name());
