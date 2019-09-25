@@ -49,7 +49,7 @@ class Value
 {
 public:
 	using Representation = boost::variant <
-		int, long, double, // NumberType
+		unsigned int, int, unsigned long, long, double, // NumberType
 		string, // StringType, SymbolType
 		bool, // BoolType
 		CompoundType::Representation,
