@@ -46,10 +46,28 @@ Value *pl_term_to_value(EC_word term) {
 	EC_functor ftor;
 	double d;
 	long i;
+	long long li;
 	char *s;
 
 	if (EC_succeed == term.is_long(&i))
 		return new Value(NumberType::name(), i);
+	else if (EC_succeed == term.is_long_long(&li)) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtautological-type-limit-compare"
+// Compiler only looks at current architecture, but sizeof(long) needn't be equal to sizeof(long long)
+// on all architectures
+		if (li >= 0
+			&& static_cast<unsigned long long>(li) <= static_cast<unsigned long long>(
+				std::numeric_limits<unsigned long>::max()
+			)
+		)
+			return new Value(NumberType::name(), static_cast<unsigned long>(li));
+		else if (li >= std::numeric_limits<long>::min() && li <= std::numeric_limits<long>::max())
+			return new Value(NumberType::name(), static_cast<long>(li));
+		else
+			throw std::runtime_error(std::to_string(li) + " exceeds value limits representable in golog++");
+#pragma clang diagnostic pop
+	}
 	else if (EC_succeed == term.is_double(&d))
 		return new Value(NumberType::name(), d);
 	else if (EC_succeed == term.is_atom(&did)) {

@@ -20,8 +20,11 @@ EC_word Semantics<Value>::plterm()
 			return EC_word(static_cast<double>(value_));
 		else if (value_.representation().type() == boost::typeindex::type_id<int>())
 			return EC_word(static_cast<int>(value_));
-		else if (value_.representation().type() == boost::typeindex::type_id<long>())
+		else if (value_.representation().type() == boost::typeindex::type_id<long>()
+			|| value_.representation().type() == boost::typeindex::type_id<unsigned int>())
 			return EC_word(static_cast<long>(value_));
+		else if (value_.representation().type() == boost::typeindex::type_id<unsigned long>())
+			return EC_word(static_cast<long long>(static_cast<unsigned long>(value_)));
 		else
 			throw std::runtime_error("Unknown Constant type");
 	}
