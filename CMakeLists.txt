@@ -40,6 +40,12 @@ if(NOT CMAKE_BUILD_TYPE)
 	FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
+if (NOT SHARE_INSTALL_PREFIX)
+	set(SHARE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/share)
+endif(NOT SHARE_INSTALL_PREFIX)
+
+set(SEMANTICS_INSTALL_DIR ${SHARE_INSTALL_PREFIX}/golog++/semantics)
+
 
 set(GOLOGPP_VERSION 0.0.1)
 
@@ -252,6 +258,11 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/string.h
 		src/semantics/readylog/history.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/readylog
+	)
+
+	install(FILES
+		src/semantics/readylog/boilerplate.pl
+		DESTINATION ${SEMANTICS_INSTALL_DIR}/readylog
 	)
 
 	get_target_property(READYLOGPP_CXXFLAGS_L readylog++ COMPILE_OPTIONS)
