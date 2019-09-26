@@ -11,6 +11,7 @@
 
 #include <model/action.h>
 
+namespace filesystem = std::experimental::filesystem;
 
 namespace gologpp {
 
@@ -152,9 +153,9 @@ std::string ReadylogContext::find_readylog() {
 	while ((next = readylog_path_env.find(':', last)) != std::string::npos) {
 		std::string next_path = readylog_path_env.substr(last, next - last);
 		if (next_path != "") {
-			std::experimental::filesystem::path readylog_path(next_path);
+			filesystem::path readylog_path(next_path);
 			readylog_path /= "preprocessor.pl";
-			if (std::experimental::filesystem::exists(readylog_path))
+			if (filesystem::exists(readylog_path))
 				return std::string(readylog_path);
 		}
 		last = next + 1;
@@ -163,14 +164,14 @@ std::string ReadylogContext::find_readylog() {
 }
 
 std::string ReadylogContext::find_boilerplate() {
-	std::experimental::filesystem::path boilerplate_src_path{SOURCE_DIR};
+	filesystem::path boilerplate_src_path{SOURCE_DIR};
 	boilerplate_src_path /= "src/semantics/readylog/boilerplate.pl";
-	if (std::experimental::filesystem::exists(boilerplate_src_path)) {
+	if (filesystem::exists(boilerplate_src_path)) {
 		return boilerplate_src_path.string();
 	} else {
-		std::experimental::filesystem::path boilerplate_install_path{SEMANTICS_INSTALL_DIR};
+		filesystem::path boilerplate_install_path{SEMANTICS_INSTALL_DIR};
 		boilerplate_install_path /= "readylog/boilerplate.pl";
-		if (std::experimental::filesystem::exists(boilerplate_install_path)) {
+		if (filesystem::exists(boilerplate_install_path)) {
 			return boilerplate_install_path.string();
 		} else {
 			throw std::runtime_error("Could not find readylog boilerplate in "
