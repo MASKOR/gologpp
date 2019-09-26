@@ -15,7 +15,7 @@ pkg_check_modules(SWIPL "swipl")
 
 include_directories(${Boost_INCLUDE_DIR} src)
 
-add_compile_options(-Wall)
+add_compile_options(-Wall -Wno-unknown-pragmas)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -fno-omit-frame-pointer -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O2")
