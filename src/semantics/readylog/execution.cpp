@@ -11,6 +11,7 @@
 
 #include <model/action.h>
 
+namespace filesystem = std::experimental::filesystem;
 
 namespace gologpp {
 
@@ -69,7 +70,7 @@ ReadylogContext::ReadylogContext(const eclipse_opts &options, unique_ptr<Platfor
 	//ec_query(EC_atom("toggle_dtdebug"));
 	
 	ec_query(::term(EC_functor("compile", 1),
-		EC_atom(SOURCE_DIR "/src/semantics/readylog/boilerplate.pl")
+		EC_atom(find_boilerplate().c_str())
 	));
 }
 
@@ -152,15 +153,31 @@ std::string ReadylogContext::find_readylog() {
 	while ((next = readylog_path_env.find(':', last)) != std::string::npos) {
 		std::string next_path = readylog_path_env.substr(last, next - last);
 		if (next_path != "") {
-			std::experimental::filesystem::path readylog_path(next_path);
+			filesystem::path readylog_path(next_path);
 			readylog_path /= "preprocessor.pl";
-			if (std::experimental::filesystem::exists(readylog_path))
+			if (filesystem::exists(readylog_path))
 				return std::string(readylog_path);
 		}
 		last = next + 1;
 	}
 	throw std::runtime_error("Could not find ReadyLog in " + readylog_path_env);
 }
+
+std::string ReadylogContext::find_boilerplate() {
+	filesystem::path boilerplate_src_path{SOURCE_DIR};
+	boilerplate_src_path /= "src/semantics/readylog/boilerplate.pl";
+	if (filesystem::exists(boilerplate_src_path)) {
+		return boilerplate_src_path.string();
+	}
+	filesystem::path boilerplate_install_path{SEMANTICS_INSTALL_DIR};
+	boilerplate_install_path /= "readylog/boilerplate.pl";
+	if (filesystem::exists(boilerplate_install_path)) {
+		return boilerplate_install_path.string();
+	}
+	throw std::runtime_error("Could not find readylog boilerplate in " + boilerplate_src_path.string()
+	                         + " or " + boilerplate_install_path.string());
+}
+
 
 void ReadylogContext::postcompile()
 {

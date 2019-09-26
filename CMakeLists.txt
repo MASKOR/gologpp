@@ -40,6 +40,8 @@ if(NOT CMAKE_BUILD_TYPE)
 	FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
+set(SEMANTICS_INSTALL_DIR ${CMAKE_INSTALL_DATAROOTDIR}/golog++/semantics)
+
 
 set(GOLOGPP_VERSION 0.0.1)
 
@@ -229,7 +231,11 @@ if (${BUILD_READYLOG_IMPL})
 
 	link_directories(${ECLIPSE_LIBRARY_DIRS})
 	add_library(readylog++ SHARED ${READYLOG_SRC})
-	target_compile_definitions(readylog++ PUBLIC -DECLIPSE_DIR=\"${ECLIPSE_DIR}\" -DUSES_NO_ENGINE_HANDLE)
+  target_compile_definitions(readylog++ PUBLIC
+		-DECLIPSE_DIR=\"${ECLIPSE_DIR}\"
+		-DUSES_NO_ENGINE_HANDLE
+		-DSEMANTICS_INSTALL_DIR=\"${SEMANTICS_INSTALL_DIR}\"
+	)
 	target_include_directories(readylog++ PUBLIC ${ECLIPSE_INCLUDE_DIRS})
 	target_link_libraries(readylog++ golog++ ${ECLIPSE_LIBRARIES} stdc++fs)
 	set_property(TARGET readylog++ PROPERTY CXX_STANDARD 14)
@@ -254,6 +260,11 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/string.h
 		src/semantics/readylog/history.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/readylog
+	)
+
+	install(FILES
+		src/semantics/readylog/boilerplate.pl
+		DESTINATION ${SEMANTICS_INSTALL_DIR}/readylog
 	)
 
 	get_target_property(READYLOGPP_CXXFLAGS_L readylog++ COMPILE_OPTIONS)
