@@ -46,6 +46,7 @@ private:
 
     virtual void compile_term(const EC_word &term);
     std::string find_readylog();
+    std::string find_boilerplate();
 
 	EC_ref *ec_start_;
 	int last_rv_;

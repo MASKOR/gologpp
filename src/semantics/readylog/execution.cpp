@@ -69,7 +69,7 @@ ReadylogContext::ReadylogContext(const eclipse_opts &options, unique_ptr<Platfor
 	//ec_query(EC_atom("toggle_dtdebug"));
 	
 	ec_query(::term(EC_functor("compile", 1),
-		EC_atom(SOURCE_DIR "/src/semantics/readylog/boilerplate.pl")
+		EC_atom(find_boilerplate().c_str())
 	));
 }
 
@@ -161,6 +161,25 @@ std::string ReadylogContext::find_readylog() {
 	}
 	throw std::runtime_error("Could not find ReadyLog in " + readylog_path_env);
 }
+
+std::string ReadylogContext::find_boilerplate() {
+	std::experimental::filesystem::path boilerplate_src_path{SOURCE_DIR};
+	boilerplate_src_path /= "src/semantics/readylog/boilerplate.pl";
+	if (std::experimental::filesystem::exists(boilerplate_src_path)) {
+		return boilerplate_src_path.string();
+	} else {
+		std::experimental::filesystem::path boilerplate_install_path{SEMANTICS_INSTALL_DIR};
+		boilerplate_install_path /= "readylog/boilerplate.pl";
+		if (std::experimental::filesystem::exists(boilerplate_install_path)) {
+			return boilerplate_install_path.string();
+		} else {
+			throw std::runtime_error("Could not find readylog boilerplate in "
+			                         + boilerplate_src_path.string() + " or "
+			                         + boilerplate_install_path.string());
+		}
+	}
+}
+
 
 void ReadylogContext::postcompile()
 {
