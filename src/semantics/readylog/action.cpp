@@ -5,7 +5,7 @@
 #include "variable.h"
 #include "value.h"
 
-#include <model/transition.h>
+#include <model/activity.h>
 
 #include <eclipseclass.h>
 

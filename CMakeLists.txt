@@ -51,6 +51,7 @@ set(GOLOGPP_VERSION 0.0.1)
 
 set(INTERFACE_SRC
 	src/model/action.cpp
+	src/model/activity.cpp
 	src/model/variable.cpp
 	src/model/value.cpp
 	src/model/effect_axiom.cpp
@@ -83,6 +84,7 @@ set_property(TARGET golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
 install(TARGETS golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES
+	src/model/activity.h
 	src/model/semantics.h
 	src/model/formula.h
 	src/model/effect_axiom.h
