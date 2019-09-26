@@ -47,7 +47,7 @@ public:
 
 	SemanticsFactory &semantics_factory();
 
-	unique_ptr<PlatformBackend> &backend();
+	PlatformBackend &backend();
 
 private:
 	std::mutex exog_mutex_;

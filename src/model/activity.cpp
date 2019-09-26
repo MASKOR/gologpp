@@ -1,18 +1,21 @@
 #include "activity.h"
+#include "execution.h"
 
 
 namespace gologpp {
 
 
 
-Activity::Activity(const shared_ptr<Action> &action, vector<unique_ptr<Value>> &&args, State state)
+Activity::Activity(const shared_ptr<Action> &action, vector<unique_ptr<Value>> &&args, AExecutionContext &ctx, State state)
 : Grounding<Action>(action, std::move(args))
 , state_(state)
+, exec_context_(ctx)
 {}
 
-Activity::Activity(const shared_ptr<Transition> &trans)
+Activity::Activity(const shared_ptr<Transition> &trans, AExecutionContext &ctx)
 : Grounding<Action>(trans->target(), copy(trans->args()))
 , state_(State::IDLE)
+, exec_context_(ctx)
 {
 	if (trans->hook() != Transition::Hook::START)
 		throw Bug("Activity must be constructed from a START Transition");
@@ -24,8 +27,48 @@ void Activity::set_state(Activity::State state)
 Activity::State Activity::state() const
 { return state_; }
 
-shared_ptr<Transition> Activity::transition(Transition::Hook hook)
-{ return std::make_shared<Transition>(target(), copy(args()), hook); }
+
+Activity::State Activity::target_state(Transition::Hook hook)
+{
+	switch (hook) {
+	case Transition::Hook::START:
+		return Activity::State::RUNNING;
+	case Transition::Hook::STOP:
+		return Activity::State::PREEMPTED;
+	case Transition::Hook::FINISH:
+		return Activity::State::FINAL;
+	case Transition::Hook::FAIL:
+		return Activity::State::FAILED;
+	}
+	throw Bug("Unhandled Transition hook. Ignored warnings when compiling?");
+}
+
+
+void Activity::update(Transition::Hook hook, Value *sensing_result)
+{
+	PlatformBackend::Lock backend_lock = exec_context_.backend().lock();
+
+	if (hook == Transition::Hook::FINISH) {
+		if (target()->senses() && !sensing_result)
+			throw Bug("PlatformBackend implementation tried to finish the sensing action "
+				+ static_cast<const Grounding<Action> &>(*this).str()
+				+ " without providing a sensing result"
+			);
+		else if (!target()->senses() && sensing_result)
+			throw Bug("PlatformBackend implementation gave a sensing result to the action "
+				+ static_cast<const Grounding<Action> &>(*this).str()
+				+ ", but it is not a sensing action"
+			);
+		else if (sensing_result) {
+			sensing_result->attach_semantics(exec_context_.semantics_factory());
+			set_sensing_result(sensing_result);
+		}
+	}
+
+	set_state(target_state(hook));
+
+	exec_context_.exog_queue_push(shared_from_this());
+}
 
 
 Value Activity::mapped_arg_value(const string &name) const

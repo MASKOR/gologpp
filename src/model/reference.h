@@ -276,21 +276,6 @@ public:
 			ReferenceBase<TargetT, Value>::attach_semantics(f);
 		}
 	}
-
-
-	struct Hash {
-		std::size_t operator () (const shared_ptr<Grounding<TargetT>> &t) const
-		{ return t->hash(); }
-	};
-
-
-	struct Equals {
-		bool operator () (
-			const shared_ptr<Grounding<TargetT>> &lhs,
-			const shared_ptr<Grounding<TargetT>> &rhs
-		) const
-		{ return *lhs == *rhs; }
-	};
 };
 
 
@@ -376,12 +361,18 @@ private:
 
 namespace std {
 
+
 template<class TargetT>
 struct hash<gologpp::Reference<TargetT>> {
 	size_t operator () (const gologpp::Reference<TargetT> &o) const
 	{ return o.hash(); }
 };
 
+template<class TargetT>
+struct hash<gologpp::Reference<TargetT> *> {
+	size_t operator () (const gologpp::Reference<TargetT> *o) const
+	{ return o->hash(); }
+};
 
 template<class TargetT>
 struct hash<gologpp::unique_ptr<gologpp::Reference<TargetT>>> {
@@ -390,10 +381,76 @@ struct hash<gologpp::unique_ptr<gologpp::Reference<TargetT>>> {
 };
 
 template<class TargetT>
+struct hash<gologpp::shared_ptr<gologpp::Reference<TargetT>>> {
+	size_t operator () (const gologpp::shared_ptr<gologpp::Reference<TargetT>> &o) const
+	{ return o->hash(); }
+};
+
+template<class TargetT>
 struct equal_to<gologpp::unique_ptr<gologpp::Reference<TargetT>>> {
 	bool operator () (
 		const gologpp::unique_ptr<gologpp::Reference<TargetT>> &lhs,
 		const gologpp::unique_ptr<gologpp::Reference<TargetT>> &rhs
+	) const {
+		return *lhs == *rhs;
+	}
+};
+
+template<class TargetT>
+struct equal_to<gologpp::shared_ptr<gologpp::Reference<TargetT>>> {
+	bool operator () (
+		const gologpp::shared_ptr<gologpp::Reference<TargetT>> &lhs,
+		const gologpp::shared_ptr<gologpp::Reference<TargetT>> &rhs
+	) const {
+		return *lhs == *rhs;
+	}
+};
+
+template<class TargetT>
+struct equal_to<gologpp::Reference<TargetT> *> {
+	bool operator () (
+		const gologpp::Reference<TargetT> *lhs,
+		const gologpp::Reference<TargetT> *rhs
+	) const {
+		return *lhs == *rhs;
+	}
+};
+
+
+template<class TargetT>
+struct hash<gologpp::Grounding<TargetT>> {
+	size_t operator () (const gologpp::Grounding<TargetT> &o) const
+	{ return o.hash(); }
+};
+
+template<class TargetT>
+struct hash<gologpp::unique_ptr<gologpp::Grounding<TargetT>>> {
+	size_t operator () (const gologpp::unique_ptr<gologpp::Grounding<TargetT>> &o) const
+	{ return o->hash(); }
+};
+
+template<class TargetT>
+struct hash<gologpp::shared_ptr<gologpp::Grounding<TargetT>>> {
+	size_t operator () (const gologpp::shared_ptr<gologpp::Grounding<TargetT>> &o) const
+	{ return o->hash(); }
+};
+
+
+template<class TargetT>
+struct equal_to<gologpp::unique_ptr<gologpp::Grounding<TargetT>>> {
+	bool operator () (
+		const gologpp::unique_ptr<gologpp::Grounding<TargetT>> &lhs,
+		const gologpp::unique_ptr<gologpp::Grounding<TargetT>> &rhs
+	) const {
+		return *lhs == *rhs;
+	}
+};
+
+template<class TargetT>
+struct equal_to<gologpp::shared_ptr<gologpp::Grounding<TargetT>>> {
+	bool operator () (
+		const gologpp::shared_ptr<gologpp::Grounding<TargetT>> &lhs,
+		const gologpp::shared_ptr<gologpp::Grounding<TargetT>> &rhs
 	) const {
 		return *lhs == *rhs;
 	}
