@@ -168,17 +168,14 @@ std::string ReadylogContext::find_boilerplate() {
 	boilerplate_src_path /= "src/semantics/readylog/boilerplate.pl";
 	if (filesystem::exists(boilerplate_src_path)) {
 		return boilerplate_src_path.string();
-	} else {
-		filesystem::path boilerplate_install_path{SEMANTICS_INSTALL_DIR};
-		boilerplate_install_path /= "readylog/boilerplate.pl";
-		if (filesystem::exists(boilerplate_install_path)) {
-			return boilerplate_install_path.string();
-		} else {
-			throw std::runtime_error("Could not find readylog boilerplate in "
-			                         + boilerplate_src_path.string() + " or "
-			                         + boilerplate_install_path.string());
-		}
 	}
+	filesystem::path boilerplate_install_path{SEMANTICS_INSTALL_DIR};
+	boilerplate_install_path /= "readylog/boilerplate.pl";
+	if (filesystem::exists(boilerplate_install_path)) {
+		return boilerplate_install_path.string();
+	}
+	throw std::runtime_error("Could not find readylog boilerplate in " + boilerplate_src_path.string()
+	                         + " or " + boilerplate_install_path.string());
 }
 
 
