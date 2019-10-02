@@ -6,6 +6,8 @@
 #include "action.h"
 #include "transition.h"
 
+#include <boost/optional.hpp>
+
 
 namespace gologpp {
 
@@ -23,7 +25,7 @@ public:
 	State state() const;
 	void set_state(State s);
 
-	void update(Transition::Hook hook, Value *sensing_result = nullptr);
+	void update(Transition::Hook hook, boost::optional<Value> &&sensing_result = {});
 
 	const std::string &mapped_name() const;
 	Value mapped_arg_value(const string &name) const;
@@ -32,15 +34,15 @@ public:
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 
-	void set_sensing_result(Value *);
-	unique_ptr<Value> &sensing_result();
-	const unique_ptr<Value> &sensing_result() const;
+	void set_sensing_result(boost::optional<Value> &&);
+	boost::optional<Value> &sensing_result();
+	const boost::optional<Value> &sensing_result() const;
 
 	static State target_state(Transition::Hook);
 
 private:
 	State state_;
-	unique_ptr<Value> sensing_result_;
+	boost::optional<Value> sensing_result_;
 	AExecutionContext &exec_context_;
 };
 

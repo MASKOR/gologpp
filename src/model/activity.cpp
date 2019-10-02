@@ -44,7 +44,7 @@ Activity::State Activity::target_state(Transition::Hook hook)
 }
 
 
-void Activity::update(Transition::Hook hook, Value *sensing_result)
+void Activity::update(Transition::Hook hook, boost::optional<Value> &&sensing_result)
 {
 	PlatformBackend::Lock backend_lock = exec_context_.backend().lock();
 
@@ -61,7 +61,7 @@ void Activity::update(Transition::Hook hook, Value *sensing_result)
 			);
 		else if (sensing_result) {
 			sensing_result->attach_semantics(exec_context_.semantics_factory());
-			set_sensing_result(sensing_result);
+			set_sensing_result(std::forward<boost::optional<Value>>(sensing_result));
 		}
 	}
 
@@ -101,13 +101,13 @@ void Activity::attach_semantics(SemanticsFactory &implementor)
 	}
 }
 
-void Activity::set_sensing_result(Value *sr)
-{ sensing_result_.reset(sr); }
+void Activity::set_sensing_result(boost::optional<Value> &&sr)
+{ sensing_result_ = std::forward<boost::optional<Value>>(sr); }
 
-unique_ptr<Value> &Activity::sensing_result()
+boost::optional<Value> &Activity::sensing_result()
 { return sensing_result_; }
 
-const unique_ptr<Value> &Activity::sensing_result() const
+const boost::optional<Value> &Activity::sensing_result() const
 { return sensing_result_; }
 
 
