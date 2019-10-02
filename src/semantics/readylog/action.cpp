@@ -153,7 +153,7 @@ EC_word Semantics<Activity>::plterm()
 
 	return ::term(EC_functor("exog_state_change", 3),
 		Semantics<Grounding<Action>>::plterm(),
-		EC_word(ReadylogContext::instance().backend()->time().time_since_epoch().count()),
+		EC_word(ReadylogContext::instance().backend().time().time_since_epoch().count()),
 		EC_atom(state.c_str())
 	);
 }
@@ -192,7 +192,7 @@ EC_word Semantics<Transition>::plterm()
 
 	return ::term(EC_functor(name.c_str(), 2),
 		Semantics<Grounding<Action>>::plterm(),
-		EC_word(ReadylogContext::instance().backend()->time().time_since_epoch().count())
+		EC_word(ReadylogContext::instance().backend().time().time_since_epoch().count())
 	);
 }
 

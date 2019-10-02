@@ -33,18 +33,15 @@ struct Clock {
 
 class PlatformBackend {
 public:
-	using ActivitySet = std::unordered_set<
-		shared_ptr<Grounding<Action>>,
-		Grounding<Action>::Hash,
-		Grounding<Action>::Equals
-	>;
+	using ActivitySet = std::unordered_set<shared_ptr<Grounding<Action>>>;
+	using Lock = std::unique_lock<std::mutex>;
+
 	virtual ~PlatformBackend();
 
 	shared_ptr<Activity> end_activity(shared_ptr<Transition>);
 	void start_activity(shared_ptr<Transition>);
 	virtual void preempt_activity(shared_ptr<Transition>) = 0;
-
-	void update_activity(shared_ptr<Transition>, Value *sensing_result = nullptr);
+	Lock lock();
 
 	virtual Clock::time_point time() const noexcept = 0;
 	void set_context(AExecutionContext *ctx);
@@ -84,8 +81,7 @@ private:
 	};
 
 	std::unordered_map<
-		shared_ptr<Grounding<Action>>, shared_ptr<ActivityThread>,
-		Grounding<Action>::Hash, Grounding<Action>::Equals
+		shared_ptr<Grounding<Action>>, shared_ptr<ActivityThread>
 	> activity_threads_;
 };
 

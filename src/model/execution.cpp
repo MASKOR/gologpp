@@ -59,8 +59,8 @@ bool AExecutionContext::exog_empty()
 SemanticsFactory &AExecutionContext::semantics_factory()
 { return *semantics_; }
 
-unique_ptr<PlatformBackend> &AExecutionContext::backend()
-{ return platform_backend_;}
+PlatformBackend &AExecutionContext::backend()
+{ return *platform_backend_;}
 
 
 
@@ -85,7 +85,7 @@ History ExecutionContext::run(Block &&program)
 	compile(program);
 
 	while (!final(program, history)) {
-		context_time_ = backend()->time();
+		context_time_ = backend().time();
 		while (!exog_empty()) {
 			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_pop();
 			std::cout << ">>> Exogenous event: " << exog << std::endl;
@@ -98,13 +98,13 @@ History ExecutionContext::run(Block &&program)
 			if (trans) {
 				std::cout << "<<< trans: " << trans->str() << std::endl;
 				if (trans->hook() == Transition::Hook::STOP)
-					backend()->preempt_activity(trans);
+					backend().preempt_activity(trans);
 				else if (trans->hook() == Transition::Hook::START)
-					backend()->start_activity(trans);
+					backend().start_activity(trans);
 				else if (trans->hook() == Transition::Hook::FINISH && trans->target()->senses())
-					history.abstract_impl().append_sensing_result(backend()->end_activity(trans));
+					history.abstract_impl().append_sensing_result(backend().end_activity(trans));
 				else
-					backend()->end_activity(trans);
+					backend().end_activity(trans);
 			}
 		}
 		else {

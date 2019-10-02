@@ -14,36 +14,26 @@ Clock::time_point Clock::now() noexcept
 { return clock_source->time(); }
 
 
-static Activity::State trans2state(Transition::Hook hook) {
-	switch (hook) {
-	case Transition::Hook::START:
-		return Activity::State::RUNNING;
-	case Transition::Hook::STOP:
-		return Activity::State::PREEMPTED;
-	case Transition::Hook::FINISH:
-		return Activity::State::FINAL;
-	case Transition::Hook::FAIL:
-		return Activity::State::FAILED;
-	}
-	throw Bug("Unhandled Transition hook. Ignored warnings when compiling?");
-}
-
 
 PlatformBackend::~PlatformBackend()
 {}
 
 void PlatformBackend::start_activity(shared_ptr<Transition> trans)
 {
-	std::lock_guard<std::mutex> locked(mutex_);
-	shared_ptr<Activity> a = std::make_shared<Activity>(trans);
+	Lock l(lock());
+	shared_ptr<Activity> a = std::make_shared<Activity>(trans, *exec_ctx_);
 	execute_activity(a);
 	activities_.insert(a);
 }
 
 
+PlatformBackend::Lock PlatformBackend::lock()
+{ return Lock(mutex_); }
+
+
 shared_ptr<Activity> PlatformBackend::end_activity(shared_ptr<Transition> trans)
 {
-	std::lock_guard<std::mutex> locked(mutex_);
+	Lock l(lock());
 
 	ActivitySet::iterator it = activities_.find(trans);
 	shared_ptr<Activity> dur_running;
@@ -53,47 +43,12 @@ shared_ptr<Activity> PlatformBackend::end_activity(shared_ptr<Transition> trans)
 	if (!dur_running)
 		throw LostTransition(trans->str());
 
-	if (dur_running->state() != trans2state(trans->hook()))
+	if (dur_running->state() != Activity::target_state(trans->hook()))
 			throw InconsistentTransition(trans->str());
 
 	activities_.erase(it);
 
 	return dur_running;
-}
-
-
-void PlatformBackend::update_activity(shared_ptr<Transition> trans, Value *sensing_result)
-{
-	std::lock_guard<std::mutex> locked(mutex_);
-
-	ActivitySet::iterator it = activities_.find(trans);
-	shared_ptr<Activity> a;
-	if (it != activities_.end())
-		a = std::dynamic_pointer_cast<Activity>(*it);
-
-	if (!a)
-		throw LostTransition(trans->str());
-
-	if (trans->hook() == Transition::Hook::FINISH) {
-		if (a->target()->senses() && !sensing_result)
-			throw Bug("PlatformBackend implementation tried to finish the sensing action "
-				+ static_cast<const Grounding<Action> &>(*a).str()
-				+ " without providing a sensing result"
-			);
-		else if (!a->target()->senses() && sensing_result)
-			throw Bug("PlatformBackend implementation gave a sensing result to the action "
-				+ static_cast<const Grounding<Action> &>(*a).str()
-				+ ", but it is not a sensing action"
-			);
-		else if (sensing_result) {
-			sensing_result->attach_semantics(exec_ctx_->semantics_factory());
-			a->set_sensing_result(sensing_result);
-		}
-	}
-
-	a->set_state(trans2state(trans->hook()));
-
-	exec_ctx_->exog_queue_push(a);
 }
 
 
@@ -115,11 +70,11 @@ void DummyBackend::ActivityThread::end_activity(std::chrono::duration<double> wh
 
 	if (canceled) {
 		std::cout << "DummyBackend: Activity " << a->str() << " STOPPED" << std::endl;
-		b.update_activity(a->transition(Transition::Hook::STOP));
+		a->update(Transition::Hook::STOP);
 	}
 	else {
 		std::cout << "DummyBackend: Activity " << a->str() << " FINAL" << std::endl;
-		b.update_activity(a->transition(Transition::Hook::FINISH));
+		a->update(Transition::Hook::FINISH);
 	}
 
 	std::lock_guard<std::mutex> locked(b.thread_mtx_);
