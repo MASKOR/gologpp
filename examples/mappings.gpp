@@ -1,8 +1,6 @@
 string fluent pending_order(number id) {
 initially:
-    // Currently, general "initially:" statements aren't supported
-    // So we need to have this dummy here.
-    (0) = "";
+    (id) = null;
 }
 
 
@@ -27,3 +25,6 @@ effect:
     pending_order(id) = what;
 }
 
+{
+    test(pending_order(0) == null);
+}
