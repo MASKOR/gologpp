@@ -53,7 +53,8 @@ public:
 		string, // StringType, SymbolType
 		bool, // BoolType
 		CompoundType::Representation,
-		ListType::Representation
+		ListType::Representation,
+		void *
 	>;
 
 	template<class ReprT>
@@ -65,6 +66,7 @@ public:
 	Value(const string &type_name, const boost::optional<vector<Value *>> &list_values);
 	Value(Value &&c);
 	Value(const Value &c);
+	explicit Value();
 
 	Value &operator = (Value &&);
 	Value &operator = (const Value &c);
@@ -100,6 +102,9 @@ public:
 	operator const ListType::Representation &() const
 	{ return boost::get<ListType::Representation>(representation()); }
 
+	operator void *() const
+	{ return boost::get<void *>(representation()); }
+
 	Representation &representation()
 	{ return representation_; }
 
@@ -114,6 +119,8 @@ public:
 	virtual Value *copy() const;
 
 	virtual void attach_semantics(SemanticsFactory &f) override;
+
+	static Value undefined();
 
 protected:
 	Value(Representation &&repr);

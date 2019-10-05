@@ -50,6 +50,17 @@ struct Value::to_string_visitor {
 		return rv + "]";
 	}
 
+	string operator() (void *p) const
+	{
+		if (!p)
+			return "null";
+
+		string rv;
+		std::stringstream s(rv);
+		s << pfx << std::hex << p;
+		return rv;
+	}
+
 	template<class T>
 	string operator() (const T &o) const
 	{ return pfx + std::to_string(o); }
@@ -141,6 +152,11 @@ Value::Value(const string &type_name, const vector<fusion_wtf_vector<string, Val
 }
 
 
+Value::Value()
+: representation_(nullptr)
+{}
+
+
 Value::Value(const string &type_name, const boost::optional<vector<Value *>> &list_values)
 {
 	set_type_by_name(type_name);
@@ -222,6 +238,9 @@ void Value::attach_semantics(SemanticsFactory &f)
 	}
 }
 
+
+Value Value::undefined()
+{ return Value(); }
 
 
 vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v)

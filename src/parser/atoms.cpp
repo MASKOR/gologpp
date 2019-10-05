@@ -77,6 +77,17 @@ rule<shared_ptr<Variable>(Scope &, Typename)> &var_usage() {
 }
 
 
+rule<Reference<Variable> *(Scope &, Typename)> &var_ref() {
+	static rule<Reference<Variable> *(Scope &, Typename)> rv {
+		var_usage()(_r1, _r2) [
+			_val = new_<Reference<Variable>>(_1)
+		]
+	};
+
+	return rv;
+}
+
+
 rule<shared_ptr<Variable>(Scope &)> &any_var_usage() {
 	static rule<shared_ptr<Variable>(Scope &)> rv {
 		r_name() [
@@ -94,11 +105,21 @@ rule<shared_ptr<Variable>(Scope &)> &any_var_usage() {
 
 
 
+rule<Value *()> &undefined_literal() {
+	static rule<Value *()> rv {
+		lit("null") [
+			_val = new_<Value>()
+		]
+	};
+	return rv;
+}
+
 
 rule<Value *()> &numeric_literal() {
 	static real_parser<double, strict_real_policies<double>> strict_double;
 	static rule<Value *()> rv {
-		strict_double [
+		undefined_literal() [ _val = _1 ]
+		| strict_double [
 			_val = new_<Value>(NumberType::name(), _1)
 		]
 		| int_ [
@@ -112,7 +133,8 @@ rule<Value *()> &numeric_literal() {
 
 rule<Value *()> &boolean_literal() {
 	static rule<Value *()> rv {
-		lit("true") [
+		undefined_literal() [ _val = _1 ]
+		| lit("true") [
 			_val = new_<Value>(BoolType::name(), true)
 		]
 		| lit("false") [
@@ -127,7 +149,8 @@ rule<Value *()> &boolean_literal() {
 
 rule<Value *()> &string_literal() {
 	static rule<Value *()> rv {
-		raw_string_literal() [
+		undefined_literal() [ _val = _1 ]
+		| raw_string_literal() [
 			_val = new_<Value>(StringType::name(), _1)
 		],
 		"string_literal"
@@ -139,7 +162,8 @@ rule<Value *()> &string_literal() {
 
 rule<Value *()> &symbolic_literal() {
 		static rule<Value *()> rv {
-		r_name() [
+		undefined_literal() [ _val = _1 ]
+		| r_name() [
 			_val = phoenix::bind(&Scope::get_symbol, phoenix::bind(&global_scope), _1),
 			if_(_val == nullptr) [
 				_pass = false
@@ -171,8 +195,10 @@ struct CompoundConstantParser : grammar<Value *()> {
 	CompoundConstantParser()
 	: CompoundConstantParser::base_type(compound_constant_, "compound_literal")
 	{
-		compound_constant_ = (
-			(any_type_specifier()(phoenix::bind(&global_scope)) >> '{')
+		compound_constant_ =
+			undefined_literal() [ _val = _1 ]
+			| (
+				(any_type_specifier()(phoenix::bind(&global_scope)) >> '{')
 				> (
 					r_name() > '=' > any_constant_
 				) % ',' > '}'
@@ -209,12 +235,14 @@ struct ListLiteralParser : grammar<Value *()> {
 	ListLiteralParser()
 	: ListLiteralParser::base_type(list_literal_, "list_literal")
 	{
-		list_literal_ = (
-			any_type_specifier()(phoenix::bind(&global_scope))
-			>> '['
-			>> -(any_literal_ % ',')
-			>> ']'
-		) [
+		list_literal_ =
+			undefined_literal() [ _val = _1 ]
+			| (
+				any_type_specifier()(phoenix::bind(&global_scope))
+				>> '['
+				>> -(any_literal_ % ',')
+				>> ']'
+			) [
 			_val = new_<Value>(_1, _2)
 		];
 		list_literal_.name("list_literal");

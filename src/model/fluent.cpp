@@ -4,7 +4,7 @@
 namespace gologpp {
 
 
-InitialValue::InitialValue(const vector<Value *> &args, Value *value)
+InitialValue::InitialValue(const vector<Expression *> &args, Value *value)
 {
 	set_type(value->type());
 	set_args(args);
@@ -12,19 +12,19 @@ InitialValue::InitialValue(const vector<Value *> &args, Value *value)
 }
 
 
-InitialValue::InitialValue(const boost::optional<vector<Value *>> &args, Value *value)
+InitialValue::InitialValue(const boost::optional<vector<Expression *>> &args, Value *value)
 : InitialValue(args.get_value_or({}), value)
 {}
 
-const vector<unique_ptr<Value>> &InitialValue::args() const
+const vector<unique_ptr<Expression>> &InitialValue::args() const
 { return args_; }
 
-vector<unique_ptr<Value>> &InitialValue::args()
+vector<unique_ptr<Expression>> &InitialValue::args()
 { return args_; }
 
-void InitialValue::set_args(const vector<Value *> &args)
+void InitialValue::set_args(const vector<Expression *> &args)
 {
-	for (Value *c : args) {
+	for (Expression *c : args) {
 		c->set_parent(this);
 		args_.emplace_back(c);
 	}
@@ -48,7 +48,7 @@ void InitialValue::attach_semantics(SemanticsFactory &implementor)
 	if (semantics_)
 		return;
 	value().attach_semantics(implementor);
-	for (unique_ptr<Value> &arg : args())
+	for (unique_ptr<Expression> &arg : args())
 		arg->attach_semantics(implementor);
 
 	semantics_ = implementor.make_semantics(*this);
@@ -104,10 +104,10 @@ void Fluent::compile(AExecutionContext &ctx)
 
 void Fluent::define(const boost::optional<vector<InitialValue *>> &initial_values)
 {
-	for (shared_ptr<Variable> &arg : params())
-		if (arg->domain().is_implicit())
-			arg->define_implicit_domain("implicit_domain("
-			+ arg->str() + "@" + name() + "/" + std::to_string(arity()) +
+	for (shared_ptr<Variable> &param : params())
+		if (param->domain().is_implicit())
+			param->define_implicit_domain("implicit_domain("
+			+ param->str() + "@" + name() + "/" + std::to_string(arity()) +
 			")");
 
 	if (initial_values) {
@@ -117,13 +117,18 @@ void Fluent::define(const boost::optional<vector<InitialValue *>> &initial_value
 			if (arity() != ival->args().size())
 				throw UserError("Fluent " + str() + ": Arity mismatch with initial value " + ival->str());
 
-			for (arity_t arg_idx = 0; arg_idx < arity(); ++arg_idx) {
-				Variable &arg = *params()[arg_idx];
-				Value &arg_value = *ival->args()[arg_idx];
+			for (arity_t param_idx = 0; param_idx < arity(); ++param_idx) {
+				Variable &param = *params()[param_idx];
+				Expression &arg = *ival->args()[param_idx];
 
-				ensure_type_equality(arg, arg_value);
+				ensure_type_equality(param, arg);
 
-				arg.add_implicit_domain_element(arg_value);
+				// Make sure the argument is either a value or a reference to one of this fluent's parameters
+				Reference<Variable> *var_ref = dynamic_cast<Reference<Variable> *>(&arg);
+				if (arg.is_a<Value>())
+					param.add_implicit_domain_element(dynamic_cast<Value &>(arg));
+				else if (!var_ref || *var_ref->target() != param)
+					throw Bug("Fluent argument in initial value definition must be either a Value or a Reference to a parameter");
 			}
 			ival->set_fluent(*this);
 

@@ -59,6 +59,9 @@ EC_word Semantics<Value>::plterm()
 			list
 		);
 	}
+	else if (value_.type().is<UndefinedType>()) {
+		return EC_atom("fail");
+	}
 	else
 		throw std::runtime_error("Unknown Constant type");
 }

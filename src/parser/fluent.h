@@ -31,7 +31,8 @@ struct FluentParser
 		>
 	> fluent;
 
-	rule<InitialValue *(Typename)> initially;
+	rule<Expression *(Scope &)> initial_val_arg;
+	rule<InitialValue *(Scope &, Typename)> initially;
 };
 
 

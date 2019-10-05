@@ -55,7 +55,7 @@ FluentParser::FluentParser()
 			_pass = !!_val
 		]
 		| ( lit('{') > ( // definition
-			("initially:" > +initially(_d))
+			("initially:" > +initially(*_a, _d))
 			^ ("domain:" > +domain_assignment()(*_a, false))
 		) > '}' ) [
 			_val = phoenix::bind(
@@ -72,10 +72,15 @@ FluentParser::FluentParser()
 	fluent.name("fluent_definition");
 	on_error<rethrow>(fluent, delete_(_a));
 
+	initial_val_arg = var_ref()(_r1, UndefinedType::name()) | any_literal();
+	initial_val_arg.name("initial_value_argument");
+
+
 	initially = (lit('(')
-		> -(any_literal() % ',')
-		> ')' > '='
-		>> literal()(_r1, false)
+		> -(
+			initial_val_arg(_r1) % ','
+		) > ')' > '='
+		>> literal()(_r2, false)
 		> ';'
 	) [
 		_val = new_<InitialValue>(_1, _2)

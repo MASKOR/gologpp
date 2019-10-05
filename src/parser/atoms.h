@@ -11,6 +11,7 @@ namespace parser {
 
 rule<shared_ptr<Variable>(Scope &)> &var_decl();
 rule<shared_ptr<Variable>(Scope &, Typename)> &var_usage();
+rule<Reference<Variable> *(Scope &, Typename)> &var_ref();
 rule<shared_ptr<Variable>(Scope &)> &any_var_usage();
 
 
@@ -21,6 +22,7 @@ rule<Value *()> &symbolic_literal();
 rule<Value *()> &symbolic_literal_def();
 rule<Value *()> &compound_literal();
 rule<Value *()> &list_literal();
+rule<Value *()> &undefined_literal();
 
 rule<Value *()> &any_literal();
 
