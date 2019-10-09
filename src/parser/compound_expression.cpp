@@ -28,9 +28,9 @@ rule<Expression *(Scope &)> compound_expression;
 void initialize_compound_exprs()
 {
 	compound_atom =
-		compound_literal()
-		| typed_reference<Fluent>()(_r1, CompoundType::name())
-		| typed_reference<Function>()(_r1, CompoundType::name())
+		compound_literal() [ _val = _1 ]
+		| typed_reference<Fluent>()(_r1, CompoundType::name()) [ _val = _1 ]
+		| typed_reference<Function>()(_r1, CompoundType::name()) [ _val = _1 ]
 		| var_usage()(_r1, val(CompoundType::name())) [
 			_val = new_<Reference<Variable>>(_1)
 		]
@@ -38,9 +38,9 @@ void initialize_compound_exprs()
 	;
 
 	compound_expression =
-		mixed_field_access()(_r1, CompoundType::name())
-		| mixed_list_access()(_r1, CompoundType::name())
-		| compound_atom(_r1)
+		mixed_field_access()(_r1, CompoundType::name()) [ _val = _1 ]
+		| mixed_list_access()(_r1, CompoundType::name()) [ _val = _1 ]
+		| compound_atom(_r1) [ _val = _1 ]
 		, "compound_expression"
 	;
 }

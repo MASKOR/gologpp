@@ -39,9 +39,9 @@ void initialize_list_exprs()
 	};
 
 	list_expression = {
-		mixed_field_access()(_r1, ListType::name())
-			| mixed_list_access()(_r1, ListType::name())
-			| list_atom(_r1)
+		mixed_field_access()(_r1, ListType::name()) [ _val = _1 ]
+			| mixed_list_access()(_r1, ListType::name()) [ _val = _1 ]
+			| list_atom(_r1) [ _val = _1 ]
 		, "list_expression"
 	};
 
