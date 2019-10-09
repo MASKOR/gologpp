@@ -102,10 +102,10 @@ void test_objectmodel()
 }
 
 
-void test_parser()
+void test_parser(const string &filename)
 {
 #ifdef GOLOGPP_TEST_PARSER
-	Expression *mainproc = parser::parse_file(SOURCE_DIR "/examples/blocksworld.gpp").release();
+	Expression *mainproc = parser::parse_file(filename).release();
 
 	for (shared_ptr<const Global> g : global_scope().globals())
 		std::cout << g->str() << std::endl;
@@ -167,10 +167,15 @@ void test_eclipse()
 
 
 
-int main(int, const char **)
+int main(int argc, const char **argv)
 {
 	test_objectmodel();
-	test_parser();
+
+	string filename = SOURCE_DIR "/examples/blocksworld.gpp";
+	if (argc > 1)
+		filename = argv[1];
+	test_parser(filename);
+
 	test_eclipse();
 	return 0;
 }
