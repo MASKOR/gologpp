@@ -57,6 +57,8 @@ public:
 		void *
 	>;
 
+	// For ReprT = const char * there is an explicit specialization since it would be
+	// converted to bool otherwise (see below and in .cpp).
 	template<class ReprT>
 	explicit Value(const string &type_name, ReprT repr) : representation_(repr) {
 		set_type_by_name(type_name);
@@ -133,6 +135,9 @@ private:
 	struct attach_semantics_visitor;
 };
 
+
+template<>
+Value::Value(const string &type_name, const char *repr);
 
 
 vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v);

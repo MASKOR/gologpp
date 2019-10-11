@@ -124,6 +124,14 @@ Value::Value(Representation &&l)
 {}
 
 
+template<>
+Value::Value(const string &type_name, const char *repr)
+: representation_(string(repr))
+{
+	set_type_by_name(type_name);
+}
+
+
 Value::Value(const string &type_name, const vector<fusion_wtf_vector<string, Value *>> &compound_values)
 {
 	set_type_by_name(type_name);
