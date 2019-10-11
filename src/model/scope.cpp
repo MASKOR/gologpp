@@ -34,6 +34,15 @@ const Scope &NoScopeOwner::scope() const
 { return parent_scope(); }
 
 
+#define GOLOGPP_REGISTER_SIMPLE_TYPE(_r, _data, T) \
+	register_type(new T());
+
+void Scope::init_types()
+{
+	types_->clear();
+	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_REGISTER_SIMPLE_TYPE, (), GOLOGPP_PREDEFINED_TYPES)
+}
+
 
 Scope::Scope()
 : AbstractLanguageElement(std::make_shared<UndefinedType>())
@@ -43,12 +52,7 @@ Scope::Scope()
 , domains_(new DomainsMap())
 , types_(new TypesMap())
 {
-#define GOLOGPP_REGISTER_SIMPLE_TYPE(_r, _data, T) \
-	register_type(new T());
-
-	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_REGISTER_SIMPLE_TYPE, (), GOLOGPP_PREDEFINED_TYPES)
-
-	(*types_)[*type_] = type_;
+	init_types();
 }
 
 
@@ -211,6 +215,7 @@ void Scope::clear()
 	if (this == &global_scope()) {
 		globals_->clear();
 		domains_->clear();
+		init_types();
 	}
 }
 

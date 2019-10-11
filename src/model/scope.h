@@ -70,6 +70,8 @@ private:
 	template<class K, class V>
 	using unordered_map = std::unordered_map<K, V>;
 
+	void init_types();
+
 public:
 	using VariablesMap = unordered_map<string, shared_ptr<Variable>>;
 	using GlobalsMap = unordered_map<Identifier, shared_ptr<Global>>;
