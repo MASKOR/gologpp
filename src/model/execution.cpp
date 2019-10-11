@@ -15,6 +15,7 @@ namespace gologpp {
 AExecutionContext::AExecutionContext(unique_ptr<SemanticsFactory> &&semantics, unique_ptr<PlatformBackend> &&platform_backend)
 : platform_backend_(move(platform_backend))
 , semantics_(std::move(semantics))
+, terminated(false)
 {
 	if (!platform_backend_)
 		platform_backend_ = std::make_unique<DummyBackend>();
@@ -25,7 +26,7 @@ AExecutionContext::AExecutionContext(unique_ptr<SemanticsFactory> &&semantics, u
 
 shared_ptr<Grounding<AbstractAction>> AExecutionContext::exog_queue_pop()
 {
-	std::lock_guard<std::mutex> { exog_mutex_ };
+	std::lock_guard<std::mutex> locked{ exog_mutex_ };
 	shared_ptr<Grounding<AbstractAction>> rv = std::move(exog_queue_.front());
 	exog_queue_.pop();
 	return rv;
@@ -35,8 +36,24 @@ shared_ptr<Grounding<AbstractAction>> AExecutionContext::exog_queue_pop()
 shared_ptr<Grounding<AbstractAction>> AExecutionContext::exog_queue_poll()
 {
 	std::unique_lock<std::mutex> queue_empty_lock { queue_empty_mutex_ };
-	queue_empty_condition_.wait(queue_empty_lock, [&] { return !exog_queue_.empty(); });
-	return exog_queue_pop();
+	{
+		std::lock_guard<std::mutex> l1{ wait_mutex_ };
+		queue_empty_condition_.wait(queue_empty_lock, [&] { return !exog_queue_.empty() || terminated; });
+	}
+
+	if (terminated)
+		return nullptr;
+	else
+		return exog_queue_pop();
+}
+
+
+void AExecutionContext::terminate()
+{
+	std::lock_guard<std::mutex> l1 { exog_mutex_ };
+	terminated = true;
+	queue_empty_condition_.notify_all();
+	std::lock_guard<std::mutex> l2 { wait_mutex_ };
 }
 
 
@@ -84,7 +101,7 @@ History ExecutionContext::run(Block &&program)
 	program.attach_semantics(semantics_factory());
 	compile(program);
 
-	while (!final(program, history)) {
+	while (!final(program, history) && !terminated) {
 		context_time_ = backend().time();
 		while (!exog_empty()) {
 			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_pop();
@@ -110,11 +127,16 @@ History ExecutionContext::run(Block &&program)
 		else {
 			std::cout << "=== No transition possible: Waiting for exogenous events..." << std::endl;
 			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_poll();
-			std::cout << ">>> Exogenous event: " << exog << std::endl;
-			exog->attach_semantics(semantics_factory());
-			history.abstract_impl().append_exog(exog);
+			if (exog) {
+				std::cout << ">>> Exogenous event: " << exog << std::endl;
+				exog->attach_semantics(semantics_factory());
+				history.abstract_impl().append_exog(exog);
+			}
 		}
 	}
+
+	if (terminated)
+		std::cout << ">>> Terminated." << std::endl;
 
 	return history;
 }

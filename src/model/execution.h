@@ -13,6 +13,7 @@
 #include <queue>
 #include <condition_variable>
 #include <chrono>
+#include <atomic>
 
 namespace gologpp {
 
@@ -45,6 +46,8 @@ public:
 	bool exog_empty();
 	void exog_queue_push(shared_ptr<Grounding<AbstractAction>> exog);
 
+	void terminate();
+
 	SemanticsFactory &semantics_factory();
 
 	PlatformBackend &backend();
@@ -53,9 +56,13 @@ private:
 	std::mutex exog_mutex_;
 	std::condition_variable queue_empty_condition_;
 	std::mutex queue_empty_mutex_;
+	std::mutex wait_mutex_;
 	ExogQueue exog_queue_;
 	unique_ptr<PlatformBackend> platform_backend_;
 	unique_ptr<SemanticsFactory> semantics_;
+
+protected:
+	std::atomic_bool terminated;
 };
 
 
