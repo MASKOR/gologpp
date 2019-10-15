@@ -28,7 +28,7 @@ namespace gologpp {
 
 
 template<>
-class Semantics<ToString> : public ReadylogSemantics {
+class Semantics<ToString> : public Semantics<Expression> {
 public:
 	Semantics(const ToString &subject);
 
@@ -40,7 +40,7 @@ private:
 
 
 template<>
-class Semantics<StringConcatenation> : public ReadylogSemantics {
+class Semantics<StringConcatenation> : public Semantics<Expression> {
 public:
 	Semantics(const StringConcatenation &subject);
 

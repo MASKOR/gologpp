@@ -109,7 +109,6 @@ EC_word to_ec_list(const ListT &vec)
 EC_word copy_term(EC_word t);
 
 
-
 class ManagedTerm {
 public:
 	ManagedTerm(EC_word w);

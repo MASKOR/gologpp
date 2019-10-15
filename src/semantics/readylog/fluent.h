@@ -28,7 +28,7 @@ namespace gologpp {
 
 
 template<>
-class Semantics<InitialValue> : public ReadylogSemantics {
+class Semantics<InitialValue> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const InitialValue &v);
 
@@ -42,7 +42,7 @@ protected:
 
 
 template<>
-class Semantics<Fluent> : public ReadylogSemantics {
+class Semantics<Fluent> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Fluent &f);
 	virtual ~Semantics() override = default;

@@ -273,7 +273,6 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/execution.h
 		src/semantics/readylog/utilities.h
 		src/semantics/readylog/reference.h
-		src/semantics/readylog/config.h
 		src/semantics/readylog/string.h
 		src/semantics/readylog/history.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/readylog

@@ -32,7 +32,7 @@ namespace gologpp {
 
 
 template<>
-class Semantics<Variable> : public ReadylogSemantics {
+class Semantics<Variable> : public Semantics<Expression> {
 public:
 	Semantics(const Variable &var);
 	virtual ~Semantics() override;

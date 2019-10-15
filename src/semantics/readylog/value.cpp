@@ -16,6 +16,7 @@
 **************************************************************************/
 
 #include "value.h"
+#include "execution.h"
 #include <model/value.h>
 
 namespace gologpp {
@@ -83,6 +84,108 @@ EC_word Semantics<Value>::plterm()
 	else
 		throw std::runtime_error("Unknown Constant type");
 }
+
+
+Value pl_term_to_value(EC_word term) {
+	EC_word type, list, list_head, list_tail;
+	EC_atom did;
+	EC_functor ftor;
+	double d;
+	long i;
+	long long li;
+	char *s;
+
+	if (EC_succeed == term.is_long(&i))
+		return Value(NumberType::name(), i);
+	else if (EC_succeed == term.is_long_long(&li)) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtautological-type-limit-compare"
+// Compiler only looks at current architecture, but sizeof(long) needn't be equal to sizeof(long long)
+// on all architectures
+		if (li >= 0
+			&& static_cast<unsigned long long>(li) <= static_cast<unsigned long long>(
+				std::numeric_limits<unsigned long>::max()
+			)
+		)
+			return Value(NumberType::name(), static_cast<unsigned long>(li));
+		else if (li >= std::numeric_limits<long>::min() && li <= std::numeric_limits<long>::max())
+			return Value(NumberType::name(), static_cast<long>(li));
+		else
+			throw std::runtime_error(std::to_string(li) + " exceeds value limits representable in golog++");
+#pragma clang diagnostic pop
+	}
+	else if (EC_succeed == term.is_double(&d))
+		return Value(NumberType::name(), d);
+	else if (EC_succeed == term.is_atom(&did)) {
+		if (did == EC_atom("true"))
+			return Value(BoolType::name(), true);
+		else if (did == EC_atom("fail"))
+			return Value(BoolType::name(), false);
+		else
+			return Value(SymbolType::name(), string(did.name()));
+	}
+	else if (EC_succeed == term.is_string(&s))
+		return Value(StringType::name(), string(s));
+	else if (
+		term.functor(&ftor) == EC_succeed
+		&& ftor.name() == string("gpp_list")
+		&& ftor.arity() == 2
+		&& term.arg(1, type) == EC_succeed
+		&& type.is_atom(&did) == EC_succeed
+		&& term.arg(2, list) == EC_succeed
+		&& list.is_list(list_head, list_tail) == EC_succeed
+	) {
+		vector<Value *> list_repr;
+		do {
+			list_repr.push_back(new Value(pl_term_to_value(list_head)));
+		} while (EC_succeed == list_tail.is_list(list_head, list_tail));
+
+		string elem_t(did.name());
+		elem_t = elem_t.substr(1); // remove # prefix that is added to avoid name clashes
+
+		return Value {
+			"list[" + elem_t + "]",
+			boost::optional<vector<Value *>> { list_repr }
+		};
+	}
+	else if (
+		term.functor(&ftor) == EC_succeed
+		&& ftor.name() == string("gpp_compound")
+		&& ftor.arity() == 2
+		&& term.arg(1, type) == EC_succeed
+		&& type.is_atom(&did) == EC_succeed
+		&& term.arg(2, list) == EC_succeed
+		&& list.is_list(list_head, list_tail) == EC_succeed
+	) {
+		vector<fusion_wtf_vector<string, Value *>> compound_repr;
+		do {
+			EC_functor field_ftor;
+			EC_word field_value;
+			if (
+				list_head.functor(&field_ftor) == EC_succeed
+				&& field_ftor.arity() == 1
+				&& list_head.arg(0, field_value)
+			) {
+				compound_repr.push_back(
+					fusion_wtf_vector<string, Value *> {
+						string(field_ftor.name()), new Value(pl_term_to_value(list_head))
+					}
+				);
+			}
+			else
+				throw Bug("Invalid list entry: " + ReadylogContext::instance().to_string(list_head));
+		} while (EC_succeed == list_tail.is_list(list_head, list_tail));
+
+		string type_name(did.name());
+		type_name = type_name.substr(1); // remove # prefix that is added to avoid name clashes
+
+		return Value(type_name, compound_repr);
+	}
+
+	else
+		throw Bug("Invalid prolog value: " + ReadylogContext::instance().to_string(term));
+}
+
 
 
 } // namespace gologpp

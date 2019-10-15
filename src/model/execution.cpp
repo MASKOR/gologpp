@@ -124,11 +124,11 @@ History ExecutionContext::run(Block &&program)
 			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_pop();
 			std::cout << ">>> Exogenous event: " << exog << std::endl;
 			exog->attach_semantics(semantics_factory());
-			history.abstract_impl().append_exog(exog);
+			history.abstract_semantics().append_exog(exog);
 		}
 
 		if (trans(program, history)) {
-			shared_ptr<Transition> trans = history.abstract_impl().get_last_transition();
+			shared_ptr<Transition> trans = history.abstract_semantics().get_last_transition();
 			if (trans) {
 				std::cout << "<<< trans: " << trans->str() << std::endl;
 				if (trans->hook() == Transition::Hook::STOP)
@@ -136,7 +136,7 @@ History ExecutionContext::run(Block &&program)
 				else if (trans->hook() == Transition::Hook::START)
 					backend().start_activity(trans);
 				else if (trans->hook() == Transition::Hook::FINISH && trans->target()->senses())
-					history.abstract_impl().append_sensing_result(backend().end_activity(trans));
+					history.abstract_semantics().append_sensing_result(backend().end_activity(trans));
 				else
 					backend().end_activity(trans);
 			}
@@ -147,7 +147,7 @@ History ExecutionContext::run(Block &&program)
 			if (exog) {
 				std::cout << ">>> Exogenous event: " << exog << std::endl;
 				exog->attach_semantics(semantics_factory());
-				history.abstract_impl().append_exog(exog);
+				history.abstract_semantics().append_exog(exog);
 			}
 		}
 	}

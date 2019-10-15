@@ -27,7 +27,7 @@ namespace gologpp {
 
 
 template<>
-class Semantics<History> : public HistorySemantics {
+class Semantics<History> : public AbstractSemantics<History> {
 public:
 	Semantics(History &);
 	virtual ~Semantics() override = default;

@@ -342,21 +342,20 @@ EC_word Semantics<Return>::plterm() {
 		root_parent = parent_expr->parent();
 	}
 
-	try {
-		const Function &function = dynamic_cast<const Function &>(*root_parent);
-		if (function.type() != ret_.expression().type())
-			throw ExpressionTypeMismatch(function, ret_.expression());
+	const Function *function = dynamic_cast<const Function *>(root_parent);
+	if (!function)
+	throw Bug(ret_.str() + " outside of function");
 
-		if (ret_.expression().type().is<BoolType>())
-			return ret_.expression().semantics().plterm();
-		else
-			return ::term(EC_functor("=", 2),
-				function.semantics().return_var(),
-				ret_.expression().semantics().plterm()
-			);
-	} catch (std::bad_cast &) {
-		throw Bug(ret_.str() + " outside of function");
-	}
+	if (function->type() != ret_.expression().type())
+		throw ExpressionTypeMismatch(*function, ret_.expression());
+
+	if (ret_.expression().type().is<BoolType>())
+		return ret_.expression().semantics().plterm();
+	else
+		return ::term(EC_functor("=", 2),
+			function->semantics().return_var(),
+			ret_.expression().semantics().plterm()
+		);
 }
 
 

@@ -21,15 +21,16 @@
 #include "language.h"
 #include "scope.h"
 #include "gologpp.h"
-
+#include "semantics.h"
 
 namespace gologpp {
 
 
-class HistorySemantics : public AbstractSemantics {
+template<>
+class AbstractSemantics<History> : public AbstractSemantics<AbstractLanguageElement> {
 public:
-	HistorySemantics(History &history);
-	virtual ~HistorySemantics();
+	AbstractSemantics<History>(History &history);
+	virtual ~AbstractSemantics<History>();
 
 	virtual shared_ptr<Transition> get_last_transition() = 0;
 	virtual void append_exog(shared_ptr<Grounding<AbstractAction>>) = 0;
@@ -49,9 +50,6 @@ public:
 	virtual const Scope &parent_scope() const override;
 
 	DEFINE_ATTACH_SEMANTICS
-
-	HistorySemantics &abstract_impl()
-	{ return static_cast<HistorySemantics &>(*semantics_); }
 
 	virtual string to_string(const string &pfx) const override;
 };

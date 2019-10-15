@@ -31,9 +31,7 @@ Semantics<Negation>::Semantics(const Negation &neg)
 EC_word Semantics<Negation>::plterm()
 {
 	return ::term(EC_functor("neg", 1),
-		dynamic_cast<ReadylogSemantics &>(
-			negation_.expression().semantics()
-		).plterm()
+		negation_.expression().semantics().plterm()
 	);
 }
 

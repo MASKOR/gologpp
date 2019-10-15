@@ -37,7 +37,7 @@ template<class GologT> class Reference;
 
 
 template<>
-class Semantics<Reference<Variable>> : public ReadylogSemantics {
+class Semantics<Reference<Variable>> : public Semantics<Expression> {
 public:
 	Semantics(const Reference<Variable> &ref);
 
@@ -63,7 +63,7 @@ EC_word reference_term(const ReferenceBase<GologT, ExprT> &ref)
 
 
 template<class GologT, class ExprT>
-class Semantics<ReferenceBase<GologT, ExprT>> : public Semantics<AbstractLanguageElement> {
+class Semantics<ReferenceBase<GologT, ExprT>> : public Semantics<Expression> {
 public:
 	Semantics(const ReferenceBase<GologT, ExprT> &ref)
 	: ref_(ref)
@@ -75,6 +75,7 @@ public:
 protected:
 	const ReferenceBase<GologT, ExprT> &ref_;
 };
+
 
 
 template<>

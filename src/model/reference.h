@@ -49,6 +49,12 @@ public:
 };
 
 
+template<class ArgsT>
+using ParamsToArgs = std::unordered_map<
+	shared_ptr<const Variable>,
+	std::reference_wrapper<ArgsT>
+>;
+
 
 template<class TargetT, class ArgsT>
 class ReferenceBase
@@ -214,15 +220,17 @@ public:
 		return rv;
 	}
 
+	virtual ParamsToArgs<ArgsT> &params_to_args()
+	{ return params_to_args_; }
+
+	virtual const ParamsToArgs<ArgsT> &params_to_args() const
+	{ return params_to_args_; }
 
 private:
 	vector<unique_ptr<ArgsT>> args_;
 	weak_ptr<TargetT> target_;
 
-	std::unordered_map<
-		shared_ptr<const Variable>,
-		std::reference_wrapper<ArgsT>
-	> params_to_args_;
+	ParamsToArgs<ArgsT> params_to_args_;
 };
 
 
@@ -256,7 +264,11 @@ class Grounding<AbstractAction>
 
 class AbstractGrounding
 : public virtual AbstractReference
-{};
+{
+public:
+	virtual const ParamsToArgs<Value> &params_to_args() const = 0;
+	virtual ParamsToArgs<Value> &params_to_args() = 0;
+};
 
 
 template<class TargetT>
@@ -293,6 +305,12 @@ public:
 			ReferenceBase<TargetT, Value>::attach_semantics(f);
 		}
 	}
+
+	virtual const ParamsToArgs<Value> &params_to_args() const override
+	{ return ReferenceBase<TargetT, Value>::params_to_args(); }
+
+	virtual ParamsToArgs<Value> &params_to_args() override
+	{ return ReferenceBase<TargetT, Value>::params_to_args(); }
 };
 
 

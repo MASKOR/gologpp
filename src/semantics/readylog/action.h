@@ -32,7 +32,7 @@ class Action;
 
 
 template<>
-class Semantics<Action> : public ReadylogSemantics {
+class Semantics<Action> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Action &a);
 	virtual ~Semantics() override = default;

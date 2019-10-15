@@ -21,11 +21,11 @@ namespace gologpp {
 
 
 
-HistorySemantics::HistorySemantics(History &h)
+AbstractSemantics<History>::AbstractSemantics(History &h)
 : history_(h)
 {}
 
-HistorySemantics::~HistorySemantics()
+AbstractSemantics<History>::~AbstractSemantics<History>()
 {}
 
 

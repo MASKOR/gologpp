@@ -41,7 +41,7 @@ namespace gologpp {
 
 
 template<>
-class Semantics<Function> : public ReadylogSemantics {
+class Semantics<Function> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Function &function)
 	: function_(function)
@@ -59,7 +59,7 @@ private:
 
 
 template<>
-class Semantics<Block> : public ReadylogSemantics {
+class Semantics<Block> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Block &);
 	virtual EC_word plterm() override;
@@ -74,7 +74,7 @@ private:
 
 
 template<>
-class Semantics<Choose> : public ReadylogSemantics {
+class Semantics<Choose> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Choose &);
 	virtual EC_word plterm() override;
@@ -86,7 +86,7 @@ private:
 
 
 template<>
-class Semantics<Conditional> : public ReadylogSemantics {
+class Semantics<Conditional> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Conditional &);
 	virtual EC_word plterm() override;
@@ -98,7 +98,7 @@ private:
 
 
 template<>
-class Semantics<Concurrent> : public ReadylogSemantics {
+class Semantics<Concurrent> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Concurrent &);
 	virtual EC_word plterm() override;
@@ -110,7 +110,7 @@ private:
 
 
 template<class LhsT>
-class Semantics<Assignment<LhsT>> : public ReadylogSemantics {
+class Semantics<Assignment<LhsT>> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Assignment<LhsT> &ass)
 	: assignment_(ass)
@@ -128,7 +128,7 @@ private:
 
 
 template<>
-class Semantics<Assignment<Reference<Fluent>>> : public ReadylogSemantics {
+class Semantics<Assignment<Reference<Fluent>>> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Assignment<Reference<Fluent>> &ass);
 
@@ -141,7 +141,7 @@ private:
 
 
 template<>
-class Semantics<Assignment<FieldAccess>> : public ReadylogSemantics {
+class Semantics<Assignment<FieldAccess>> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Assignment<FieldAccess> &ass);
 
@@ -155,7 +155,7 @@ private:
 
 
 template<>
-class Semantics<Assignment<ListAccess>> : public ReadylogSemantics {
+class Semantics<Assignment<ListAccess>> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Assignment<ListAccess> &ass);
 
@@ -169,7 +169,7 @@ private:
 
 
 template<>
-class Semantics<Pick> : public ReadylogSemantics {
+class Semantics<Pick> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Pick &pick);
 	virtual EC_word plterm() override;
@@ -181,7 +181,7 @@ private:
 
 
 template<>
-class Semantics<Search> : public ReadylogSemantics {
+class Semantics<Search> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Search &);
 	virtual EC_word plterm() override;
@@ -193,7 +193,7 @@ private:
 
 
 template<>
-class Semantics<Solve> : public ReadylogSemantics {
+class Semantics<Solve> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Solve &);
 	virtual EC_word plterm() override;
@@ -205,7 +205,7 @@ private:
 
 
 template<>
-class Semantics<Test> : public ReadylogSemantics {
+class Semantics<Test> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Test &);
 	virtual EC_word plterm() override;
@@ -217,7 +217,7 @@ private:
 
 
 template<>
-class Semantics<While> : public ReadylogSemantics {
+class Semantics<While> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const While &);
 	virtual EC_word plterm() override;
@@ -229,7 +229,7 @@ private:
 
 
 template<>
-class Semantics<Return> : public ReadylogSemantics {
+class Semantics<Return> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Return &r);
 	virtual EC_word plterm() override;
@@ -241,7 +241,7 @@ private:
 
 
 template<>
-class Semantics<DurativeCall> : public ReadylogSemantics {
+class Semantics<DurativeCall> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const DurativeCall &call);
 	virtual EC_word plterm() override;
@@ -256,7 +256,7 @@ traverse_mixed_field_access(const FieldAccess *fa, const ListAccess *la);
 
 
 template<>
-class Semantics<FieldAccess> : public ReadylogSemantics {
+class Semantics<FieldAccess> : public Semantics<Expression> {
 public:
 	Semantics(const FieldAccess &field_access);
 
@@ -273,7 +273,7 @@ private:
 
 
 template<>
-class Semantics<ListAccess> : public ReadylogSemantics {
+class Semantics<ListAccess> : public Semantics<Expression> {
 public:
 	Semantics(const ListAccess &list_access);
 
@@ -287,7 +287,7 @@ private:
 
 
 template<>
-class Semantics<ListPop> : public ReadylogSemantics {
+class Semantics<ListPop> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const ListPop &list_access);
 
@@ -300,7 +300,7 @@ private:
 
 
 template<>
-class Semantics<ListPush> : public ReadylogSemantics {
+class Semantics<ListPush> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const ListPush &list_access);
 
@@ -313,7 +313,7 @@ private:
 
 
 template<>
-class Semantics<ListLength> : public ReadylogSemantics {
+class Semantics<ListLength> : public Semantics<Expression> {
 public:
 	Semantics(const ListLength &list_access);
 

@@ -99,13 +99,15 @@ class ListPush;
 
 class Function;
 
+class AbstractReference;
 template<class> class Reference;
+class AbstractGrounding;
 template<class> class Grounding;
 
 class History;
 
-class AbstractSemantics;
 template<class> class Semantics;
+template<class> class AbstractSemantics;
 class SemanticsFactory;
 
 class AExecutionContext;

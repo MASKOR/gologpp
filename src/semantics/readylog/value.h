@@ -31,7 +31,7 @@ namespace gologpp {
 
 
 template<>
-class Semantics<Value> : public ReadylogSemantics {
+class Semantics<Value> : public Semantics<Expression> {
 public:
 	Semantics(const Value &value);
 
@@ -41,6 +41,9 @@ public:
 private:
 	const Value &value_;
 };
+
+
+Value pl_term_to_value(EC_word term);
 
 
 } // namespace gologpp

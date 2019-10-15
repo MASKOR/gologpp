@@ -34,7 +34,7 @@ namespace gologpp {
 
 
 template<>
-class Semantics<AbstractEffectAxiom> : public ReadylogSemantics {
+class Semantics<AbstractEffectAxiom> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const AbstractEffectAxiom &eff);
 
