@@ -28,26 +28,26 @@ namespace gologpp {
 
 
 template<>
-class Semantics<ToString> : public Semantics<Expression> {
+class Semantics<ToString>
+: public Semantics<Expression>
+, public AbstractSemantics<ToString>
+{
 public:
 	Semantics(const ToString &subject);
 
 	EC_word plterm() override;
-
-private:
-	const ToString &to_string_;
 };
 
 
 template<>
-class Semantics<StringConcatenation> : public Semantics<Expression> {
+class Semantics<StringConcatenation>
+: public Semantics<Expression>
+, public AbstractSemantics<StringConcatenation>
+{
 public:
 	Semantics(const StringConcatenation &subject);
 
 	EC_word plterm() override;
-
-private:
-	const StringConcatenation &subject_;
 };
 
 

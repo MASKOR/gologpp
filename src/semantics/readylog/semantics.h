@@ -31,7 +31,8 @@ template<>
 class Semantics<AbstractLanguageElement>
 : public virtual AbstractSemantics<AbstractLanguageElement> {
 public:
-	virtual ~Semantics<AbstractLanguageElement>() = default;
+	virtual ~Semantics<AbstractLanguageElement>() override = default;
+
 	virtual EC_word plterm() = 0;
 };
 
@@ -60,6 +61,9 @@ public:
 };
 
 
-}
+
+} // namespace gologpp
+
+
 
 #endif

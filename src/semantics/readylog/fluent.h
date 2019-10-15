@@ -28,15 +28,15 @@ namespace gologpp {
 
 
 template<>
-class Semantics<InitialValue> : public Semantics<AbstractLanguageElement> {
+class Semantics<InitialValue>
+: public Semantics<AbstractLanguageElement>
+, public AbstractSemantics<InitialValue>
+{
 public:
 	Semantics(const InitialValue &v);
 
 	virtual ~Semantics() override = default;
 	virtual EC_word plterm() override;
-
-protected:
-	const InitialValue &ival_;
 };
 
 

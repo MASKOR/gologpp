@@ -108,6 +108,7 @@ class History;
 
 template<class> class Semantics;
 template<class> class AbstractSemantics;
+
 class SemanticsFactory;
 
 class AExecutionContext;

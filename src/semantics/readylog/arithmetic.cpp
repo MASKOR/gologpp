@@ -22,9 +22,9 @@ namespace gologpp {
 
 
 Semantics<ArithmeticOperation>::Semantics(const ArithmeticOperation &op)
-: operation_(op)
+: AbstractSemantics<ArithmeticOperation>(op)
 {
-	switch (operation_.op()) {
+	switch (element().op()) {
 	case ArithmeticOperation::ADDITION:
 		functor_ = "+";
 		break;
@@ -50,8 +50,8 @@ Semantics<ArithmeticOperation>::Semantics(const ArithmeticOperation &op)
 EC_word Semantics<ArithmeticOperation>::plterm()
 {
 	return ::term(EC_functor(functor_, 2),
-		operation_.lhs().semantics().plterm(),
-		operation_.rhs().semantics().plterm()
+		element().lhs().semantics().plterm(),
+		element().rhs().semantics().plterm()
 	);
 }
 

@@ -44,6 +44,9 @@ const Scope &History::parent_scope() const
 string History::to_string(const string &pfx) const
 { return pfx + linesep + "history: no representation" + linesep; }
 
+const History &gologpp::AbstractSemantics<History>::element() const
+{ return history_; }
+
 
 
 } // namespace gologpp

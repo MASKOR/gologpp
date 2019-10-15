@@ -21,11 +21,11 @@
 namespace gologpp {
 
 Semantics<Domain>::Semantics(const Domain &domain)
-: domain_(domain)
+: AbstractSemantics<Domain>(domain)
 {}
 
 EC_word Semantics<Domain>::plterm()
-{ return to_ec_list(domain_.elements()); }
+{ return to_ec_list(element().elements()); }
 
 
 }

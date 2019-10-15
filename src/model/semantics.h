@@ -19,6 +19,7 @@
 #define GOLOGPP_IMPLEMENTATION_H_
 
 #include "gologpp.h"
+#include "expressions.h"
 #include <memory>
 
 #include <boost/preprocessor/seq/for_each.hpp>
@@ -31,21 +32,39 @@ class AbstractSemantics<AbstractLanguageElement> {
 public:
 	virtual ~AbstractSemantics<AbstractLanguageElement>() = default;
 
-};
-
-
-template<class GologT>
-class AbstractSemantics : public virtual AbstractSemantics<AbstractLanguageElement> {
-public:
-	virtual ~AbstractSemantics<GologT>() = default;
+	template<class GologT = AbstractLanguageElement>
+	const GologT &element() const;
 };
 
 
 template<>
-class AbstractSemantics<Expression> : public virtual AbstractSemantics<AbstractLanguageElement> {
+class AbstractSemantics<Expression>
+: public virtual AbstractSemantics<AbstractLanguageElement>
+{
 public:
 	virtual Value evaluate(const AbstractGrounding &context, const History &h) = 0;
 };
+
+
+template<class GologT>
+class AbstractSemantics
+: public virtual AbstractSemantics<AbstractLanguageElement>
+{
+public:
+	AbstractSemantics(const GologT &elem)
+	: element_(elem)
+	{}
+
+	virtual ~AbstractSemantics<GologT>() = default;
+
+	template<class = GologT>
+	const GologT &element() const
+	{ return element_; }
+
+private:
+	const GologT &element_;
+};
+
 
 
 #define GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS(r, data, T) \

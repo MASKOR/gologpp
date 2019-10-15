@@ -22,19 +22,19 @@ namespace gologpp {
 
 
 Semantics<Reference<Variable>>::Semantics(const Reference<Variable> &ref)
-: ref_(ref)
+: AbstractSemantics<Reference<Variable>>(ref)
 {}
 
 EC_word Semantics<Reference<Variable>>::plterm()
-{ return ref_.target()->semantics().plterm(); }
+{ return element().target()->semantics().plterm(); }
 
 
 
 template<>
 EC_word Semantics<ReferenceBase<Action, Expression>>::plterm()
 {
-	return ::list(::term(EC_functor("start", 2), reference_term(ref_), EC_atom("now")),
-		::list(::term(EC_functor("finish", 2), reference_term(ref_), EC_atom("now")),
+	return ::list(::term(EC_functor("start", 2), reference_term(element()), EC_atom("now")),
+		::list(::term(EC_functor("finish", 2), reference_term(element()), EC_atom("now")),
 			::nil()
 		)
 	);

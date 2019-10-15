@@ -64,23 +64,23 @@ namespace gologpp {
 
 
 Semantics<InitialValue>::Semantics(const InitialValue &v)
-: ival_(v)
+: AbstractSemantics<InitialValue>(v)
 {}
 
 EC_word Semantics<InitialValue>::plterm()
 {
 	EC_word fluent_inst;
-	if (ival_.fluent().arity() > 0)
+	if (element().fluent().arity() > 0)
 		fluent_inst = ::term(
-		EC_functor(ival_.fluent().name().c_str(), ival_.fluent().arity()),
-		to_ec_words(ival_.args()).data()
+			EC_functor(element().fluent().name().c_str(), element().fluent().arity()),
+			to_ec_words(element().args()).data()
 		);
 	else
-		fluent_inst = EC_atom(ival_.fluent().name().c_str());
+		fluent_inst = EC_atom(element().fluent().name().c_str());
 
 	return ::term(EC_functor("initial_val", 2),
-	fluent_inst,
-	ival_.value().semantics().plterm()
+		fluent_inst,
+		element().value().semantics().plterm()
 	);
 }
 

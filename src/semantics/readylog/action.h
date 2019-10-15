@@ -32,7 +32,10 @@ class Action;
 
 
 template<>
-class Semantics<Action> : public Semantics<AbstractLanguageElement> {
+class Semantics<Action>
+: public Semantics<AbstractLanguageElement>
+, public AbstractSemantics<Action>
+{
 public:
 	Semantics(const Action &a);
 	virtual ~Semantics() override = default;
@@ -43,13 +46,14 @@ public:
 	EC_word senses();
 
 	virtual EC_word plterm() override;
-private:
-	const Action &action_;
 };
 
 
 template<>
-class Semantics<ExogAction> : public Semantics<AbstractLanguageElement> {
+class Semantics<ExogAction>
+: public Semantics<AbstractLanguageElement>
+, public AbstractSemantics<ExogAction>
+{
 public:
 	Semantics(const ExogAction &a);
 	virtual ~Semantics() override = default;
@@ -59,9 +63,6 @@ public:
 	EC_word poss();
 
 	virtual EC_word plterm() override;
-
-private:
-	const ExogAction &exog_;
 };
 
 

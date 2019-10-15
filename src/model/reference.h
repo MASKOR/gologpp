@@ -256,12 +256,6 @@ public:
 
 template<class> class Grounding;
 
-template<>
-class Grounding<AbstractAction>
-: public virtual AbstractReference
-{};
-
-
 class AbstractGrounding
 : public virtual AbstractReference
 {
@@ -269,6 +263,15 @@ public:
 	virtual const ParamsToArgs<Value> &params_to_args() const = 0;
 	virtual ParamsToArgs<Value> &params_to_args() = 0;
 };
+
+
+
+template<>
+class Grounding<AbstractAction>
+: public virtual AbstractReference
+, public AbstractGrounding
+{};
+
 
 
 template<class TargetT>

@@ -96,6 +96,9 @@ SemanticsFactory &AExecutionContext::semantics_factory()
 PlatformBackend &AExecutionContext::backend()
 { return *platform_backend_;}
 
+History &AExecutionContext::history()
+{ return history_; }
+
 
 
 ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&semantics, unique_ptr<PlatformBackend> &&exec_backend)
@@ -108,27 +111,25 @@ ExecutionContext::~ExecutionContext()
 Clock::time_point ExecutionContext::context_time() const
 { return context_time_; }
 
-History ExecutionContext::run(Block &&program)
+void ExecutionContext::run(Block &&program)
 {
-	History history;
-	history.attach_semantics(semantics_factory());
-
+	history().attach_semantics(semantics_factory());
 	global_scope().implement_globals(semantics_factory(), *this);
 
 	program.attach_semantics(semantics_factory());
 	compile(program);
 
-	while (!final(program, history) && !terminated) {
+	while (!final(program, history()) && !terminated) {
 		context_time_ = backend().time();
 		while (!exog_empty()) {
 			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_pop();
 			std::cout << ">>> Exogenous event: " << exog << std::endl;
 			exog->attach_semantics(semantics_factory());
-			history.abstract_semantics().append_exog(exog);
+			history().abstract_semantics().append_exog(exog);
 		}
 
-		if (trans(program, history)) {
-			shared_ptr<Transition> trans = history.abstract_semantics().get_last_transition();
+		if (trans(program, history())) {
+			shared_ptr<Transition> trans = history().abstract_semantics().get_last_transition();
 			if (trans) {
 				std::cout << "<<< trans: " << trans->str() << std::endl;
 				if (trans->hook() == Transition::Hook::STOP)
@@ -136,7 +137,7 @@ History ExecutionContext::run(Block &&program)
 				else if (trans->hook() == Transition::Hook::START)
 					backend().start_activity(trans);
 				else if (trans->hook() == Transition::Hook::FINISH && trans->target()->senses())
-					history.abstract_semantics().append_sensing_result(backend().end_activity(trans));
+					history().abstract_semantics().append_sensing_result(backend().end_activity(trans));
 				else
 					backend().end_activity(trans);
 			}
@@ -147,15 +148,13 @@ History ExecutionContext::run(Block &&program)
 			if (exog) {
 				std::cout << ">>> Exogenous event: " << exog << std::endl;
 				exog->attach_semantics(semantics_factory());
-				history.abstract_semantics().append_exog(exog);
+				history().abstract_semantics().append_exog(exog);
 			}
 		}
 	}
 
 	if (terminated)
 		std::cout << ">>> Terminated." << std::endl;
-
-	return history;
 }
 
 

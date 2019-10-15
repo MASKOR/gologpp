@@ -48,6 +48,7 @@ private:
 };
 
 
+
 } // namespace gologpp
 
 #endif // READYLOG_HISTORY_H_
