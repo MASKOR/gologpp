@@ -19,7 +19,6 @@
 #define READYLOG_DOMAIN_H_
 
 #include "semantics.h"
-#include "utilities.h"
 
 #include <model/domain.h>
 #include <model/error.h>

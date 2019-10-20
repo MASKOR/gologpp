@@ -15,7 +15,11 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
+#include "language.h"
+#include "types.h"
 #include "error.h"
+
+#include <parser/utilities.h>
 
 namespace gologpp {
 
@@ -32,6 +36,18 @@ const char *Bug::what() const noexcept
 UserError::UserError(const string &msg)
 : std::runtime_error(msg)
 {}
+
+
+SyntaxError::SyntaxError(const string &code, string::size_type offset, const string &msg)
+: UserError(
+	parser::get_error_context(
+		parser::iterator(code.begin()),
+		parser::iterator(code.begin() + string::difference_type(offset)),
+		parser::iterator(code.end())
+	) + "\n" + msg
+)
+{}
+
 
 
 ExpressionTypeMismatch::ExpressionTypeMismatch(const AbstractLanguageElement &expr1, const AbstractLanguageElement &expr2)
@@ -56,6 +72,28 @@ TypeError::TypeError(const AbstractLanguageElement &expr, const Type &t)
 
 TypeError::TypeError(const string &msg)
 : UserError(msg)
+{}
+
+
+
+InvalidIdentifier::InvalidIdentifier(const std::string &name)
+: UserError("Invalid identifier: " + name)
+{}
+
+
+
+RedefinitionError::RedefinitionError(const string &name)
+: UserError("Symbol already defined: " + name)
+{}
+
+RedefinitionError::RedefinitionError(const string &name, arity_t arity)
+: UserError("Symbol already defined: " + name + "/" + std::to_string(arity))
+{}
+
+
+
+NoSuchFieldError::NoSuchFieldError(const string &field_name, const string &type_name)
+: UserError("No field `" + field_name + "\' in type `" + type_name + "\'")
 {}
 
 

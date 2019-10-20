@@ -21,7 +21,6 @@
 #include "fluent.h"
 #include "effect_axiom.h"
 #include "domain.h"
-#include "user_error.h"
 #include "error.h"
 #include "value.h"
 #include "execution.h"

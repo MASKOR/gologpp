@@ -15,14 +15,14 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
+#include <model/activity.h>
+
 #include "action.h"
 #include "effect_axiom.h"
 #include "scope.h"
 #include "execution.h"
 #include "variable.h"
 #include "value.h"
-
-#include <model/activity.h>
 
 #include <eclipseclass.h>
 

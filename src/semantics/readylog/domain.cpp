@@ -17,6 +17,7 @@
 
 #include "domain.h"
 #include "value.h"
+#include "utilities.h"
 
 namespace gologpp {
 
