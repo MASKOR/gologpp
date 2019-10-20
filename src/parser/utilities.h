@@ -70,6 +70,7 @@ struct gologpp_skipper : public qi::grammar<iterator> {
 	qi::rule<iterator> spc;
 	qi::rule<iterator> comment_multiline;
 	qi::rule<iterator> comment_oneline;
+	qi::rule<iterator> preprocessor;
 };
 
 
@@ -85,6 +86,12 @@ rule<string()> &r_name();
 
 rule<string()> &raw_string_literal();
 
+
+string get_error_context(
+	const iterator &begin,
+	const iterator &errpos,
+	const iterator &end
+);
 
 void handle_error(
 	const iterator &begin,

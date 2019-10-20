@@ -66,7 +66,7 @@ rule<string()> &raw_string_literal() {
 gologpp_skipper::gologpp_skipper()
 : gologpp_skipper::base_type(skip, "skipper")
 {
-	skip = spc | comment_oneline | comment_multiline;
+	skip = spc | comment_oneline | comment_multiline | preprocessor;
 
 	spc = space;
 	spc.name("space");
@@ -80,11 +80,19 @@ gologpp_skipper::gologpp_skipper()
 		lit("//") > *(char_ - eol)
 	];
 	comment_oneline.name("comment_oneline");
+
+	preprocessor = omit [
+		qi::string("#include") > *(char_ - eol)
+	];
+	preprocessor.name("preprocessor");
 }
 
 
-
-void handle_error(const iterator &begin, const iterator &errpos, const iterator &end, const boost::spirit::info &expected) {
+string get_error_context(
+	const iterator &begin,
+	const iterator &errpos,
+	const iterator &end
+) {
 	iterator::base_type l_start;
 	string mark;
 	for (
@@ -105,9 +113,21 @@ void handle_error(const iterator &begin, const iterator &errpos, const iterator 
 
 	string line(l_start, l_end);
 
+	std::stringstream rv;
+	rv << line << std::endl << mark;
+	return rv.str();
+}
+
+
+
+void handle_error(
+	const iterator &begin,
+	const iterator &errpos,
+	const iterator &end,
+	const boost::spirit::info &expected
+) {
 	std::cout << "Syntax error at line " << get_line(errpos) << ":" << std::endl
-		<< line << std::endl
-		<< mark << std::endl
+		<< get_error_context(begin, errpos, end)
 		<< "Expected: " << expected << std::endl;
 }
 
