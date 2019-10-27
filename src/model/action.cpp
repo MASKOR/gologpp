@@ -189,6 +189,28 @@ void ExogAction::define(
 		set_mapping(mapping.value());
 }
 
+void ExogAction::set_mapping(ActionMapping *m) {
+	string missing;
+
+	const ActionMapping::ArgMapping &arg_mapping = m->arg_mapping();
+
+	for (const shared_ptr<Variable> &param : params()) {
+		auto it = arg_mapping.begin();
+		for (; it != arg_mapping.end(); ++it)
+			if (dynamic_cast<Reference<Variable> &>(*it->second).target() == param)
+				break;
+		if (it == arg_mapping.end())
+			missing += param->str() + ", ";
+	}
+
+	if (missing.size()) {
+		missing = missing.substr(0, missing.length() - 2);
+		throw UserError(signature_str() + ": Parameters missing from mapping: " + missing);
+	}
+	else
+		AbstractAction::set_mapping(m);
+}
+
 
 
 void ExogEvent::attach_semantics(SemanticsFactory &f)
