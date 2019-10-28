@@ -47,7 +47,7 @@ rule<Expression *(Scope &)> list_expression;
 void initialize_list_exprs()
 {
 	list_atom = {
-		list_literal() [ _val = _1 ]
+		list_value() [ _val = _1 ]
 			| typed_reference<Fluent>()(_r1, ListType::name()) [ _val = _1 ]
 			| typed_reference<Function>()(_r1, ListType::name()) [ _val = _1 ]
 			| var_usage()(_r1, ListType::name()) [

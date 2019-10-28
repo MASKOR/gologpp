@@ -48,7 +48,7 @@ NumericExpressionParser::NumericExpressionParser()
 	expression = binary_expr(_r1) | unary_expr(_r1);
 	expression.name("numeric_expression");
 
-	unary_expr = brace(_r1) | numeric_literal()
+	unary_expr = brace(_r1) | numeric_value()
 		| num_var_ref(_r1)
 		| list_length(_r1)
 		| typed_reference<Fluent>()(_r1, NumberType::name())

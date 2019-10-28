@@ -46,7 +46,7 @@ rule<Expression *(Scope &)> compound_expression;
 void initialize_compound_exprs()
 {
 	compound_atom =
-		compound_literal() [ _val = _1 ]
+		compound_value() [ _val = _1 ]
 		| typed_reference<Fluent>()(_r1, CompoundType::name()) [ _val = _1 ]
 		| typed_reference<Function>()(_r1, CompoundType::name()) [ _val = _1 ]
 		| var_usage()(_r1, val(CompoundType::name())) [

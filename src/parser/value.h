@@ -26,21 +26,21 @@ namespace gologpp {
 namespace parser {
 
 
-rule<Value *()> &numeric_literal();
-rule<Value *()> &boolean_literal();
-rule<Value *()> &string_literal();
-rule<Value *()> &symbolic_literal();
-rule<Value *()> &symbolic_literal_def();
-rule<Value *()> &compound_literal();
-rule<Value *()> &list_literal();
-rule<Value *()> &undefined_literal();
+rule<Value *()> &numeric_value();
+rule<Value *()> &boolean_value();
+rule<Value *()> &string_value();
+rule<Value *()> &symbolic_value();
+rule<Value *()> &symbolic_value_def();
+rule<Value *()> &compound_value();
+rule<Value *()> &list_value();
+rule<Value *()> &undefined_value();
 
-rule<Value *()> &any_literal();
+rule<Value *()> &any_value();
 
-rule<Value *(Typename, bool)> &literal();
+rule<Value *(Typename, bool)> &value();
 
 
-void initialize_cyclic_literals();
+void initialize_cyclic_values();
 
 
 } // namespace parser

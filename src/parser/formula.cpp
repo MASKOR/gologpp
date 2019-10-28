@@ -150,7 +150,7 @@ BooleanExpressionParser::BooleanExpressionParser()
 	expression = operation_seq(_r1) | unary_expr(_r1);
 	expression.name("boolean_expression");
 
-	unary_expr = quantification(_r1) | negation(_r1) | boolean_literal()
+	unary_expr = quantification(_r1) | negation(_r1) | boolean_value()
 		| bool_var_ref(_r1) | brace(_r1)
 		| mixed_field_access()(_r1, BoolType::name())
 		| mixed_list_access()(_r1, BoolType::name())
