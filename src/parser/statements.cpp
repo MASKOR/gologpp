@@ -40,7 +40,8 @@
 #include "types.h"
 #include "formula.h"
 #include "expressions.h"
-
+#include "variable.h"
+#include "value.h"
 
 namespace gologpp {
 namespace parser {

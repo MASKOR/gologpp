@@ -23,7 +23,8 @@
 #include "field_access.h"
 #include "list_access.h"
 #include "reference.h"
-#include "atoms.h"
+#include "variable.h"
+#include "value.h"
 #include "expressions.h"
 
 #include <boost/spirit/include/qi_alternative.hpp>

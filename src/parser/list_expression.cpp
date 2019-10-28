@@ -17,7 +17,8 @@
 
 #include "types.h"
 #include "list_expression.h"
-#include "atoms.h"
+#include "variable.h"
+#include "value.h"
 #include "reference.h"
 #include "list_access.h"
 #include "field_access.h"

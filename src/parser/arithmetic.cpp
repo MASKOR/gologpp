@@ -16,7 +16,8 @@
 **************************************************************************/
 
 #include "arithmetic.h"
-#include "atoms.h"
+#include "variable.h"
+#include "value.h"
 #include "list_access.h"
 #include "list_expression.h"
 #include "field_access.h"

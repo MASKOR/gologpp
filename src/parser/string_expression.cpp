@@ -17,7 +17,8 @@
 
 #include "string_expression.h"
 
-#include "atoms.h"
+#include "variable.h"
+#include "value.h"
 #include "formula.h"
 #include "arithmetic.h"
 #include "expressions.h"

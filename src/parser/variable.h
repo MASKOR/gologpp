@@ -15,8 +15,8 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef GOLOGPP_PARSER_ATOMS_H_
-#define GOLOGPP_PARSER_ATOMS_H_
+#ifndef GOLOGPP_PARSER_VARIABLE_H_
+#define GOLOGPP_PARSER_VARIABLE_H_
 
 #include "utilities.h"
 #include "types.h"
@@ -32,28 +32,12 @@ rule<Reference<Variable> *(Scope &, Typename)> &var_ref();
 rule<shared_ptr<Variable>(Scope &)> &any_var_usage();
 
 
-rule<Value *()> &numeric_literal();
-rule<Value *()> &boolean_literal();
-rule<Value *()> &string_literal();
-rule<Value *()> &symbolic_literal();
-rule<Value *()> &symbolic_literal_def();
-rule<Value *()> &compound_literal();
-rule<Value *()> &list_literal();
-rule<Value *()> &undefined_literal();
-
-rule<Value *()> &any_literal();
-
-rule<Value *(Typename, bool)> &literal();
-
 rule<Expression *()> &atom();
-
-
-void initialize_cyclic_literals();
 
 
 } // namespace parser
 } // namespace gologpp
 
 
-#endif // GOLOGPP_PARSER_ATOMS_H_
+#endif // GOLOGPP_PARSER_VARIABLE_H_
 

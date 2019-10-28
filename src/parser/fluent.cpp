@@ -18,6 +18,8 @@
 #include "fluent.h"
 #include "types.h"
 #include "domain.h"
+#include "variable.h"
+#include "value.h"
 
 #include <boost/spirit/home/qi/nonterminal/error_handler.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>

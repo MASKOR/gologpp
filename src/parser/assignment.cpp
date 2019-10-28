@@ -17,7 +17,6 @@
 
 #include "field_access.h"
 #include "assignment.h"
-#include "atoms.h"
 #include "arithmetic.h"
 #include "formula.h"
 #include "types.h"

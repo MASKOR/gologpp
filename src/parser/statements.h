@@ -21,7 +21,6 @@
 #include "utilities.h"
 #include "reference.h"
 #include "assignment.h"
-#include "atoms.h"
 #include "formula.h"
 #include "arithmetic.h"
 #include "string_expression.h"

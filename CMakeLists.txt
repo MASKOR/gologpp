@@ -152,7 +152,7 @@ option(BUILD_PARSER "Build the parser library" ON)
 CMAKE_DEPENDENT_OPTION(DEBUG_PARSER "Enable debug output for the parser" OFF "BUILD_PARSER" OFF)
 if (${BUILD_PARSER})
 	set(PARSER_SRC
-		src/parser/atoms.cpp
+		src/parser/variable.cpp
 		src/parser/action.cpp
 		src/parser/arithmetic.cpp
 		src/parser/formula.cpp
@@ -174,6 +174,7 @@ if (${BUILD_PARSER})
 		src/parser/mapping.cpp
 		src/parser/list_expression.cpp
 		src/parser/list_access.cpp
+		src/parser/value.cpp
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
@@ -190,7 +191,7 @@ if (${BUILD_PARSER})
 		src/parser/formula.h
 		src/parser/effect_axiom.h
 		src/parser/functions.h
-		src/parser/atoms.h
+		src/parser/variable.h
 		src/parser/arithmetic.h
 		src/parser/statements.h
 		src/parser/types.h
@@ -207,6 +208,7 @@ if (${BUILD_PARSER})
 		src/parser/mapping.h
 		src/parser/list_expression.h
 		src/parser/list_access.h
+		src/parser/value.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)
 

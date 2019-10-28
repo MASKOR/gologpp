@@ -16,7 +16,8 @@
 **************************************************************************/
 
 #include "symbolic_expression.h"
-#include "atoms.h"
+#include "variable.h"
+#include "value.h"
 #include "list_access.h"
 #include "field_access.h"
 #include "reference.h"

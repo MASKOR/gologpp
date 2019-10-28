@@ -17,9 +17,6 @@
 
 #include <string>
 
-#include "atoms.h"
-#include "types.h"
-
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_expect.hpp>
@@ -56,70 +53,10 @@
 #include <unordered_map>
 #include <functional>
 
+#include "value.h"
 
 namespace gologpp {
 namespace parser {
-
-
-rule<shared_ptr<Variable>(Scope &)> &var_decl() {
-	static rule<shared_ptr<Variable>(Scope &)> rv {
-		(any_type_specifier()(_r1) >> r_name()) [
-			_val = phoenix::bind(
-				&Scope::get_var, _r1,
-				VarDefinitionMode::FORCE,
-				_1, _2
-			)
-		],
-		"variable_declaration"
-	};
-//	GOLOGPP_DEBUG_NODE(rv)
-	return rv;
-}
-
-
-rule<shared_ptr<Variable>(Scope &, Typename)> &var_usage() {
-	static rule<shared_ptr<Variable>(Scope &, Typename)> rv {
-		r_name() [
-			_val = phoenix::bind(
-				&Scope::get_var, _r1,
-				VarDefinitionMode::DENY,
-				_r2, _1
-			),
-			_pass = !!_val // force conversion to bool
-		],
-		"typed_variable_reference"
-	};
-//	GOLOGPP_DEBUG_NODE(rv)
-	return rv;
-}
-
-
-rule<Reference<Variable> *(Scope &, Typename)> &var_ref() {
-	static rule<Reference<Variable> *(Scope &, Typename)> rv {
-		var_usage()(_r1, _r2) [
-			_val = new_<Reference<Variable>>(_1)
-		]
-	};
-
-	return rv;
-}
-
-
-rule<shared_ptr<Variable>(Scope &)> &any_var_usage() {
-	static rule<shared_ptr<Variable>(Scope &)> rv {
-		r_name() [
-			_val = phoenix::bind(
-				&Scope::lookup_var, _r1,
-				_1
-			),
-			_pass = !!_val // force conversion to bool
-		],
-		"variable_reference"
-	};
-//	GOLOGPP_DEBUG_NODE(rv)
-	return rv;
-}
-
 
 
 rule<Value *()> &undefined_literal() {
@@ -352,7 +289,6 @@ rule<Value *(Typename, bool)> &literal() {
 //	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 }
-
 
 
 

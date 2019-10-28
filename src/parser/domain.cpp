@@ -16,7 +16,8 @@
 **************************************************************************/
 
 #include "domain.h"
-#include "atoms.h"
+#include "variable.h"
+#include "value.h"
 #include "types.h"
 
 #include <model/variable.h>

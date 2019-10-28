@@ -18,7 +18,8 @@
 #include "compound_expression.h"
 #include "list_access.h"
 #include "field_access.h"
-#include "atoms.h"
+#include "value.h"
+#include "variable.h"
 
 #include <model/fluent.h>
 #include <model/procedural.h>

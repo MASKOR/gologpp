@@ -10,6 +10,7 @@
 #include "domain.h"
 #include "types.h"
 #include "expressions.h"
+#include "value.h"
 
 #include <boost/spirit/include/qi_kleene.hpp>
 #include <boost/spirit/include/qi_omit.hpp>
