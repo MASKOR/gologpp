@@ -15,41 +15,27 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef GOLOGPP_LIST_EXPRESSION_H_
-#define GOLOGPP_LIST_EXPRESSION_H_
+#ifndef READYLOG_COMPOUND_EXPRESSION_H_
+#define READYLOG_COMPOUND_EXPRESSION_H_
 
-#include "language.h"
-#include "gologpp.h"
-#include "expressions.h"
-#include "scope.h"
-#include "types.h"
+#include "semantics.h"
 
-#include <unordered_map>
+#include <model/compound_expression.h>
 
 namespace gologpp {
 
 
-class ListExpression
-: public Expression
-, public LanguageElement<ListExpression, ListType>
-, public NoScopeOwner
+template<>
+class Semantics<CompoundExpression>
+: public Semantics<Expression>
+, public AbstractSemantics<CompoundExpression>
 {
 public:
-	ListExpression(const string &type_name, const vector<Expression *> &entries);
-
-	const Expression &entry(size_t idx) const;
-	size_t size() const;
-
-	virtual void attach_semantics(SemanticsFactory &) override;
-	virtual string to_string(const string &pfx) const override;
-	virtual const ListType &type() const override;
-
-private:
-	vector<unique_ptr<Expression>> entries_;
+	Semantics(const CompoundExpression &expr);
+	virtual EC_word plterm() override;
 };
 
 
+}
 
-} // namespace gologpp
-
-#endif // GOLOGPP_LIST_EXPRESSION_H_
+#endif // READYLOG_COMPOUND_EXPRESSION_H_

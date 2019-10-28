@@ -15,41 +15,31 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef GOLOGPP_LIST_EXPRESSION_H_
-#define GOLOGPP_LIST_EXPRESSION_H_
-
-#include "language.h"
-#include "gologpp.h"
-#include "expressions.h"
-#include "scope.h"
-#include "types.h"
-
-#include <unordered_map>
+#include "compound_expression.h"
 
 namespace gologpp {
 
 
-class ListExpression
-: public Expression
-, public LanguageElement<ListExpression, ListType>
-, public NoScopeOwner
+Semantics<CompoundExpression>::Semantics(const CompoundExpression &expr)
+: AbstractSemantics<CompoundExpression>(expr)
+{}
+
+
+EC_word Semantics<CompoundExpression>::plterm()
 {
-public:
-	ListExpression(const string &type_name, const vector<Expression *> &entries);
-
-	const Expression &entry(size_t idx) const;
-	size_t size() const;
-
-	virtual void attach_semantics(SemanticsFactory &) override;
-	virtual string to_string(const string &pfx) const override;
-	virtual const ListType &type() const override;
-
-private:
-	vector<unique_ptr<Expression>> entries_;
-};
-
+	EC_word field_list = ::nil();
+	for (auto &field_name : element().type().field_names())
+		field_list = ::list(
+			::term(EC_functor(field_name.c_str(), 1),
+				element().entry(field_name).semantics().plterm()
+			),
+			field_list
+		);
+	return ::term(EC_functor("gpp_compound", 2),
+		EC_atom(("#" + element().type_name()).c_str()),
+		field_list
+	);
+}
 
 
 } // namespace gologpp
-
-#endif // GOLOGPP_LIST_EXPRESSION_H_

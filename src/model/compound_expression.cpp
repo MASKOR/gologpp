@@ -60,7 +60,7 @@ CompoundExpression::CompoundExpression(
 }
 
 
-const Expression &CompoundExpression::entry(const string &key)
+const Expression &CompoundExpression::entry(const string &key) const
 {
 	auto it = entries_.find(key);
 	if (it == entries_.end())

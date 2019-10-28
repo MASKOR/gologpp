@@ -30,6 +30,8 @@
 #include "domain.h"
 #include "string.h"
 #include "history.h"
+#include "compound_expression.h"
+#include "list_expression.h"
 
 namespace gologpp {
 

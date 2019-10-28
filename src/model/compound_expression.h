@@ -37,7 +37,7 @@ class CompoundExpression
 public:
 	CompoundExpression(const string &type_name, const vector<fusion_wtf_vector<string, Expression *>> &entries);
 
-	const Expression &entry(const string &key);
+	const Expression &entry(const string &key) const;
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;

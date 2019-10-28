@@ -251,6 +251,8 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/history.cpp
 		src/semantics/readylog/reference.cpp
 		src/semantics/readylog/effect_axiom.cpp
+		src/semantics/readylog/compound_expression.cpp
+		src/semantics/readylog/list_expression.cpp
 	)
 
 	link_directories(${ECLIPSE_LIBRARY_DIRS})
@@ -282,6 +284,9 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/reference.h
 		src/semantics/readylog/string.h
 		src/semantics/readylog/history.h
+		src/semantics/readylog/compound_expression.h
+		src/semantics/readylog/list_expression.h
+
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/readylog
 	)
 

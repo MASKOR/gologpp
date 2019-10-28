@@ -42,12 +42,15 @@ ListExpression::ListExpression(
 }
 
 
-const Expression &ListExpression::entry(size_t idx)
+const Expression &ListExpression::entry(size_t idx) const
 {
 	if (idx >= entries_.size())
 		throw UserError(str() + ": Index " + std::to_string(idx) + " out of range ");
 	return *entries_[idx];
 }
+
+size_t ListExpression::size() const
+{ return entries_.size(); }
 
 
 void ListExpression::attach_semantics(SemanticsFactory &f)
