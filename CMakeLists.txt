@@ -95,6 +95,8 @@ set(INTERFACE_SRC
 	src/model/transition.cpp
 	src/model/language.cpp
 	src/model/types.cpp
+	src/model/compound_expression.cpp
+	src/model/list_expression.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -131,6 +133,8 @@ install(FILES
 	src/model/platform_backend.h
 	src/model/transition.h
 	src/model/types.h
+	src/model/compound_expression.h
+	src/model/list_expression.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model
 )

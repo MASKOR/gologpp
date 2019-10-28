@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 
+#include <boost/fusion/include/vector.hpp>
+
 namespace gologpp {
 
 enum VarDefinitionMode {
@@ -24,6 +26,14 @@ class unique_ptr : public std::unique_ptr<T> {
 public:
 	using std::unique_ptr<T>::unique_ptr;
 };
+
+
+template<class T1, class T2>
+#ifdef BOOST_FUSION_HAS_VARIADIC_VECTOR
+using fusion_wtf_vector = boost::fusion::vector<T1, T2>;
+#else
+using fusion_wtf_vector = boost::fusion::vector2<T1, T2>;
+#endif
 
 
 class Expression;
@@ -104,6 +114,9 @@ template<class> class Reference;
 class AbstractGrounding;
 template<class> class Grounding;
 
+class CompoundExpression;
+class ListExpression;
+
 class History;
 
 template<class> class Semantics;
@@ -152,7 +165,8 @@ class PlatformBackend;
 	(StringConcatenation) \
 	(ToString) \
 	(DurativeCall) \
-	(Comparison)
+	(Comparison) \
+	(CompoundExpression) (ListExpression)
 
 
 } // namespace gologpp
