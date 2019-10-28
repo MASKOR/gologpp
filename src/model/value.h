@@ -94,6 +94,11 @@ public:
 
 	virtual size_t hash() const;
 
+	/* TODO: This needs to go. We cannot directly do casting with boost::get
+	 *       since we might end up calling boost::get for a type that is in the
+	 *       signature, but incorrect. Imagine upcasting an unsigned int to long.
+	 *       Will either require nested casts or trigger boost::bad_get! */
+
 	operator int () const
 	{ return boost::get<int>(representation()); }
 
