@@ -57,7 +57,7 @@ AssignmentParser<LhsT>::AssignmentParser()
 
 	init();
 
-	GOLOGPP_DEBUG_NODES((assignment)(lhs_parser))
+	//GOLOGPP_DEBUG_NODES((assignment)(lhs_parser))
 }
 
 

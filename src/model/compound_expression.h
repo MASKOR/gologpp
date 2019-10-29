@@ -31,7 +31,7 @@ namespace gologpp {
 
 class CompoundExpression
 : public Expression
-, public LanguageElement<CompoundExpression, CompoundType>
+, public LanguageElement<CompoundExpression>
 , public NoScopeOwner
 {
 public:

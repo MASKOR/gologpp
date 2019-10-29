@@ -22,16 +22,16 @@ namespace gologpp {
 
 ListExpression::ListExpression(
 	const string &type_name,
-	const vector<Expression *> &entries
+	const boost::optional<vector<Expression *>> &entries
 )
 {
-	set_type_by_name(type_name);
+	set_type_unchecked(type_name);
 
 	if (!AbstractLanguageElement::type().is<ListType>())
 		throw TypeError("Attempt to construct ListExpression, but type name \""
 			+ type_name + "\" does not refer to a list type");
 
-	for (Expression *expr : entries) {
+	for (Expression *expr : entries.get_value_or({})) {
 		if (type().element_type() == expr->type())
 			entries_.emplace_back(expr);
 		else

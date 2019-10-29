@@ -22,15 +22,25 @@
 #include "reference.h"
 #include "list_access.h"
 #include "field_access.h"
+#include "expressions.h"
 
 #include <model/procedural.h>
+#include <model/list_expression.h>
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_action.hpp>
+#include <boost/spirit/include/qi_list.hpp>
+#include <boost/spirit/include/qi_sequence.hpp>
+#include <boost/spirit/include/qi_expect.hpp>
+#include <boost/spirit/include/qi_optional.hpp>
+#include <boost/spirit/include/qi_lit.hpp>
+#include <boost/spirit/include/qi_char.hpp>
 
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/dynamic_cast.hpp>
+#include <boost/phoenix/object/static_cast.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/bind/bind_member_function.hpp>
 
 
 namespace gologpp {
@@ -41,6 +51,8 @@ namespace parser {
 rule<Expression *(Scope &)> list_atom;
 
 rule<Expression *(Scope &)> list_expression;
+
+static rule<Expression *(Scope &), locals<Typename>> braced_list_expression;
 
 
 
@@ -60,7 +72,29 @@ void initialize_list_exprs()
 		mixed_field_access()(_r1, ListType::name()) [ _val = _1 ]
 			| mixed_list_access()(_r1, ListType::name()) [ _val = _1 ]
 			| list_atom(_r1) [ _val = _1 ]
+			| braced_list_expression(_r1) [ _val = _1 ]
 		, "list_expression"
+	};
+
+	braced_list_expression = {
+		(
+			complex_type_identifier<ListType>()(_r1) [
+				_a = static_cast_<string>(
+					phoenix::bind(&ListType::element_type, *_1)
+				)
+			]
+			>> lit('[')
+			>> -(
+				typed_expression()(_r1, _a)
+				% ','
+			)
+			>> ']'
+		) [
+			_val = new_<ListExpression>(
+				static_cast_<string>(*_1),
+				_2
+			)
+		]
 	};
 
 	GOLOGPP_DEBUG_NODES(
@@ -68,9 +102,6 @@ void initialize_list_exprs()
 		(list_expression)
 	)
 };
-
-
-
 
 
 

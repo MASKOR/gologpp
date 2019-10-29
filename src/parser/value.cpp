@@ -153,9 +153,9 @@ struct CompoundValueParser : grammar<Value *()> {
 			undefined_value() [ _val = _1 ]
 			| (
 				(any_type_specifier()(phoenix::bind(&global_scope)) >> '{')
-				> (
-					r_name() > '=' > any_value_
-				) % ',' > '}'
+				>> (
+					r_name() >> '=' >> any_value_
+				) % ',' >> '}'
 			) [
 				_val = new_<Value>(_1, _2)
 			]

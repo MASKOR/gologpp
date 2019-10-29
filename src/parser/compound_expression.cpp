@@ -20,16 +20,26 @@
 #include "field_access.h"
 #include "value.h"
 #include "variable.h"
+#include "expressions.h"
 
 #include <model/fluent.h>
 #include <model/procedural.h>
+#include <model/compound_expression.h>
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_action.hpp>
+#include <boost/spirit/include/qi_list.hpp>
+#include <boost/spirit/include/qi_sequence.hpp>
+#include <boost/spirit/include/qi_expect.hpp>
+#include <boost/spirit/include/qi_char.hpp>
 
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/dynamic_cast.hpp>
+#include <boost/phoenix/object/static_cast.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/statement/if.hpp>
+#include <boost/phoenix/bind/bind_function.hpp>
+#include <boost/phoenix/bind/bind_member_function.hpp>
 
 
 namespace gologpp {
@@ -41,6 +51,7 @@ rule<Expression *(Scope &)> compound_atom;
 
 rule<Expression *(Scope &)> compound_expression;
 
+static rule<Expression *(Scope &), locals<shared_ptr<const CompoundType>, Typename>> braced_compound_expr_;
 
 
 void initialize_compound_exprs()
@@ -59,8 +70,34 @@ void initialize_compound_exprs()
 		mixed_field_access()(_r1, CompoundType::name()) [ _val = _1 ]
 		| mixed_list_access()(_r1, CompoundType::name()) [ _val = _1 ]
 		| compound_atom(_r1) [ _val = _1 ]
+		| braced_compound_expr_(_r1) [ _val = _1 ]
 		, "compound_expression"
 	;
+
+	braced_compound_expr_ =
+		(
+			(complex_type_identifier<CompoundType>()(_r1) [
+				_a = _1
+			]
+			>> '{')
+			>> ((
+				r_name() [
+					_pass = phoenix::bind(&CompoundType::has_field, *_a, _1),
+					_b = static_cast_<string>(
+						phoenix::bind(&CompoundType::field_type<Type>, _a, _1)
+					)
+				]
+				>> '=' >> typed_expression()(_r1, _b)
+			) % ',') >> '}'
+		) [
+			_val = new_<CompoundExpression>(
+				static_cast_<string>(*_a),
+				_2
+			)
+		]
+		, "braced_compound_expression"
+	;
+
 }
 
 

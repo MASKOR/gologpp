@@ -26,7 +26,7 @@ CompoundExpression::CompoundExpression(
 	const vector<fusion_wtf_vector<string, Expression *> > &entries
 )
 {
-	set_type_by_name(type_name);
+	set_type_unchecked(type_name);
 
 	if (!AbstractLanguageElement::type().is_compound())
 		throw TypeError("Attempt to construct CompoundExpression, but type name \""

@@ -26,16 +26,18 @@
 
 #include <unordered_map>
 
+#include <boost/optional.hpp>
+
 namespace gologpp {
 
 
 class ListExpression
 : public Expression
-, public LanguageElement<ListExpression, ListType>
+, public LanguageElement<ListExpression>
 , public NoScopeOwner
 {
 public:
-	ListExpression(const string &type_name, const vector<Expression *> &entries);
+	ListExpression(const string &type_name, const boost::optional<vector<Expression *>> &entries);
 
 	const Expression &entry(size_t idx) const;
 	size_t size() const;
