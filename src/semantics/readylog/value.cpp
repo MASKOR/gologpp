@@ -50,7 +50,7 @@ EC_word Semantics<Value>::plterm()
 		value_.type().is<SymbolType>()
 		|| value_.type().is<StringType>()
 	)
-		return EC_atom(value_.str().c_str());
+		return EC_atom(static_cast<string>(value_).c_str());
 	else if (value_.type().is<CompoundType>()) {
 		EC_word field_list = ::nil();
 		for (auto &pair : static_cast<const CompoundType::Representation &>(value_))
