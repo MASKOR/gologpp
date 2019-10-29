@@ -251,7 +251,7 @@ if (${BUILD_READYLOG_IMPL})
   target_compile_definitions(readylog++ PUBLIC
 		-DECLIPSE_DIR=\"${ECLIPSE_DIR}\"
 		-DUSES_NO_ENGINE_HANDLE
-		-DSEMANTICS_INSTALL_DIR=\"${SEMANTICS_INSTALL_DIR}\"
+		-DSEMANTICS_INSTALL_DIR=\"${CMAKE_INSTALL_PREFIX}/${SEMANTICS_INSTALL_DIR}\"
 	)
 	target_include_directories(readylog++ PUBLIC ${ECLIPSE_INCLUDE_DIRS})
 	target_link_libraries(readylog++ golog++ ${ECLIPSE_LIBRARIES} stdc++fs)
