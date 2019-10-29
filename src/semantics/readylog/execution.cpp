@@ -159,15 +159,15 @@ void ReadylogContext::compile_term(const EC_word &term)
 
 std::string ReadylogContext::find_readylog() {
 	const char *readylog_pl = std::getenv("READYLOG_PL");
-	if (!readylog_pl)
-		throw std::runtime_error(
-			"Could not find ReadyLog, environment variable READYLOG_PL not set"
-		);
-	std::string readylog_path_env(readylog_pl);
-	readylog_path_env += ":";
+	std::string readylog_path_env = "";
+	if (readylog_pl) {
+		readylog_path_env = std::string(readylog_pl) + ":";
+	}
+	readylog_path_env += (std::string(SEMANTICS_INSTALL_DIR) + "/readylog/interpreter");
 	std::size_t last = 0;
 	std::size_t next;
-	while ((next = readylog_path_env.find(':', last)) != std::string::npos) {
+	while (true) {
+		next = readylog_path_env.find(':', last);
 		std::string next_path = readylog_path_env.substr(last, next - last);
 		if (next_path != "") {
 			filesystem::path readylog_path(next_path);
@@ -175,9 +175,12 @@ std::string ReadylogContext::find_readylog() {
 			if (filesystem::exists(readylog_path))
 				return std::string(readylog_path);
 		}
+		if (next == std::string::npos) {
+			throw std::runtime_error("Could not find ReadyLog in \"" + readylog_path_env
+			                         + "\" please set READYLOG_PL to the ReadyLog path!");
+		}
 		last = next + 1;
 	}
-	throw std::runtime_error("Could not find ReadyLog in " + readylog_path_env);
 }
 
 std::string ReadylogContext::find_boilerplate() {
