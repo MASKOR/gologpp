@@ -42,7 +42,7 @@ class AbstractSemantics<Expression>
 : public virtual AbstractSemantics<AbstractLanguageElement>
 {
 public:
-	virtual Value evaluate(const AbstractGrounding &context, const History &h) = 0;
+	virtual Value evaluate(const Activity &context, const History &h) = 0;
 };
 
 

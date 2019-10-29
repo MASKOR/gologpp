@@ -44,7 +44,7 @@ class Semantics<Expression>
 {
 public:
 	virtual ~Semantics<Expression>() override = default;
-	virtual Value evaluate(const AbstractGrounding &context, const History &h) override;
+	virtual Value evaluate(const Activity &context, const History &h) override;
 };
 
 

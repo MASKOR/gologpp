@@ -36,8 +36,10 @@
 namespace gologpp {
 
 
-Value Semantics<Expression>::evaluate(const AbstractGrounding &context, const History &h)
+Value Semantics<Expression>::evaluate(const Activity &context, const History &h)
 {
+	context.target()->scope().semantics().init_vars();
+
 	vector<EC_word> queries;
 	for (const ParamsToArgs<Value>::value_type &param_value : context.params_to_args()) {
 		queries.push_back(
