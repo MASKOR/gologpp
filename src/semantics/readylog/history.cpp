@@ -77,9 +77,10 @@ vector<unique_ptr<Value>> get_args(EC_word head) {
 
 static const std::unordered_map<string, Transition::Hook> name2state {
 	{ "start", Transition::Hook::START },
-	{ "stop", Transition::Hook::CANCEL },
+	{ "cancel", Transition::Hook::CANCEL },
 	{ "finish", Transition::Hook::FINISH },
 	{ "fail", Transition::Hook::FAIL },
+	{ "end", Transition::Hook::END }
 };
 
 

@@ -490,6 +490,34 @@ private:
 
 
 
+class During
+: public Expression
+, public NoScopeOwner
+, public LanguageElement<During, VoidType>
+{
+public:
+	During(
+		Reference<Action> *action_call,
+		Expression *parallel_block,
+		boost::optional<Expression *> on_fail,
+		boost::optional<Expression *> on_cancel
+	);
+	const Reference<Action> &action_call() const;
+	const Expression &parallel_block() const;
+	const Expression &on_fail() const;
+	const Expression &on_cancel() const;
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*action_call_, *parallel_block_, *on_fail_, *on_cancel_)
+
+	string to_string(const string &pfx) const override;
+
+private:
+	unique_ptr<Reference<Action>> action_call_;
+	SafeExprOwner<VoidType> parallel_block_;
+	SafeExprOwner<VoidType> on_fail_;
+	SafeExprOwner<VoidType> on_cancel_;
+};
+
 } // namespace gologpp
 
 

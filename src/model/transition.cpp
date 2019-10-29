@@ -53,6 +53,8 @@ string to_string(Transition::Hook h)
 		return "finish";
 	case Transition::Hook::FAIL:
 		return "fail";
+	case Transition::Hook::END:
+		return "end";
 	}
 	throw Bug(string("Unhandled ") + typeid(h).name());
 }

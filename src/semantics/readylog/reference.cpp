@@ -34,7 +34,7 @@ template<>
 EC_word Semantics<Reference<Action>>::plterm()
 {
 	return ::list(::term(EC_functor("start", 2), reference_term(element()), EC_atom("now")),
-		::list(::term(EC_functor("finish", 2), reference_term(element()), EC_atom("now")),
+		::list(::term(EC_functor("end", 2), reference_term(element()), EC_atom("now")),
 			::nil()
 		)
 	);

@@ -214,6 +214,44 @@ causes_val(finish(A, _T), state(A), final, true) :- durative_action(A).
 causes_val(finish(A, T), F, V, C) :- durative_causes_val(A, F, V, C).
 
 
+% end action
+% ==========
+prim_action(end(A, _T)) :- durative_action(A).
+poss(end(A, T),
+	and(
+		lif(online
+			% Online: Wait for real action to complete
+			, or( [
+				state(A) = final
+				, state(A) = failed
+				, state(A) = cancelled
+			] )
+			% Offline: Final immediately
+			, true
+		)
+		, now >= T
+	)
+) :- durative_action(A).
+
+% ONLY During planning end(A) puts A in the final state.
+% Online this happens exogenously.
+causes_val(end(A, _T), state(A), final, not(online)) :- durative_action(A).
+
+% Offline: Just apply effect & disregard state because state is changed
+%          by another effect.
+% Online:  Apply effect only if state is final
+causes_val(
+	end(A, _T)
+	, F, V
+	, lif(online
+		, and(state(A) = final, C)
+		, C
+	)
+) :-
+	durative_causes_val(A, F, V, C)
+.
+
+
 % stop action
 % ===========
 prim_action(stop(A, _T)) :- durative_action(A).

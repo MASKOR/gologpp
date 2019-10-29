@@ -56,6 +56,8 @@ Activity::State Activity::target_state(Transition::Hook hook)
 		return Activity::State::FINAL;
 	case Transition::Hook::FAIL:
 		return Activity::State::FAILED;
+	case Transition::Hook::END:
+		return Activity::State::IDLE;
 	}
 	throw Bug("Unhandled Transition hook. Ignored warnings when compiling?");
 }

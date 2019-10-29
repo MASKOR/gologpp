@@ -310,11 +310,21 @@ class Semantics<ListLength>
 , public AbstractSemantics<ListLength>
 {
 public:
-	Semantics(const ListLength &list_access);
-
+	using AbstractSemantics<ListLength>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 
+
+
+template<>
+class Semantics<During>
+: public Semantics<AbstractLanguageElement>
+, public AbstractSemantics<During>
+{
+public:
+	using AbstractSemantics<During>::AbstractSemantics;
+	virtual EC_word plterm() override;
+};
 
 
 } // namespace gologpp

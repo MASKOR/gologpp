@@ -28,7 +28,7 @@ namespace gologpp {
 
 class Transition : public Grounding<Action>, public LanguageElement<Transition> {
 public:
-	enum Hook { START, CANCEL, FINISH, FAIL };
+	enum Hook { START, CANCEL, FINISH, FAIL, END };
 
 	Transition(const shared_ptr<Action> &action, vector<unique_ptr<Value>> &&args, Hook hook);
 

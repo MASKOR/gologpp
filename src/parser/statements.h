@@ -50,6 +50,8 @@ struct StatementParser : grammar<Expression *(Scope &)> {
 	rule<ListPop *(Scope &), locals<ListOpEnd>> list_pop;
 	rule<ListPush *(Scope &), locals<ListOpEnd, Typename>> list_push;
 
+	rule<During *(Scope &)> during;
+
 	rule<Expression *(Scope &)> empty_statement;
 
 	rule<Return *(Scope &)> return_stmt;

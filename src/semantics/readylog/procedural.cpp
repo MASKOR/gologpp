@@ -410,4 +410,40 @@ EC_word Semantics<ListLength>::plterm()
 
 
 
+EC_word Semantics<During>::plterm()
+{
+	EC_word start = ::term(EC_functor(to_string(Transition::Hook::START).c_str(), 2),
+		reference_term(element().action_call()),
+		EC_atom("now")
+	);
+	EC_word end = ::term(EC_functor(to_string(Transition::Hook::END).c_str(), 2),
+		reference_term(element().action_call()),
+		EC_atom("now")
+	);
+	EC_word if_failed = ::term(EC_functor("if", 2),
+		::term(EC_functor("=", 2),
+			::term(EC_functor("state", 1), reference_term(element().action_call())),
+			::EC_atom(to_string(Activity::State::FAILED).c_str())
+		),
+		element().on_fail().semantics().plterm()
+	);
+	EC_word if_cancelled = ::term(EC_functor("if", 2),
+		::term(EC_functor("=", 2),
+			::term(EC_functor("state", 1), reference_term(element().action_call())),
+			::EC_atom(to_string(Activity::State::CANCELLED).c_str())
+		),
+		element().on_cancel().semantics().plterm()
+	);
+
+	return make_ec_list( {
+		start,
+		element().parallel_block().semantics().plterm(),
+		end,
+		if_failed,
+		if_cancelled
+	} );
+}
+
+
+
 }
