@@ -23,6 +23,7 @@ pl_field_value(Name, Compound, Value) :-
 			, throw(Msg)
 		)
 	)
+	, !
 	, Field_term =.. [Name, Value]
 	, member(Field_term, Fields)
 .
@@ -49,6 +50,7 @@ pl_mixed_assign(Members, Value, Lhs, Result) :-
 		;
 			Val_new = Value
 		)
+		, !
 		, nth0(M, List_new, Val_new, List_without)
 		, Result = gpp_list(Type, List_new)
 	
@@ -67,6 +69,7 @@ pl_mixed_assign(Members, Value, Lhs, Result) :-
 		;
 			Field_new =.. [M, Value]
 		)
+		, !
 		, Result = gpp_compound(Type, [Field_new | Fields_without])
 	;
 		sprintf(Msg, "gpp_mixed_assign: %W is not a list index or a field name", [M])
@@ -85,6 +88,7 @@ pl_list_access(Lhs, Idx, Result) :-
 	, (number(Idx)
 		; throw("gpp_list_access: Second arg must be a number")
 	)
+	, !
 	, nth0(Idx, List, Result)
 .
 
@@ -96,6 +100,7 @@ pl_list_length(Lhs, Result) :-
 	, (length(List, Result)
 		; throw("gpp_list_length: Arg must be a list")
 	)
+	, !
 .
 
 function(gpp_list_pop_front(Lhs), Result,
@@ -106,6 +111,7 @@ pl_list_pop_front(Lhs, Result) :-
 	, (length(List, _)
 		; throw("gpp_list_pop_front: Arg must be a list")
 	)
+	, !
 	, List_new = [_ | Result]
 	, Result = gpp_list(Type, List_new)
 .
@@ -118,6 +124,7 @@ pl_list_pop_back(Lhs, Result) :-
 	, (length(List, _)
 		; throw("gpp_list_pop_back: Arg must be a list")
 	)
+	, !
 	, length(List, Len)
 	, nth1(Len, List, _, List_new)
 	, Result = gpp_list(Type, List_new)
@@ -134,6 +141,7 @@ pl_list_push_front(Lhs, Elem, Result) :-
 	, (number(Elem)
 		; throw("gpp_list_push_front: Second arg must be instantiated")
 	)
+	, !
 	, Result = gpp_list(Type, [Elem | List])
 .
 
@@ -148,6 +156,7 @@ pl_list_push_back(Lhs, Elem, Result) :-
 	, (number(Elem)
 		; throw("gpp_list_push_back: Second arg must be instantiated")
 	)
+	, !
 	, append(List, [Elem], List_new)
 	, Result = gpp_list(Type, List_new)
 .
