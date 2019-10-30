@@ -70,7 +70,6 @@ set(GOLOGPP_VERSION 0.0.1)
 
 set(INTERFACE_SRC
 	src/model/action.cpp
-	src/model/semantics.cpp
 	src/model/activity.cpp
 	src/model/variable.cpp
 	src/model/value.cpp
