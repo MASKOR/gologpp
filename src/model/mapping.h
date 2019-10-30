@@ -25,6 +25,7 @@
 
 #include <unordered_map>
 #include <boost/fusion/include/vector.hpp>
+#include <boost/optional.hpp>
 
 namespace gologpp {
 
@@ -46,7 +47,7 @@ public:
 
 	ActionMapping(
 		const string &backend_name,
-		vector<fusion_wtf_vector<string, Expression *>> arg_mapping
+		boost::optional<vector<fusion_wtf_vector<string, Expression *>>> arg_mapping
 	);
 
 	const string &backend_name() const;
