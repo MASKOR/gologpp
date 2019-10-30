@@ -125,7 +125,7 @@ public:
 	{
 		auto it = fields_.find(field_name);
 		if (it == fields_.end())
-			throw NoSuchFieldError(field_name, name());
+			throw NoSuchFieldError(field_name, static_cast<string>(*this));
 		return dynamic_cast<const T &>(*(it->second));
 	}
 
