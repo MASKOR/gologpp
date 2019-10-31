@@ -30,7 +30,7 @@ EC_word Semantics<CompoundExpression>::plterm()
 	EC_word field_list = ::nil();
 	for (auto &field_name : element().type().field_names())
 		field_list = ::list(
-			::term(EC_functor(field_name.c_str(), 1),
+			::term(EC_functor(("#" + field_name).c_str(), 1),
 				element().entry(field_name).semantics().plterm()
 			),
 			field_list

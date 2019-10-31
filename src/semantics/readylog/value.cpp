@@ -56,7 +56,7 @@ EC_word Semantics<Value>::plterm()
 		EC_word field_list = ::nil();
 		for (auto &pair : static_cast<const CompoundType::Representation &>(element()))
 			field_list = ::list(
-				::term(EC_functor(pair.first.c_str(), 1),
+				::term(EC_functor(("#" + pair.first).c_str(), 1),
 					pair.second->semantics().plterm()
 				),
 				field_list
@@ -168,7 +168,8 @@ Value pl_term_to_value(EC_word term) {
 			) {
 				compound_repr.push_back(
 					fusion_wtf_vector<string, Value *> {
-						string(field_ftor.name()), new Value(pl_term_to_value(list_head))
+						string(field_ftor.name()).substr(1),
+						new Value(pl_term_to_value(list_head))
 					}
 				);
 			}

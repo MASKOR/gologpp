@@ -394,7 +394,7 @@ EC_word Semantics<FieldAccess>::plterm()
 
 
 EC_atom Semantics<FieldAccess>::pl_field_name()
-{ return EC_atom(element().field_name().c_str()); }
+{ return EC_atom(("#" + element().field_name()).c_str()); }
 
 
 EC_word Semantics<FieldAccess>::field_assign(const Expression &value)
