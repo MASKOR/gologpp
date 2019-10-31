@@ -22,6 +22,11 @@ compound pair {
 	list[number] rhs
 }
 
+compound cp {
+	number a,
+	number b
+}
+
 list[pair]
 
 action nothing(list[number] s) {
@@ -42,9 +47,14 @@ initially:
 	() = list[number][];
 }
 
-exog_action bla() {
+action bla() {
 effect:
-	l2() = list[number][10];
+	l2() = l1()[0].lhs;
+}
+
+cp fluent p1() {
+initially:
+	() = null;
 }
 
 
@@ -52,8 +62,14 @@ effect:
 	l1()[0].lhs[1] = 5;
 
 	l2() = l1()[0].lhs;
+	
 	push_back(l2(), l1()[0].rhs[0]);
 	push_back(l2(), l1()[0].rhs[1]);
+	bla();
 	nothing(l2());
-	
+	p1() = cp {
+		a = 1,
+		b = 2
+	};
+	nothing(list[number][p1().a, p1().b]);
 }
