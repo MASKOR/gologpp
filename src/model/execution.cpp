@@ -111,6 +111,7 @@ ExecutionContext::~ExecutionContext()
 Clock::time_point ExecutionContext::context_time() const
 { return context_time_; }
 
+
 void ExecutionContext::run(Block &&program)
 {
 	history().attach_semantics(semantics_factory());
@@ -150,6 +151,11 @@ void ExecutionContext::run(Block &&program)
 				exog->attach_semantics(semantics_factory());
 				history().abstract_semantics().append_exog(exog);
 			}
+		}
+
+		if (history().abstract_semantics().should_progress()) {
+			std::cout << "=== Progressing history." << std::endl;
+			history().abstract_semantics().progress();
 		}
 	}
 

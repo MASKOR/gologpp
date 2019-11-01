@@ -111,18 +111,19 @@ shared_ptr<Transition> Semantics<History>::get_last_transition()
 
 
 void Semantics<History>::append_exog(shared_ptr<Grounding<AbstractAction>> trans)
-{ set_current_history(::list(trans->semantics().plterm(), current_history())); }
+{ extend_history(::list(trans->semantics().plterm(), current_history())); }
 
 void Semantics<History>::append_sensing_result(shared_ptr<Activity> a)
-{ set_current_history(::list(a->semantics().sensing_result(), current_history())); }
+{ extend_history(::list(a->semantics().sensing_result(), current_history())); }
 
-EC_word Semantics<History>::current_history()
+EC_word Semantics<History>::current_history() const
 { return readylog_history_; }
 
 bool Semantics<History>::has_changed() const
 { return has_changed_; }
 
-void Semantics<History>::set_current_history(EC_word h)
+
+void Semantics<History>::extend_history(EC_word h)
 {
 	ManagedTerm new_history(h);
 	has_changed_ = ReadylogContext::instance().ec_query(::term(EC_functor(">", 2),
@@ -132,6 +133,32 @@ void Semantics<History>::set_current_history(EC_word h)
 	if (has_changed_)
 		readylog_history_ = h;
 }
+
+
+bool Semantics<History>::should_progress() const
+{
+	return ReadylogContext::instance().ec_query(
+		::term(EC_functor("should_progress", 1),
+			current_history()
+		)
+	);
+}
+
+
+void Semantics<History>::progress()
+{
+	EC_word New_history = ::newvar();
+	EC_word query = ::term(EC_functor("update_current_val", 2),
+		current_history(),
+		New_history
+	);
+	if (!ReadylogContext::instance().ec_query(query))
+		throw EclipseError("Failed to progress: " + ReadylogContext::instance().to_string(query));
+
+	readylog_history_ = New_history;
+}
+
+
 
 
 

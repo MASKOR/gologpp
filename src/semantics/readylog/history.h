@@ -35,8 +35,11 @@ public:
 	virtual shared_ptr<Transition> get_last_transition() override;
 	virtual void append_exog(shared_ptr<Grounding<AbstractAction>> exog) override;
 	virtual void append_sensing_result(shared_ptr<Activity>) override;
-	EC_word current_history();
-	void set_current_history(EC_word h);
+	virtual bool should_progress() const override;
+	virtual void progress() override;
+
+	EC_word current_history() const;
+	void extend_history(EC_word h);
 	bool has_changed() const;
 
 private:
