@@ -104,7 +104,6 @@ EC_word copy_term(EC_word t)
 }
 
 
-
 int ManagedTerm::count_ = 0;
 
 ManagedTerm::ManagedTerm()

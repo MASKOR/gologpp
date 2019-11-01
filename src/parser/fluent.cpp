@@ -18,6 +18,8 @@
 #include "fluent.h"
 #include "types.h"
 #include "domain.h"
+#include "variable.h"
+#include "value.h"
 
 #include <boost/spirit/home/qi/nonterminal/error_handler.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>
@@ -89,7 +91,7 @@ FluentParser::FluentParser()
 	fluent.name("fluent_definition");
 	on_error<rethrow>(fluent, delete_(_a));
 
-	initial_val_arg = var_ref()(_r1, UndefinedType::name()) | any_literal();
+	initial_val_arg = var_ref()(_r1, UndefinedType::name()) | any_value();
 	initial_val_arg.name("initial_value_argument");
 
 
@@ -97,7 +99,7 @@ FluentParser::FluentParser()
 		> -(
 			initial_val_arg(_r1) % ','
 		) > ')' > '='
-		>> literal()(_r2, false)
+		>> value()(_r2, false)
 		> ';'
 	) [
 		_val = new_<InitialValue>(_1, _2)

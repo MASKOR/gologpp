@@ -15,61 +15,43 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-list[number]
+#ifndef GOLOGPP_LIST_EXPRESSION_H_
+#define GOLOGPP_LIST_EXPRESSION_H_
 
-compound pair {
-	list[number] lhs,
-	list[number] rhs
-}
+#include "language.h"
+#include "gologpp.h"
+#include "expressions.h"
+#include "scope.h"
+#include "types.h"
 
-compound cp {
-	number a,
-	number b
-}
+#include <unordered_map>
 
-list[pair]
+#include <boost/optional.hpp>
 
-action nothing(list[number] s) {
-}
-
-list[pair] fluent l1() {
-initially:
-	() = list[pair] [
-		pair {
-			lhs = list[number][1, 2],
-			rhs = list[number][3, 4]
-		}
-	];
-}
-
-list[number] fluent l2() {
-initially:
-	() = list[number][];
-}
-
-action bla() {
-effect:
-	l2() = l1()[0].lhs;
-}
-
-cp fluent p1() {
-initially:
-	() = null;
-}
+namespace gologpp {
 
 
+class ListExpression
+: public Expression
+, public LanguageElement<ListExpression>
+, public NoScopeOwner
 {
-	l1()[0].lhs[1] = 5;
+public:
+	ListExpression(const string &type_name, const boost::optional<vector<Expression *>> &entries);
 
-	l2() = l1()[0].lhs;
-	
-	push_back(l2(), l1()[0].rhs[0]);
-	push_back(l2(), l1()[0].rhs[1]);
-	bla();
-	nothing(l2());
-	p1() = cp {
-		a = 1,
-		b = 2
-	};
-	nothing(list[number][p1().a, p1().b]);
-}
+	const Expression &entry(size_t idx) const;
+	size_t size() const;
+
+	virtual void attach_semantics(SemanticsFactory &) override;
+	virtual string to_string(const string &pfx) const override;
+	virtual const ListType &type() const override;
+
+private:
+	vector<unique_ptr<Expression>> entries_;
+};
+
+
+
+} // namespace gologpp
+
+#endif // GOLOGPP_LIST_EXPRESSION_H_

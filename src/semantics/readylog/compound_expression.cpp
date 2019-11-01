@@ -15,61 +15,31 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-list[number]
+#include "compound_expression.h"
 
-compound pair {
-	list[number] lhs,
-	list[number] rhs
-}
-
-compound cp {
-	number a,
-	number b
-}
-
-list[pair]
-
-action nothing(list[number] s) {
-}
-
-list[pair] fluent l1() {
-initially:
-	() = list[pair] [
-		pair {
-			lhs = list[number][1, 2],
-			rhs = list[number][3, 4]
-		}
-	];
-}
-
-list[number] fluent l2() {
-initially:
-	() = list[number][];
-}
-
-action bla() {
-effect:
-	l2() = l1()[0].lhs;
-}
-
-cp fluent p1() {
-initially:
-	() = null;
-}
+namespace gologpp {
 
 
+Semantics<CompoundExpression>::Semantics(const CompoundExpression &expr)
+: AbstractSemantics<CompoundExpression>(expr)
+{}
+
+
+EC_word Semantics<CompoundExpression>::plterm()
 {
-	l1()[0].lhs[1] = 5;
-
-	l2() = l1()[0].lhs;
-	
-	push_back(l2(), l1()[0].rhs[0]);
-	push_back(l2(), l1()[0].rhs[1]);
-	bla();
-	nothing(l2());
-	p1() = cp {
-		a = 1,
-		b = 2
-	};
-	nothing(list[number][p1().a, p1().b]);
+	EC_word field_list = ::nil();
+	for (auto &field_name : element().type().field_names())
+		field_list = ::list(
+			::term(EC_functor(("#" + field_name).c_str(), 1),
+				element().entry(field_name).semantics().plterm()
+			),
+			field_list
+		);
+	return ::term(EC_functor("gpp_compound", 2),
+		EC_atom(("#" + element().type_name()).c_str()),
+		field_list
+	);
 }
+
+
+} // namespace gologpp

@@ -151,6 +151,15 @@ bool CompoundType::has_field(const string &name) const
 { return fields_.find(name) != fields_.end(); }
 
 
+std::unordered_set<string> CompoundType::field_names() const
+{
+	std::unordered_set<string> rv;
+	for (const auto &pair : fields_)
+		rv.insert(pair.first);
+	return rv;
+}
+
+
 bool CompoundType::operator == (const Type &other) const
 {
 	if (other.is<UndefinedType>())

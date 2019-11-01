@@ -26,14 +26,14 @@
 namespace gologpp {
 
 template<>
-class Semantics<Domain> : public ReadylogSemantics {
+class Semantics<Domain>
+: public Semantics<AbstractLanguageElement>
+, public AbstractSemantics<Domain>
+{
 public:
 	Semantics(const Domain &domain);
 
 	virtual EC_word plterm() override;
-
-private:
-	const Domain &domain_;
 };
 
 

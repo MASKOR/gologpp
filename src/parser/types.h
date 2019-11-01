@@ -46,6 +46,8 @@ struct TypeNameParser : public grammar<Typename(Scope &)> {
 
 rule<Typename(Scope &)> &any_type_specifier();
 
+template<class BaseT>
+rule<shared_ptr<const BaseT>(Scope &)> &complex_type_identifier();
 
 
 } // namespace parser

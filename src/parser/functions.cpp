@@ -19,6 +19,7 @@
 #include "functions.h"
 #include "types.h"
 #include "statements.h"
+#include "variable.h"
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>

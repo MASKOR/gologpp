@@ -15,61 +15,31 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-list[number]
+#include "list_expression.h"
 
-compound pair {
-	list[number] lhs,
-	list[number] rhs
-}
+namespace gologpp {
 
-compound cp {
-	number a,
-	number b
-}
-
-list[pair]
-
-action nothing(list[number] s) {
-}
-
-list[pair] fluent l1() {
-initially:
-	() = list[pair] [
-		pair {
-			lhs = list[number][1, 2],
-			rhs = list[number][3, 4]
-		}
-	];
-}
-
-list[number] fluent l2() {
-initially:
-	() = list[number][];
-}
-
-action bla() {
-effect:
-	l2() = l1()[0].lhs;
-}
-
-cp fluent p1() {
-initially:
-	() = null;
-}
+Semantics<ListExpression>::Semantics(const ListExpression &expr)
+: AbstractSemantics<ListExpression>(expr)
+{}
 
 
+EC_word Semantics<ListExpression>::plterm()
 {
-	l1()[0].lhs[1] = 5;
+	EC_word list = ::nil();
 
-	l2() = l1()[0].lhs;
-	
-	push_back(l2(), l1()[0].rhs[0]);
-	push_back(l2(), l1()[0].rhs[1]);
-	bla();
-	nothing(l2());
-	p1() = cp {
-		a = 1,
-		b = 2
-	};
-	nothing(list[number][p1().a, p1().b]);
+	for (size_t i = element().size(); i > 0; --i)
+		list = ::list(element().entry(i - 1).semantics().plterm(), list);
+
+	return ::term(EC_functor("gpp_list", 2),
+		EC_atom( (
+			"#" + dynamic_cast<const ListType &>(element().type()).element_type().name()
+		).c_str() ),
+		list
+	);
 }
+
+
+
+
+} // namespace gologpp

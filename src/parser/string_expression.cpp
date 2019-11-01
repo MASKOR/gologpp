@@ -17,7 +17,8 @@
 
 #include "string_expression.h"
 
-#include "atoms.h"
+#include "variable.h"
+#include "value.h"
 #include "formula.h"
 #include "arithmetic.h"
 #include "expressions.h"
@@ -54,7 +55,7 @@ StringExpressionParser::StringExpressionParser()
 
 	unary_expr =
 		conversion(_r1)
-		| string_literal() | var_ref(_r1)
+		| string_value() | var_ref(_r1)
 		| typed_reference<Fluent>()(_r1, StringType::name())
 		| typed_reference<Function>()(_r1, StringType::name())
 		| mixed_field_access()(_r1, StringType::name())

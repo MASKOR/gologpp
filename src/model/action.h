@@ -71,7 +71,7 @@ public:
 
 	const ActionMapping &mapping() const;
 	ActionMapping &mapping();
-	void set_mapping (ActionMapping *);
+	virtual void set_mapping (ActionMapping *);
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 
@@ -124,6 +124,7 @@ public:
 	virtual string to_string(const string &pfx) const override;
 	virtual Expression *ref(const vector<Expression *> &params) override;
 	Reference<ExogAction> *make_ref(const vector<Expression *> &params);
+	virtual void set_mapping (ActionMapping *) override;
 };
 
 

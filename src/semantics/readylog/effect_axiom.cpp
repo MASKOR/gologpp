@@ -24,12 +24,12 @@ namespace gologpp {
 
 
 Semantics<AbstractEffectAxiom>::Semantics(const AbstractEffectAxiom &eff)
-: effect_(eff)
+: AbstractSemantics<AbstractEffectAxiom>(eff)
 {
-	if (effect_.action().is_a<Action>())
+	if (element().action().is_a<Action>())
 		// All golog++ actions are implicitly durative
 		cv_functor = "durative_causes_val";
-	else if (effect_.action().is_a<ExogAction>())
+	else if (element().action().is_a<ExogAction>())
 		cv_functor = "causes_val";
 	else
 		throw Bug("Unknown action type");
@@ -37,7 +37,7 @@ Semantics<AbstractEffectAxiom>::Semantics(const AbstractEffectAxiom &eff)
 
 
 const EffectAxiom<Reference<Fluent>> &Semantics<EffectAxiom<Reference<Fluent>>>::effect() const
-{ return dynamic_cast<const EffectAxiom<Reference<Fluent>> &>(effect_); }
+{ return dynamic_cast<const EffectAxiom<Reference<Fluent>> &>(element()); }
 
 
 EC_word Semantics<EffectAxiom<Reference<Fluent>>>::plterm()
@@ -52,7 +52,7 @@ EC_word Semantics<EffectAxiom<Reference<Fluent>>>::plterm()
 
 
 const EffectAxiom<FieldAccess> &Semantics<EffectAxiom<FieldAccess>>::effect() const
-{ return dynamic_cast<const EffectAxiom<FieldAccess> &>(effect_); }
+{ return dynamic_cast<const EffectAxiom<FieldAccess> &>(element()); }
 
 EC_word Semantics<EffectAxiom<FieldAccess>>::plterm()
 {
@@ -73,7 +73,7 @@ EC_word Semantics<EffectAxiom<FieldAccess>>::plterm()
 
 
 const EffectAxiom<ListAccess> &Semantics<EffectAxiom<ListAccess>>::effect() const
-{ return dynamic_cast<const EffectAxiom<ListAccess> &>(effect_); }
+{ return dynamic_cast<const EffectAxiom<ListAccess> &>(element()); }
 
 EC_word Semantics<EffectAxiom<ListAccess>>::plterm()
 {

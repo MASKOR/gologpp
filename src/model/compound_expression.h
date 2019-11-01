@@ -15,34 +15,40 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef GOLOGPP_PARSER_DOMAIN_H_
-#define GOLOGPP_PARSER_DOMAIN_H_
+#ifndef GOLOGPP_COMPOUND_EXPRESSION_H_
+#define GOLOGPP_COMPOUND_EXPRESSION_H_
 
-#include "utilities.h"
+#include "language.h"
+#include "gologpp.h"
+#include "expressions.h"
+#include "scope.h"
+#include "types.h"
 
-#include <model/domain.h>
+#include <unordered_map>
 
 namespace gologpp {
-namespace parser {
 
-struct DomainExpressionParser : grammar<Domain(Scope &, Typename, bool)> {
-	DomainExpressionParser();
 
-	rule<Domain(Scope &, Typename, bool)> domain_expr;
-	rule <
-		Domain(Scope &, Typename, bool),
-		locals<shared_ptr<Domain>>
-	> unary_domain_expr;
-	rule<Domain(Scope &, Typename, bool)> binary_domain_expr;
-	rule<DomainOperator()> domain_operator;
+class CompoundExpression
+: public Expression
+, public LanguageElement<CompoundExpression>
+, public NoScopeOwner
+{
+public:
+	CompoundExpression(const string &type_name, const vector<fusion_wtf_vector<string, Expression *>> &entries);
+
+	const Expression &entry(const string &key) const;
+
+	virtual void attach_semantics(SemanticsFactory &) override;
+	virtual string to_string(const string &pfx) const override;
+	virtual const CompoundType &type() const override;
+
+private:
+	std::unordered_map<string, unique_ptr<Expression>> entries_;
 };
 
-rule<Domain(Scope &, Typename)> &domain_expression();
-rule<void(Scope &), locals<string, Typename>> &domain_decl();
-rule<void(Scope &, bool), locals<Typename>> &domain_assignment();
 
 
-} // namespace parser
 } // namespace gologpp
 
-#endif //GOLOGPP_PARSER_DOMAIN_H_
+#endif // GOLOGPP_COMPOUND_EXPRESSION_H_

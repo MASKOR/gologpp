@@ -26,14 +26,16 @@ namespace gologpp {
 class ArithmeticOperation;
 
 template<>
-class Semantics<ArithmeticOperation> : public ReadylogSemantics {
+class Semantics<ArithmeticOperation>
+: public Semantics<Expression>
+, public AbstractSemantics<ArithmeticOperation>
+{
 public:
 	Semantics(const ArithmeticOperation &);
 
 	EC_word plterm() override;
 
 private:
-	const ArithmeticOperation &operation_;
 	const char *functor_;
 };
 

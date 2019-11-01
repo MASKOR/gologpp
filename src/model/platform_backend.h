@@ -51,7 +51,7 @@ struct Clock {
 class PlatformBackend {
 public:
 	using ActivitySet = std::unordered_set<shared_ptr<Grounding<Action>>>;
-	using Lock = std::unique_lock<std::mutex>;
+	using Lock = std::unique_lock<std::recursive_mutex>;
 
 	virtual ~PlatformBackend();
 
@@ -69,7 +69,7 @@ private:
 
 	ActivitySet activities_;
 	AExecutionContext *exec_ctx_ = nullptr;
-	std::mutex mutex_;
+	Lock::mutex_type mutex_;
 };
 
 

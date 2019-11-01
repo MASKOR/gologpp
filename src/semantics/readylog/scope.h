@@ -23,11 +23,13 @@
 
 #include <eclipseclass.h>
 
+#include "semantics.h"
+
 namespace gologpp {
 
 
 template<>
-class Semantics<Scope> : public AbstractSemantics {
+class Semantics<Scope> : public AbstractSemantics<AbstractLanguageElement> {
 public:
 	Semantics(const Scope &);
 

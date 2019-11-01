@@ -26,6 +26,7 @@
 #include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_attr.hpp>
+#include <boost/spirit/include/qi_optional.hpp>
 
 #include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/object/new.hpp>
@@ -41,11 +42,11 @@ MappingParser::MappingParser()
 : MappingParser::base_type(mapping, "action_mapping")
 {
 	mapping = (raw_string_literal() > '{'
-		> (
+		> -( (
 			r_name()
 			> '='
 			> value_expression()(_r1)
-		) % ','
+		) % ',')
 	> '}') [
 		_val = new_<ActionMapping>(_1, _2)
 	];

@@ -27,11 +27,11 @@ namespace gologpp{
 
 ActionMapping::ActionMapping(
 	const string &backend_name,
-	vector<fusion_wtf_vector<string, Expression *>> arg_mapping
+	boost::optional<vector<fusion_wtf_vector<string, Expression *>>> arg_mapping
 )
 : backend_name_(backend_name)
 {
-	for (auto &pair : arg_mapping)
+	for (auto &pair : arg_mapping.get_value_or({}))
 		arg_mapping_.emplace(
 			boost::fusion::at_c<0>(pair),
 			unique_ptr<Expression>(boost::fusion::at_c<1>(pair))

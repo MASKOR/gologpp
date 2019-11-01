@@ -17,6 +17,7 @@
 
 #include "field_access.h"
 #include "action.h"
+#include "variable.h"
 
 #include <boost/spirit/home/qi/nonterminal/error_handler.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>

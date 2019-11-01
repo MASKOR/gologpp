@@ -21,6 +21,7 @@
 #include "utilities.h"
 #include "gologpp.h"
 #include "platform_backend.h"
+#include "history.h"
 
 #include <memory>
 #include <vector>
@@ -56,7 +57,7 @@ public:
 	virtual void compile(const Function &function) = 0;
 	virtual void postcompile() = 0;
 
-	virtual History run(Block &&program) = 0;
+	virtual void run(Block &&program) = 0;
 
 	shared_ptr<Grounding<AbstractAction>> exog_queue_pop();
 	shared_ptr<Grounding<AbstractAction>> exog_queue_poll();
@@ -66,8 +67,8 @@ public:
 	void terminate();
 
 	SemanticsFactory &semantics_factory();
-
 	PlatformBackend &backend();
+	History &history();
 
 private:
 	std::mutex exog_mutex_;
@@ -77,6 +78,7 @@ private:
 	ExogQueue exog_queue_;
 	unique_ptr<PlatformBackend> platform_backend_;
 	unique_ptr<SemanticsFactory> semantics_;
+	History history_;
 
 protected:
 	std::atomic_bool terminated;
@@ -90,7 +92,7 @@ public:
 
 	virtual ~ExecutionContext() override;
 
-	virtual History run(Block &&program) override;
+	virtual void run(Block &&program) override;
 
 	Clock::time_point context_time() const;
 

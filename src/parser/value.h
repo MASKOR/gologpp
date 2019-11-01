@@ -15,61 +15,37 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-list[number]
+#ifndef GOLOGPP_PARSER_VALUE_H_
+#define GOLOGPP_PARSER_VALUE_H_
 
-compound pair {
-	list[number] lhs,
-	list[number] rhs
-}
-
-compound cp {
-	number a,
-	number b
-}
-
-list[pair]
-
-action nothing(list[number] s) {
-}
-
-list[pair] fluent l1() {
-initially:
-	() = list[pair] [
-		pair {
-			lhs = list[number][1, 2],
-			rhs = list[number][3, 4]
-		}
-	];
-}
-
-list[number] fluent l2() {
-initially:
-	() = list[number][];
-}
-
-action bla() {
-effect:
-	l2() = l1()[0].lhs;
-}
-
-cp fluent p1() {
-initially:
-	() = null;
-}
+#include "utilities.h"
+#include "types.h"
 
 
-{
-	l1()[0].lhs[1] = 5;
+namespace gologpp {
+namespace parser {
 
-	l2() = l1()[0].lhs;
-	
-	push_back(l2(), l1()[0].rhs[0]);
-	push_back(l2(), l1()[0].rhs[1]);
-	bla();
-	nothing(l2());
-	p1() = cp {
-		a = 1,
-		b = 2
-	};
-	nothing(list[number][p1().a, p1().b]);
-}
+
+rule<Value *()> &numeric_value();
+rule<Value *()> &boolean_value();
+rule<Value *()> &string_value();
+rule<Value *()> &symbolic_value();
+rule<Value *()> &symbolic_value_def();
+rule<Value *()> &compound_value();
+rule<Value *()> &list_value();
+rule<Value *()> &undefined_value();
+
+rule<Value *()> &any_value();
+
+rule<Value *(Typename, bool)> &value();
+
+
+void initialize_cyclic_values();
+
+
+} // namespace parser
+} // namespace gologpp
+
+
+#endif // GOLOGPP_PARSER_VALUE_H_
+

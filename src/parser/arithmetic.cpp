@@ -16,7 +16,8 @@
 **************************************************************************/
 
 #include "arithmetic.h"
-#include "atoms.h"
+#include "variable.h"
+#include "value.h"
 #include "list_access.h"
 #include "list_expression.h"
 #include "field_access.h"
@@ -47,7 +48,7 @@ NumericExpressionParser::NumericExpressionParser()
 	expression = binary_expr(_r1) | unary_expr(_r1);
 	expression.name("numeric_expression");
 
-	unary_expr = brace(_r1) | numeric_literal()
+	unary_expr = brace(_r1) | numeric_value()
 		| num_var_ref(_r1)
 		| list_length(_r1)
 		| typed_reference<Fluent>()(_r1, NumberType::name())

@@ -16,7 +16,8 @@
 **************************************************************************/
 
 #include "domain.h"
-#include "atoms.h"
+#include "variable.h"
+#include "value.h"
 #include "types.h"
 
 #include <model/variable.h>
@@ -71,7 +72,7 @@ DomainExpressionParser::DomainExpressionParser()
 				_pass = false
 			]
 		]
-		| (lit('{') > (literal()(_r2, _r3) % ',') > '}') [
+		| (lit('{') > (value()(_r2, _r3) % ',') > '}') [
 			_val = construct<Domain>(val(""), _r2, _1)
 		]
 	;

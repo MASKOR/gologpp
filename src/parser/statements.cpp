@@ -40,7 +40,8 @@
 #include "types.h"
 #include "formula.h"
 #include "expressions.h"
-
+#include "variable.h"
+#include "value.h"
 
 namespace gologpp {
 namespace parser {
@@ -110,7 +111,7 @@ StatementParser::StatementParser()
 		] > var_decl()(*_a) [
 			_b = _1
 		] > -(lit("in") > '{'
-		> literal()(phoenix::bind(&Expression::type_name, *_b), false) % ','
+		> value()(phoenix::bind(&Expression::type_name, *_b), false) % ','
 		> '}')
 		> ')' > statement(*_a)
 	) [

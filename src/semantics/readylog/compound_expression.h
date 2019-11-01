@@ -15,61 +15,27 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-list[number]
+#ifndef READYLOG_COMPOUND_EXPRESSION_H_
+#define READYLOG_COMPOUND_EXPRESSION_H_
 
-compound pair {
-	list[number] lhs,
-	list[number] rhs
-}
+#include "semantics.h"
 
-compound cp {
-	number a,
-	number b
-}
+#include <model/compound_expression.h>
 
-list[pair]
-
-action nothing(list[number] s) {
-}
-
-list[pair] fluent l1() {
-initially:
-	() = list[pair] [
-		pair {
-			lhs = list[number][1, 2],
-			rhs = list[number][3, 4]
-		}
-	];
-}
-
-list[number] fluent l2() {
-initially:
-	() = list[number][];
-}
-
-action bla() {
-effect:
-	l2() = l1()[0].lhs;
-}
-
-cp fluent p1() {
-initially:
-	() = null;
-}
+namespace gologpp {
 
 
+template<>
+class Semantics<CompoundExpression>
+: public Semantics<Expression>
+, public AbstractSemantics<CompoundExpression>
 {
-	l1()[0].lhs[1] = 5;
+public:
+	Semantics(const CompoundExpression &expr);
+	virtual EC_word plterm() override;
+};
 
-	l2() = l1()[0].lhs;
-	
-	push_back(l2(), l1()[0].rhs[0]);
-	push_back(l2(), l1()[0].rhs[1]);
-	bla();
-	nothing(l2());
-	p1() = cp {
-		a = 1,
-		b = 2
-	};
-	nothing(list[number][p1().a, p1().b]);
+
 }
+
+#endif // READYLOG_COMPOUND_EXPRESSION_H_

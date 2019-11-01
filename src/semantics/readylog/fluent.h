@@ -28,21 +28,21 @@ namespace gologpp {
 
 
 template<>
-class Semantics<InitialValue> : public ReadylogSemantics {
+class Semantics<InitialValue>
+: public Semantics<AbstractLanguageElement>
+, public AbstractSemantics<InitialValue>
+{
 public:
 	Semantics(const InitialValue &v);
 
 	virtual ~Semantics() override = default;
 	virtual EC_word plterm() override;
-
-protected:
-	const InitialValue &ival_;
 };
 
 
 
 template<>
-class Semantics<Fluent> : public ReadylogSemantics {
+class Semantics<Fluent> : public Semantics<AbstractLanguageElement> {
 public:
 	Semantics(const Fluent &f);
 	virtual ~Semantics() override = default;

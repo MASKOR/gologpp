@@ -27,6 +27,7 @@
 #include "language.h"
 #include "expressions.h"
 #include "error.h"
+#include "semantics.h"
 
 #include "gologpp.h"
 

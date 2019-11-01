@@ -25,19 +25,10 @@
 #include "error.h"
 
 #include <boost/variant.hpp>
-#include <boost/fusion/include/vector.hpp>
 #include <unordered_map>
 
 
 namespace gologpp {
-
-
-template<class T1, class T2>
-#ifdef BOOST_FUSION_HAS_VARIADIC_VECTOR
-using fusion_wtf_vector = boost::fusion::vector<T1, T2>;
-#else
-using fusion_wtf_vector = boost::fusion::vector2<T1, T2>;
-#endif
 
 
 template<>
@@ -93,6 +84,11 @@ public:
 	virtual ~Value() override;
 
 	virtual size_t hash() const;
+
+	/* TODO: This needs to go. We cannot directly do casting with boost::get
+	 *       since we might end up calling boost::get for a type that is in the
+	 *       signature, but incorrect. Imagine upcasting an unsigned int to long.
+	 *       Will either require nested casts or trigger boost::bad_get! */
 
 	operator int () const
 	{ return boost::get<int>(representation()); }

@@ -13,23 +13,23 @@ function(to_string(V), R,
 
 
 function(gpp_field_value(Name, Compound), Value,
-	pl_field_value(Name, Compound, Value)
+	once(pl_field_value(Name, Compound, Value))
 ).
 pl_field_value(Name, Compound, Value) :-
-	atom(Name), var(Value)
-	, ( Compound = gpp_compound(_Type, Fields)
-		; (
-			sprintf(Msg, "Invalid function call: %W", [gpp_field_value(Name, Compound)])
-			, throw(Msg)
-		)
+	(
+		atom(Name), var(Value)
+		, Compound = gpp_compound(_Type, Fields)
+		, Field_term =.. [Name, Value]
+		, member(Field_term, Fields)
+	;
+		sprintf(Msg, "Invalid function call: %W", [gpp_field_value(Name, Compound)])
+		, throw(Msg)
 	)
-	, Field_term =.. [Name, Value]
-	, member(Field_term, Fields)
 .
 
 
 function(gpp_mixed_assign(Members, Value, Lhs), Result,
-	pl_mixed_assign(Members, Value, Lhs, Result)
+	once(pl_mixed_assign(Members, Value, Lhs, Result))
 ).
 pl_mixed_assign(Members, Value, Lhs, Result) :-
 	Members = [M|Rest_mems]
@@ -75,35 +75,40 @@ pl_mixed_assign(Members, Value, Lhs, Result) :-
 .
 
 function(gpp_list_access(Lhs, Idx), Result,
-	pl_list_access(Lhs, Idx, Result)
+	once(pl_list_access(Lhs, Idx, Result))
 ).
 pl_list_access(Lhs, Idx, Result) :-
-	Lhs = gpp_list(Type, List)
-	, (length(List, _)
-		; throw("gpp_list_access: First arg must be a list")
-	)
-	, (number(Idx)
-		; throw("gpp_list_access: Second arg must be a number")
+	(
+		Lhs = gpp_list(_Type, List)
+		, length(List, _)
+		, number(Idx)
+	;
+		sprintf(Msg, "Invalid function call: %W", [pl_list_access(Lhs, Idx, Result)])
+		, throw(Msg)
 	)
 	, nth0(Idx, List, Result)
 .
 
 function(gpp_list_length(Lhs), Result,
-	pl_list_length(Lhs, Result)
+	once(pl_list_length(Lhs, Result))
 ).
 pl_list_length(Lhs, Result) :-
-	Lhs = gpp_list(Type, List)
-	, (length(List, Result)
-		; throw("gpp_list_length: Arg must be a list")
+	(
+		Lhs = gpp_list(_Type, List)
+		, length(List, Result)
+	;
+		sprintf(Msg, "Invalid function call: %W", [pl_list_length(Lhs, Result)])
+		, throw(Msg)
 	)
 .
 
 function(gpp_list_pop_front(Lhs), Result,
-	pl_list_pop_front(Lhs, Result)
+	once(pl_list_pop_front(Lhs, Result))
 ).
 pl_list_pop_front(Lhs, Result) :-
-	Lhs = gpp_list(Type, List)
-	, (length(List, _)
+	(
+		Lhs = gpp_list(Type, List)
+		, length(List, _)
 		; throw("gpp_list_pop_front: Arg must be a list")
 	)
 	, List_new = [_ | Result]
@@ -111,11 +116,12 @@ pl_list_pop_front(Lhs, Result) :-
 .
 
 function(gpp_list_pop_back(Lhs), Result,
-	pl_list_pop_back(Lhs, Result)
+	once(pl_list_pop_back(Lhs, Result))
 ).
 pl_list_pop_back(Lhs, Result) :-
-	Lhs = gpp_list(Type, List)
-	, (length(List, _)
+	(
+		Lhs = gpp_list(Type, List)
+		, length(List, _)
 		; throw("gpp_list_pop_back: Arg must be a list")
 	)
 	, length(List, Len)
@@ -124,28 +130,30 @@ pl_list_pop_back(Lhs, Result) :-
 .
 
 function(gpp_list_push_front(Lhs, Elem), Result,
-	pl_list_push_front(Lhs, Elem, Result)
+	once(pl_list_push_front(Lhs, Elem, Result))
 ).
 pl_list_push_front(Lhs, Elem, Result) :-
-	Lhs = gpp_list(Type, List)
-	, (length(List, _)
+	(
+		Lhs = gpp_list(Type, List)
+		, length(List, _)
 		; throw("gpp_list_push_front: First arg must be a list")
 	)
-	, (number(Elem)
+	, ( number(Elem)
 		; throw("gpp_list_push_front: Second arg must be instantiated")
 	)
 	, Result = gpp_list(Type, [Elem | List])
 .
 
 function(gpp_list_push_back(Lhs, Elem), Result,
-	pl_list_push_back(Lhs, Elem, Result)
+	once(pl_list_push_back(Lhs, Elem, Result))
 ).
 pl_list_push_back(Lhs, Elem, Result) :-
-	Lhs = gpp_list(Type, List)
-	, (length(List, _)
+	(
+		Lhs = gpp_list(Type, List)
+		, length(List, _)
 		; throw("gpp_list_push_back: First arg must be a list")
 	)
-	, (number(Elem)
+	, ( number(Elem)
 		; throw("gpp_list_push_back: Second arg must be instantiated")
 	)
 	, append(List, [Elem], List_new)

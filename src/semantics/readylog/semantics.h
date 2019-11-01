@@ -28,18 +28,28 @@ namespace gologpp {
 
 
 template<>
-class Semantics<AbstractLanguageElement> : public AbstractSemantics {
+class Semantics<AbstractLanguageElement>
+: public virtual AbstractSemantics<AbstractLanguageElement> {
 public:
-	virtual ~Semantics() override = default;
+	virtual ~Semantics<AbstractLanguageElement>() override = default;
+
 	virtual EC_word plterm() = 0;
 };
 
 
-using ReadylogSemantics = Semantics<AbstractLanguageElement>;
+template<>
+class Semantics<Expression>
+: public AbstractSemantics<Expression>
+, public Semantics<AbstractLanguageElement>
+{
+public:
+	virtual ~Semantics<Expression>() override = default;
+	virtual Value evaluate(const Activity &context, const History &h) override;
+};
 
 
 #define GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE(_r, _data, GologT) \
-	virtual unique_ptr<AbstractSemantics> make_semantics(GologT &) override;
+	virtual unique_ptr<AbstractSemantics<AbstractLanguageElement>> make_semantics(GologT &) override;
 
 
 class ReadylogSemanticsFactory : public SemanticsFactory {
@@ -51,6 +61,9 @@ public:
 };
 
 
-}
+
+} // namespace gologpp
+
+
 
 #endif
