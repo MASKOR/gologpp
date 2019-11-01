@@ -44,7 +44,7 @@ AbstractAction::AbstractAction(
 				new Reference<Variable>(param)
 			}
 		);
-	set_mapping(new ActionMapping(name, default_mapping));
+	AbstractAction::set_mapping(new ActionMapping(name, default_mapping));
 }
 
 
