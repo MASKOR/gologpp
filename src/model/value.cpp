@@ -44,7 +44,7 @@ struct Value::to_string_visitor {
 	string pfx;
 
 	string operator() (const string &s) const
-	{ return pfx + s; }
+	{ return pfx + '"' + s + '"'; }
 
 	string operator() (bool b) const
 	{ return pfx + (b ? "true" : "false"); }

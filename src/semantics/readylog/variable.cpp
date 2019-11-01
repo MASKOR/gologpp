@@ -24,17 +24,17 @@ namespace gologpp {
 
 
 Semantics<Variable>::Semantics(const Variable &var)
-: var_(var)
+: AbstractSemantics<Variable>(var)
 , as_golog_var_(false)
 {
-	const AbstractLanguageElement *parent = dynamic_cast<const Expression &>(var_).parent();
+	const AbstractLanguageElement *parent = dynamic_cast<const Expression &>(element()).parent();
 	size_t level = 1;
-	while (parent && parent != &var_ && dynamic_cast<const Expression *>(parent)) {
+	while (parent && parent != &element() && dynamic_cast<const Expression *>(parent)) {
 		parent = dynamic_cast<const Expression *>(parent)->parent();
 		++level;
 	}
 	golog_var_ = EC_atom(
-		(var_.name() + "_lv" + std::to_string(level)).c_str()
+		(element().name() + "_lv" + std::to_string(level)).c_str()
 	);
 }
 
@@ -60,8 +60,8 @@ void Semantics<Variable>::translate_as_golog_var(bool gv)
 EC_word Semantics<Variable>::member_restriction()
 {
 	return ::term(EC_functor("member", 2),
-		var_.semantics().plterm(),
-		var_.domain().semantics().plterm()
+		element().semantics().plterm(),
+		element().domain().semantics().plterm()
 	);
 }
 

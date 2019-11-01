@@ -15,30 +15,43 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef READYLOG_DOMAIN_H_
-#define READYLOG_DOMAIN_H_
+#ifndef GOLOGPP_LIST_EXPRESSION_H_
+#define GOLOGPP_LIST_EXPRESSION_H_
 
-#include "semantics.h"
-#include "utilities.h"
+#include "language.h"
+#include "gologpp.h"
+#include "expressions.h"
+#include "scope.h"
+#include "types.h"
 
-#include <model/domain.h>
-#include <model/error.h>
+#include <unordered_map>
+
+#include <boost/optional.hpp>
 
 namespace gologpp {
 
-template<>
-class Semantics<Domain>
-: public Semantics<AbstractLanguageElement>
-, public AbstractSemantics<Domain>
+
+class ListExpression
+: public Expression
+, public LanguageElement<ListExpression>
+, public NoScopeOwner
 {
 public:
-	Semantics(const Domain &domain);
+	ListExpression(const string &type_name, const boost::optional<vector<Expression *>> &entries);
 
-	virtual EC_word plterm() override;
+	const Expression &entry(size_t idx) const;
+	size_t size() const;
+
+	virtual void attach_semantics(SemanticsFactory &) override;
+	virtual string to_string(const string &pfx) const override;
+	virtual const ListType &type() const override;
+
+private:
+	vector<unique_ptr<Expression>> entries_;
 };
 
 
 
-}
+} // namespace gologpp
 
-#endif // READYLOG_DOMAIN_H_
+#endif // GOLOGPP_LIST_EXPRESSION_H_

@@ -31,16 +31,19 @@ namespace gologpp {
 
 
 template<>
-class Semantics<Value> : public ReadylogSemantics {
+class Semantics<Value>
+: public Semantics<Expression>
+, public AbstractSemantics<Value>
+{
 public:
 	Semantics(const Value &value);
 
 	virtual ~Semantics() override = default;
 	virtual EC_word plterm() override;
-
-private:
-	const Value &value_;
 };
+
+
+Value pl_term_to_value(EC_word term);
 
 
 } // namespace gologpp

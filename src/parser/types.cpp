@@ -34,6 +34,7 @@
 #include <boost/phoenix/operator/self.hpp>
 #include <boost/phoenix/operator/comparison.hpp>
 #include <boost/phoenix/operator/arithmetic.hpp>
+#include <boost/phoenix/operator/logical.hpp>
 #include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
@@ -103,6 +104,33 @@ rule<Typename(Scope &)> &any_type_specifier() {
 
 	return rv;
 }
+
+
+template<class BaseT>
+rule<shared_ptr<const BaseT>(Scope &)> &complex_type_identifier() {
+	static rule<shared_ptr<const BaseT>(Scope &)> rv {
+		any_type_specifier()(_r1) [
+			_val = phoenix::bind(
+				&Scope::lookup_type<BaseT>,
+				_r1,
+				_1
+			),
+			if_(!_val) [
+				_pass = false
+			]
+		]
+		, "type_identifier<" + BaseT::name() + ">"
+	};
+	return rv;
+}
+
+
+template
+rule<shared_ptr<const CompoundType>(Scope &)> &complex_type_identifier();
+
+template
+rule<shared_ptr<const ListType>(Scope &)> &complex_type_identifier();
+
 
 
 } // namespace parser

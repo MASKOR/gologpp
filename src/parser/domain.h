@@ -19,7 +19,6 @@
 #define GOLOGPP_PARSER_DOMAIN_H_
 
 #include "utilities.h"
-#include "atoms.h"
 
 #include <model/domain.h>
 

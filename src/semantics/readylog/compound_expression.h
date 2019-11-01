@@ -15,30 +15,27 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef READYLOG_DOMAIN_H_
-#define READYLOG_DOMAIN_H_
+#ifndef READYLOG_COMPOUND_EXPRESSION_H_
+#define READYLOG_COMPOUND_EXPRESSION_H_
 
 #include "semantics.h"
-#include "utilities.h"
 
-#include <model/domain.h>
-#include <model/error.h>
+#include <model/compound_expression.h>
 
 namespace gologpp {
 
+
 template<>
-class Semantics<Domain>
-: public Semantics<AbstractLanguageElement>
-, public AbstractSemantics<Domain>
+class Semantics<CompoundExpression>
+: public Semantics<Expression>
+, public AbstractSemantics<CompoundExpression>
 {
 public:
-	Semantics(const Domain &domain);
-
+	Semantics(const CompoundExpression &expr);
 	virtual EC_word plterm() override;
 };
 
 
-
 }
 
-#endif // READYLOG_DOMAIN_H_
+#endif // READYLOG_COMPOUND_EXPRESSION_H_

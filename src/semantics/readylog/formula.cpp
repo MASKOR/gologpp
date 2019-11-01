@@ -24,25 +24,23 @@
 namespace gologpp {
 
 Semantics<Negation>::Semantics(const Negation &neg)
-: negation_(neg)
+: AbstractSemantics<Negation>(neg)
 {}
 
 
 EC_word Semantics<Negation>::plterm()
 {
 	return ::term(EC_functor("neg", 1),
-		dynamic_cast<ReadylogSemantics &>(
-			negation_.expression().semantics()
-		).plterm()
+		element().expression().semantics().plterm()
 	);
 }
 
 
 
 Semantics<Comparison>::Semantics(const Comparison &cmp)
-: comparison_(cmp)
+: AbstractSemantics<Comparison>(cmp)
 {
-	switch(comparison_.op()) {
+	switch(element().op()) {
 	case ComparisonOperator::EQ:
 		functor_ = "=";
 		break;
@@ -66,16 +64,16 @@ Semantics<Comparison>::Semantics(const Comparison &cmp)
 
 EC_word Semantics<Comparison>::plterm()
 {
-	if (comparison_.lhs().type().is<NumberType>())
+	if (element().lhs().type().is<NumberType>())
 		return ::term(EC_functor(functor_, 2),
-			comparison_.lhs().semantics().plterm(),
-			comparison_.rhs().semantics().plterm()
+			element().lhs().semantics().plterm(),
+			element().rhs().semantics().plterm()
 		);
 	else {
-		EC_word lhs = comparison_.lhs().semantics().plterm();
-		EC_word rhs = comparison_.rhs().semantics().plterm();
+		EC_word lhs = element().lhs().semantics().plterm();
+		EC_word rhs = element().rhs().semantics().plterm();
 
-		switch(comparison_.op()) {
+		switch(element().op()) {
 		case ComparisonOperator::EQ:
 			return ::term(EC_functor("=", 2), lhs, rhs);
 		case ComparisonOperator::GE:
@@ -102,9 +100,9 @@ EC_word Semantics<Comparison>::plterm()
 
 
 Semantics<BooleanOperation>::Semantics(const BooleanOperation &c)
-: conjunction_(c)
+: AbstractSemantics<BooleanOperation>(c)
 {
-	switch(c.op()) {
+	switch(element().op()) {
 	case BooleanOperator::AND:
 		functor_ = "and";
 		break;
@@ -127,33 +125,33 @@ Semantics<BooleanOperation>::Semantics(const BooleanOperation &c)
 EC_word Semantics<BooleanOperation>::plterm()
 {
 	return ::term(EC_functor(functor_, 2),
-		conjunction_.lhs().semantics().plterm(),
-		conjunction_.rhs().semantics().plterm()
+		element().lhs().semantics().plterm(),
+		element().rhs().semantics().plterm()
 	);
 }
 
 
 Semantics<Quantification>::Semantics(const Quantification &q)
-: quantification_(q)
+: AbstractSemantics<Quantification>(q)
 {}
 
 
 EC_word Semantics<Quantification>::plterm()
 {
-	{ GologVarMutator guard(quantification_.variable().semantics());
+	{ GologVarMutator guard(element().variable().semantics());
 
-		switch (quantification_.op()) {
+		switch (element().op()) {
 		case QuantificationOperator::EXISTS:
 			return ::term(EC_functor("some", 2),
-				quantification_.variable().semantics().plterm(),
-				quantification_.expression().semantics().plterm()
+				element().variable().semantics().plterm(),
+				element().expression().semantics().plterm()
 			);
 		case QuantificationOperator::FORALL:
 			return ::term(EC_functor("neg", 1),
 				::term(EC_functor("some", 2),
-					quantification_.variable().semantics().plterm(),
+					element().variable().semantics().plterm(),
 					::term(EC_functor("neg", 1),
-						quantification_.expression().semantics().plterm()
+						element().expression().semantics().plterm()
 					)
 				)
 			);

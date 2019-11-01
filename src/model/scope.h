@@ -28,6 +28,7 @@
 #include "expressions.h"
 #include "user_error.h"
 #include "error.h"
+#include "semantics.h"
 
 #include "gologpp.h"
 

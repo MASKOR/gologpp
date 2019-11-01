@@ -21,11 +21,11 @@ namespace gologpp {
 
 
 
-HistorySemantics::HistorySemantics(History &h)
+AbstractSemantics<History>::AbstractSemantics(History &h)
 : history_(h)
 {}
 
-HistorySemantics::~HistorySemantics()
+AbstractSemantics<History>::~AbstractSemantics<History>()
 {}
 
 
@@ -43,6 +43,9 @@ const Scope &History::parent_scope() const
 
 string History::to_string(const string &pfx) const
 { return pfx + linesep + "history: no representation" + linesep; }
+
+const History &gologpp::AbstractSemantics<History>::element() const
+{ return history_; }
 
 
 

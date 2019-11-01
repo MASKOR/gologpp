@@ -24,7 +24,6 @@
 #include "gologpp.h"
 #include <memory>
 #include <type_traits>
-#include "semantics.h"
 #include "types.h"
 
 namespace gologpp {
@@ -49,11 +48,14 @@ public:
 
 	virtual ~AbstractLanguageElement() = default;
 
+	virtual AbstractSemantics<AbstractLanguageElement> &abstract_semantics() const
+	{ return *semantics_; }
+
 	template<class GologT = AbstractLanguageElement>
 	Semantics<GologT> &semantics() const
 	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
 
-	void set_semantics(unique_ptr<AbstractSemantics> &&impl);
+	void set_semantics(unique_ptr<AbstractSemantics<AbstractLanguageElement>> &&impl);
 	virtual void attach_semantics(SemanticsFactory &) = 0;
 
 	virtual string to_string(const string &pfx) const = 0;
@@ -85,7 +87,7 @@ public:
 protected:
 	void set_type_unchecked(const string &name);
 
-	unique_ptr<AbstractSemantics> semantics_;
+	unique_ptr<AbstractSemantics<AbstractLanguageElement>> semantics_;
 
 private:
 	shared_ptr<const Type> type_;
@@ -107,9 +109,13 @@ public:
 
 	virtual ~LanguageElement() = default;
 
+	virtual AbstractSemantics<GologT> &abstract_semantics() const override {
+		return dynamic_cast<AbstractSemantics<GologT> &>(*semantics_);
+	}
+
 	template<class = GologT>
 	Semantics<GologT> &semantics() const
-	{ return static_cast<Semantics<GologT> &>(*semantics_); }
+	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
 };
 
 

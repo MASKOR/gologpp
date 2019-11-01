@@ -15,30 +15,37 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef READYLOG_DOMAIN_H_
-#define READYLOG_DOMAIN_H_
+#ifndef GOLOGPP_PARSER_VALUE_H_
+#define GOLOGPP_PARSER_VALUE_H_
 
-#include "semantics.h"
 #include "utilities.h"
+#include "types.h"
 
-#include <model/domain.h>
-#include <model/error.h>
 
 namespace gologpp {
-
-template<>
-class Semantics<Domain>
-: public Semantics<AbstractLanguageElement>
-, public AbstractSemantics<Domain>
-{
-public:
-	Semantics(const Domain &domain);
-
-	virtual EC_word plterm() override;
-};
+namespace parser {
 
 
+rule<Value *()> &numeric_value();
+rule<Value *()> &boolean_value();
+rule<Value *()> &string_value();
+rule<Value *()> &symbolic_value();
+rule<Value *()> &symbolic_value_def();
+rule<Value *()> &compound_value();
+rule<Value *()> &list_value();
+rule<Value *()> &undefined_value();
 
-}
+rule<Value *()> &any_value();
 
-#endif // READYLOG_DOMAIN_H_
+rule<Value *(Typename, bool)> &value();
+
+
+void initialize_cyclic_values();
+
+
+} // namespace parser
+} // namespace gologpp
+
+
+#endif // GOLOGPP_PARSER_VALUE_H_
+

@@ -32,7 +32,10 @@ namespace gologpp {
 
 
 template<>
-class Semantics<Variable> : public ReadylogSemantics {
+class Semantics<Variable>
+: public Semantics<Expression>
+, public AbstractSemantics<Variable>
+{
 public:
 	Semantics(const Variable &var);
 	virtual ~Semantics() override;
@@ -43,7 +46,6 @@ public:
 	EC_word member_restriction();
 
 private:
-	const Variable &var_;
 	EC_word ec_var_;
 	EC_atom golog_var_;
 	bool as_golog_var_;

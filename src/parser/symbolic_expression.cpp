@@ -16,7 +16,8 @@
 **************************************************************************/
 
 #include "symbolic_expression.h"
-#include "atoms.h"
+#include "variable.h"
+#include "value.h"
 #include "list_access.h"
 #include "field_access.h"
 #include "reference.h"
@@ -39,7 +40,7 @@ namespace parser {
 SymbolicExpressionParser::SymbolicExpressionParser()
 : SymbolicExpressionParser::base_type(expression, "symbolic_expression")
 {
-	expression = symbolic_literal()
+	expression = symbolic_value()
 		| var_ref(_r1)
 		| typed_reference<Fluent>()(_r1, SymbolType::name())
 		| typed_reference<Function>()(_r1, SymbolType::name())

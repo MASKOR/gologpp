@@ -39,6 +39,7 @@ void PlatformBackend::start_activity(shared_ptr<Transition> trans)
 {
 	Lock l(lock());
 	shared_ptr<Activity> a = std::make_shared<Activity>(trans, *exec_ctx_);
+	a->attach_semantics(exec_ctx_->semantics_factory());
 	execute_activity(a);
 	activities_.insert(a);
 }
@@ -103,7 +104,14 @@ void DummyBackend::ActivityThread::end_activity(std::chrono::duration<double> wh
 void DummyBackend::execute_activity(shared_ptr<Activity> a)
 {
 	std::chrono::duration<double> rnd_dur { uniform_dist_(prng_) };
+
 	std::cout << "DummyBackend: Activity " << a->str() << " START, duration: " << rnd_dur.count() << std::endl;
+
+	std::cout << "   " << a->target()->mapping().backend_name() << "( ";
+	for (const auto &pair : a->target()->mapping().arg_mapping()) {
+		std::cout << a->mapped_arg_value(pair.first).str() << " ";
+	}
+	std::cout << " )" << std::endl;
 
 	std::lock_guard<std::mutex> locked(thread_mtx_);
 

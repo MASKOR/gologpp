@@ -10,6 +10,7 @@
 #include "domain.h"
 #include "types.h"
 #include "expressions.h"
+#include "value.h"
 
 #include <boost/spirit/include/qi_kleene.hpp>
 #include <boost/spirit/include/qi_omit.hpp>
@@ -46,7 +47,7 @@ struct ProgramParser : grammar<Expression *(Scope &)> {
 		// after all of the other high-level grammars have been initialized to break
 		// the dependency cyle. Fortunately, we can reference a rule before it is defined.
 		initialize_cyclic_expressions();
-		initialize_cyclic_literals();
+		initialize_cyclic_values();
 
 		GOLOGPP_DEBUG_NODE(program);
 	}

@@ -15,30 +15,31 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef READYLOG_DOMAIN_H_
-#define READYLOG_DOMAIN_H_
-
-#include "semantics.h"
-#include "utilities.h"
-
-#include <model/domain.h>
-#include <model/error.h>
+#include "list_expression.h"
 
 namespace gologpp {
 
-template<>
-class Semantics<Domain>
-: public Semantics<AbstractLanguageElement>
-, public AbstractSemantics<Domain>
+Semantics<ListExpression>::Semantics(const ListExpression &expr)
+: AbstractSemantics<ListExpression>(expr)
+{}
+
+
+EC_word Semantics<ListExpression>::plterm()
 {
-public:
-	Semantics(const Domain &domain);
+	EC_word list = ::nil();
 
-	virtual EC_word plterm() override;
-};
+	for (size_t i = element().size(); i > 0; --i)
+		list = ::list(element().entry(i - 1).semantics().plterm(), list);
 
-
-
+	return ::term(EC_functor("gpp_list", 2),
+		EC_atom( (
+			"#" + dynamic_cast<const ListType &>(element().type()).element_type().name()
+		).c_str() ),
+		list
+	);
 }
 
-#endif // READYLOG_DOMAIN_H_
+
+
+
+} // namespace gologpp

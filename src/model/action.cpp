@@ -104,6 +104,9 @@ void AbstractAction::attach_semantics(SemanticsFactory &implementor)
 	precondition_->attach_semantics(implementor);
 	for (unique_ptr<AbstractEffectAxiom> &effect : effects_)
 		effect->attach_semantics(implementor);
+
+	for (auto &pair : mapping_->arg_mapping())
+		pair.second->attach_semantics(implementor);
 }
 
 

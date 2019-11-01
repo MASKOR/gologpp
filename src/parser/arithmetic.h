@@ -19,7 +19,6 @@
 #define GOLOGPP_PARSER_ARITHMETIC_H_
 
 #include "utilities.h"
-#include "atoms.h"
 #include "field_access.h"
 #include "reference.h"
 

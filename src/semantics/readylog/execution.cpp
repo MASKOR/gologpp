@@ -40,7 +40,10 @@ void ReadylogContext::init(const eclipse_opts &options, unique_ptr<PlatformBacke
 { instance_ = unique_ptr<ReadylogContext>(new ReadylogContext(options, std::move(exec_backend))); }
 
 void ReadylogContext::shutdown()
-{ instance_.reset(); }
+{
+	instance_.reset();
+	ec_cleanup();
+}
 
 
 ReadylogContext::ReadylogContext(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend)
@@ -93,7 +96,7 @@ ReadylogContext::ReadylogContext(const eclipse_opts &options, unique_ptr<Platfor
 
 
 ReadylogContext::~ReadylogContext()
-{ ec_cleanup(); }
+{}
 
 
 ReadylogContext &ReadylogContext::instance()

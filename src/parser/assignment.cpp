@@ -17,7 +17,6 @@
 
 #include "field_access.h"
 #include "assignment.h"
-#include "atoms.h"
 #include "arithmetic.h"
 #include "formula.h"
 #include "types.h"
@@ -58,7 +57,7 @@ AssignmentParser<LhsT>::AssignmentParser()
 
 	init();
 
-	GOLOGPP_DEBUG_NODES((assignment)(lhs_parser))
+	//GOLOGPP_DEBUG_NODES((assignment)(lhs_parser))
 }
 
 

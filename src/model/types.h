@@ -23,6 +23,7 @@
 #include "utilities.h"
 
 #include <unordered_map>
+#include <unordered_set>
 
 namespace gologpp {
 
@@ -137,6 +138,7 @@ public:
 	void add_field(const string &name, const string &type);
 
 	bool has_field_of_type(const string &field_name, const string &type_name) const;
+	std::unordered_set<string> field_names() const;
 
 	static string name();
 

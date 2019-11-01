@@ -94,6 +94,8 @@ set(INTERFACE_SRC
 	src/model/transition.cpp
 	src/model/language.cpp
 	src/model/types.cpp
+	src/model/compound_expression.cpp
+	src/model/list_expression.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -130,14 +132,19 @@ install(FILES
 	src/model/platform_backend.h
 	src/model/transition.h
 	src/model/types.h
+	src/model/compound_expression.h
+	src/model/list_expression.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model
 )
 
-get_target_property(GOLOGPP_CXXFLAGS_L golog++ COMPILE_OPTIONS)
-foreach(i IN LISTS GOLOGPP_CXXFLAGS_L)
-	set(GOLOGPP_CXXFLAGS "${GOLOGPP_CXXFLAGS} ${i}")
-endforeach()
+get_target_property(GOLOGPP_CXXFLAGS_L golog++ INTERFACE_COMPILE_OPTIONS)
+set(GOLOGPP_CXXFLAGS "")
+if (${GOLOGPP_CXXFLAGS_L})
+	foreach(i IN LISTS GOLOGPP_CXXFLAGS_L)
+		set(GOLOGPP_CXXFLAGS "${GOLOGPP_CXXFLAGS} ${i}")
+	endforeach()
+endif()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/golog++.pc.in ${CMAKE_CURRENT_BINARY_DIR}/golog++.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/golog++.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
@@ -151,7 +158,7 @@ option(BUILD_PARSER "Build the parser library" ON)
 CMAKE_DEPENDENT_OPTION(DEBUG_PARSER "Enable debug output for the parser" OFF "BUILD_PARSER" OFF)
 if (${BUILD_PARSER})
 	set(PARSER_SRC
-		src/parser/atoms.cpp
+		src/parser/variable.cpp
 		src/parser/action.cpp
 		src/parser/arithmetic.cpp
 		src/parser/formula.cpp
@@ -173,6 +180,7 @@ if (${BUILD_PARSER})
 		src/parser/mapping.cpp
 		src/parser/list_expression.cpp
 		src/parser/list_access.cpp
+		src/parser/value.cpp
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
@@ -189,7 +197,7 @@ if (${BUILD_PARSER})
 		src/parser/formula.h
 		src/parser/effect_axiom.h
 		src/parser/functions.h
-		src/parser/atoms.h
+		src/parser/variable.h
 		src/parser/arithmetic.h
 		src/parser/statements.h
 		src/parser/types.h
@@ -206,13 +214,17 @@ if (${BUILD_PARSER})
 		src/parser/mapping.h
 		src/parser/list_expression.h
 		src/parser/list_access.h
+		src/parser/value.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)
 
-	get_target_property(PARSEGOLOGPP_CXXFLAGS_L parsegolog++ COMPILE_OPTIONS)
-	foreach(i IN LISTS PARSEGOLOGPP_CXXFLAGS_L)
-		set(PARSEGOLOGPP_CXXFLAGS "${PARSEGOLOGPP_CXXFLAGS} ${i}")
-	endforeach()
+	get_target_property(PARSEGOLOGPP_CXXFLAGS_L parsegolog++ INTERFACE_COMPILE_OPTIONS)
+	set(PARSEGOLOGPP_CXXFLAGS "")
+	if (${PARSEGOLOGPP_CXXFLAGS_L})
+		foreach(i IN LISTS PARSEGOLOGPP_CXXFLAGS_L)
+			set(PARSEGOLOGPP_CXXFLAGS "${PARSEGOLOGPP_CXXFLAGS} ${i}")
+		endforeach()
+	endif()
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/parsegolog++.pc.in ${CMAKE_CURRENT_BINARY_DIR}/parsegolog++.pc @ONLY)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/parsegolog++.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
@@ -244,11 +256,13 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/history.cpp
 		src/semantics/readylog/reference.cpp
 		src/semantics/readylog/effect_axiom.cpp
+		src/semantics/readylog/compound_expression.cpp
+		src/semantics/readylog/list_expression.cpp
 	)
 
 	link_directories(${ECLIPSE_LIBRARY_DIRS})
 	add_library(readylog++ SHARED ${READYLOG_SRC})
-  target_compile_definitions(readylog++ PUBLIC
+	target_compile_definitions(readylog++ PUBLIC
 		-DECLIPSE_DIR=\"${ECLIPSE_DIR}\"
 		-DUSES_NO_ENGINE_HANDLE
 		-DSEMANTICS_INSTALL_DIR=\"${CMAKE_INSTALL_PREFIX}/${SEMANTICS_INSTALL_DIR}\"
@@ -273,9 +287,11 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/execution.h
 		src/semantics/readylog/utilities.h
 		src/semantics/readylog/reference.h
-		src/semantics/readylog/config.h
 		src/semantics/readylog/string.h
 		src/semantics/readylog/history.h
+		src/semantics/readylog/compound_expression.h
+		src/semantics/readylog/list_expression.h
+
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/readylog
 	)
 
@@ -284,11 +300,13 @@ if (${BUILD_READYLOG_IMPL})
 		DESTINATION ${SEMANTICS_INSTALL_DIR}/readylog
 	)
 
-	get_target_property(READYLOGPP_CXXFLAGS_L readylog++ COMPILE_OPTIONS)
+	get_target_property(READYLOGPP_CXXFLAGS_L readylog++ INTERFACE_COMPILE_OPTIONS)
 	set(READYLOGPP_CXXFLAGS "-I${ECLIPSE_INCLUDE_DIRS}")
-	foreach(i IN LISTS ${READYLOGPP_CXXFLAGS_L})
-		set(READYLOGPP_CXXFLAGS "${READYLOGPP_CXXFLAGS} ${i}")
-	endforeach()
+	if (${READYLOGPP_CXXFLAGS_L})
+		foreach(i IN LISTS ${READYLOGPP_CXXFLAGS_L})
+			set(READYLOGPP_CXXFLAGS "${READYLOGPP_CXXFLAGS} ${i}")
+		endforeach()
+	endif()
 	set(READYLOGPP_LDFLAGS "${ECLIPSE_LDFLAGS}")
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/readylog++.pc.in ${CMAKE_CURRENT_BINARY_DIR}/readylog++.pc @ONLY)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/readylog++.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)

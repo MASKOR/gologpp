@@ -19,7 +19,6 @@
 #define GOLOGPP_PARSER_FLUENT_H_
 
 #include "utilities.h"
-#include "atoms.h"
 #include "domain.h"
 
 namespace gologpp {
