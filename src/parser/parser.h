@@ -19,12 +19,13 @@
 #define GOLOGPP_PARSER_H_
 
 #include <model/gologpp.h>
+#include "utilities.h"
 
 namespace gologpp {
 namespace parser {
 
 
-unique_ptr<Expression> parse_string(const std::string &code);
+unique_ptr<Expression> parse_string(rule<Expression *(Scope &)> &parser, const std::string &code);
 
 unique_ptr<Expression> parse_file(const std::string &filename);
 

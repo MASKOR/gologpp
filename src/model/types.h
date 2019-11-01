@@ -19,7 +19,7 @@
 #define GOLOGPP_COMPOUND_TYPE_H_
 
 #include "gologpp.h"
-#include "user_error.h"
+#include "error.h"
 #include "utilities.h"
 
 #include <unordered_map>

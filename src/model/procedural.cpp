@@ -24,7 +24,6 @@
 #include "reference.h"
 #include "expressions.h"
 
-#include "user_error.h"
 #include "error.h"
 
 namespace gologpp {

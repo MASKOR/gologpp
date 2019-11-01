@@ -82,7 +82,6 @@ set(INTERFACE_SRC
 	src/model/utilities.cpp
 	src/model/arithmetic.cpp
 	src/model/error.cpp
-	src/model/user_error.cpp
 	src/model/execution.cpp
 	src/model/reference.cpp
 	src/model/global.cpp
@@ -115,7 +114,6 @@ install(FILES
 	src/model/procedural.h
 	src/model/error.h
 	src/model/scope.h
-	src/model/user_error.h
 	src/model/fluent.h
 	src/model/action.h
 	src/model/execution.h

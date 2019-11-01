@@ -15,14 +15,13 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "history.h"
-#include "utilities.h"
-#include "action.h"
-#include "execution.h"
-#include "value.h"
-
 #include <model/transition.h>
 
+#include "history.h"
+#include "action.h"
+#include "execution.h"
+#include "utilities.h"
+#include "value.h"
 
 #include <iostream>
 #include <unordered_map>

@@ -15,8 +15,9 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "utilities.h"
+#include <model/expressions.h>
 #include "error.h"
+#include "utilities.h"
 
 #include <cstring>
 

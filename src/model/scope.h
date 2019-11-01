@@ -26,7 +26,6 @@
 #include "utilities.h"
 #include "language.h"
 #include "expressions.h"
-#include "user_error.h"
 #include "error.h"
 #include "semantics.h"
 

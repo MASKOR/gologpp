@@ -21,6 +21,7 @@
 #include <eclipseclass.h>
 #include <model/gologpp.h>
 #include <model/error.h>
+#include <model/expressions.h>
 #include <type_traits>
 
 namespace gologpp {

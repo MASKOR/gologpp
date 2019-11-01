@@ -18,14 +18,15 @@
 #ifndef READYLOG_REFERENCE_H_
 #define READYLOG_REFERENCE_H_
 
-#include "semantics.h"
-#include "utilities.h"
 #include <model/reference.h>
 
 // Include headers for everything we might have a reference to (see plterm() method)
 #include <model/action.h>
 #include <model/fluent.h>
 #include <model/procedural.h>
+
+#include "semantics.h"
+#include "utilities.h"
 
 #include <eclipseclass.h>
 

@@ -19,31 +19,16 @@
 #define GOLOGPP_ERROR_H_
 
 #include "gologpp.h"
-#include "expressions.h"
 
 #include <exception>
 #include <string>
 
 namespace gologpp {
 
-class InconsistentModel : public std::exception {
-};
+
 
 class EngineError : public std::runtime_error {
 	using std::runtime_error::runtime_error;
-};
-
-
-
-class Bug : public std::exception {
-public:
-	Bug(const std::string &msg);
-	virtual ~Bug() override = default;
-
-	virtual const char *what() const noexcept override;
-
-private:
-	std::string msg_;
 };
 
 
@@ -61,12 +46,29 @@ class InconsistentTransition : public EngineError {
 
 
 
+class Bug : public std::exception {
+public:
+	Bug(const std::string &msg);
+	virtual ~Bug() override = default;
+
+	virtual const char *what() const noexcept override;
+
+private:
+	std::string msg_;
+};
+
+
+
 class UserError : public std::runtime_error {
 public:
 	UserError(const string &msg);
 };
 
 
+class SyntaxError : public UserError {
+public:
+	SyntaxError(const string &code, string::size_type offset, const string &msg);
+};
 
 class ExpressionTypeMismatch : public UserError {
 public:
@@ -79,6 +81,25 @@ class TypeError : public UserError {
 public:
 	TypeError(const AbstractLanguageElement &expr, const Type &t);
 	TypeError(const string &msg);
+};
+
+
+class InvalidIdentifier : public UserError {
+public:
+	InvalidIdentifier(const std::string &name);
+};
+
+
+class RedefinitionError : public UserError {
+public:
+	RedefinitionError(const string &name);
+	RedefinitionError(const string &name, arity_t arity);
+};
+
+
+class NoSuchFieldError : public UserError {
+public:
+	NoSuchFieldError(const string &field_name, const string &type_name);
 };
 
 }

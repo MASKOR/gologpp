@@ -12,7 +12,7 @@
 #include "expressions.h"
 #include "value.h"
 
-#include <boost/spirit/include/qi_kleene.hpp>
+#include <boost/spirit/include/qi_plus.hpp>
 #include <boost/spirit/include/qi_omit.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
@@ -30,14 +30,14 @@ struct ProgramParser : grammar<Expression *(Scope &)> {
 	ProgramParser()
 	: ProgramParser::base_type(program)
 	{
-		program = *( omit[ // Discard attributes, they just register themselves as Globals
+		program = +( omit[ // Discard attributes, they just register themselves as Globals
 			fluent(_r1)
 			| action(_r1)
 			| exog_action(_r1)
 			| function(_r1)
 			| domain_decl()(_r1)
 			| type_definition(_r1)
-		] ) > statement(_r1) > eoi;
+		] );
 
 		on_error<rethrow>(program,
 			phoenix::bind(&handle_error, _1, _3, _2, _4)

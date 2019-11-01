@@ -30,7 +30,7 @@
 #include <model/procedural.h>
 #include <model/scope.h>
 
-#include <model/user_error.h>
+#include <model/error.h>
 
 #include <type_traits>
 
