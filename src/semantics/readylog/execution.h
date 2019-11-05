@@ -22,7 +22,6 @@
 
 #include <model/execution.h>
 
-#include "config.h"
 #include "semantics.h"
 #include "history.h"
 
