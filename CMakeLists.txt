@@ -325,6 +325,6 @@ if (${BUILD_TOOLS})
 		target_link_libraries(readylog-test asan)
 	endif()
 
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/readylog-test DESTINATION ${CMAKE_INSTALL_BINDIR})
+	install(TARGETS readylog-test RUNTIME)
 endif()
 
