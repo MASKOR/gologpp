@@ -312,47 +312,19 @@ endif()
 
 
 
-######################################################################################
-# Tests
-######################################################################################
+option(BUILD_TOOLS "Build commandline tools" ON)
 
-option(BUILD_TESTS "Build tests" ON)
-
-CMAKE_DEPENDENT_OPTION(TEST_OBJECTMODEL "Enable test for object model" OFF "BUILD_TESTS" OFF)
-CMAKE_DEPENDENT_OPTION(TEST_PARSER "Enable test for parser" ON "BUILD_TESTS;BUILD_PARSER" OFF)
-CMAKE_DEPENDENT_OPTION(TEST_ECLIPSE "Enable test for eclipse-clp" OFF "BUILD_TESTS;ECLIPSE_FOUND" OFF)
-CMAKE_DEPENDENT_OPTION(TEST_READYLOG "Try running test programs in readylog" ON "BUILD_TESTS;ECLIPSE_FOUND;BUILD_READYLOG_IMPL" OFF)
-
-if (${BUILD_TESTS})
-	set(TEST_SRC
-		src/tests/readylog-test.cpp)
-	add_executable(readylog-test ${TEST_SRC})
-	set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} golog++)
-
-	if (${TEST_OBJECTMODEL})
-		target_compile_definitions(readylog-test PRIVATE -DGOLOGPP_TEST_OBJECTMODEL)
-	endif()
-
-	if (${TEST_PARSER})
-		target_compile_definitions(readylog-test PRIVATE -DGOLOGPP_TEST_PARSER)
-		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} parsegolog++)
-	endif()
-
-	if (${TEST_ECLIPSE})
-		target_compile_definitions(readylog-test PRIVATE -DGOLOGPP_TEST_ECLIPSE)
-		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} ${ECLIPSE_LIBRARIES})
-	endif()
-
-	if (${TEST_READYLOG})
-		target_compile_definitions(readylog-test PRIVATE -DGOLOGPP_TEST_READYLOG)
-		set(TEST_LINK_LIBRARIES ${TEST_LINK_LIBRARIES} readylog++)
-	endif()
-
+if (${BUILD_TOOLS})
+	set(READYLOG_TEST_SRC
+		src/tools/readylog-test.cpp)
+	add_executable(readylog-test ${READYLOG_TEST_SRC})
+	target_link_libraries(readylog-test readylog++ parsegolog++)
+	set_property(TARGET readylog-test PROPERTY CXX_STANDARD 14)
 
 	if (USE_LIBASAN)
 		target_link_libraries(readylog-test asan)
 	endif()
-	target_link_libraries(readylog-test ${TEST_LINK_LIBRARIES})
-	set_property(TARGET readylog-test PROPERTY CXX_STANDARD 14)
+
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/readylog-test DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
