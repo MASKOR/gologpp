@@ -16,8 +16,7 @@
 **************************************************************************/
 
 #include "compound_expression.h"
-#include "list_access.h"
-#include "field_access.h"
+#include "mixed_member_access.h"
 #include "value.h"
 #include "variable.h"
 #include "expressions.h"
@@ -67,8 +66,7 @@ void initialize_compound_exprs()
 	;
 
 	compound_expression =
-		mixed_field_access()(_r1, CompoundType::name()) [ _val = _1 ]
-		| mixed_list_access()(_r1, CompoundType::name()) [ _val = _1 ]
+		mixed_member_access()(_r1, CompoundType::name()) [ _val = _1 ]
 		| compound_atom(_r1) [ _val = _1 ]
 		| braced_compound_expr_(_r1) [ _val = _1 ]
 		, "compound_expression"

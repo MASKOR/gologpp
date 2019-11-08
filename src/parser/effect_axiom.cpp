@@ -31,12 +31,12 @@
 #include <boost/phoenix/operator/self.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/fusion/at.hpp>
+#include <boost/phoenix/object/dynamic_cast.hpp>
 
 #include <model/effect_axiom.h>
 
 #include "reference.h"
-#include "field_access.h"
-#include "list_access.h"
+#include "mixed_member_access.h"
 #include "expressions.h"
 
 
@@ -79,7 +79,9 @@ void EffectParser<Reference<Fluent>>::init()
 template<>
 void EffectParser<FieldAccess>::init()
 {
-	lhs = mixed_field_access()(_r1, UndefinedType::name());
+	lhs = mixed_member_access()(_r1, UndefinedType::name()) [
+		_pass = dynamic_cast_<FieldAccess *>(_1)
+	];
 	lhs.name("field_access_effect_lhs");
 }
 
@@ -87,7 +89,9 @@ void EffectParser<FieldAccess>::init()
 template<>
 void EffectParser<ListAccess>::init()
 {
-	lhs = mixed_list_access()(_r1, UndefinedType::name());
+	lhs = mixed_member_access()(_r1, UndefinedType::name()) [
+		_pass = dynamic_cast_<ListAccess *>(_1)
+	];
 	lhs.name("list_access_effect_lhs");
 }
 

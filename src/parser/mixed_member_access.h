@@ -15,8 +15,8 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef GOLOGPP_PARSER_FIELD_ACCESS_H_
-#define GOLOGPP_PARSER_FIELD_ACCESS_H_
+#ifndef GOLOGPP_PARSER_MIXED_MEMBER_ACCESS_H_
+#define GOLOGPP_PARSER_MIXED_MEMBER_ACCESS_H_
 
 #include "utilities.h"
 
@@ -24,12 +24,10 @@ namespace gologpp {
 namespace parser {
 
 
-extern rule<string()> field_access;
-
-rule<Expression *(Scope &, Typename)> &mixed_field_access();
+rule<Expression *(Scope &, Typename)> &mixed_member_access();
 
 
 } // namespace parser
 } // namespace gologpp
 
-#endif // GOLOGPP_PARSER_FIELD_ACCESS_H_
+#endif // GOLOGPP_PARSER_MIXED_MEMBER_ACCESS_H_

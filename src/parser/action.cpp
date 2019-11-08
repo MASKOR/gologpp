@@ -15,7 +15,6 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "field_access.h"
 #include "action.h"
 #include "variable.h"
 

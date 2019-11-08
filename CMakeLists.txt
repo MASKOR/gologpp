@@ -174,10 +174,9 @@ if (${BUILD_PARSER})
 		src/parser/string_expression.cpp
 		src/parser/domain.cpp
 		src/parser/compound_expression.cpp
-		src/parser/field_access.cpp
+		src/parser/mixed_member_access.cpp
 		src/parser/mapping.cpp
 		src/parser/list_expression.cpp
-		src/parser/list_access.cpp
 		src/parser/value.cpp
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
@@ -208,10 +207,9 @@ if (${BUILD_PARSER})
 		src/parser/symbolic_expression.h
 		src/parser/domain.h
 		src/parser/compound_expression.h
-		src/parser/field_access.h
+		src/parser/mixed_member_access.h
 		src/parser/mapping.h
 		src/parser/list_expression.h
-		src/parser/list_access.h
 		src/parser/value.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)

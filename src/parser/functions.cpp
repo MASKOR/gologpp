@@ -15,7 +15,7 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "field_access.h"
+#include "mixed_member_access.h"
 #include "functions.h"
 #include "types.h"
 #include "statements.h"

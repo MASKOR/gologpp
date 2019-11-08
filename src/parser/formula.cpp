@@ -20,8 +20,7 @@
 
 #include "formula.h"
 #include "types.h"
-#include "field_access.h"
-#include "list_access.h"
+#include "mixed_member_access.h"
 #include "reference.h"
 #include "variable.h"
 #include "value.h"
@@ -152,8 +151,7 @@ BooleanExpressionParser::BooleanExpressionParser()
 
 	unary_expr = quantification(_r1) | negation(_r1) | boolean_value()
 		| bool_var_ref(_r1) | brace(_r1)
-		| mixed_field_access()(_r1, BoolType::name())
-		| mixed_list_access()(_r1, BoolType::name())
+		| mixed_member_access()(_r1, BoolType::name())
 		| comparison(_r1)
 		| typed_reference<Fluent>()(_r1, BoolType::name())
 		| typed_reference<Function>()(_r1, BoolType::name())

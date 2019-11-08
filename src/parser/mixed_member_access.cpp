@@ -15,10 +15,11 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "field_access.h"
-#include "list_access.h"
+#include "mixed_member_access.h"
 #include "types.h"
 #include "compound_expression.h"
+#include "expressions.h"
+#include "list_expression.h"
 
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>
@@ -43,65 +44,34 @@ namespace gologpp {
 namespace parser {
 
 
-
-static Expression *build_mixed_field_access(
-	Expression *subj,
-	vector<fusion_wtf_vector<vector<string>, vector<Expression *>>> members,
-	vector<string> field_names
-) {
-	Expression *rv = subj;
-	for (auto &pair : members) {
-		for (const string &field : at_c<0>(pair))
-			rv = new FieldAccess(rv, field);
-		for (Expression *idx : at_c<1>(pair))
-			rv = new ListAccess(rv, idx);
-	}
-	for (const string &field : field_names)
-		rv = new FieldAccess(rv, field);
-
-	return rv;
-}
-
-
-
-rule<string()> field_access {
+static rule<string()> field_access {
 	lit('.') >> r_name()
 	, "field_access"
 };
 
+static rule<Expression *(Scope &)> list_access {
+	lit('[') >> numeric_expression(_r1) >> ']'
+	, "list_access"
+};
 
 
-rule<Expression *(Scope &, Typename)> &mixed_field_access()
+rule<Expression *(Scope &, Typename)> &mixed_member_access()
 {
-	static rule<Expression *(Scope &, Typename)> rv {
+	static rule<Expression *(Scope &, Typename), locals<Expression *>> rv_local {
 		(
-			compound_atom(_r1)
-			>> *(
-				+field_access
-				>> +list_access(_r1)
-			) >> +field_access
-		) [
-			_val = phoenix::bind(&build_mixed_field_access, _1, _2, _3),
-			if_(phoenix::bind(&AbstractLanguageElement::type, _val) != _r2) [
-				_pass = false
-			]
-		]
-		| (
-			compound_atom(_r1)
+			(compound_atom(_r1) | list_atom(_r1)) [ _a = _1 ]
 			>> +(
-				+field_access
-				>> +list_access(_r1)
+				field_access [ _a = new_<FieldAccess>(_a, _1) ]
+				| list_access(_r1) [ _a = new_<ListAccess>(_a, _1) ]
 			)
 		) [
-			_val = phoenix::bind(&build_mixed_field_access, _1, _2, val(vector<string>{})),
-			if_(phoenix::bind(&AbstractLanguageElement::type, _val) != _r2) [
-				_pass = false
-			]
+			_val = _a
 		]
-
-		, "mixed_field_access"
+		, "mixed_member_access"
 	};
-	GOLOGPP_DEBUG_NODE(rv)
+	GOLOGPP_DEBUG_NODE(rv_local)
+
+	static rule<Expression *(Scope &, Typename)> rv { rv_local(_r1, _r2) };
 	return rv;
 }
 

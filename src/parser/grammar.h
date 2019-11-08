@@ -1,7 +1,6 @@
 #ifndef GOLOGPP_GRAMMAR_H_
 #define GOLOGPP_GRAMMAR_H_
 
-#include "field_access.h"
 #include "utilities.h"
 #include "statements.h"
 #include "fluent.h"

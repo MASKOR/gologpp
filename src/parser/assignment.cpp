@@ -15,13 +15,12 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "field_access.h"
 #include "assignment.h"
 #include "arithmetic.h"
 #include "formula.h"
 #include "types.h"
 #include "expressions.h"
-#include "list_access.h"
+#include "mixed_member_access.h"
 
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_char.hpp>
@@ -34,6 +33,7 @@
 #include <boost/phoenix/operator/comparison.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/scope/local_variable.hpp>
+#include <boost/phoenix/object/dynamic_cast.hpp>
 
 
 namespace gologpp {
@@ -73,7 +73,9 @@ void AssignmentParser<Reference<Fluent>>::init()
 template<>
 void AssignmentParser<FieldAccess>::init()
 {
-	lhs_parser = mixed_field_access()(_r1, UndefinedType::name());
+	lhs_parser = mixed_member_access()(_r1, UndefinedType::name()) [
+		_pass = (_val = dynamic_cast_<FieldAccess *>(_1))
+	];
 	lhs_parser.name("field_access_lhs");
 }
 
@@ -81,7 +83,9 @@ void AssignmentParser<FieldAccess>::init()
 template<>
 void AssignmentParser<ListAccess>::init()
 {
-	lhs_parser = mixed_list_access()(_r1, UndefinedType::name());
+	lhs_parser = mixed_member_access()(_r1, UndefinedType::name()) [
+		_pass = (_val = dynamic_cast_<ListAccess *>(_1))
+	];
 	lhs_parser.name("list_access_lhs");
 }
 

@@ -37,8 +37,7 @@
 #include "symbolic_expression.h"
 #include "compound_expression.h"
 #include "list_expression.h"
-#include "list_access.h"
-#include "field_access.h"
+#include "mixed_member_access.h"
 
 #include <unordered_map>
 #include <functional>
