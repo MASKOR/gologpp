@@ -15,29 +15,17 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "reference.h"
-#include "variable.h"
+#include "semantics.h"
 
 namespace gologpp {
 
 
-Semantics<Reference<Variable>>::Semantics(const Reference<Variable> &ref)
-: AbstractSemantics<Reference<Variable>>(ref)
+AbstractSemantics<AbstractLanguageElement>::AbstractSemantics()
 {}
 
-EC_word Semantics<Reference<Variable>>::plterm()
-{ return element().target()->semantics().plterm(); }
 
-
-
-template<>
-EC_word Semantics<Reference<Action>>::plterm()
-{
-	return ::list(::term(EC_functor("start", 2), reference_term(element()), EC_atom("now")),
-		::list(::term(EC_functor("finish", 2), reference_term(element()), EC_atom("now")),
-			::nil()
-		)
-	);
 }
 
-} // namespace gologpp
+
+
+

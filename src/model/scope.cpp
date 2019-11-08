@@ -216,8 +216,7 @@ void Scope::implement_globals(SemanticsFactory &implementor, AExecutionContext &
 	// Two loops since we want everything implemented before we attempt to compile anything.
 	// It's all connected, you know...
 	for (GlobalsMap::value_type &entry : *globals_)
-		std::dynamic_pointer_cast<AbstractLanguageElement>(entry.second)
-			->attach_semantics(implementor);
+		entry.second->attach_semantics(implementor);
 	for (GlobalsMap::value_type &entry : *globals_)
 		entry.second->compile(ctx);
 

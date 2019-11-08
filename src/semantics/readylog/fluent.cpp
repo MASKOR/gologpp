@@ -86,26 +86,22 @@ EC_word Semantics<InitialValue>::plterm()
 
 
 
-Semantics<Fluent>::Semantics(const Fluent &f)
-: fluent_(f)
-{}
-
 EC_word Semantics<Fluent>::plterm()
 {
-	if (fluent_.arity() > 0)
+	if (element().arity() > 0)
 		return ::term(
-			EC_functor(fluent_.name().c_str(), fluent_.arity()),
-			to_ec_words(fluent_.params()).data()
+			EC_functor(element().name().c_str(), element().arity()),
+			to_ec_words(element().params()).data()
 		);
 	else
-		return EC_atom(fluent_.name().c_str());
+		return EC_atom(element().name().c_str());
 }
 
 
 vector<EC_word> Semantics<Fluent>::initially()
 {
 	vector<EC_word> rv;
-	for (const unique_ptr<InitialValue> &ival : fluent_.initially())
+	for (const unique_ptr<InitialValue> &ival : element().initially())
 		rv.push_back(ival->semantics().plterm());
 
 	return rv;
@@ -114,10 +110,10 @@ vector<EC_word> Semantics<Fluent>::initially()
 
 EC_word Semantics<Fluent>::prim_fluent()
 {
-	fluent_.scope().semantics().init_vars();
+	element().scope().semantics().init_vars();
 
 	vector<EC_word> arg_domains;
-	for (const shared_ptr<Variable> &arg : fluent_.params())
+	for (const shared_ptr<Variable> &arg : element().params())
 		if (arg->domain().is_defined())
 			arg_domains.emplace_back(
 				arg->semantics().member_restriction()

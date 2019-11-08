@@ -46,7 +46,7 @@ class Semantics<Function>
 , public AbstractSemantics<Function>
 {
 public:
-	Semantics(const Function &function);
+	using AbstractSemantics<Function>::AbstractSemantics;
 	virtual EC_word plterm() override;
 	virtual EC_word definition();
 	EC_word return_var();
@@ -63,7 +63,7 @@ class Semantics<Block>
 , public AbstractSemantics<Block>
 {
 public:
-	Semantics(const Block &);
+	using AbstractSemantics<Block>::AbstractSemantics;
 	virtual EC_word plterm() override;
 	EC_word current_program();
 	void set_current_program(EC_word e);
@@ -80,7 +80,7 @@ class Semantics<Choose>
 , public AbstractSemantics<Choose>
 {
 public:
-	Semantics(const Choose &);
+	using AbstractSemantics<Choose>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 
@@ -92,7 +92,7 @@ class Semantics<Conditional>
 , public AbstractSemantics<Conditional>
 {
 public:
-	Semantics(const Conditional &);
+	using AbstractSemantics<Conditional>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 
@@ -104,7 +104,7 @@ class Semantics<Concurrent>
 , public AbstractSemantics<Concurrent>
 {
 public:
-	Semantics(const Concurrent &);
+	using AbstractSemantics<Concurrent>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 
@@ -134,8 +134,7 @@ class Semantics<Assignment<Reference<Fluent>>>
 , public AbstractSemantics<Assignment<Reference<Fluent>>>
 {
 public:
-	Semantics(const Assignment<Reference<Fluent>> &ass);
-
+	using AbstractSemantics<Assignment<Reference<Fluent>>>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 
@@ -147,12 +146,8 @@ class Semantics<Assignment<FieldAccess>>
 , public AbstractSemantics<Assignment<FieldAccess>>
 {
 public:
-	Semantics(const Assignment<FieldAccess> &ass);
-
+	using AbstractSemantics<Assignment<FieldAccess>>::AbstractSemantics;
 	virtual EC_word plterm() override;
-
-private:
-	const FieldAccess &field_access_;
 };
 
 
@@ -163,12 +158,8 @@ class Semantics<Assignment<ListAccess>>
 , public AbstractSemantics<Assignment<ListAccess>>
 {
 public:
-	Semantics(const Assignment<ListAccess> &ass);
-
+	using AbstractSemantics<Assignment<ListAccess>>::AbstractSemantics;
 	virtual EC_word plterm() override;
-
-private:
-	const ListAccess &field_access_;
 };
 
 
@@ -179,7 +170,7 @@ class Semantics<Pick>
 , public AbstractSemantics<Pick>
 {
 public:
-	Semantics(const Pick &pick);
+	Semantics(const Pick &);
 	virtual EC_word plterm() override;
 };
 
@@ -191,7 +182,7 @@ class Semantics<Search>
 , public AbstractSemantics<Search>
 {
 public:
-	Semantics(const Search &);
+	using AbstractSemantics<Search>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 
@@ -203,7 +194,7 @@ class Semantics<Solve>
 , public AbstractSemantics<Solve>
 {
 public:
-	Semantics(const Solve &);
+	using AbstractSemantics<Solve>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 
@@ -215,7 +206,7 @@ class Semantics<Test>
 , public AbstractSemantics<Test>
 {
 public:
-	Semantics(const Test &);
+	using AbstractSemantics<Test>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 
@@ -227,7 +218,7 @@ class Semantics<While>
 , public AbstractSemantics<While>
 {
 public:
-	Semantics(const While &);
+	using AbstractSemantics<While>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 
@@ -239,7 +230,7 @@ class Semantics<Return>
 , public AbstractSemantics<Return>
 {
 public:
-	Semantics(const Return &r);
+	using AbstractSemantics<Return>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 
@@ -251,7 +242,7 @@ class Semantics<DurativeCall>
 , public AbstractSemantics<DurativeCall>
 {
 public:
-	Semantics(const DurativeCall &call);
+	using AbstractSemantics<DurativeCall>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 
@@ -266,15 +257,11 @@ class Semantics<FieldAccess>
 , public AbstractSemantics<FieldAccess>
 {
 public:
-	Semantics(const FieldAccess &field_access);
+	using AbstractSemantics<FieldAccess>::AbstractSemantics;
 
 	virtual EC_word plterm() override;
 	EC_word field_assign(const Expression &value);
 	EC_atom pl_field_name();
-	void set_lvalue(bool lvalue);
-
-private:
-	bool is_lvalue_;
 };
 
 
@@ -285,7 +272,7 @@ class Semantics<ListAccess>
 , public AbstractSemantics<ListAccess>
 {
 public:
-	Semantics(const ListAccess &list_access);
+	using AbstractSemantics<ListAccess>::AbstractSemantics;
 
 	virtual EC_word plterm() override;
 	EC_word pl_index();
@@ -299,8 +286,7 @@ class Semantics<ListPop>
 , public AbstractSemantics<ListPop>
 {
 public:
-	Semantics(const ListPop &list_access);
-
+	using AbstractSemantics<ListPop>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 
@@ -312,8 +298,7 @@ class Semantics<ListPush>
 , public AbstractSemantics<ListPush>
 {
 public:
-	Semantics(const ListPush &list_access);
-
+	using AbstractSemantics<ListPush>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 

@@ -50,8 +50,8 @@ Activity::State Activity::target_state(Transition::Hook hook)
 	switch (hook) {
 	case Transition::Hook::START:
 		return Activity::State::RUNNING;
-	case Transition::Hook::STOP:
-		return Activity::State::PREEMPTED;
+	case Transition::Hook::CANCEL:
+		return Activity::State::CANCELLED;
 	case Transition::Hook::FINISH:
 		return Activity::State::FINAL;
 	case Transition::Hook::FAIL:
@@ -129,7 +129,7 @@ string to_string(Activity::State s)
 		return "idle";
 	case Activity::State::RUNNING:
 		return "running";
-	case Activity::State::PREEMPTED:
+	case Activity::State::CANCELLED:
 		return "preempted";
 	case Activity::State::FINAL:
 		return "final";

@@ -34,7 +34,7 @@ class Activity
 , public LanguageElement<Activity>
 , public std::enable_shared_from_this<Activity> {
 public:
-	enum State { IDLE, RUNNING, FINAL, PREEMPTED, FAILED };
+	enum State { IDLE, RUNNING, FINAL, CANCELLED, FAILED };
 
 	Activity(const shared_ptr<Action> &action, vector<unique_ptr<Value>> &&args, AExecutionContext &, State state = IDLE);
 	Activity(const shared_ptr<Transition> &, AExecutionContext &);

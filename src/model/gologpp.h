@@ -159,8 +159,7 @@ class PlatformBackend;
 	(Scope)(ArithmeticOperation) \
 	(Negation)(BooleanOperation)(Quantification)(Concurrent) \
 	(Block)(Choose)(Conditional)(Search)(Solve)(Test)(While) \
-	(History)(Reference<Action>)(Grounding<Action>) \
-	(Grounding<ExogAction>) \
+	(History)(Reference<Action>) \
 	(Reference<ExogAction>) \
 	(StringConcatenation) \
 	(ToString) \

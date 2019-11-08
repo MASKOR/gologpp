@@ -30,6 +30,7 @@ namespace gologpp {
 template<>
 class AbstractSemantics<AbstractLanguageElement> {
 public:
+	AbstractSemantics();
 	virtual ~AbstractSemantics<AbstractLanguageElement>() = default;
 
 	template<class GologT = AbstractLanguageElement>

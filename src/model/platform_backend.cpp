@@ -88,7 +88,7 @@ void DummyBackend::ActivityThread::end_activity(std::chrono::duration<double> wh
 
 	if (canceled) {
 		std::cout << "DummyBackend: Activity " << a->str() << " STOPPED" << std::endl;
-		a->update(Transition::Hook::STOP);
+		a->update(Transition::Hook::CANCEL);
 	}
 	else {
 		std::cout << "DummyBackend: Activity " << a->str() << " FINAL" << std::endl;

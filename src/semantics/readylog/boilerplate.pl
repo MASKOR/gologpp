@@ -226,7 +226,7 @@ poss(stop(A, T),
 		, now >= T
 	)
 ) :- durative_action(A).
-causes_val(stop(A, _T), state(A), preempted, true) :- durative_action(A).
+causes_val(stop(A, _T), state(A), cancelled, true) :- durative_action(A).
 
 
 % fail action

@@ -391,23 +391,6 @@ string DurativeCall::to_string(const string &pfx) const
 
 
 
-string to_string(DurativeCall::Hook hook)
-{
-	switch (hook) {
-	case DurativeCall::Hook::START:
-		return "start";
-	case DurativeCall::Hook::FINISH:
-		return "finish";
-	case DurativeCall::Hook::FAIL:
-		return "fail";
-	case DurativeCall::Hook::STOP:
-		return "stop";
-	}
-	throw Bug(string("Unhandled ") + typeid(hook).name());
-}
-
-
-
 FieldAccess::FieldAccess(Expression *subject, const string &field_name)
 : subject_(subject)
 , field_name_(field_name)

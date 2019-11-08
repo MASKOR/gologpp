@@ -42,17 +42,17 @@ public:
 
 
 template<>
-class Semantics<Fluent> : public Semantics<AbstractLanguageElement> {
+class Semantics<Fluent>
+: public Semantics<AbstractLanguageElement>
+, public AbstractSemantics<Fluent>
+{
 public:
-	Semantics(const Fluent &f);
+	using AbstractSemantics<Fluent>::AbstractSemantics;
 	virtual ~Semantics() override = default;
 
 	virtual EC_word plterm() override;
 	vector<EC_word> initially();
 	EC_word prim_fluent();
-
-private:
-	const Fluent &fluent_;
 };
 
 
