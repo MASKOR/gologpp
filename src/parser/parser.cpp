@@ -98,6 +98,11 @@ unique_ptr<Expression> parse_file(const std::string &filename) {
 		> statement(_r1)[ _val = _1 ]
 		> eoi
 	};
+
+	on_error<rethrow>(r_main,
+		phoenix::bind(&handle_error, _1, _3, _2, _4)
+	);
+
 	return parse_recursive(r_main, filename);
 }
 
