@@ -31,7 +31,8 @@
 #include <boost/spirit/include/qi_omit.hpp>
 #include <boost/spirit/include/qi_lit.hpp>
 #include <boost/spirit/include/qi_lexeme.hpp>
-#include <boost/spirit/include/qi_char_.hpp>
+#include <boost/spirit/include/qi_char.hpp>
+#include <boost/spirit/include/qi_string.hpp>
 
 #include <iostream>
 
@@ -51,9 +52,9 @@ rule<string()> &r_name() {
 
 rule<string()> &raw_string_literal() {
 	static rule<string()> rv {
-		qi::as_string [ qi::lexeme [
-			lit('"') > *(char_ - '"') > lit('"')
-		] ]
+		omit[qi::string("\"")]
+		> qi::lexeme [*(char_ - '"')]
+		> omit[qi::string("\"")]
 		, "raw_string_literal"
 	};
 //	GOLOGPP_DEBUG_NODE(rv)
