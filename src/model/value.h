@@ -126,6 +126,10 @@ public:
 	const Representation &representation() const
 	{ return representation_; }
 
+	/// @return A string representation for software consumption.
+	///         Only difference to str() is that strings remain unquoted.
+	string string_representation() const;
+
 	virtual string to_string(const string &) const override;
 
 	virtual bool operator == (const Value &c) const;

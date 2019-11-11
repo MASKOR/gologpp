@@ -42,9 +42,10 @@ bool unique_ptr<Value>::operator != (const unique_ptr<Value> &other) const
 
 struct Value::to_string_visitor {
 	string pfx;
+	bool quote = true;
 
 	string operator() (const string &s) const
-	{ return pfx + '"' + s + '"'; }
+	{ return pfx + (quote ? "\"" : "") + s + (quote ? "\"" : ""); }
 
 	string operator() (bool b) const
 	{ return pfx + (b ? "true" : "false"); }
@@ -262,6 +263,10 @@ void Value::attach_semantics(SemanticsFactory &f)
 		set_semantics(f.make_semantics(*this));
 	}
 }
+
+
+string Value::string_representation() const
+{ return boost::apply_visitor(to_string_visitor { "", false }, representation_); }
 
 
 Value Value::undefined()
