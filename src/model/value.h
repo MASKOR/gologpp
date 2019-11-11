@@ -85,39 +85,40 @@ public:
 
 	virtual size_t hash() const;
 
-	/* TODO: This needs to go. We cannot directly do casting with boost::get
-	 *       since we might end up calling boost::get for a type that is in the
-	 *       signature, but incorrect. Imagine upcasting an unsigned int to long.
-	 *       Will either require nested casts or trigger boost::bad_get! */
-
-	operator int () const
+	explicit operator int () const
 	{ return boost::get<int>(representation()); }
 
-	operator unsigned int () const
+	explicit operator unsigned int () const
 	{ return boost::get<unsigned int>(representation()); }
 
-	operator long () const
+	explicit operator long () const
 	{ return boost::get<long>(representation()); }
 
-	operator unsigned long () const
+	explicit operator unsigned long () const
 	{ return boost::get<unsigned long>(representation()); }
 
-	operator double () const
+	explicit operator double () const
 	{ return boost::get<double>(representation()); }
 
-	operator string () const
-	{ return boost::get<string>(representation()); }
+	explicit operator string () const
+	{
+		try {
+			return boost::get<string>(representation());
+		} catch (boost::bad_get &) {
+			return string_representation();
+		}
+	}
 
-	operator bool () const
+	explicit operator bool () const
 	{ return boost::get<bool>(representation()); }
 
-	operator const CompoundType::Representation &() const
+	explicit operator const CompoundType::Representation &() const
 	{ return boost::get<CompoundType::Representation>(representation()); }
 
-	operator const ListType::Representation &() const
+	explicit operator const ListType::Representation &() const
 	{ return boost::get<ListType::Representation>(representation()); }
 
-	operator void *() const
+	explicit operator void *() const
 	{ return boost::get<void *>(representation()); }
 
 	Representation &representation()
