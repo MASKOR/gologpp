@@ -309,8 +309,9 @@ if (${BUILD_READYLOG_IMPL})
 endif()
 
 
-
-option(BUILD_TOOLS "Build commandline tools" ON)
+if (${ECLIPSE_FOUND})
+	option(BUILD_TOOLS "Build commandline tools" ON)
+endif()
 
 if (${BUILD_TOOLS})
 	set(READYLOG_TEST_SRC
