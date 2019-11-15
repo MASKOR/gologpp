@@ -49,9 +49,6 @@ namespace gologpp {
 namespace parser {
 
 
-static string element_type_name(const Expression *list_expr)
-{ return dynamic_cast<const ListType &>(list_expr->type()).element_type().name(); }
-
 
 StatementParser::StatementParser()
 : StatementParser::base_type(statement, "statement")
@@ -115,7 +112,7 @@ StatementParser::StatementParser()
 		] > var_decl()(*_a) [
 			_b = _1
 		] > -(lit("in") > '{'
-		> value()(phoenix::bind(&Expression::type_name, *_b), false) % ','
+		> value()(phoenix::bind(&Expression::type, *_b), false) % ','
 		> '}')
 		> ')' > statement(*_a)
 	) [
@@ -132,7 +129,7 @@ StatementParser::StatementParser()
 	search.name("search");
 
 	solve = (lit("solve") > '('
-		> numeric_expression(_r1) > ',' > typed_reference<Function>()(_r1, NumberType::name())
+		> numeric_expression(_r1) > ',' > typed_reference<Function>()(_r1, number_type())
 	> ')' > statement(_r1)) [
 		_val = new_<Solve>(_1, _2, _3)
 	];
@@ -159,7 +156,7 @@ StatementParser::StatementParser()
 		(
 			lit("pop_front") [ _a = ListOpEnd::FRONT ]
 			| lit("pop_back") [ _a = ListOpEnd::BACK ]
-		) > '(' > list_expression(_r1) > ')'
+		) > '(' > list_expression(_r1, undefined_type()) > ')'
 	) [
 		_val = new_<ListPop>(_1, _a)
 	];
@@ -170,10 +167,10 @@ StatementParser::StatementParser()
 			lit("push_front") [ _a = ListOpEnd::FRONT ]
 			| lit("push_back") [ _a = ListOpEnd::BACK ]
 		) > '('
-		> list_expression(_r1) [
-			_b = phoenix::bind(&element_type_name, _1)
+		> list_expression(_r1, undefined_type()) [
+			_b = phoenix::bind(&Expression::type_ptr, _1)
 		]
-		> ',' > typed_expression()(_r1, _b)
+		> ',' > typed_expression()(_r1, *_b)
 		> ')'
 	) [
 		_val = new_<ListPush>(_1, _a, _2)

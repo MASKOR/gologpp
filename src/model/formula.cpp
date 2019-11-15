@@ -43,7 +43,14 @@ Comparison::Comparison(Expression *lhs, ComparisonOperator op, Expression *rhs)
 , op_(op)
 , rhs_(rhs)
 {
-	ensure_type_equality(*lhs, *rhs);
+	if (!(lhs->type() >= *rhs
+		|| lhs->type() <= rhs->type()
+		|| rhs->type() >= *lhs
+		|| rhs->type() <= lhs->type()
+	) )
+		throw TypeError("Incompatible types in comparison: "
+			+ lhs->type().name() + " and " + rhs->type().name()
+		);
 	lhs_->set_parent(this);
 	rhs_->set_parent(this);
 }

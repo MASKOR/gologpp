@@ -27,8 +27,8 @@ namespace parser {
 
 
 rule<shared_ptr<Variable>(Scope &)> &var_decl();
-rule<shared_ptr<Variable>(Scope &, Typename)> &var_usage();
-rule<Reference<Variable> *(Scope &, Typename)> &var_ref();
+rule<shared_ptr<Variable>(Scope &, const Type &)> &var_usage();
+rule<Reference<Variable> *(Scope &, const Type &)> &var_ref();
 rule<shared_ptr<Variable>(Scope &)> &any_var_usage();
 
 

@@ -40,9 +40,8 @@ const AbstractLanguageElement *Expression::parent() const
 void Expression::set_parent(AbstractLanguageElement *parent)
 { parent_ = parent; }
 
-const string &Expression::type_name() const
-{ return type().name(); }
-
+bool Expression::operator <= (const Type &t) const
+{ return t >= *this; }
 
 
 Instruction::Instruction()
@@ -63,9 +62,6 @@ const AbstractLanguageElement *Instruction::parent() const
 
 void Instruction::set_parent(AbstractLanguageElement *parent)
 { parent_ = parent; }
-
-const string &Instruction::type_name() const
-{ return type().name(); }
 
 
 

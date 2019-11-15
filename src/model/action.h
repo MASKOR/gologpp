@@ -48,7 +48,7 @@ public:
 
 	AbstractAction(
 		Scope *own_scope,
-		const string &,
+		const Type &,
 		const string &name,
 		const vector<shared_ptr<Variable>> &params
 	);

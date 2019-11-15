@@ -24,9 +24,9 @@ namespace gologpp {
 namespace parser {
 
 
-extern rule<Expression *(Scope &)> list_atom;
+extern rule<Expression *(Scope &, const Type &)> list_atom;
 
-extern rule<Expression *(Scope &)> list_expression;
+extern rule<Expression *(Scope &, const Type &)> list_expression;
 
 
 void initialize_list_exprs();

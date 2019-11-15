@@ -47,11 +47,11 @@ namespace parser {
 
 
 
-rule<Expression *(Scope &)> list_atom;
+rule<Expression *(Scope &, const Type &)> list_atom;
 
-rule<Expression *(Scope &)> list_expression;
+rule<Expression *(Scope &, const Type &)> list_expression;
 
-static rule<Expression *(Scope &), locals<Typename>> braced_list_expression;
+static rule<Expression *(Scope &, const Type &), locals<PType>> braced_list_expression;
 
 
 
@@ -59,40 +59,35 @@ void initialize_list_exprs()
 {
 	list_atom = {
 		list_value() [ _val = _1 ]
-			| typed_reference<Fluent>()(_r1, ListType::name()) [ _val = _1 ]
-			| typed_reference<Function>()(_r1, ListType::name()) [ _val = _1 ]
-			| var_usage()(_r1, ListType::name()) [
+			| typed_reference<Fluent>()(_r1, _r2) [ _val = _1 ]
+			| typed_reference<Function>()(_r1, _r2) [ _val = _1 ]
+			| var_usage()(_r1, _r2) [
 				_val = new_<Reference<Variable>>(_1)
 			]
 		, "simple_list_expr"
 	};
 
 	list_expression = {
-		mixed_member_access()(_r1, ListType::name()) [ _val = _1 ]
-			| conditional_expression(_r1, ListType::name()) [ _val = _1 ]
-			| list_atom(_r1) [ _val = _1 ]
-			| braced_list_expression(_r1) [ _val = _1 ]
+		mixed_member_access()(_r1, _r2) [ _val = _1 ]
+			| conditional_expression(_r1, _r2) [ _val = _1 ]
+			| list_atom(_r1, _r2) [ _val = _1 ]
+			| braced_list_expression(_r1, _r2) [ _val = _1 ]
 		, "list_expression"
 	};
 
 	braced_list_expression = {
 		(
-			complex_type_identifier<ListType>()(_r1) [
-				_a = static_cast_<string>(
-					phoenix::bind(&ListType::element_type, *_1)
-				)
+			type_identifier<ListType>()(_r1) [
+				_a = phoenix::bind(&ListType::element_type_ptr, *_1)
 			]
 			>> lit('[')
 			>> -(
-				typed_expression()(_r1, _a)
+				typed_expression()(_r1, *_a)
 				% ','
 			)
 			>> ']'
 		) [
-			_val = new_<ListExpression>(
-				static_cast_<string>(*_1),
-				_2
-			)
+			_val = new_<ListExpression>(*_1, _2)
 		]
 	};
 

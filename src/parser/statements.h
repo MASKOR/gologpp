@@ -48,7 +48,7 @@ struct StatementParser : grammar<Instruction *(Scope &)> {
 	rule<Concurrent *(Scope &), locals<Scope *>> concurrent;
 
 	rule<ListPop *(Scope &), locals<ListOpEnd>> list_pop;
-	rule<ListPush *(Scope &), locals<ListOpEnd, Typename>> list_push;
+	rule<ListPush *(Scope &), locals<ListOpEnd, shared_ptr<const Type>>> list_push;
 
 	rule<During *(Scope &)> during;
 

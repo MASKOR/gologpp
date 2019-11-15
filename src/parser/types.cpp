@@ -27,6 +27,7 @@
 #include <boost/spirit/include/qi_string.hpp>
 #include <boost/spirit/include/qi_as_string.hpp>
 #include <boost/spirit/include/qi_plus.hpp>
+#include <boost/spirit/include/qi_attr_cast.hpp>
 
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/dynamic_cast.hpp>
@@ -49,6 +50,57 @@ namespace gologpp {
 namespace parser {
 
 
+template<class BaseT>
+void TypeNameParser<BaseT>::init()
+{
+	type_name = list_type_name(_r1) | non_list_type_name(_r1);
+	type_name.name("type_name");
+
+	list_type_name = (lit("list") > "[" > type_name(_r1) > "]") [
+		_val = phoenix::bind(&Scope::lookup_list_type, _r1, *_1),
+		_pass = !!_val
+	];
+	list_type_name.name("list_type_name");
+
+	non_list_type_name = r_name() [
+		_val = phoenix::bind(&Scope::lookup_type<BaseT>, _r1, _1),
+		_pass = !!_val
+	]
+	, "non_list_type_name";
+
+	//GOLOGPP_DEBUG_NODES((type_name)(list_type_name))
+}
+
+
+template<class BaseT>
+TypeNameParser<BaseT>::TypeNameParser()
+: TypeNameParser::base_type(non_list_type_name, BaseT::static_name() + "_type_name")
+{ init(); }
+
+template<>
+TypeNameParser<Type>::TypeNameParser()
+: TypeNameParser::base_type(type_name, "type_name")
+{ init(); }
+
+template<>
+TypeNameParser<ListType>::TypeNameParser()
+: TypeNameParser::base_type(list_type_name, "list_type_name")
+{ init(); }
+
+template<>
+TypeNameParser<CompoundType>::TypeNameParser()
+: TypeNameParser::base_type(non_list_type_name, "compound_type_name")
+{ init(); }
+
+
+
+#define GOLOGPP_INSTANTIATE_TYPE_NAME_PARSER(_r, _data, T) \
+	template \
+	struct TypeNameParser<T>;
+
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_INSTANTIATE_TYPE_NAME_PARSER, (), GOLOGPP_PREDEFINED_TYPES)
+
+
 TypeDefinitionParser::TypeDefinitionParser()
 : TypeDefinitionParser::base_type(type_definition, "type_definition")
 {
@@ -56,80 +108,24 @@ TypeDefinitionParser::TypeDefinitionParser()
 	type_definition.name("type_definition");
 
 	compound_type_def = (lit("compound") > r_name() > '{') [
-		_val = new_<CompoundType>(_1)
-	] > ((any_type_specifier()(_r1) > r_name()) [
-		phoenix::bind(&CompoundType::add_field, _val, _2, _1)
+		_a = new_<CompoundType>(_1)
+	] > ((type_identifier<Type>()(_r1) > r_name()) [
+		phoenix::bind(&CompoundType::add_field, _a, _2, *_1)
 	] % ',' > lit('}')) [
-		phoenix::bind(&Scope::register_type, _r1, _val)
+		phoenix::bind(&Scope::register_type_raw, _r1, _a)
 	];
 	compound_type_def.name("compound_type_definition");
-	on_error<rethrow>(type_definition, delete_(_val));
+	on_error<rethrow>(compound_type_def, delete_(_a));
 
-	list_type_def = (lit("list") >> '[' >> any_type_specifier()(_r1) >> ']') [
-		_val = new_<ListType>(_1),
-		phoenix::bind(&Scope::register_type, _r1, _val)
+	list_type_def = (lit("list") >> '[' >> type_identifier<Type>()(_r1) >> ']') [
+		_a = new_<ListType>(*_1),
+		phoenix::bind(&Scope::register_type_raw, _r1, _a)
 	];
 	list_type_def.name("list_type_definition");
 
 	GOLOGPP_DEBUG_NODES((type_definition)(compound_type_def)(list_type_def))
 }
 
-
-
-TypeNameParser::TypeNameParser()
-: TypeNameParser::base_type(type_name, "type_specifier")
-{
-	type_name = (list_type_name(_r1) | r_name()) [
-		if_(phoenix::bind(&Scope::exists_type, _r1, _1)) [
-			_val = _1
-		].else_[
-			_pass = false
-		]
-	];
-	type_name.name("type_name");
-
-	list_type_name = (qi::string("list") >> qi::string("[") >> type_name(_r1) >> qi::string("]")) [
-		_val = _1 + _2 + _3 + _4
-	];
-	list_type_name.name("list_type_name");
-
-	//GOLOGPP_DEBUG_NODES((type_name)(list_type_name))
-}
-
-
-rule<Typename(Scope &)> &any_type_specifier() {
-	static TypeNameParser tnp;
-	static rule<Typename(Scope &)> rv { tnp(_r1) };
-	rv.name("any_type_specifier");
-
-	return rv;
-}
-
-
-template<class BaseT>
-rule<shared_ptr<const BaseT>(Scope &)> &complex_type_identifier() {
-	static rule<shared_ptr<const BaseT>(Scope &)> rv {
-		any_type_specifier()(_r1) [
-			_val = phoenix::bind(
-				&Scope::lookup_type<BaseT>,
-				_r1,
-				_1
-			),
-			if_(!_val) [
-				_pass = false
-			]
-		]
-		, "type_identifier<" + BaseT::name() + ">"
-	};
-	return rv;
-}
-
-
-template
-rule<shared_ptr<const CompoundType>(Scope &)> &complex_type_identifier();
-
-template
-rule<shared_ptr<const ListType>(Scope &)> &complex_type_identifier();
 
 
 

@@ -39,7 +39,7 @@ const Scope &NoScopeOwner::scope() const
 
 
 #define GOLOGPP_REGISTER_SIMPLE_TYPE(_r, _data, T) \
-	register_type(new T());
+	register_type_raw(new T());
 
 void Scope::init_types()
 {
@@ -87,24 +87,24 @@ bool Scope::has_var(const string &name) const
 { return variables_.find(name) != variables_.end(); }
 
 
-shared_ptr<Variable> Scope::get_var(VarDefinitionMode var_def_mode, const string &type_name, const string &name)
+shared_ptr<Variable> Scope::get_var(VarDefinitionMode var_def_mode, const Type &type, const string &name)
 {
 	shared_ptr<Variable> rv;
 
 	auto it = variables_.find(name);
 	if (it != variables_.end()) {
 		rv = it->second;
-		if (rv->type() != type_name)
+		if (!(rv->type() <= type))
 			return nullptr;
 	}
 
 	if (!rv && var_def_mode != VarDefinitionMode::FORCE && &parent_scope() != this)
 		rv = std::dynamic_pointer_cast<Variable>(
-			parent_scope().get_var(VarDefinitionMode::DENY, type_name, name)
+			parent_scope().get_var(VarDefinitionMode::DENY, type, name)
 		);
 
 	if (!rv && var_def_mode != VarDefinitionMode::DENY) {
-		rv.reset(new Variable(type_name, name));
+		rv.reset(new Variable(type, name));
 		variables_[name] = rv;
 	}
 
@@ -135,17 +135,13 @@ vector<shared_ptr<Variable>> Scope::lookup_vars(const vector<string> &names)
 }
 
 
-shared_ptr<Domain> Scope::lookup_domain(const string &name, const string &type_name)
+shared_ptr<Domain> Scope::lookup_domain(const string &name, const Type &type)
 {
 	auto it = domains_->find(name);
-	if (it != domains_->end()
-		&& (type_name == ""
-			|| it->second->type().name() == type_name
-		)
-	)
-		return std::dynamic_pointer_cast<Domain>(it->second);
+	if (it != domains_->end() && type <= it->second->element_type())
+		return it->second;
 	else
-		return shared_ptr<Domain>();
+		return nullptr;
 }
 
 
@@ -237,6 +233,9 @@ bool Scope::exists_type(const string &name) const
 const Type *Scope::lookup_type_raw(const string &name)
 { return lookup_type(name).get(); }
 
+shared_ptr<const ListType> Scope::lookup_list_type(const Type &elem_type) const
+{ return lookup_type<ListType>("list[" + elem_type.name() + "]"); }
+
 string Scope::to_string(const string &) const
 { return "[" + concat_list(vars(), ", ") + "]"; }
 
@@ -249,25 +248,39 @@ void Scope::register_global(Global *g)
 }
 
 
-void Scope::register_domain(Domain *d)
+void Scope::register_domain_raw(Domain *d)
+{ register_domain(shared_ptr<Domain>(d)); }
+
+void Scope::register_domain(const shared_ptr<Domain> &d)
 {
 	if (exists_domain(d->name()))
 		throw RedefinitionError(d->name());
-	(*domains_)[*d].reset(d);
+	(*domains_)[d->name()] = d;
+
+	register_type(d);
 }
 
-void Scope::register_domain(const shared_ptr<Domain> &d)
-{ domains_->emplace(*d, d); }
+void Scope::declare_domain(const string &name, const Type &elem_type)
+{
+	shared_ptr<Domain> d = lookup_domain(name, elem_type);
+	if (!d)
+		register_domain(std::make_shared<Domain>(name, elem_type));
+	else if (!(*d <= elem_type))
+		throw TypeError("Conflicting declaration of domain " + name + ": "
+			+ d->type().name() + " vs " + elem_type.name()
+		);
+}
 
-void Scope::declare_domain(const string &name, const string &type_name)
-{ domains_->emplace(name, std::make_shared<Domain>(type_name, name)); }
+
+void Scope::register_type_raw(Type *t)
+{ register_type(shared_ptr<Type>(t)); }
 
 
-void Scope::register_type(Type *t)
+void Scope::register_type(shared_ptr<Type> t)
 {
 	if (exists_type(t->name()))
 		throw RedefinitionError(t->name());
-	(*types_)[*t].reset(t);
+	(*types_)[t->name()] = t;
 }
 
 
@@ -276,8 +289,13 @@ Value *Scope::get_symbol(const string &name)
 	for (const DomainsMap::value_type &entry : *domains_) {
 		try {
 			const Domain &domain = dynamic_cast<const Domain &>(*entry.second);
-			if (domain.elements().find(unique_ptr<Value>(new Value(SymbolType::name(), name))) != domain.elements().end())
-				return new Value(SymbolType::name(), name);
+			if (
+				domain.elements().find(
+					unique_ptr<Value>(new Value(gologpp::type<SymbolType>(), name))
+				) != domain.elements().end()
+			)
+				return new Value(gologpp::type<SymbolType>(), name);
+
 		} catch (std::bad_cast &)
 		{}
 	}
@@ -285,11 +303,11 @@ Value *Scope::get_symbol(const string &name)
 }
 
 
-void Scope::define_domain(const string &name, const string &type_name, const Domain &input)
+void Scope::define_domain(const string &name, const Type &t, const Domain &input)
 {
-	shared_ptr<Domain> d = lookup_domain(name);
+	shared_ptr<Domain> d = lookup_domain(name, t);
 	if (d) {
-		set_type_by_name(type_name);
+		set_type(t);
 		d->define(input);
 	}
 	else
@@ -304,6 +322,7 @@ vector<shared_ptr<Global>> Scope::globals() const
 		rv.push_back(entry.second);
 	return rv;
 }
+
 
 
 ScopeOwner::ScopeOwner(Scope *owned_scope)

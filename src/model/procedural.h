@@ -169,7 +169,9 @@ public:
 		if (lhs_->type().template is<VoidType>())
 			throw TypeError("Cannot assign to a void expression");
 
-		ensure_type_equality(*lhs, *rhs);
+		if (!(lhs_->type() >= *rhs))
+			throw TypeError(*rhs, lhs_->type());
+
 		lhs_->set_parent(this);
 		rhs_->set_parent(this);
 	}
@@ -334,14 +336,14 @@ class Procedure
 public:
 	Procedure(
 		Scope *own_scope,
-		const string &type_name,
+		const Type &t,
 		const string &name,
 		const vector<shared_ptr<Variable>> &params
 	);
 
 	Procedure(
 		Scope *own_scope,
-		const string &type_name,
+		const Type &t,
 		const string &name,
 		const boost::optional<vector<shared_ptr<Variable>>> &params
 	);
@@ -372,14 +374,14 @@ class Function
 public:
 	Function(
 		Scope *own_scope,
-		const string &type_name,
+		const Type &t,
 		const string &name,
 		const vector<shared_ptr<Variable>> &params
 	);
 
 	Function(
 		Scope *own_scope,
-		const string &type_name,
+		const Type &t,
 		const string &name,
 		const boost::optional<vector<shared_ptr<Variable>>> &params
 	);

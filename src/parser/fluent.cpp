@@ -55,10 +55,10 @@ FluentParser::FluentParser()
 : FluentParser::base_type(fluent)
 {
 	fluent = (
-		(((any_type_specifier()(_r1) >> "fluent") > r_name() > '(') [
+		(((type_identifier<Type>()(_r1) >> "fluent") > r_name() > '(') [
 			_a = new_<Scope>(_r1),
 			_b = _2, // fluent name
-			_d = _1  // type name
+			_d = _1  // type
 		] )
 		> ( -(var_decl()(*_a) % ',') > lit(')')) [
 			_c = _1
@@ -69,13 +69,12 @@ FluentParser::FluentParser()
 			_val = phoenix::bind(
 				&Scope::declare_global<Fluent>,
 				_r1,
-				_a, _d, _b, _c
+				_a, *_d, _b, _c
 			),
 			_pass = !!_val
 		]
 		| ( lit('{') > ( // definition
-			("initially:" > +initially(*_a, _d))
-			^ ("domain:" > +domain_assignment()(*_a, false))
+			"initially:" > +initially(*_a, *_d)
 		) > '}' ) [
 			_val = phoenix::bind(
 				&Scope::define_global<
@@ -83,7 +82,7 @@ FluentParser::FluentParser()
 					const boost::optional<vector<InitialValue *>> &
 				>,
 				_r1,
-				_a, _d, _b, _c, _1
+				_a, *_d, _b, _c, _1
 			),
 			_pass = !!_val
 		]
@@ -91,7 +90,7 @@ FluentParser::FluentParser()
 	fluent.name("fluent_definition");
 	on_error<rethrow>(fluent, delete_(_a));
 
-	initial_val_arg = var_ref()(_r1, UndefinedType::name()) | any_value();
+	initial_val_arg = var_ref()(_r1, undefined_type()) | any_value();
 	initial_val_arg.name("initial_value_argument");
 
 

@@ -24,7 +24,7 @@ namespace gologpp {
 namespace parser {
 
 
-rule<Expression *(Scope &, Typename)> &mixed_member_access();
+rule<Expression *(Scope &, const Type &)> &mixed_member_access();
 
 
 } // namespace parser

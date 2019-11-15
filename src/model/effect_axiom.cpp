@@ -21,7 +21,7 @@
 namespace gologpp {
 
 AbstractEffectAxiom::AbstractEffectAxiom()
-: condition_(new Value(BoolType::name(), true))
+: condition_(new Value(gologpp::type<BoolType>(), true))
 {}
 
 AbstractEffectAxiom::~AbstractEffectAxiom()

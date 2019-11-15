@@ -48,12 +48,6 @@
 namespace gologpp {
 namespace parser {
 
-static rule<Typename(Scope &)> decl_prefix {
-	lit("procedure") [
-		_val = val(VoidType::name())
-	]
-	| any_type_specifier()(_r1) [ _val = _1 ] >> "function"
-};
 
 
 FunctionParser::FunctionParser()
@@ -61,7 +55,7 @@ FunctionParser::FunctionParser()
 {
 	function =
 		(
-			(any_type_specifier()(_r1) >> "function")
+			(type_identifier<Type>()(_r1) >> "function")
 			> r_name() > '('
 		) [
 			_a = new_<Scope>(_r1),
@@ -75,14 +69,14 @@ FunctionParser::FunctionParser()
 			lit(';') [
 				_val = phoenix::bind(
 					&Scope::declare_global<Function>,
-					_r1, _a, _d, _b, _c
+					_r1, _a, *_d, _b, _c
 				),
 				_pass = !!_val
 			]
-			| (lit('=') > typed_expression()(*_a, _d)) [
+			| (lit('=') > typed_expression()(*_a, *_d)) [
 				_val = phoenix::bind(
 					&Scope::define_global<Function, Expression *>,
-					_r1, _a, _d, _b, _c, _1
+					_r1, _a, *_d, _b, _c, _1
 				),
 				_pass = !!_val
 			]
@@ -90,7 +84,7 @@ FunctionParser::FunctionParser()
 	;
 	function.name("function_definition");
 	on_error<rethrow>(function, delete_(_a));
-	GOLOGPP_DEBUG_NODE(function);
+	GOLOGPP_DEBUG_NODE(function)
 }
 
 
@@ -110,14 +104,14 @@ ProcedureParser::ProcedureParser()
 			lit(';') [
 				_val = phoenix::bind(
 					&Scope::declare_global<Procedure>,
-					_r1, _a, VoidType::name(), _b, _c
+					_r1, _a, void_type(), _b, _c
 				),
 				_pass = !!_val
 			]
 			| statement(*_a) [
 				_val = phoenix::bind(
 					&Scope::define_global<Procedure, Instruction *>,
-					_r1, _a, VoidType::name(), _b, _c, _1
+					_r1, _a, void_type(), _b, _c, _1
 				),
 				_pass = !!_val
 			]
@@ -125,7 +119,7 @@ ProcedureParser::ProcedureParser()
 	;
 	procedure.name("function_definition");
 	on_error<rethrow>(procedure, delete_(_a));
-	GOLOGPP_DEBUG_NODE(procedure);
+	GOLOGPP_DEBUG_NODE(procedure)
 }
 
 

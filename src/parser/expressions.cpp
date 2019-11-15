@@ -36,6 +36,7 @@
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/support_argument.hpp>
 
+#include "types.h"
 #include "arithmetic.h"
 #include "formula.h"
 #include "string_expression.h"
@@ -59,7 +60,7 @@ rule<Expression *(Scope &)> string_expression;
 rule<Expression *(Scope &)> symbolic_expression;
 
 
-rule<Conditional<Expression> *(Scope &, Typename)> conditional_expression;
+rule<Conditional<Expression> *(Scope &, const Type &)> conditional_expression;
 
 
 void initialize_cyclic_expressions()
@@ -102,8 +103,8 @@ rule<Expression *(Scope &)> &value_expression()
 		| boolean_expression(_r1)
 		| string_expression(_r1)
 		| symbolic_expression(_r1)
-		| compound_expression(_r1)
-		| list_expression(_r1)
+		| compound_expression(_r1, undefined_type())
+		| list_expression(_r1, undefined_type())
 		, "value_expression"
 	};
 	//GOLOGPP_DEBUG_NODE(rv)
@@ -112,31 +113,31 @@ rule<Expression *(Scope &)> &value_expression()
 
 
 
-static rule<Expression *(Scope *)> &get_expression_parser(Typename t)
+static rule<Expression *(Scope *, const Type *)> &get_expression_parser(const Type &t)
 {
 	static BooleanExpressionParser boolean_expression_;
 	static NumericExpressionParser numeric_expression_;
 	static StringExpressionParser string_expression_;
 	static SymbolicExpressionParser symbolic_expression_;
 
-	static rule<Expression *(Scope *)> compound_expression_ {
-		compound_expression(*_r1)
+	static rule<Expression *(Scope *, const Type *)> compound_expression_ {
+		compound_expression(*_r1, *_r2)
 		, "compound_expression"
 	};
 
-	static rule<Expression *(Scope *)> list_expression_ {
-		list_expression(*_r1)
+	static rule<Expression *(Scope *, const Type *)> list_expression_ {
+		list_expression(*_r1, *_r2)
 		, "list_expression"
 	};
 
 	static std::unordered_map <
-		Typename,
-		rule<Expression *(Scope *)>
+		string,
+		rule<Expression *(Scope *, const Type *)>
 	> expr_parser_map {
-		{ NumberType::name(), { numeric_expression_(*_r1), "numeric_expression" } },
-		{ BoolType::name(), { boolean_expression_(*_r1), "boolean_expression" } },
-		{ StringType::name(), { string_expression_(*_r1), "string_expression" } },
-		{ SymbolType::name(), { symbolic_expression_(*_r1), "symbolic_expression" } },
+		{ NumberType::static_name(), { numeric_expression_(*_r1), "numeric_expression" } },
+		{ BoolType::static_name(), { boolean_expression_(*_r1), "boolean_expression" } },
+		{ StringType::static_name(), { string_expression_(*_r1), "string_expression" } },
+		{ SymbolType::static_name(), { symbolic_expression_(*_r1), "symbolic_expression" } },
 	};
 
 	//GOLOGPP_DEBUG_NODE(expr_parser_map[NumberType::name()])
@@ -144,22 +145,25 @@ static rule<Expression *(Scope *)> &get_expression_parser(Typename t)
 	//GOLOGPP_DEBUG_NODE(expr_parser_map[StringType::name()])
 	//GOLOGPP_DEBUG_NODE(expr_parser_map[SymbolType::name()])
 
-	auto it = expr_parser_map.find(t);
+	auto it = expr_parser_map.find(t.name());
 	if (it != expr_parser_map.end())
 		return it->second;
 	else {
-		shared_ptr<const Type> type = global_scope().lookup_type(t);
-		if (type->is<CompoundType>())
+		if (t.is<CompoundType>())
 			return compound_expression_;
-		else if (type->is<ListType>())
+		else if (t.is<ListType>())
 			return list_expression_;
+		else if (t.is<Domain>())
+			return get_expression_parser(
+				dynamic_cast<const Domain &>(t).element_type()
+			);
 		else
-			throw Bug("Unkown type " + t);
+			throw Bug("Unkown type " + t.name());
 	}
 }
 
 
-rule<Expression *(Scope &, Typename)> &typed_expression()
+rule<Expression *(Scope &, const Type &)> &typed_expression()
 {
 	/// This crazy hack allows us to pass arguments to lazy parsers.
 	/// cf. @a https://stackoverflow.com/questions/56221006/boostspirit-lazy-parser-with-arguments
@@ -168,14 +172,15 @@ rule<Expression *(Scope &, Typename)> &typed_expression()
 	static rule <
 		Expression *(
 			Scope &,
-			rule<Expression *(Scope *)>
+			const Type &,
+			rule<Expression *(Scope *, const Type *)>
 		)
 	> lazyinvoke {
-		lazy(phoenix::bind(_r2, &_r1))
+		lazy(phoenix::bind(_r3, &_r1, &_r2))
 	};
 
-	static rule<Expression *(Scope &, Typename)> rv {
-		lazyinvoke(_r1, phoenix::bind(&get_expression_parser, _r2))
+	static rule<Expression *(Scope &, const Type &)> rv {
+		lazyinvoke(_r1, _r2, phoenix::bind(&get_expression_parser, _r2))
 		, "typed_expression"
 	};
 	//GOLOGPP_DEBUG_NODE(rv)

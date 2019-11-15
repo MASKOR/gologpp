@@ -20,6 +20,12 @@
 
 #include <model/gologpp.h>
 #include <model/types.h>
+#include <model/scope.h>
+
+#include <boost/phoenix/function/adapt_function.hpp>
+#include <boost/phoenix/bind/bind_function.hpp>
+#include <boost/phoenix/operator/logical.hpp>
+#include <boost/phoenix/operator/self.hpp>
 
 #include "utilities.h"
 
@@ -28,26 +34,48 @@ namespace gologpp {
 namespace parser {
 
 
-struct TypeDefinitionParser : public grammar<Type *(Scope &)> {
+
+struct TypeDefinitionParser : public grammar<void(Scope &)> {
 	TypeDefinitionParser();
 
-	rule<Type *(Scope &)> type_definition;
-	rule<CompoundType *(Scope &)> compound_type_def;
-	rule<ListType *(Scope &)> list_type_def;
+	rule<void(Scope &)> type_definition;
+	rule<void(Scope &), locals<CompoundType *>> compound_type_def;
+	rule<void(Scope &), locals<ListType *>> list_type_def;
 };
 
-
-struct TypeNameParser : public grammar<Typename(Scope &)> {
-	TypeNameParser();
-
-	rule<Typename(Scope &)> list_type_name;
-	rule<Typename(Scope &)> type_name;
-};
-
-rule<Typename(Scope &)> &any_type_specifier();
 
 template<class BaseT>
-rule<shared_ptr<const BaseT>(Scope &)> &complex_type_identifier();
+struct TypeNameParser : public grammar<shared_ptr<const Type>(Scope &)> {
+	TypeNameParser();
+	void init();
+
+	rule<shared_ptr<const Type>(Scope &)> list_type_name;
+	rule<shared_ptr<const Type>(Scope &)> type_name;
+	rule<shared_ptr<const Type>(Scope &)> non_list_type_name;
+};
+
+
+template<class BaseT>
+rule<shared_ptr<const BaseT>(Scope &)> &type_identifier() {
+	static TypeNameParser<BaseT> tnp;
+	static rule<shared_ptr<const BaseT>(Scope &)> rv {
+		tnp(_r1) [
+			_val = phoenix::bind(&std::dynamic_pointer_cast<const BaseT, const Type>, _1),
+			_pass = !!_val
+		]
+	};
+	return rv;
+}
+
+
+
+
+BOOST_PHOENIX_ADAPT_FUNCTION_NULLARY(const UndefinedType &, undefined_type, gologpp::type<UndefinedType>)
+BOOST_PHOENIX_ADAPT_FUNCTION_NULLARY(const VoidType &, void_type, gologpp::type<VoidType>)
+BOOST_PHOENIX_ADAPT_FUNCTION_NULLARY(const BoolType &, bool_type, gologpp::type<BoolType>)
+BOOST_PHOENIX_ADAPT_FUNCTION_NULLARY(const NumberType &, number_type, gologpp::type<NumberType>)
+BOOST_PHOENIX_ADAPT_FUNCTION_NULLARY(const StringType &, string_type, gologpp::type<StringType>)
+BOOST_PHOENIX_ADAPT_FUNCTION_NULLARY(const SymbolType &, symbol_type, gologpp::type<SymbolType>)
 
 
 } // namespace parser

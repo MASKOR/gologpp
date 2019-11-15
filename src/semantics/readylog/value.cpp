@@ -62,7 +62,7 @@ EC_word Semantics<Value>::plterm()
 				field_list
 			);
 		return ::term(EC_functor("gpp_compound", 2),
-			EC_atom(("#" + element().type_name()).c_str()),
+			EC_atom(("#" + element().type().name()).c_str()),
 			field_list
 		);
 	}
@@ -96,7 +96,7 @@ Value pl_term_to_value(EC_word term) {
 	char *s;
 
 	if (EC_succeed == term.is_long(&i))
-		return Value(NumberType::name(), i);
+		return Value(get_type<NumberType>(), i);
 	else if (EC_succeed == term.is_long_long(&li)) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wtautological-type-limit-compare"
@@ -107,25 +107,25 @@ Value pl_term_to_value(EC_word term) {
 				std::numeric_limits<unsigned long>::max()
 			)
 		)
-			return Value(NumberType::name(), static_cast<unsigned long>(li));
+			return Value(get_type<NumberType>(), static_cast<unsigned long>(li));
 		else if (li >= std::numeric_limits<long>::min() && li <= std::numeric_limits<long>::max())
-			return Value(NumberType::name(), static_cast<long>(li));
+			return Value(get_type<NumberType>(), static_cast<long>(li));
 		else
 			throw std::runtime_error(std::to_string(li) + " exceeds value limits representable in golog++");
 #pragma clang diagnostic pop
 	}
 	else if (EC_succeed == term.is_double(&d))
-		return Value(NumberType::name(), d);
+		return Value(get_type<NumberType>(), d);
 	else if (EC_succeed == term.is_atom(&did)) {
 		if (did == EC_atom("true"))
-			return Value(BoolType::name(), true);
+			return Value(get_type<BoolType>(), true);
 		else if (did == EC_atom("fail"))
-			return Value(BoolType::name(), false);
+			return Value(get_type<BoolType>(), false);
 		else
-			return Value(SymbolType::name(), string(did.name()));
+			return Value(get_type<SymbolType>(), string(did.name()));
 	}
 	else if (EC_succeed == term.is_string(&s))
-		return Value(StringType::name(), string(s));
+		return Value(get_type<StringType>(), string(s));
 	else if (
 		term.functor(&ftor) == EC_succeed
 		&& ftor.name() == string("gpp_list")
@@ -142,9 +142,15 @@ Value pl_term_to_value(EC_word term) {
 
 		string elem_t(did.name());
 		elem_t = elem_t.substr(1); // remove # prefix that is added to avoid name clashes
+		shared_ptr<const Type> elem_t_p = global_scope().lookup_type(elem_t);
+		if (!elem_t_p)
+			throw Bug("Undefined type: " + elem_t);
+		shared_ptr<const ListType> list_t = global_scope().lookup_list_type(*elem_t_p);
+		if (!list_t)
+			throw Bug("Undefined type: list[" + elem_t + "]");
 
 		return Value {
-			"list[" + elem_t + "]",
+			*global_scope().lookup_list_type(*list_t),
 			boost::optional<vector<Value *>> { list_repr }
 		};
 	}
@@ -179,8 +185,11 @@ Value pl_term_to_value(EC_word term) {
 
 		string type_name(did.name());
 		type_name = type_name.substr(1); // remove # prefix that is added to avoid name clashes
+		shared_ptr<const CompoundType> type = global_scope().lookup_type<CompoundType>(type_name);
+		if (!type)
+			throw Bug("Undefined compound type: " + type_name);
 
-		return Value(type_name, compound_repr);
+		return Value(*type, compound_repr);
 	}
 
 	else

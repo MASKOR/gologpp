@@ -27,10 +27,10 @@ namespace gologpp {
 namespace parser {
 
 
-struct ComparisonParser : grammar<Comparison *(Scope &), locals<Typename>> {
+struct ComparisonParser : grammar<Comparison *(Scope &), locals<shared_ptr<const Type>>> {
 	ComparisonParser();
 
-	rule<Comparison *(Scope &), locals<Typename>> comparison;
+	rule<Comparison *(Scope &), locals<shared_ptr<const Type>>> comparison;
 	rule<ComparisonOperator()> cmp_op;
 	rule<Expression *(Scope &)> comparable_expr;
 };

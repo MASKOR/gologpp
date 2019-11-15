@@ -51,14 +51,14 @@ NumericExpressionParser::NumericExpressionParser()
 	unary_expr = brace(_r1) | numeric_value()
 		| num_var_ref(_r1)
 		| list_length(_r1)
-		| conditional_expression(_r1, NumberType::name())
-		| typed_reference<Fluent>()(_r1, NumberType::name())
-		| typed_reference<Function>()(_r1, NumberType::name())
-		| mixed_member_access()(_r1, NumberType::name())
+		| conditional_expression(_r1, number_type())
+		| typed_reference<Fluent>()(_r1, number_type())
+		| typed_reference<Function>()(_r1, number_type())
+		| mixed_member_access()(_r1, number_type())
 	;
 	unary_expr.name("unary_numeric_expression");
 
-	list_length = (lit("length") > '(' > list_expression(_r1) > ')') [
+	list_length = (lit("length") > '(' > list_expression(_r1, undefined_type()) > ')') [
 		_val = new_<ListLength>(_1)
 	];
 
@@ -82,7 +82,7 @@ NumericExpressionParser::NumericExpressionParser()
 	;
 	arith_operator.name("arithmetic_operator");
 
-	num_var_ref = var_usage()(_r1, NumberType::name()) [
+	num_var_ref = var_usage()(_r1, number_type()) [
 		_val = new_<Reference<Variable>>(_1)
 	];
 	num_var_ref.name("reference_to_numeric_variable");

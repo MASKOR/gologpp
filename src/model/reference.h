@@ -176,7 +176,7 @@ public:
 		for (; it_rarg < args().end() && it_targ < target()->params().end(); ++it_rarg, ++it_targ) {
 			const Type &t_ref = (*it_rarg)->type();
 			const Type &t_tgt = (*it_targ)->type();
-			if (t_ref != t_tgt
+			if (!(t_tgt >= **it_rarg)
 				&& !(t_ref.is<SymbolType>() && t_tgt.is<StringType>())
 				// TODO: Hack: Allow passing a symbol value to a string argument
 				// This is needed because ReadyLog can't deal with strings.
@@ -317,10 +317,6 @@ public:
 
 	Reference(Reference<Variable> &&other)
 	: target_(std::move(other.target_))
-	{}
-
-	Reference(const string &var_name)
-	: target_(global_scope().get_var(VarDefinitionMode::DENY, "", var_name))
 	{}
 
 	virtual ~Reference() override = default;

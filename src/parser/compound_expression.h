@@ -26,9 +26,9 @@ namespace gologpp {
 namespace parser {
 
 
-extern rule<Expression *(Scope &)> compound_atom;
+extern rule<Expression *(Scope &, const Type &)> compound_atom;
 
-extern rule<Expression *(Scope &)> compound_expression;
+extern rule<Expression *(Scope &, const Type &)> compound_expression;
 
 
 void initialize_compound_exprs();

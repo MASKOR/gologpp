@@ -37,7 +37,7 @@ rule<Value *()> &undefined_value();
 
 rule<Value *()> &any_value();
 
-rule<Value *(Typename, bool)> &value();
+rule<Value *(const Type &, bool)> &value();
 
 
 void initialize_cyclic_values();

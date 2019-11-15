@@ -70,7 +70,7 @@ class Fluent
 , public LanguageElement<Fluent>
 {
 public:
-	Fluent(Scope *own_scope, const string &type_name, const string &name, const vector<shared_ptr<Variable>> &params);
+	Fluent(Scope *own_scope, const Type &t, const string &name, const vector<shared_ptr<Variable>> &params);
 	//Fluent(Scope &parent_scope, const string &name);
 
 	virtual ~Fluent() override = default;

@@ -29,16 +29,14 @@ namespace gologpp {
 class Name {
 public:
     Name(const string &name);
-    Name(Name &&other);
-    Name(const Name &other) = default;
     virtual ~Name() = default;
     
-    explicit operator string () const;
-    const string &name() const;
+    operator string () const;
     virtual bool operator == (const Name &other) const;
     bool operator != (const Name &other) const;
     virtual size_t hash() const;
-    
+    const string &name() const;
+
 protected:
     string name_;
 };

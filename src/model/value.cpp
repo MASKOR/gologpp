@@ -143,20 +143,18 @@ Value::Value(Representation &&l)
 
 
 template<>
-Value::Value(const string &type_name, const char *repr)
+Value::Value(const Type &t, const char *repr)
 : representation_(string(repr))
-{
-	set_type_by_name(type_name);
-}
+{ set_type(t);  }
 
 
-Value::Value(const string &type_name, const vector<fusion_wtf_vector<string, Value *>> &compound_values)
+Value::Value(const Type &t, const vector<fusion_wtf_vector<string, Value *>> &compound_values)
 {
-	set_type_by_name(type_name);
+	set_type(t);
 
 	if (!type().is_compound())
 		throw TypeError("Attempt to construct compound value, but type name \""
-			+ type_name + "\" does not refer to a compound type");
+			+ t.name() + "\" does not refer to a compound type");
 
 	const CompoundType &this_type = dynamic_cast<const CompoundType &>(type());
 	CompoundType::Representation tmp_value;
@@ -164,7 +162,7 @@ Value::Value(const string &type_name, const vector<fusion_wtf_vector<string, Val
 		const string &field_name = boost::fusion::at_c<0>(v);
 		const Type &field_type = this_type.field_type(field_name);
 		Value *field_value = boost::fusion::at_c<1>(v);
-		if (field_type == field_value->type())
+		if (field_type >= field_value->type())
 			tmp_value[field_name].reset(field_value);
 		else
 			throw ExpressionTypeMismatch("Cannot assign " + field_value->str()
@@ -183,13 +181,13 @@ Value::Value()
 {}
 
 
-Value::Value(const string &type_name, const boost::optional<vector<Value *>> &list_values)
+Value::Value(const Type &t, const boost::optional<vector<Value *>> &list_values)
 {
-	set_type_by_name(type_name);
+	set_type(t);
 
 	if (!type().is<ListType>())
 		throw TypeError("Attempt to construct list value, but type name \""
-			+ type_name + "\" does not refer to a list type");
+			+ t.name() + "\" does not refer to a list type");
 
 	ListType::Representation list_repr;
 	for (Value *v : list_values.get_value_or({}))
@@ -243,7 +241,7 @@ size_t Value::hash() const
 { return boost::apply_visitor(hash_visitor(), representation_); }
 
 string Value::to_string(const string &pfx) const
-{ return boost::apply_visitor(to_string_visitor { pfx }, representation_); }
+{ return boost::apply_visitor(to_string_visitor { pfx, !(get_type<SymbolType>() >= *this) }, representation_); }
 
 Value *Value::copy() const
 { return new Value(*this); }
@@ -251,7 +249,7 @@ Value *Value::copy() const
 
 bool Value::operator == (const Value &c) const
 {
-	return this->type() == c.type()
+	return this->type() >= c.type() && this->type() <= c.type()
 		&& representation() == c.representation();
 }
 

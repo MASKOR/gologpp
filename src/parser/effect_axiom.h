@@ -28,12 +28,12 @@ namespace parser {
 
 
 template<class LhsT>
-struct EffectParser : grammar<EffectAxiom<LhsT> *(Scope &), locals<Typename>> {
+struct EffectParser : grammar<EffectAxiom<LhsT> *(Scope &), locals<shared_ptr<const Type>>> {
 	EffectParser();
 
 	void init();
 
-	rule<EffectAxiom<LhsT> *(Scope &), locals<Typename>> effect;
+	rule<EffectAxiom<LhsT> *(Scope &), locals<shared_ptr<const Type>>> effect;
 	rule<LhsT *(Scope &)> lhs;
 	BooleanExpressionParser condition;
 };

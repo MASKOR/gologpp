@@ -184,7 +184,9 @@ Pick::Pick(
 {
 	if (domain)
 		for (Value *c : *domain) {
-			ensure_type_equality(*variable, *c);
+			if (!(variable->type() >= *c))
+				throw TypeError(*c, variable->type());
+
 			c->set_parent(this);
 			domain_.emplace_back(c);
 		}
@@ -328,24 +330,24 @@ string Return::to_string(const string &pfx) const
 
 Function::Function(
 	Scope *own_scope,
-	const string &type_name,
+	const Type &t,
 	const string &name,
 	const vector<shared_ptr<Variable>> &args
 )
 : ScopeOwner(own_scope)
 , Signified<Expression>(name, args)
-{ set_type_by_name(type_name); }
+{ set_type(t); }
 
 
 Function::Function(
 	Scope *own_scope,
-	const string &type_name,
+	const Type &t,
 	const string &name,
 	const boost::optional<vector<shared_ptr<Variable>>> &args
 )
 : ScopeOwner(own_scope)
 , Signified<Expression>(name, args.get_value_or({}))
-{ set_type_by_name(type_name); }
+{ set_type(t); }
 
 
 string Function::to_string(const string &pfx) const
@@ -378,24 +380,24 @@ const Expression &Function::definition() const
 
 Procedure::Procedure(
 	Scope *own_scope,
-	const string &type_name,
+	const Type &t,
 	const string &name,
 	const vector<shared_ptr<Variable>> &args
 )
 : ScopeOwner(own_scope)
 , Signified<Instruction>(name, args)
-{ set_type_by_name(type_name); }
+{ set_type(t); }
 
 
 Procedure::Procedure(
 	Scope *own_scope,
-	const string &type_name,
+	const Type &t,
 	const string &name,
 	const boost::optional<vector<shared_ptr<Variable>>> &args
 )
 : ScopeOwner(own_scope)
 , Signified<Instruction>(name, args.get_value_or({}))
-{ set_type_by_name(type_name); }
+{ set_type(t); }
 
 
 void Procedure::define(Instruction *definition)

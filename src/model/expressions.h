@@ -45,8 +45,7 @@ public:
 	AbstractLanguageElement *parent();
 	const AbstractLanguageElement *parent() const;
 	void set_parent(AbstractLanguageElement *parent);
-
-	const string &type_name() const;
+	virtual bool operator <= (const Type &type) const;
 
 protected:
 	AbstractLanguageElement *parent_;
@@ -69,8 +68,6 @@ public:
 	AbstractLanguageElement *parent();
 	const AbstractLanguageElement *parent() const;
 	void set_parent(AbstractLanguageElement *parent);
-
-	const string &type_name() const;
 
 protected:
 	AbstractLanguageElement *parent_;

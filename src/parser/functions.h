@@ -33,7 +33,7 @@ struct FunctionParser
 		Scope *,
 		string,
 		boost::optional<vector<shared_ptr<Variable>>>,
-		string
+		shared_ptr<const Type>
 	>
 > {
 	FunctionParser();
@@ -44,7 +44,7 @@ struct FunctionParser
 			Scope *,
 			string,
 			boost::optional<vector<shared_ptr<Variable>>>,
-			string
+			shared_ptr<const Type>
 		>
 	> function;
 };
@@ -58,7 +58,7 @@ struct ProcedureParser
 		Scope *,
 		string,
 		boost::optional<vector<shared_ptr<Variable>>>,
-		string
+		shared_ptr<const Type>
 	>
 > {
 	ProcedureParser();
@@ -69,7 +69,7 @@ struct ProcedureParser
 			Scope *,
 			string,
 			boost::optional<vector<shared_ptr<Variable>>>,
-			string
+			shared_ptr<const Type>
 		>
 	> procedure;
 

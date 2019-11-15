@@ -320,7 +320,7 @@ EC_word Semantics<Return>::plterm() {
 	if (!function)
 	throw Bug(element().str() + " outside of function");
 
-	if (function->type() != element().expression().type())
+	if ((function->type() >= element().expression().type()))
 		throw ExpressionTypeMismatch(*function, element().expression());
 
 	if (element().expression().type().is<BoolType>())

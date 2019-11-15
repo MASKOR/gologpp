@@ -69,6 +69,7 @@ public:
 	void set_type_by_name(const string &name);
 	void set_type(const Type &t);
 	virtual const Type &type() const;
+	shared_ptr<const Type> type_ptr() const;
 
 	// Unambiguous alias name to simplify type resolution for phoenix::bind in the parser
 	Scope &m_scope();
@@ -84,8 +85,12 @@ public:
 
 	void ensure_type(const Type &t);
 
+
 protected:
-	void set_type_unchecked(const string &name);
+	void set_type_unchecked(const Type &t);
+
+	template<class TypeT>
+	void t_set_type_unchecked();
 
 	unique_ptr<AbstractSemantics<AbstractLanguageElement>> semantics_;
 
@@ -104,7 +109,7 @@ public:
 	LanguageElement()
 	{
 		if (typeid(TypeT) != typeid(UndefinedType))
-			set_type_unchecked(TypeT::name());
+			t_set_type_unchecked<TypeT>();
 	}
 
 	virtual ~LanguageElement() = default;

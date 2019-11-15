@@ -89,7 +89,7 @@ template struct ReferenceParser<Fluent>;
 
 template<class GologT>
 Reference<GologT> *get_typed_ref(
-	const string &type,
+	const Type &type,
 	const string &name,
 	const boost::optional<vector<Expression *>> &args
 ) {
@@ -98,7 +98,7 @@ Reference<GologT> *get_typed_ref(
 		static_cast<arity_t>(args.get_value_or({}).size())
 	);
 
-	if (g && g->type() == type)
+	if (g && g->type() <= type)
 		return new Reference<GologT>(name, args);
 	else
 		return nullptr;
@@ -107,9 +107,9 @@ Reference<GologT> *get_typed_ref(
 
 
 template<class GologT>
-rule<Reference<GologT> *(Scope &, Typename)> &typed_reference()
+rule<Reference<GologT> *(Scope &, const Type &)> &typed_reference()
 {
-	static rule<Reference<GologT> *(Scope &, Typename)> rv {
+	static rule<Reference<GologT> *(Scope &, const Type &)> rv {
 		(((r_name() >> "(") >> -(
 			value_expression()(_r1) %  ","
 		) ) >> ")") [
@@ -127,10 +127,10 @@ rule<Reference<GologT> *(Scope &, Typename)> &typed_reference()
 
 
 template
-rule<Reference<Fluent> *(Scope &, Typename)> &typed_reference();
+rule<Reference<Fluent> *(Scope &, const Type &)> &typed_reference();
 
 template
-rule<Reference<Function> *(Scope &, Typename)> &typed_reference();
+rule<Reference<Function> *(Scope &, const Type &)> &typed_reference();
 
 
 

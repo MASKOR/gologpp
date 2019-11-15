@@ -32,7 +32,7 @@ struct FluentParser
 		Scope *,
 		string,
 		boost::optional < vector < shared_ptr < Variable > > >,
-		Typename
+		PType
 	>
 > {
 	FluentParser();
@@ -43,12 +43,12 @@ struct FluentParser
 			Scope *,
 			string,
 			boost::optional < vector < shared_ptr < Variable > > >,
-			Typename
+			PType
 		>
 	> fluent;
 
 	rule<Expression *(Scope &)> initial_val_arg;
-	rule<InitialValue *(Scope &, Typename)> initially;
+	rule<InitialValue *(Scope &, const Type &)> initially;
 };
 
 

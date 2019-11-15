@@ -65,7 +65,6 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 		( "precondition:" > boolean_expression(*_r2) )
 		^ ( "effect:" > +(effect(*_r2) > ';') )
 		^ ( "senses:" > senses(*_r2) )
-		^ ( "domain:" > +(domain_assignment()(*_r2, false)) )
 		^ ( "mapping:" > mapping(*_r2) )
 		^ qi::eps
 	) > '}' ) [
@@ -78,7 +77,7 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 				boost::optional<ActionMapping *>
 			>,
 			_r1,
-			_r2, val(""), _r3, _r4, _1, _2, _3, _4
+			_r2, undefined_type(), _r3, _r4, _1, _2, _3, _4
 		)
 	];
 
@@ -98,7 +97,6 @@ ActionDefinitionParser<ExogAction>::ActionDefinitionParser()
 	definition = ( lit('{') > (
 		( "precondition:" > boolean_expression(*_r2) )
 		^ ( "effect:" > +(effect(*_r2) > ';') )
-		^ ( "domain:" > +(domain_assignment()(*_r2, false)) )
 		^ ( "mapping:" > mapping(*_r2) )
 		^ qi::eps
 	) > '}' ) [
@@ -110,7 +108,7 @@ ActionDefinitionParser<ExogAction>::ActionDefinitionParser()
 				boost::optional<ActionMapping *>
 			>,
 			_r1,
-			_r2, val(""), _r3, _r4, _1, _2, _3
+			_r2, undefined_type(), _r3, _r4, _1, _2, _3
 		)
 	];
 
@@ -139,7 +137,7 @@ ActionParser<ActionT>::ActionParser()
 	> (
 		action_definition(_r1, _a, _b, _c)
 		| lit(';') [
-			phoenix::bind(&Scope::declare_global<ActionT>, _r1, _a, val(""), _b, _c)
+			phoenix::bind(&Scope::declare_global<ActionT>, _r1, _a, undefined_type(), _b, _c)
 		]
 	);
 	action.name("action_declaration");

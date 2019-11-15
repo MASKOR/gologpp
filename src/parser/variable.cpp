@@ -40,11 +40,11 @@ namespace parser {
 
 rule<shared_ptr<Variable>(Scope &)> &var_decl() {
 	static rule<shared_ptr<Variable>(Scope &)> rv {
-		(any_type_specifier()(_r1) >> r_name()) [
+		(type_identifier<Type>()(_r1) >> r_name()) [
 			_val = phoenix::bind(
 				&Scope::get_var, _r1,
 				VarDefinitionMode::FORCE,
-				_1, _2
+				*_1, _2
 			)
 		],
 		"variable_declaration"
@@ -54,8 +54,8 @@ rule<shared_ptr<Variable>(Scope &)> &var_decl() {
 }
 
 
-rule<shared_ptr<Variable>(Scope &, Typename)> &var_usage() {
-	static rule<shared_ptr<Variable>(Scope &, Typename)> rv {
+rule<shared_ptr<Variable>(Scope &, const Type &)> &var_usage() {
+	static rule<shared_ptr<Variable>(Scope &, const Type &)> rv {
 		r_name() [
 			_val = phoenix::bind(
 				&Scope::get_var, _r1,
@@ -71,8 +71,8 @@ rule<shared_ptr<Variable>(Scope &, Typename)> &var_usage() {
 }
 
 
-rule<Reference<Variable> *(Scope &, Typename)> &var_ref() {
-	static rule<Reference<Variable> *(Scope &, Typename)> rv {
+rule<Reference<Variable> *(Scope &, const Type &)> &var_ref() {
+	static rule<Reference<Variable> *(Scope &, const Type &)> rv {
 		var_usage()(_r1, _r2) [
 			_val = new_<Reference<Variable>>(_1)
 		]

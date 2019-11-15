@@ -68,12 +68,12 @@ public:
 	// For ReprT = const char * there is an explicit specialization since it would be
 	// converted to bool otherwise (see below and in .cpp).
 	template<class ReprT>
-	explicit Value(const string &type_name, ReprT repr) : representation_(repr) {
-		set_type_by_name(type_name);
+	explicit Value(const Type &type, ReprT repr) : representation_(repr) {
+		set_type(type);
 	}
 
-	Value(const string &type_name, const vector<fusion_wtf_vector<string, Value *>> &compound_values);
-	Value(const string &type_name, const boost::optional<vector<Value *>> &list_values);
+	Value(const Type &type, const vector<fusion_wtf_vector<string, Value *>> &compound_values);
+	Value(const Type &type, const boost::optional<vector<Value *>> &list_values);
 	Value(Value &&c);
 	Value(const Value &c);
 	explicit Value();
@@ -162,7 +162,7 @@ private:
 
 
 template<>
-Value::Value(const string &type_name, const char *repr);
+Value::Value(const Type &type, const char *repr);
 
 
 vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v);

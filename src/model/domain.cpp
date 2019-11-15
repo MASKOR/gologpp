@@ -20,30 +20,33 @@
 namespace gologpp {
 
 
-Domain::Domain(const string &name, const string &type_name, const vector<Value *> &elements, bool implicit)
-: Name(name)
-, implicit_(implicit)
-{
-	set_type_by_name(type_name);
-	add_elements(elements);
-}
+size_t Domain::id_count_ = 0;
 
-Domain::Domain(const string &type_name)
-: Domain("~unnamed~", type_name, {}, true)
+
+string Domain::next_anon_name()
+{ return "~unnamed_domain_" + std::to_string(id_count_++) + "~"; }
+
+
+Domain::Domain(const string &name, const Type &elem_type, const vector<Value *> &elements, bool implicit)
+: Type(name)
+, element_type_(elem_type.shared_from_this())
+, implicit_(implicit)
+{ add_elements(elements); }
+
+Domain::Domain(const Type &elem_type)
+: Domain(next_anon_name(), elem_type, {}, true)
 {}
 
 Domain::Domain(const string &name, const Domain &other)
-: Domain(name, other.type().name(), {}, false)
+: Domain(name, other.element_type(), {}, false)
 { add_elements(other); }
 
 Domain::Domain(const Domain &other)
-: Domain(other.name(), other.type().name(), {}, other.implicit_)
-{
-	add_elements(other);
-}
+: Domain(other.name(), other.element_type(), {}, other.implicit_)
+{ add_elements(other); }
 
 Domain::Domain()
-: Name("~unnamed~")
+: Type(next_anon_name())
 , implicit_(false)
 {}
 
@@ -54,16 +57,56 @@ Domain &Domain::operator = (const Domain &other)
 	this->name_ = other.name_;
 	this->subjects_ = other.subjects_;
 	this->implicit_ = other.implicit_;
+	this->element_type_ = other.element_type_;
 	add_elements(other);
 	return *this;
 }
 
+bool Domain::operator <= (const Type &other) const
+{
+	if (Type::operator <= (other) || element_type() <= other)
+		return true;
+	try {
+		const Domain &d = dynamic_cast<const Domain &>(other);
+
+		// d without *this = {} iff d subset this
+		return domain_difference(*this, d).elements().empty();
+	} catch (std::bad_cast &) {
+		return false;
+	}
+}
+
+bool Domain::operator >= (const Type &other) const
+{
+	if (Type::operator >= (other))
+		return true;
+	try {
+		const Domain &d = dynamic_cast<const Domain &>(other);
+
+		// d without *this = {} iff d subset this
+		return domain_difference(d, *this).elements().empty();
+	} catch (std::bad_cast &) {
+		return false;
+	}
+}
+
+bool Domain::operator >= (const AbstractLanguageElement &e) const
+{
+	if (*this >= e.type())
+		return true;
+	try {
+		unique_ptr<Value> v(new Value(dynamic_cast<const Value &>(e)));
+		return elements().find(v) != elements().end();
+	} catch (std::bad_cast &) {
+		return false;
+	}
+}
 
 /**
-	 * @return whether this is an implicit domain.
-	 * By default, every @ref Variable has an empty implicit domain, which means its domain is undefined.
-	 * For @ref Fluent arguments, the domain can be implicitly defined through the initially: statement.
-	 */
+ * @return whether this is an implicit domain.
+ * By default, every @ref Variable has an empty implicit domain, which means its domain is undefined.
+ * For @ref Fluent arguments, the domain can be implicitly defined through the initially: statement.
+ */
 bool Domain::is_implicit()
 { return implicit_; }
 
@@ -98,6 +141,9 @@ Domain::ElementSet &Domain::elements()
 const Domain::ElementSet &Domain::elements() const
 { return elements_; }
 
+const Type &Domain::element_type() const
+{ return *element_type_; }
+
 void Domain::add_element(const Value &c)
 { elements_.emplace(new Value(c)); }
 
@@ -112,8 +158,11 @@ bool Domain::is_defined() const
 
 void Domain::add_elements(const vector<Value *> &elements)
 {
+	if (elements.size())
+		ensure_type(elements[0]->type());
 	for (Value *c : elements) {
-		ensure_type(c->type());
+		if (!(element_type() >= *c))
+			throw TypeError(*c, element_type());
 		elements_.emplace(c);
 	}
 }
@@ -121,8 +170,10 @@ void Domain::add_elements(const vector<Value *> &elements)
 
 void Domain::add_elements(const Domain &other)
 {
+	ensure_type(other.type());
 	for (const unique_ptr<Value> &e : other.elements()) {
-		ensure_type(e->type());
+		if (!(element_type() >= *e))
+			throw TypeError(*e, element_type());
 		elements_.emplace(e->copy());
 	}
 }
@@ -136,10 +187,8 @@ void Domain::remove(const Domain &other)
 }
 
 
-
 Domain domain_union(const Domain &lhs, const Domain &rhs)
 {
-	ensure_type_equality(lhs, rhs);
 	Domain rv { lhs };
 	rv.add_elements(rhs);
 	return rv;
@@ -148,7 +197,6 @@ Domain domain_union(const Domain &lhs, const Domain &rhs)
 
 Domain domain_difference(const Domain &lhs, const Domain &rhs)
 {
-	ensure_type_equality(lhs, rhs);
 	Domain rv { lhs };
 	rv.remove(rhs);
 	return rv;
@@ -157,7 +205,6 @@ Domain domain_difference(const Domain &lhs, const Domain &rhs)
 
 Domain domain_intersection(const Domain &lhs, const Domain &rhs)
 {
-	ensure_type_equality(lhs, rhs);
 	Domain rv { lhs };
 	rv.remove(domain_difference(lhs, rhs));
 	rv.remove(domain_difference(rhs, lhs));

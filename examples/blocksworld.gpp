@@ -15,12 +15,10 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-symbol domain blocks = {a, b, c}
-symbol domain locations = blocks | {table}
+symbol domain block = {a, b, c}
+symbol domain location = block | {table}
 
-symbol fluent loc(symbol x) {
-domain:
-	x in blocks;
+location fluent loc(block x) {
 initially:
 	(a) = c;
 	(b) = table;
@@ -28,18 +26,15 @@ initially:
 // 	(d) = a; //*/
 }
 
-action stack(symbol x, symbol y) {
-domain:
-	x in blocks;
-	y in locations;
+action stack(block x, location y) {
 precondition:
 	  x != y // Can't stack x on x
 	& x != table // Can't stack table
 	& loc(x) != y // Can't stack the same thing twice
-	& (!exists(symbol z) loc(z) == x) // Nothing is on x
+	& (!exists(block z) loc(z) == x) // Nothing is on x
 	& (
 		y == table // either y is the table...
-		| !exists(symbol z) loc(z) == y // or nothing is on y
+		| !exists(block z) loc(z) == y // or nothing is on y
 	)
 
 effect:
@@ -67,7 +62,7 @@ number function reward() =
 {
 	solve(8, reward())
 		while (!goal())
-			pick (symbol x in {a, b, c})
-				pick(symbol y in {table, a, b, c})
+			pick (block x in {a, b, c})
+				pick(location y in {table, a, b, c})
 					stack(x, y);
 }

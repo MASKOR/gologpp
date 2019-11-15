@@ -26,15 +26,15 @@ namespace gologpp {
 
 AbstractAction::AbstractAction(
 	Scope *own_scope,
-	const string &, // ignored type_name
+	const Type &, // ignored type
 	const string &name,
 	const vector<shared_ptr<Variable>> &params
 )
 : Signified<Instruction>(name, params)
 , ScopeOwner(own_scope)
 {
-	set_type_by_name(VoidType::name());
-	set_precondition(new Value(BoolType::name(), true));
+	set_type(gologpp::type<VoidType>());
+	set_precondition(new Value(gologpp::type<BoolType>(), true));
 
 	vector<fusion_wtf_vector<string, Expression *>> default_mapping;
 	for (const shared_ptr<Variable> &param : params)
