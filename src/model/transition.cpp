@@ -47,12 +47,14 @@ string to_string(Transition::Hook h)
 	switch (h) {
 	case Transition::Hook::START:
 		return "start";
-	case Transition::Hook::STOP:
-		return "stop";
+	case Transition::Hook::CANCEL:
+		return "cancel";
 	case Transition::Hook::FINISH:
 		return "finish";
 	case Transition::Hook::FAIL:
 		return "fail";
+	case Transition::Hook::END:
+		return "end";
 	}
 	throw Bug(string("Unhandled ") + typeid(h).name());
 }

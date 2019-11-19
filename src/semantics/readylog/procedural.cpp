@@ -20,16 +20,12 @@
 #include "reference.h"
 #include "execution.h"
 #include "value.h"
+#include "action.h"
 
 #include <model/procedural.h>
 
 
 namespace gologpp {
-
-
-Semantics<Function>::Semantics(const Function &function)
-: AbstractSemantics<Function>(function)
-{}
 
 
 EC_word Semantics<Function>::plterm()
@@ -76,11 +72,6 @@ EC_word Semantics<Function>::return_var()
 
 
 
-Semantics<Block>::Semantics(const Block &b)
-: AbstractSemantics<Block>(b)
-{}
-
-
 EC_word Semantics<Block>::plterm()
 {
 	element().scope().semantics().init_vars();
@@ -111,21 +102,12 @@ void Semantics<Block>::set_current_program(EC_word e)
 
 
 
-Semantics<Choose>::Semantics(const Choose &c)
-: AbstractSemantics<Choose>(c)
-{}
-
 EC_word Semantics<Choose>::plterm()
 {
 	element().scope().semantics().init_vars();
 	return ::term(EC_functor("nondet", 1), to_ec_list(element().alternatives()));
 }
 
-
-
-Semantics<Conditional>::Semantics(const Conditional &c)
-: AbstractSemantics<Conditional>(c)
-{}
 
 
 EC_word Semantics<Conditional>::plterm()
@@ -150,11 +132,6 @@ EC_word Semantics<Conditional>::plterm()
 
 
 
-Semantics<Concurrent>::Semantics(const Concurrent &c)
-: AbstractSemantics<Concurrent>(c)
-{}
-
-
 EC_word Semantics<Concurrent>::plterm()
 {
 	element().scope().semantics().init_vars();
@@ -162,9 +139,6 @@ EC_word Semantics<Concurrent>::plterm()
 }
 
 
-Semantics<Assignment<Reference<Fluent>>>::Semantics(const Assignment<Reference<Fluent>> &ass)
-: AbstractSemantics<Assignment<Reference<Fluent>>>(ass)
-{}
 
 EC_word Semantics<Assignment<Reference<Fluent>>>::plterm()
 {
@@ -210,11 +184,6 @@ std::pair<const Reference<Fluent> *, EC_word> traverse_mixed_field_access(const 
 };
 
 
-Semantics<Assignment<FieldAccess>>::Semantics(const Assignment<FieldAccess> &ass)
-: AbstractSemantics<Assignment<FieldAccess>>(ass)
-, field_access_(ass.lhs())
-{}
-
 
 EC_word Semantics<Assignment<FieldAccess>>::plterm()
 {
@@ -231,12 +200,6 @@ EC_word Semantics<Assignment<FieldAccess>>::plterm()
 	);
 }
 
-
-
-Semantics<Assignment<ListAccess>>::Semantics(const Assignment<ListAccess> &ass)
-: AbstractSemantics<Assignment<ListAccess> >(ass)
-, field_access_(ass.lhs())
-{}
 
 
 EC_word Semantics<Assignment<ListAccess>>::plterm()
@@ -276,11 +239,6 @@ EC_word Semantics<Pick>::plterm()
 
 
 
-Semantics<Search>::Semantics(const Search &search)
-: AbstractSemantics<Search>(search)
-{}
-
-
 EC_word Semantics<Search>::plterm()
 {
 	return ::term(EC_functor("search", 1),
@@ -288,11 +246,6 @@ EC_word Semantics<Search>::plterm()
 	);
 }
 
-
-
-Semantics<Solve>::Semantics(const Solve &solve)
-: AbstractSemantics<Solve>(solve)
-{}
 
 
 EC_word Semantics<Solve>::plterm()
@@ -306,11 +259,6 @@ EC_word Semantics<Solve>::plterm()
 
 
 
-Semantics<Test>::Semantics(const Test &test)
-: AbstractSemantics<Test>(test)
-{}
-
-
 EC_word Semantics<Test>::plterm()
 {
 	return ::term(EC_functor("?", 1),
@@ -318,11 +266,6 @@ EC_word Semantics<Test>::plterm()
 	);
 }
 
-
-
-Semantics<While>::Semantics(const While &w)
-: AbstractSemantics<While>(w)
-{}
 
 
 EC_word Semantics<While>::plterm()
@@ -334,10 +277,6 @@ EC_word Semantics<While>::plterm()
 }
 
 
-
-Semantics<Return>::Semantics(const Return &r)
-: AbstractSemantics<Return>(r)
-{}
 
 EC_word Semantics<Return>::plterm() {
 	const AbstractLanguageElement *root_parent = element().parent();
@@ -364,11 +303,6 @@ EC_word Semantics<Return>::plterm() {
 
 
 
-Semantics<DurativeCall>::Semantics(const DurativeCall &call)
-: AbstractSemantics<DurativeCall>(call)
-{}
-
-
 EC_word Semantics<DurativeCall>::plterm()
 {
 	return ::term(EC_functor(to_string(element().hook()).c_str(), 2),
@@ -378,11 +312,6 @@ EC_word Semantics<DurativeCall>::plterm()
 }
 
 
-
-Semantics<FieldAccess>::Semantics(const FieldAccess &field_access)
-: AbstractSemantics<FieldAccess>(field_access)
-, is_lvalue_(false)
-{}
 
 EC_word Semantics<FieldAccess>::plterm()
 {
@@ -406,14 +335,7 @@ EC_word Semantics<FieldAccess>::field_assign(const Expression &value)
 	);
 }
 
-void Semantics<FieldAccess>::set_lvalue(bool lvalue)
-{ is_lvalue_ = lvalue; }
 
-
-
-Semantics<ListAccess>::Semantics(const ListAccess &list_access)
-: AbstractSemantics<ListAccess>(list_access)
-{}
 
 EC_word Semantics<ListAccess>::pl_index()
 { return element().index().semantics().plterm(); }
@@ -428,10 +350,6 @@ EC_word Semantics<ListAccess>::plterm()
 }
 
 
-
-Semantics<ListPop>::Semantics(const ListPop &list_pop)
-: AbstractSemantics<ListPop>(list_pop)
-{}
 
 EC_word Semantics<ListPop>::plterm()
 {
@@ -458,10 +376,6 @@ EC_word Semantics<ListPop>::plterm()
 
 
 
-Semantics<ListPush>::Semantics(const ListPush &list_push)
-: AbstractSemantics<ListPush>(list_push)
-{}
-
 EC_word Semantics<ListPush>::plterm()
 {
 	string fn;
@@ -487,15 +401,47 @@ EC_word Semantics<ListPush>::plterm()
 
 
 
-Semantics<ListLength>::Semantics(const ListLength &list_length)
-: AbstractSemantics<ListLength>(list_length)
-{}
-
 EC_word Semantics<ListLength>::plterm()
 {
 	return ::term(EC_functor("gpp_list_length", 1),
 		element().subject().semantics().plterm()
 	);
+}
+
+
+
+EC_word Semantics<During>::plterm()
+{
+	EC_word start = ::term(EC_functor(to_string(Transition::Hook::START).c_str(), 2),
+		reference_term(element().action_call()),
+		EC_atom("now")
+	);
+	EC_word end = ::term(EC_functor(to_string(Transition::Hook::END).c_str(), 2),
+		reference_term(element().action_call()),
+		EC_atom("now")
+	);
+	EC_word if_failed = ::term(EC_functor("if", 2),
+		::term(EC_functor("=", 2),
+			::term(EC_functor("state", 1), reference_term(element().action_call())),
+			::EC_atom(to_string(Activity::State::FAILED).c_str())
+		),
+		element().on_fail().semantics().plterm()
+	);
+	EC_word if_cancelled = ::term(EC_functor("if", 2),
+		::term(EC_functor("=", 2),
+			::term(EC_functor("state", 1), reference_term(element().action_call())),
+			::EC_atom(to_string(Activity::State::CANCELLED).c_str())
+		),
+		element().on_cancel().semantics().plterm()
+	);
+
+	return make_ec_list( {
+		start,
+		element().parallel_block().semantics().plterm(),
+		end,
+		if_failed,
+		if_cancelled
+	} );
 }
 
 

@@ -132,7 +132,7 @@ void ExecutionContext::run(Block &&program)
 			shared_ptr<Transition> trans = history().abstract_semantics().get_last_transition();
 			if (trans) {
 				std::cout << "<<< trans: " << trans->str() << std::endl;
-				if (trans->hook() == Transition::Hook::STOP)
+				if (trans->hook() == Transition::Hook::CANCEL)
 					backend().preempt_activity(trans);
 				else if (trans->hook() == Transition::Hook::START)
 					backend().start_activity(trans);

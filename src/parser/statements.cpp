@@ -28,6 +28,7 @@
 #include <boost/spirit/include/qi_lit.hpp>
 #include <boost/spirit/include/qi_list.hpp>
 #include <boost/spirit/include/qi_attr.hpp>
+#include <boost/spirit/include/qi_permutation.hpp>
 
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/delete.hpp>
@@ -36,6 +37,7 @@
 #include <boost/phoenix/object/construct.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
+#include <boost/phoenix/fusion/at.hpp>
 
 #include "types.h"
 #include "formula.h"
@@ -73,7 +75,9 @@ StatementParser::StatementParser()
 	compound_statement = block(_r1) | choose(_r1) | conditional(_r1)
 		| pick(_r1)
 		| solve(_r1) | search(_r1) | r_while(_r1)
-		| concurrent(_r1);
+		| concurrent(_r1)
+		| during(_r1)
+	;
 	compound_statement.name("compound_statement");
 
 	block = (lit('{') [
@@ -181,13 +185,26 @@ StatementParser::StatementParser()
 	];
 	return_stmt.name("return");
 
+	during = (
+		lit("during") > '(' > action_call(_r1) > ')'
+		> statement(_r1)
+		> (
+			("on_fail" > statement(_r1))
+			^ ("on_cancel" > statement(_r1))
+		)
+	) [
+		_val = new_<During>(_1, _2, at_c<0>(_3), at_c<1>(_3))
+	]
+	;
+
 
 	durative_call = (
 		( (
 			lit("start") [ _a = DurativeCall::Hook::START ]
-			| lit("stop") [ _a = DurativeCall::Hook::STOP ]
+			| lit("cancel") [ _a = DurativeCall::Hook::CANCEL ]
 			| lit("finish") [ _a = DurativeCall::Hook::FINISH ]
 			| lit("fail") [ _a = DurativeCall::Hook::FAIL ]
+			| lit("end") [ _a = DurativeCall::Hook::END ]
 		) >> "(" )
 		> action_call(_r1) > ")"
 	) [

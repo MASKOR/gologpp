@@ -198,13 +198,6 @@ public:
 	shared_ptr<const TargetT> target() const
 	{ return std::dynamic_pointer_cast<const TargetT>(target_.lock()); }
 
-
-	virtual void attach_semantics(SemanticsFactory &f) override
-	{
-		for (unique_ptr<ArgsT> &expr : args_)
-			expr->attach_semantics(f);
-	}
-
 	virtual string to_string(const string &pfx) const override
 	{ return pfx + name() + '(' + concat_list(args(), ", ", "") + ')'; }
 
@@ -248,7 +241,8 @@ public:
 	{
 		if (!this->semantics_) {
 			this->semantics_ = f.make_semantics(*this);
-			ReferenceBase<TargetT, Expression>::attach_semantics(f);
+			for (auto &arg : this->args())
+				arg->attach_semantics(f);
 		}
 	}
 };
@@ -299,15 +293,6 @@ public:
 
 	virtual const Scope &parent_scope() const override
 	{ return global_scope(); }
-
-
-	virtual void attach_semantics(SemanticsFactory &f) override
-	{
-		if (!this->semantics_) {
-			this->semantics_ = f.make_semantics(*this);
-			ReferenceBase<TargetT, Value>::attach_semantics(f);
-		}
-	}
 
 	virtual const ParamsToArgs<Value> &params_to_args() const override
 	{ return ReferenceBase<TargetT, Value>::params_to_args(); }

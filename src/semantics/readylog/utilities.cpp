@@ -54,6 +54,22 @@ EC_word to_ec_list(const vector<EC_word> &vec, typename vector<EC_word>::const_i
 
 
 
+EC_word make_ec_list(
+	const std::vector<EC_word> &words,
+	std::vector<EC_word>::const_iterator pos
+) {
+	if (pos == words.end())
+		return ::nil();
+	else
+		return ::list(*pos, make_ec_list(words, pos + 1));
+}
+
+
+EC_word make_ec_list(const std::vector<EC_word> &words)
+{ return make_ec_list(words, words.begin()); }
+
+
+
 EC_word copy_term(EC_word t)
 {
 	EC_functor fn;

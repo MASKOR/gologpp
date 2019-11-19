@@ -391,23 +391,6 @@ string DurativeCall::to_string(const string &pfx) const
 
 
 
-string to_string(DurativeCall::Hook hook)
-{
-	switch (hook) {
-	case DurativeCall::Hook::START:
-		return "start";
-	case DurativeCall::Hook::FINISH:
-		return "finish";
-	case DurativeCall::Hook::FAIL:
-		return "fail";
-	case DurativeCall::Hook::STOP:
-		return "stop";
-	}
-	throw Bug(string("Unhandled ") + typeid(hook).name());
-}
-
-
-
 FieldAccess::FieldAccess(Expression *subject, const string &field_name)
 : subject_(subject)
 , field_name_(field_name)
@@ -527,6 +510,58 @@ const Expression &ListPush::what() const
 
 string ListPush::to_string(const string &pfx) const
 { return pfx + "push_" + gologpp::to_string(which_end_) + '(' + list_->str() + ')'; }
+
+
+
+During::During(
+	Reference<Action> *action_call,
+	Expression *parallel_block,
+	boost::optional<Expression *> on_fail,
+	boost::optional<Expression *> on_cancel
+)
+: action_call_(action_call)
+, parallel_block_(parallel_block)
+, on_fail_(on_fail.get_value_or(
+	new Block(
+		new Scope(parallel_block->scope().parent_scope()),
+		{}
+	)
+  ))
+, on_cancel_(on_cancel.get_value_or(
+	new Block(
+		new Scope(parallel_block->scope().parent_scope()),
+		{}
+	)
+  ))
+{
+	action_call_->set_parent(this);
+	parallel_block_->set_parent(this);
+	on_fail_->set_parent(this);
+	on_cancel_->set_parent(this);
+}
+
+const Reference<Action> &During::action_call() const
+{ return *action_call_; }
+
+const Expression &During::parallel_block() const
+{ return *parallel_block_; }
+
+const Expression &During::on_fail() const
+{ return *on_fail_; }
+
+const Expression &During::on_cancel() const
+{ return *on_cancel_; }
+
+string During::to_string(const string &pfx) const
+{
+	return pfx + "during (" + action_call().str() + ")\n"
+		+ parallel_block().to_string(pfx)
+		+ "on_fail " + on_fail().to_string(pfx)
+		+ "on_cancel " + on_cancel().to_string(pfx)
+	;
+}
+
+
 
 
 

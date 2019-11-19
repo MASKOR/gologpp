@@ -31,10 +31,6 @@
 namespace gologpp {
 
 
-Semantics<Action>::Semantics(const Action &a)
-: AbstractSemantics<Action>(a)
-{}
-
 
 EC_word Semantics<Action>::durative_action()
 {
@@ -99,10 +95,6 @@ EC_word Semantics<Action>::senses()
 }
 
 
-Semantics<ExogAction>::Semantics(const ExogAction &a)
-: AbstractSemantics<ExogAction>(a)
-{}
-
 
 EC_word Semantics<ExogAction>::exog_action()
 {
@@ -143,35 +135,21 @@ EC_word Semantics<ExogAction>::poss()
 
 
 
+EC_word Semantics<ExogEvent>::plterm()
+{ return reference_term(element()); }
+
+
+
 const Activity &Semantics<Activity>::activity()
 { return dynamic_cast<const Activity &>(element()); }
 
 
 EC_word Semantics<Activity>::plterm()
 {
-	string state;
-
-	switch (activity().state()) {
-	case Activity::State::IDLE:
-		state = "idle";
-		break;
-	case Activity::State::RUNNING:
-		state = "running";
-		break;
-	case Activity::State::FINAL:
-		state = "final";
-		break;
-	case Activity::State::FAILED:
-		state = "failed";
-		break;
-	case Activity::State::PREEMPTED:
-		state = "preempted";
-	}
-
 	return ::term(EC_functor("exog_state_change", 3),
-		Semantics<Grounding<Action>>::plterm(),
+		reference_term(element()),
 		EC_word(ReadylogContext::instance().backend().time().time_since_epoch().count()),
-		EC_atom(state.c_str())
+		EC_atom(to_string(element().state()).c_str())
 	);
 }
 
@@ -191,24 +169,8 @@ const Transition &Semantics<Transition>::trans()
 
 EC_word Semantics<Transition>::plterm()
 {
-	string name;
-
-	switch (trans().hook()) {
-	case Transition::Hook::START:
-		name = "start";
-		break;
-	case Transition::Hook::STOP:
-		name = "stop";
-		break;
-	case Transition::Hook::FAIL:
-		name = "fail";
-		break;
-	case Transition::Hook::FINISH:
-		name = "finish";
-	}
-
-	return ::term(EC_functor(name.c_str(), 2),
-		Semantics<Grounding<Action>>::plterm(),
+	return ::term(EC_functor(to_string(element().hook()).c_str(), 2),
+		reference_term(element()),
 		EC_word(ReadylogContext::instance().backend().time().time_since_epoch().count())
 	);
 }

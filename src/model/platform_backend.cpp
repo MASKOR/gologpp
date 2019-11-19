@@ -61,12 +61,22 @@ shared_ptr<Activity> PlatformBackend::end_activity(shared_ptr<Transition> trans)
 	if (!dur_running)
 		throw LostTransition(trans->str());
 
-	if (dur_running->state() != Activity::target_state(trans->hook()))
-			throw InconsistentTransition(trans->str());
-
-	activities_.erase(it);
-
-	return dur_running;
+	// Either the durative action's state exactly matches the primitive action's hook,
+	// or the hook is END, which may be executed if the durative state is either FINAL, FAILED or CANCELLED
+	if ((trans->hook() == Transition::Hook::END
+			&& (
+				dur_running->state() == Activity::State::FINAL
+				|| dur_running->state() == Activity::State::FAILED
+				|| dur_running->state() == Activity::State::CANCELLED
+			)
+		)
+		|| dur_running->state() == Activity::target_state(trans->hook())
+	) {
+		activities_.erase(it);
+		return dur_running;
+	}
+	else
+		throw InconsistentTransition(trans->str());
 }
 
 
@@ -88,7 +98,7 @@ void DummyBackend::ActivityThread::end_activity(std::chrono::duration<double> wh
 
 	if (canceled) {
 		std::cout << "DummyBackend: Activity " << a->str() << " STOPPED" << std::endl;
-		a->update(Transition::Hook::STOP);
+		a->update(Transition::Hook::CANCEL);
 	}
 	else {
 		std::cout << "DummyBackend: Activity " << a->str() << " FINAL" << std::endl;

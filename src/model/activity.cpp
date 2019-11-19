@@ -50,12 +50,14 @@ Activity::State Activity::target_state(Transition::Hook hook)
 	switch (hook) {
 	case Transition::Hook::START:
 		return Activity::State::RUNNING;
-	case Transition::Hook::STOP:
-		return Activity::State::PREEMPTED;
+	case Transition::Hook::CANCEL:
+		return Activity::State::CANCELLED;
 	case Transition::Hook::FINISH:
 		return Activity::State::FINAL;
 	case Transition::Hook::FAIL:
 		return Activity::State::FAILED;
+	case Transition::Hook::END:
+		return Activity::State::IDLE;
 	}
 	throw Bug("Unhandled Transition hook. Ignored warnings when compiling?");
 }
@@ -129,7 +131,7 @@ string to_string(Activity::State s)
 		return "idle";
 	case Activity::State::RUNNING:
 		return "running";
-	case Activity::State::PREEMPTED:
+	case Activity::State::CANCELLED:
 		return "preempted";
 	case Activity::State::FINAL:
 		return "final";

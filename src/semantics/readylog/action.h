@@ -37,7 +37,7 @@ class Semantics<Action>
 , public AbstractSemantics<Action>
 {
 public:
-	Semantics(const Action &a);
+	using AbstractSemantics<Action>::AbstractSemantics;
 	virtual ~Semantics() override = default;
 
 	EC_word durative_action();
@@ -55,7 +55,7 @@ class Semantics<ExogAction>
 , public AbstractSemantics<ExogAction>
 {
 public:
-	Semantics(const ExogAction &a);
+	using AbstractSemantics<ExogAction>::AbstractSemantics;
 	virtual ~Semantics() override = default;
 
 	EC_word exog_action();
@@ -67,17 +67,25 @@ public:
 
 
 template<>
-class Semantics<ExogEvent> : public Semantics<Grounding<ExogAction>> {
+class Semantics<ExogEvent>
+: public Semantics<AbstractLanguageElement>
+, public AbstractSemantics<ExogEvent>
+{
 public:
-	using Semantics<Grounding<ExogAction>>::Semantics;
+	using AbstractSemantics<ExogEvent>::AbstractSemantics;
 	virtual ~Semantics() override = default;
+
+	virtual EC_word plterm() override;
 };
 
 
 template<>
-class Semantics<Activity> : public Semantics<Grounding<Action>> {
+class Semantics<Activity>
+: public Semantics<AbstractLanguageElement>
+, public AbstractSemantics<Activity>
+{
 public:
-	using Semantics<Grounding<Action>>::Semantics;
+	using AbstractSemantics<Activity>::AbstractSemantics;
 	virtual ~Semantics() override = default;
 
 	const Activity &activity();
@@ -88,9 +96,12 @@ public:
 
 
 template<>
-class Semantics<Transition> : public Semantics<Grounding<Action>> {
+class Semantics<Transition>
+: public Semantics<AbstractLanguageElement>
+, public AbstractSemantics<Transition>
+{
 public:
-	using Semantics<Grounding<Action>>::Semantics;
+	using AbstractSemantics<Transition>::AbstractSemantics;
 	virtual ~Semantics() override = default;
 
 	const Transition &trans();

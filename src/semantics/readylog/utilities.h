@@ -107,6 +107,9 @@ EC_word to_ec_list(const ListT &vec)
 { return to_ec_list(vec, vec.cbegin()); }
 
 
+EC_word make_ec_list(const std::vector<EC_word> &words);
+
+
 EC_word copy_term(EC_word t);
 
 

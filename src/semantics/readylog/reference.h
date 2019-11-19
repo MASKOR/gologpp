@@ -63,40 +63,25 @@ EC_word reference_term(const ReferenceBase<GologT, ExprT> &ref)
 
 
 
-template<class GologT, class ExprT>
-class Semantics<ReferenceBase<GologT, ExprT>>
+template<class TargetT>
+class Semantics<Reference<TargetT>>
 : public Semantics<Expression>
-, public AbstractSemantics<ReferenceBase<GologT, ExprT>>
+, public AbstractSemantics<Reference<TargetT>>
 {
 public:
-	Semantics(const ReferenceBase<GologT, ExprT> &ref)
-	: AbstractSemantics<ReferenceBase<GologT, ExprT>>(ref)
-	{}
+	using AbstractSemantics<Reference<TargetT>>::AbstractSemantics;
 
 	virtual EC_word plterm() override
-	{ return reference_term(element<ReferenceBase<GologT, ExprT>>()); }
+	{
+		return reference_term(
+			AbstractSemantics<Reference<TargetT>>::template element()
+		);
+	}
 };
-
 
 
 template<>
-EC_word Semantics<ReferenceBase<Action, Expression>>::plterm();
-
-
-
-template<class TargetT>
-class Semantics<Grounding<TargetT>> : public Semantics<ReferenceBase<TargetT, Value>> {
-public:
-	using Semantics<ReferenceBase<TargetT, Value>>::Semantics;
-};
-
-
-
-template<class TargetT>
-class Semantics<Reference<TargetT>> : public Semantics<ReferenceBase<TargetT, Expression>> {
-public:
-	using Semantics<ReferenceBase<TargetT, Expression>>::Semantics;
-};
+EC_word Semantics<Reference<Action>>::plterm();
 
 
 

@@ -106,6 +106,7 @@ class ListAccess;
 class ListLength;
 class ListPop;
 class ListPush;
+class During;
 
 class Function;
 
@@ -159,8 +160,8 @@ class PlatformBackend;
 	(Scope)(ArithmeticOperation) \
 	(Negation)(BooleanOperation)(Quantification)(Concurrent) \
 	(Block)(Choose)(Conditional)(Search)(Solve)(Test)(While) \
-	(History)(Reference<Action>)(Grounding<Action>) \
-	(Grounding<ExogAction>) \
+	(During) \
+	(History)(Reference<Action>) \
 	(Reference<ExogAction>) \
 	(StringConcatenation) \
 	(ToString) \
