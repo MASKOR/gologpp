@@ -69,6 +69,8 @@ Semantics<InitialValue>::Semantics(const InitialValue &v)
 
 EC_word Semantics<InitialValue>::plterm()
 {
+	element().fluent().scope().semantics().init_vars();
+
 	EC_word fluent_inst;
 	if (element().fluent().arity() > 0)
 		fluent_inst = ::term(
