@@ -530,6 +530,30 @@ string ListPush::to_string(const string &pfx) const
 
 
 
+IndexOf::IndexOf(Expression *expr, Expression *list)
+: list_(list)
+{
+	list_->set_parent(this);
+
+	expr->ensure_type(
+		dynamic_cast<const ListType &>(
+			list->type()
+		).element_type()
+	);
+	expr_.reset(expr);
+	expr_->set_parent(this);
+}
+
+const Expression &IndexOf::expr() const
+{ return *expr_; }
+
+const Expression &IndexOf::list() const
+{ return *list_; }
+
+string IndexOf::to_string(const string &pfx) const
+{ return pfx + "member_of(" + expr().str() + ", " + list().str() + ")"; }
+
+
 
 } // namespace gologpp
 

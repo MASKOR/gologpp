@@ -332,6 +332,19 @@ public:
 
 
 
+template<>
+class Semantics<IndexOf>
+: public Semantics<Expression>
+, public AbstractSemantics<IndexOf>
+{
+public:
+	using AbstractSemantics<IndexOf>::AbstractSemantics;
+
+	virtual EC_word plterm() override;
+};
+
+
+
 } // namespace gologpp
 
 

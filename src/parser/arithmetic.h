@@ -41,6 +41,7 @@ struct NumericExpressionParser : grammar<Expression *(Scope &)> {
 	rule<Expression *(Scope &)> num_var_ref;
 	rule<Expression *(Scope &)> unary_expr;
 	rule<Expression *(Scope &)> list_length;
+	rule<Expression *(Scope &)> index_of;
 	rule<ArithmeticOperation::Operator()> arith_operator;
 };
 

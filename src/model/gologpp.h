@@ -106,6 +106,7 @@ class ListAccess;
 class ListLength;
 class ListPop;
 class ListPush;
+class IndexOf;
 
 class Function;
 
@@ -166,6 +167,7 @@ class PlatformBackend;
 	(ToString) \
 	(DurativeCall) \
 	(Comparison) \
+	(IndexOf) \
 	(CompoundExpression) (ListExpression)
 
 

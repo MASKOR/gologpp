@@ -11,6 +11,18 @@ function(to_string(V), R,
 	and(sprintf(S, "%w", V), atom_string(R, S))
 ).
 
+function(gpp_index_of(Expr, List), R,
+	once(pl_index_of(Expr, List, R))
+).
+pl_index_of(Expr, GppList, R) :-
+	(
+		GppList = gpp_list(_Type, List)
+		, nth0(Expr, List, R)
+	;
+		sprintf(Msg, "Invalid function call: %W", [gpp_index_of(Expr, List)])
+		, throw(Msg)
+	)
+.
 
 function(gpp_field_value(Name, Compound), Value,
 	once(pl_field_value(Name, Compound, Value))

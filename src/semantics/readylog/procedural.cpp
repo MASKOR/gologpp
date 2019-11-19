@@ -500,4 +500,14 @@ EC_word Semantics<ListLength>::plterm()
 
 
 
+EC_word Semantics<IndexOf>::plterm()
+{
+	return ::term(EC_functor("gpp_index_of", 2),
+		element().expr().semantics().plterm(),
+		element().list().semantics().plterm()
+	);
+}
+
+
+
 }

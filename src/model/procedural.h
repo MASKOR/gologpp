@@ -494,6 +494,26 @@ private:
 
 
 
+class IndexOf
+: public Expression
+, public NoScopeOwner
+, public LanguageElement<IndexOf, NumberType>
+{
+public:
+	IndexOf(Expression *expr, Expression *list);
+	const Expression &expr() const;
+	const Expression &list() const;
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*expr_, *list_)
+
+	string to_string(const string &pfx) const override;
+
+private:
+	unique_ptr<Expression> expr_;
+	SafeExprOwner<ListType> list_;
+};
+
+
 } // namespace gologpp
 
 

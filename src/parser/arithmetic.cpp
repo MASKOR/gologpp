@@ -20,6 +20,7 @@
 #include "value.h"
 #include "list_expression.h"
 #include "mixed_member_access.h"
+#include "expressions.h"
 
 #include <model/fluent.h>
 #include <model/procedural.h>
@@ -50,6 +51,7 @@ NumericExpressionParser::NumericExpressionParser()
 	unary_expr = brace(_r1) | numeric_value()
 		| num_var_ref(_r1)
 		| list_length(_r1)
+		| index_of(_r1)
 		| typed_reference<Fluent>()(_r1, NumberType::name())
 		| typed_reference<Function>()(_r1, NumberType::name())
 		| mixed_member_access()(_r1, NumberType::name())
@@ -59,6 +61,11 @@ NumericExpressionParser::NumericExpressionParser()
 	list_length = (lit("length") > '(' > list_expression(_r1) > ')') [
 		_val = new_<ListLength>(_1)
 	];
+
+	index_of = (lit("index_of") > '(' > value_expression()(_r1) > ',' > list_expression(_r1) > ')') [
+		_val = new_<IndexOf>(_1, _2)
+	];
+	index_of.name("index_of");
 
 	binary_expr = (
 		(unary_expr(_r1) >> arith_operator) > expression(_r1)
