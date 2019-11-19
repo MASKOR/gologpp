@@ -280,7 +280,7 @@ bool ReadylogContext::trans(Block &program, History &history)
 		else {
 			// Successful transition
 			program.semantics().set_current_program(e1);
-			history.semantics().set_current_history(h1);
+			history.semantics().extend_history(h1);
 			return true;
 		}
 	} else

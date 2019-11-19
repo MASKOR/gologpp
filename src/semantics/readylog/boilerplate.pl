@@ -6,6 +6,11 @@
 % resolve name clash with lib(listut)
 :- import delete/3 from eclipse_language.
 
+should_progress(H) :- length(H, L), L >= 10.
+
+% execute/3 is useless in golog++. Just ignore it and log a message
+execute(Action, _Sr, _H) :- printf("Dummy execute %W%n", [Action]).
+
 function(strcat(X, Y), R, concat_atoms(X, Y, R)).
 function(to_string(V), R,
 	and(sprintf(S, "%w", V), atom_string(R, S))
