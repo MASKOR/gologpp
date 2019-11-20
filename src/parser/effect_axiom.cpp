@@ -80,7 +80,7 @@ template<>
 void EffectParser<FieldAccess>::init()
 {
 	lhs = mixed_member_access()(_r1, UndefinedType::name()) [
-		_pass = dynamic_cast_<FieldAccess *>(_1)
+		_pass = (_val = dynamic_cast_<FieldAccess *>(_1))
 	];
 	lhs.name("field_access_effect_lhs");
 }
@@ -90,7 +90,7 @@ template<>
 void EffectParser<ListAccess>::init()
 {
 	lhs = mixed_member_access()(_r1, UndefinedType::name()) [
-		_pass = dynamic_cast_<ListAccess *>(_1)
+		_pass = (_val = dynamic_cast_<ListAccess *>(_1))
 	];
 	lhs.name("list_access_effect_lhs");
 }
