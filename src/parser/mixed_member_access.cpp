@@ -65,7 +65,8 @@ rule<Expression *(Scope &, Typename)> &mixed_member_access()
 				| list_access(_r1) [ _a = new_<ListAccess>(_a, _1) ]
 			)
 		) [
-			_val = _a
+			_val = _a,
+			_pass = (phoenix::bind(&AbstractLanguageElement::type, *_val) == _r2)
 		]
 		, "mixed_member_access"
 	};
