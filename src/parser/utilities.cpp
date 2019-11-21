@@ -106,7 +106,7 @@ string get_error_context(
 		else
 			mark = " " + mark;
 	}
-	mark += '^';
+	mark += "^ ";
 
 	iterator::base_type l_end = errpos.base();
 	while (l_end < end.base() && *l_end != '\n' && *l_end != '\r')

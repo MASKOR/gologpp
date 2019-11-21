@@ -75,6 +75,7 @@ unique_ptr<Expression> parse_recursive(rule<Expression *(Scope &)> &parser, cons
 		string inc_filename = content.substr(offs, content.find_first_of("\"", offs) - offs);
 		ProgramParser any_definition;
 		rule<Expression *(Scope &)> r_include { any_definition(_r1) > eoi };
+		on_error<rethrow>(r_include, phoenix::bind(&handle_error, _1, _3, _2, _4));
 		parse_recursive(r_include, cur_path + '/' + inc_filename);
 	}
 	std::cout << "Parsing " << filename << "..." << std::endl;
