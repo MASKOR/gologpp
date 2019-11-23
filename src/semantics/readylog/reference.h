@@ -27,6 +27,7 @@
 
 #include "semantics.h"
 #include "utilities.h"
+#include "variable.h"
 
 #include <eclipseclass.h>
 
@@ -65,17 +66,63 @@ EC_word reference_term(const ReferenceBase<GologT, ExprT> &ref)
 
 template<class TargetT>
 class Semantics<Reference<TargetT>>
-: public Semantics<Expression>
-, public AbstractSemantics<Reference<TargetT>>
+: public AbstractSemantics<Reference<TargetT>>
+, public Semantics<Expression>
 {
 public:
 	using AbstractSemantics<Reference<TargetT>>::AbstractSemantics;
 
+	const Reference<TargetT> &ref()
+	{ return AbstractSemantics<Reference<TargetT>>::template element(); }
+
 	virtual EC_word plterm() override
+	{ return reference_term(ref()); }
+
+	bool args_need_eval() {
+		for (const unique_ptr<Expression> &expr : ref().args())
+			if (!expr->is_a<Reference<Variable>>() && !expr->is_a<Value>())
+				return true;
+
+		return false;
+	}
+
+	EC_word plterm_free_args()
 	{
-		return reference_term(
-			AbstractSemantics<Reference<TargetT>>::template element()
-		);
+		if (ref().arity() == 0)
+			return EC_atom(ref().name().c_str());
+		else {
+			vector<EC_word> args;
+			arity_t i = 0;
+			for (const unique_ptr<Expression> &expr : ref().args()) {
+				if (!expr->is_a<Reference<Variable>>() && !expr->is_a<Value>())
+					args.push_back(ref().target()->parameter(i)->semantics().plterm());
+				else
+					args.push_back(expr->semantics().plterm());
+				++i;
+			}
+
+			return ::term(EC_functor(ref().name().c_str(), ref().arity()),
+				args.data()
+			);
+		}
+	}
+
+	EC_word args_binding() {
+		EC_word list = ::nil();
+		for (const shared_ptr<Variable> &param : ref().target()->params()) {
+			const Expression &arg = ref().arg_for_param(param);
+			if (!arg.is_a<Reference<Variable>>() && !arg.is_a<Value>()) {
+				list = ::list(
+					::term(EC_functor("=", 2),
+						param->semantics().plterm(),
+						arg.semantics().plterm()
+					),
+					list
+				);
+			}
+		}
+
+		return ::term(EC_functor("and", 1), list);
 	}
 };
 
