@@ -116,9 +116,11 @@ EC_word Semantics<Conditional>::plterm()
 
 	const AbstractLanguageElement *parent = element().parent();
 	while (parent) {
-		if (parent->is_a<Function>() && !parent->type().is<VoidType>()) {
-			// An actual ReadyLog function (not a procedure): have to use lif/3
-			fn = EC_functor("lif", 3);
+		if (parent->is_a<Global>()) {
+			if (parent->is_a<Function>() && !parent->type().is<VoidType>())
+				// An actual ReadyLog function (not a procedure): have to use lif/3
+				fn = EC_functor("lif", 3);
+
 			break;
 		}
 		parent = dynamic_cast<const Expression *>(parent)->parent();
