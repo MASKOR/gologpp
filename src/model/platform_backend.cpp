@@ -44,6 +44,16 @@ void PlatformBackend::start_activity(shared_ptr<Transition> trans)
 	activities_.insert(a);
 }
 
+void PlatformBackend::cancel_activity(shared_ptr<Transition> trans)
+{
+	Lock l(lock());
+	auto it = activities_.find(trans);
+	if (it == activities_.end())
+		throw Bug("Activity lost: " + trans->str());
+	else
+		preempt_activity(std::dynamic_pointer_cast<Activity>(*it));
+}
+
 
 PlatformBackend::Lock PlatformBackend::lock()
 { return Lock(mutex_); }
@@ -134,13 +144,13 @@ void DummyBackend::execute_activity(shared_ptr<Activity> a)
 }
 
 
-void DummyBackend::preempt_activity(shared_ptr<Transition> t)
+void DummyBackend::preempt_activity(shared_ptr<Activity> a)
 {
 	std::lock_guard<std::mutex> locked(thread_mtx_);
-	if (activity_threads_.find(t) == activity_threads_.end())
-		throw EngineError("No such activity: " + t->str());
-	activity_threads_[t]->cancel = true;
-	activity_threads_[t]->cancel_cond.notify_all();
+	if (activity_threads_.find(a) == activity_threads_.end())
+		throw EngineError("No such activity: " + a->str());
+	activity_threads_[a]->cancel = true;
+	activity_threads_[a]->cancel_cond.notify_all();
 }
 
 

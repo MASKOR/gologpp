@@ -134,7 +134,7 @@ void ExecutionContext::run(Block &&program)
 			if (trans) {
 				std::cout << "<<< trans: " << trans->str() << std::endl;
 				if (trans->hook() == Transition::Hook::CANCEL)
-					backend().preempt_activity(trans);
+					backend().cancel_activity(trans);
 				else if (trans->hook() == Transition::Hook::START)
 					backend().start_activity(trans);
 				else if (trans->hook() == Transition::Hook::FINISH && trans->target()->senses())

@@ -57,7 +57,7 @@ public:
 
 	shared_ptr<Activity> end_activity(shared_ptr<Transition>);
 	void start_activity(shared_ptr<Transition>);
-	virtual void preempt_activity(shared_ptr<Transition>) = 0;
+	void cancel_activity(shared_ptr<Transition>);
 	Lock lock();
 
 	virtual Clock::time_point time() const noexcept = 0;
@@ -66,6 +66,7 @@ public:
 
 private:
 	virtual void execute_activity(shared_ptr<Activity> a) = 0;
+	virtual void preempt_activity(shared_ptr<Activity> a) = 0;
 
 	ActivitySet activities_;
 	AExecutionContext *exec_ctx_ = nullptr;
@@ -78,7 +79,7 @@ class DummyBackend : public PlatformBackend {
 public:
 	DummyBackend();
 
-	virtual void preempt_activity(shared_ptr<Transition>) override;
+	virtual void preempt_activity(shared_ptr<Activity>) override;
 	virtual Clock::time_point time() const noexcept override;
 
 private:
