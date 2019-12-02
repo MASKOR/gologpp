@@ -124,6 +124,8 @@ class History;
 
 template<class> class Semantics;
 template<class> class AbstractSemantics;
+template<> class AbstractSemantics<Expression>;
+template<> class AbstractSemantics<Instruction>;
 
 class SemanticsFactory;
 

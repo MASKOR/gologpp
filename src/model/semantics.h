@@ -19,7 +19,6 @@
 #define GOLOGPP_IMPLEMENTATION_H_
 
 #include "gologpp.h"
-#include "expressions.h"
 #include <memory>
 
 #include <boost/preprocessor/seq/for_each.hpp>

@@ -42,13 +42,11 @@ public:
 	static void shutdown();
 	static ReadylogContext &instance();
 
-	virtual void precompile() override {}
 	virtual void compile(const Block &block) override;
 	virtual void compile(const AbstractAction &action) override;
 	virtual void compile(const Fluent &fluent) override;
 	virtual void compile(const Function &function) override;
 	virtual void compile(const Procedure &proc) override;
-	virtual void postcompile() override;
 
     virtual bool final(Block &program, History &history) override;
     virtual bool trans(Block &program, History &history) override;
@@ -60,6 +58,9 @@ public:
 
 private:
     ReadylogContext(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend);
+
+	virtual void precompile_() override {}
+	virtual void postcompile_() override;
 
     virtual void compile_term(const EC_word &term);
     std::string find_readylog();

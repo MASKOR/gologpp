@@ -205,7 +205,7 @@ std::string ReadylogContext::find_boilerplate() {
 }
 
 
-void ReadylogContext::postcompile()
+void ReadylogContext::postcompile_()
 {
 	if (!ec_query(EC_atom("compile_SSAs")))
 		throw Bug("Failed to compile SSAs");

@@ -47,6 +47,7 @@ public:
 	const Expression &condition() const;
 	Expression &condition();
 	void set_condition(Expression *condition);
+	virtual const Reference<Fluent> &fluent() const = 0;
 
 protected:
 	AbstractAction *action_;
@@ -94,6 +95,8 @@ public:
 
 	virtual const Scope &parent_scope() const override
 	{ return action().scope(); }
+
+	virtual const Reference<Fluent> &fluent() const override;
 
 
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*condition_, *assignment_)

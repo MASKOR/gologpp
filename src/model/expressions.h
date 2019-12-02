@@ -45,7 +45,7 @@ public:
 	AbstractLanguageElement *parent();
 	const AbstractLanguageElement *parent() const;
 	void set_parent(AbstractLanguageElement *parent);
-
+	AbstractSemantics<Expression> &abstract_expr_semantics() const;
 	const string &type_name() const;
 
 protected:

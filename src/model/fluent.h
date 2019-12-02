@@ -76,12 +76,15 @@ public:
 	virtual ~Fluent() override = default;
 
 	const vector<unique_ptr<InitialValue>> &initially() const;
+	bool synced() const;
+	const ExogAction &sync_action() const;
+	ExogAction &sync_action();
 
-	void define(const vector<InitialValue *> &initial_values);
-	void define(const boost::optional<vector<InitialValue *>> &initial_values);
+	void define(const vector<InitialValue *> &initial_values, bool synced = false);
+	void define(const boost::optional<vector<InitialValue *>> &initial_values, bool synced = false);
 
 	Reference<Fluent> *make_ref(const vector<Expression *> &params);
-	virtual Expression *ref(const vector<Expression *> &params) override;
+	virtual Reference<Fluent> *ref(const vector<Expression *> &params) override;
 
 	virtual void attach_semantics(SemanticsFactory &implementor) override;
 	virtual string to_string(const string &pfx) const override;
@@ -89,6 +92,7 @@ public:
 
 private:
 	vector<unique_ptr<InitialValue>> initial_values_;
+	shared_ptr<ExogAction> sync_action_;
 };
 
 

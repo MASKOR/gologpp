@@ -40,6 +40,9 @@ const AbstractLanguageElement *Expression::parent() const
 void Expression::set_parent(AbstractLanguageElement *parent)
 { parent_ = parent; }
 
+AbstractSemantics<Expression> &Expression::abstract_expr_semantics() const
+{ return dynamic_cast<AbstractSemantics<Expression> &>(abstract_semantics()); }
+
 const string &Expression::type_name() const
 { return type().name(); }
 

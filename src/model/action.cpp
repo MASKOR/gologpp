@@ -51,6 +51,9 @@ AbstractAction::AbstractAction(
 const vector<unique_ptr<AbstractEffectAxiom>> &AbstractAction::effects() const
 { return effects_; }
 
+vector<unique_ptr<AbstractEffectAxiom>> &AbstractAction::effects()
+{ return effects_; }
+
 
 void AbstractAction::add_effect(AbstractEffectAxiom *effect)
 {

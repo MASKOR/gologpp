@@ -49,4 +49,21 @@ void AbstractEffectAxiom::set_condition(Expression *condition)
 	condition_->set_parent(this);
 }
 
+
+
+
+template<>
+const Reference<Fluent> &EffectAxiom<Reference<Fluent>>::fluent() const
+{ return lhs(); }
+
+template<>
+const Reference<Fluent> &EffectAxiom<FieldAccess>::fluent() const
+{ return dynamic_cast<const Reference<Fluent> &>(lhs().subject()); }
+
+template<>
+const Reference<Fluent> &EffectAxiom<ListAccess>::fluent() const
+{ return dynamic_cast<const Reference<Fluent> &>(lhs().subject()); }
+
+
+
 } // namespace gologpp
