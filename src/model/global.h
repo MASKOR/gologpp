@@ -55,7 +55,7 @@ public:
 	Reference<Variable> *param_ref(const string &name);
 
 	virtual void compile(AExecutionContext &ctx) = 0;
-	virtual Expression *ref(const vector<Expression *> &params = {}) = 0;
+	virtual AbstractLanguageElement *ref(const vector<Expression *> &params = {}) = 0;
 
 	virtual Scope &parent_scope() override;
 	virtual const Scope &parent_scope() const override;
@@ -64,6 +64,19 @@ private:
 	vector<shared_ptr<Variable>> params_;
 };
 
+
+
+template<class T>
+class Signified
+: public Global
+{
+public:
+	using SignifierT = T;
+
+	using Global::Global;
+
+	virtual SignifierT *ref(const vector<Expression *> &params = {}) = 0;
+};
 
 
 } // namespace gologpp

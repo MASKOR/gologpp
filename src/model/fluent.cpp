@@ -93,7 +93,7 @@ const Scope &InitialValue::parent_scope() const
 
 
 Fluent::Fluent(Scope *own_scope, const string &type_name, const string &name, const vector<shared_ptr<Variable>> &args)
-: Global(name, args)
+: Signified<Expression>(name, args)
 , ScopeOwner(own_scope)
 { set_type_by_name(type_name); }
 

@@ -31,6 +31,7 @@
 #include "global.h"
 #include "mapping.h"
 #include "reference.h"
+#include "fluent.h"
 
 namespace gologpp {
 
@@ -39,7 +40,7 @@ class AbstractEffectAxiom;
 
 
 class AbstractAction
-: public Global
+: public Signified<Instruction>
 , public ScopeOwner
 , public virtual AbstractLanguageElement {
 public:
@@ -98,7 +99,7 @@ public:
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
-	virtual Expression *ref(const vector<Expression *> &params) override;
+	virtual Instruction *ref(const vector<Expression *> &params) override;
 	Reference<Action> *make_ref(const vector<Expression *> &params);
 
 	unique_ptr<Reference<Fluent>> &senses();
@@ -122,7 +123,7 @@ public:
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
-	virtual Expression *ref(const vector<Expression *> &params) override;
+	virtual Instruction *ref(const vector<Expression *> &params) override;
 	Reference<ExogAction> *make_ref(const vector<Expression *> &params);
 	virtual void set_mapping (ActionMapping *) override;
 };

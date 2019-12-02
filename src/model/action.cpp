@@ -30,7 +30,7 @@ AbstractAction::AbstractAction(
 	const string &name,
 	const vector<shared_ptr<Variable>> &params
 )
-: Global(name, params)
+: Signified<Instruction>(name, params)
 , ScopeOwner(own_scope)
 {
 	set_type_by_name(VoidType::name());
@@ -128,7 +128,7 @@ string Action::to_string(const string &pfx) const
 Reference<Action> *Action::make_ref(const vector<Expression *> &args)
 { return make_ref_<Action>(args); }
 
-Expression *Action::ref(const vector<Expression *> &args)
+Instruction *Action::ref(const vector<Expression *> &args)
 { return make_ref(args); }
 
 void Action::set_senses(Reference<Fluent> *f)
@@ -174,7 +174,7 @@ string ExogAction::to_string(const string &pfx) const
 Reference<ExogAction> *ExogAction::make_ref(const vector<Expression *> &args)
 { return make_ref_<ExogAction>(args); }
 
-Expression *ExogAction::ref(const vector<Expression *> &args)
+Instruction *ExogAction::ref(const vector<Expression *> &args)
 { return make_ref(args); }
 
 

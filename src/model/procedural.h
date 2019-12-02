@@ -41,20 +41,21 @@
 namespace gologpp {
 
 
+
 /**
  * @brief A scoped block of procedural code.
  */
-class Block : public Expression, public ScopeOwner, public LanguageElement<Block, VoidType> {
+class Block : public Instruction, public ScopeOwner, public LanguageElement<Block, VoidType> {
 public:
-	Block(Scope *own_scope, const vector<Expression *> &elements);
+	Block(Scope *own_scope, const vector<Instruction *> &elements);
 	virtual void attach_semantics(SemanticsFactory &) override;
 
-	const vector<SafeExprOwner<VoidType>> &elements() const;
+	const vector<unique_ptr<Instruction>> &elements() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	vector<SafeExprOwner<VoidType>> elements_;
+	vector<unique_ptr<Instruction>> elements_;
 };
 
 
@@ -62,17 +63,17 @@ private:
 /**
  * @brief Nondeterministic choice from a set of @ref Statement.
  */
-class Choose : public Expression, public ScopeOwner, public LanguageElement<Choose, VoidType> {
+class Choose : public Instruction, public ScopeOwner, public LanguageElement<Choose, VoidType> {
 public:
-	Choose(Scope *own_scope, const vector<Expression *> &alternatives);
+	Choose(Scope *own_scope, const vector<Instruction *> &alternatives);
 	void attach_semantics(SemanticsFactory &) override;
 
-	const vector<SafeExprOwner<VoidType>> &alternatives() const;
+	const vector<unique_ptr<Instruction>> &alternatives() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	vector<SafeExprOwner<VoidType>> alternatives_;
+	vector<unique_ptr<Instruction>> alternatives_;
 };
 
 
@@ -80,50 +81,64 @@ private:
 /**
  * @brief Classical if-then-else.
  */
-class Conditional : public Expression, public NoScopeOwner, public LanguageElement<Conditional, VoidType> {
+template<class SignT>
+class Conditional
+: public SignT
+, public NoScopeOwner
+, public LanguageElement <
+	Conditional<SignT>,
+	typename std::conditional<
+		std::is_same<SignT, Instruction>::value,
+		VoidType,
+		UndefinedType
+	>::type
+> {
 public:
 	Conditional(
 		Expression *condition,
-		Expression *block_true,
-		Expression *block_false
+		SignT *block_true,
+		SignT *block_false
 	);
 
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*condition_, *block_true_, *block_false_)
 
 	const Expression &condition() const;
-	const Expression &block_true() const;
-	const Expression &block_false() const;
+	const SignT &block_true() const;
+	const SignT &block_false() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 protected:
 	SafeExprOwner<BoolType> condition_;
-	SafeExprOwner<VoidType> block_true_;
-	SafeExprOwner<VoidType> block_false_;
+	unique_ptr<SignT> block_true_;
+	unique_ptr<SignT> block_false_;
 };
+
+extern template class Conditional<Instruction>;
+extern template class Conditional<Expression>;
 
 
 
 /**
  * @brief Execute a set of statements in parallel.
  */
-class Concurrent : public Expression, public ScopeOwner, public LanguageElement<Concurrent, VoidType> {
+class Concurrent : public Instruction, public ScopeOwner, public LanguageElement<Concurrent, VoidType> {
 public:
-	Concurrent(Scope *own_scope, const vector<Expression *> &procs);
+	Concurrent(Scope *own_scope, const vector<Instruction *> &procs);
 	void attach_semantics(SemanticsFactory &) override;
 
-	const vector<SafeExprOwner<VoidType>> &procs() const;
+	const vector<unique_ptr<Instruction>> &procs() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	vector<SafeExprOwner<VoidType>> procs_;
+	vector<unique_ptr<Instruction>> procs_;
 };
 
 
 
 class AbstractAssignment
-: public Expression
+: public Instruction
 , public NoScopeOwner
 , public virtual AbstractLanguageElement {
 public:
@@ -182,18 +197,18 @@ private:
  *
  * @brief Nondeterministically pick a variable assignment.
  */
-class Pick : public Expression, public ScopeOwner, public LanguageElement<Pick, VoidType> {
+class Pick : public Instruction, public ScopeOwner, public LanguageElement<Pick, VoidType> {
 public:
 	Pick(
 		Scope *own_scope,
 		const shared_ptr<Variable> &variable,
 		const boost::optional<std::vector<Value *>> &domain,
-		Expression *statement
+		Instruction *statement
 	);
 
 	const vector<unique_ptr<Value>> &domain() const;
 	const Variable &variable() const;
-	const Expression &statement() const;
+	const Instruction &statement() const;
 
 	virtual void attach_semantics(SemanticsFactory &f) override;
 
@@ -202,7 +217,7 @@ public:
 private:
 	vector<unique_ptr<Value>> domain_;
 	shared_ptr<Variable> variable_;
-	SafeExprOwner<VoidType> statement_;
+	unique_ptr<Instruction> statement_;
 };
 
 
@@ -213,17 +228,17 @@ private:
  * Resolve all nondeterinisms within a statement so that all its tests succeed and all its actions
  * become executable.
  */
-class Search : public Expression, public NoScopeOwner, public LanguageElement<Search, VoidType> {
+class Search : public Instruction, public NoScopeOwner, public LanguageElement<Search, VoidType> {
 public:
-	Search(Expression *statement);
+	Search(Instruction *statement);
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*statement_)
 
-	const Expression &statement() const;
+	const Instruction &statement() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 protected:
-	unique_ptr<Expression> statement_;
+	unique_ptr<Instruction> statement_;
 };
 
 
@@ -234,22 +249,22 @@ protected:
  * Search for a "best" executable path given a reward function, but only up to a
  * certain maximum number of actions (the horizon). Then execute the found action sequence.
  */
-class Solve : public Expression, public NoScopeOwner, public LanguageElement<Solve, VoidType> {
+class Solve : public Instruction, public NoScopeOwner, public LanguageElement<Solve, VoidType> {
 public:
 	Solve(
 		Expression *horizon,
 		Reference<Function> *reward,
-		Expression *statement
+		Instruction *statement
 	);
 
-	const Expression &statement() const;
+	const Instruction &statement() const;
 	const Expression &horizon() const;
 	const Reference<Function> &reward() const;
 	virtual void attach_semantics(SemanticsFactory &implementor) override;
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	SafeExprOwner<VoidType> statement_;
+	unique_ptr<Instruction> statement_;
 	SafeExprOwner<NumberType> horizon_;
 	unique_ptr<Reference<Function>> reward_;
 };
@@ -259,7 +274,7 @@ private:
 /**
  * @brief Test for a boolean condition. Fail the program if the condition evaluates to false.
  */
-class Test : public Expression, public NoScopeOwner, public LanguageElement<Test, VoidType> {
+class Test : public Instruction, public NoScopeOwner, public LanguageElement<Test, VoidType> {
 public:
 	Test(Expression *expression);
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*expression_)
@@ -277,19 +292,19 @@ protected:
 /**
  * @brief Classical while loop.
  */
-class While : public Expression, public NoScopeOwner, public LanguageElement<While, VoidType> {
+class While : public Instruction, public NoScopeOwner, public LanguageElement<While, VoidType> {
 public:
-	While(Expression *expression, Expression *stmt);
+	While(Expression *expression, Instruction *stmt);
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*expression_, *statement_)
 
 	const Expression &expression() const;
-	const Expression &statement() const;
+	const Instruction &statement() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 protected:
 	SafeExprOwner<BoolType> expression_;
-	SafeExprOwner<VoidType> statement_;
+	unique_ptr<Instruction> statement_;
 };
 
 
@@ -297,7 +312,7 @@ protected:
 /**
  * @brief Return a value from a function.
  */
-class Return : public Expression, public NoScopeOwner, public LanguageElement<Return, VoidType> {
+class Return : public Instruction, public NoScopeOwner, public LanguageElement<Return, VoidType> {
 public:
 	Return(Expression *expr);
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*expr_)
@@ -311,13 +326,47 @@ private:
 
 
 
-/**
- * @brief A function, also called a subroutine.
- * A function that returns a @ref Expression is also called a @ref Procedure.
- */
+class Procedure
+: public ScopeOwner
+, public Signified<Instruction>
+, public LanguageElement<Procedure, VoidType>
+{
+public:
+	Procedure(
+		Scope *own_scope,
+		const string &type_name,
+		const string &name,
+		const vector<shared_ptr<Variable>> &params
+	);
+
+	Procedure(
+		Scope *own_scope,
+		const string &type_name,
+		const string &name,
+		const boost::optional<vector<shared_ptr<Variable>>> &params
+	);
+
+
+	Reference<Procedure> *make_ref(const vector<Expression *> &params);
+	virtual Instruction *ref(const vector<Expression *> &params) override;
+	virtual const Instruction &definition() const;
+	void define(Instruction *definition);
+	virtual void compile(AExecutionContext &ctx) override;
+
+	virtual string to_string(const string &pfx) const override;
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(scope(), *definition_)
+
+private:
+	unique_ptr<Instruction> definition_;
+	vector<shared_ptr<Variable>> params_;
+};
+
+
+
 class Function
-: public Global
-, public ScopeOwner
+: public ScopeOwner
+, public Signified<Expression>
 , public LanguageElement<Function>
 {
 public:
@@ -335,26 +384,24 @@ public:
 		const boost::optional<vector<shared_ptr<Variable>>> &params
 	);
 
-	const Expression &definition() const;
-	void define(Expression *definition);
-	virtual void compile(AExecutionContext &ctx) override;
-
 	Reference<Function> *make_ref(const vector<Expression *> &params);
 	virtual Expression *ref(const vector<Expression *> &params) override;
+	virtual const Expression &definition() const;
+	void define(Expression *definition);
+	virtual void compile(AExecutionContext &ctx) override;
 
 	virtual string to_string(const string &pfx) const override;
 
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(scope(), *definition_)
 
 private:
-	SafeExprOwner<VoidType> definition_;
-	vector<shared_ptr<Variable>> params_;
+	unique_ptr<Expression> definition_;
 };
 
 
 
 class DurativeCall
-: public Expression
+: public Instruction
 , public NoScopeOwner
 , public LanguageElement<DurativeCall, VoidType>
 {
@@ -447,7 +494,7 @@ enum ListOpEnd {
 
 
 class ListPop
-: public Expression
+: public Instruction
 , public NoScopeOwner
 , public LanguageElement<ListPop, VoidType>
 {
@@ -468,7 +515,7 @@ private:
 
 
 class ListPush
-: public Expression
+: public Instruction
 , public NoScopeOwner
 , public LanguageElement<ListPush, VoidType>
 {
@@ -491,21 +538,21 @@ private:
 
 
 class During
-: public Expression
+: public Instruction
 , public NoScopeOwner
 , public LanguageElement<During, VoidType>
 {
 public:
 	During(
 		Reference<Action> *action_call,
-		Expression *parallel_block,
-		boost::optional<Expression *> on_fail,
-		boost::optional<Expression *> on_cancel
+		Instruction *parallel_block,
+		boost::optional<Instruction *> on_fail,
+		boost::optional<Instruction *> on_cancel
 	);
 	const Reference<Action> &action_call() const;
-	const Expression &parallel_block() const;
-	const Expression &on_fail() const;
-	const Expression &on_cancel() const;
+	const Instruction &parallel_block() const;
+	const Instruction &on_fail() const;
+	const Instruction &on_cancel() const;
 
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*action_call_, *parallel_block_, *on_fail_, *on_cancel_)
 
@@ -513,9 +560,9 @@ public:
 
 private:
 	unique_ptr<Reference<Action>> action_call_;
-	SafeExprOwner<VoidType> parallel_block_;
-	SafeExprOwner<VoidType> on_fail_;
-	SafeExprOwner<VoidType> on_cancel_;
+	unique_ptr<Instruction> parallel_block_;
+	unique_ptr<Instruction> on_fail_;
+	unique_ptr<Instruction> on_cancel_;
 };
 
 } // namespace gologpp

@@ -45,4 +45,28 @@ const string &Expression::type_name() const
 
 
 
+Instruction::Instruction()
+: parent_(nullptr)
+{}
+
+Scope &Instruction::parent_scope()
+{ return parent_->scope(); }
+
+const Scope &Instruction::parent_scope() const
+{ return parent_->scope(); }
+
+AbstractLanguageElement *Instruction::parent()
+{ return parent_; }
+
+const AbstractLanguageElement *Instruction::parent() const
+{ return parent_; }
+
+void Instruction::set_parent(AbstractLanguageElement *parent)
+{ parent_ = parent; }
+
+const string &Instruction::type_name() const
+{ return type().name(); }
+
+
+
 }

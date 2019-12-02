@@ -31,18 +31,6 @@ namespace gologpp {
 Scope Scope::global_scope_;
 
 
-Expression *ref_to_global(
-	const string &name,
-	const boost::optional<vector<Expression *>> &args
-) {
-	return global_scope().lookup_global(
-		name,
-		arity_t(args ? args->size() : 0)
-	)->ref(args.get_value_or({}));
-}
-
-
-
 Scope &NoScopeOwner::scope()
 { return parent_scope(); }
 

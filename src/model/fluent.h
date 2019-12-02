@@ -64,7 +64,7 @@ private:
 
 
 class Fluent
-: public Global
+: public Signified<Expression>
 , public ScopeOwner
 , public virtual AbstractLanguageElement
 , public LanguageElement<Fluent>

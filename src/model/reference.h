@@ -58,8 +58,7 @@ using ParamsToArgs = std::unordered_map<
 
 template<class TargetT, class ArgsT>
 class ReferenceBase
-: public Expression
-, public virtual AbstractReference
+: public virtual AbstractReference
 , public NoScopeOwner
 {
 public:
@@ -232,6 +231,7 @@ template<class TargetT>
 class Reference
 : public ReferenceBase<TargetT, Expression>
 , public LanguageElement<Reference<TargetT>>
+, public TargetT::SignifierT
 {
 public:
 	using ReferenceBase<TargetT, Expression>::ReferenceBase;
