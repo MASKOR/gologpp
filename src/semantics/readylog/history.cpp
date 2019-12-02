@@ -22,6 +22,7 @@
 #include "execution.h"
 #include "utilities.h"
 #include "value.h"
+#include "fluent.h"
 
 #include <iostream>
 #include <unordered_map>
@@ -114,8 +115,18 @@ shared_ptr<Transition> Semantics<History>::get_last_transition()
 void Semantics<History>::append_exog(shared_ptr<Grounding<AbstractAction>> trans)
 { extend_history(::list(trans->semantics().plterm(), current_history())); }
 
-void Semantics<History>::append_sensing_result(shared_ptr<Activity> a)
-{ extend_history(::list(a->semantics().sensing_result(), current_history())); }
+void Semantics<History>::append_sensing_result(const Reference<Fluent> &f, const Value &v)
+{
+	extend_history(
+		::list(
+			::term(EC_functor("e", 2),
+				f.semantics().plterm(),
+				v.semantics().plterm()
+			),
+			current_history()
+		)
+	);
+}
 
 EC_word Semantics<History>::current_history() const
 { return readylog_history_; }

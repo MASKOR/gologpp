@@ -137,8 +137,14 @@ void ExecutionContext::run(Block &&program)
 					backend().cancel_activity(trans);
 				else if (trans->hook() == Transition::Hook::START)
 					backend().start_activity(trans);
-				else if (trans->hook() == Transition::Hook::FINISH && trans->target()->senses())
-					history().abstract_semantics().append_sensing_result(backend().end_activity(trans));
+				else if (trans->hook() == Transition::Hook::FINISH) {
+					shared_ptr<Activity> activity = backend().end_activity(trans);
+					if (trans->target()->senses())
+						history().abstract_semantics().append_sensing_result(
+							*activity->target()->senses(),
+							activity->sensing_result().get()
+						);
+				}
 				else
 					backend().end_activity(trans);
 			}

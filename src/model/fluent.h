@@ -84,9 +84,7 @@ public:
 	virtual Expression *ref(const vector<Expression *> &params) override;
 
 	virtual void attach_semantics(SemanticsFactory &implementor) override;
-
 	virtual string to_string(const string &pfx) const override;
-
 	virtual void compile(AExecutionContext &ctx) override;
 
 private:
