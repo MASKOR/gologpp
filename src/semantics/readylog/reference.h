@@ -67,7 +67,7 @@ EC_word reference_term(const ReferenceBase<GologT, ExprT> &ref)
 template<class TargetT>
 class Semantics<Reference<TargetT>>
 : public AbstractSemantics<Reference<TargetT>>
-, public Semantics<Expression>
+, public Semantics<typename TargetT::SignifierT>
 {
 public:
 	using AbstractSemantics<Reference<TargetT>>::AbstractSemantics;
