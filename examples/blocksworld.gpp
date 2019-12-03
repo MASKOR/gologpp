@@ -53,18 +53,15 @@ procedure bla() {
 }
 
 
-bool function goal() {
-	return loc(a) == table & loc(b) == a & loc(c) == b
-// 	& loc(d) == c
-	;
-}
+bool function goal() =
+	loc(a) == table & loc(b) == a & loc(c) == b
 
-number function reward() {
+
+number function reward() =
 	if (goal())
-		return 100;
+		100
 	else
-		return -1;
-}
+		-1
 
 
 {
