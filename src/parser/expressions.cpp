@@ -21,12 +21,17 @@
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_lazy.hpp>
 #include <boost/spirit/include/qi_plus.hpp>
+#include <boost/spirit/include/qi_expect.hpp>
+#include <boost/spirit/include/qi_lit.hpp>
+#include <boost/spirit/include/qi_char.hpp>
+#include <boost/spirit/include/qi_string.hpp>
 
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
 #include <boost/phoenix/bind/bind_function_object.hpp>
 #include <boost/phoenix/operator/comparison.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/object/new.hpp>
 
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/support_argument.hpp>
@@ -38,6 +43,8 @@
 #include "compound_expression.h"
 #include "list_expression.h"
 #include "mixed_member_access.h"
+
+#include <model/procedural.h>
 
 #include <unordered_map>
 #include <functional>
@@ -52,6 +59,9 @@ rule<Expression *(Scope &)> string_expression;
 rule<Expression *(Scope &)> symbolic_expression;
 
 
+rule<Conditional<Expression> *(Scope &, Typename)> conditional_expression;
+
+
 void initialize_cyclic_expressions()
 {
 	static BooleanExpressionParser boolean_expression_;
@@ -63,6 +73,17 @@ void initialize_cyclic_expressions()
 	numeric_expression = { numeric_expression_(_r1), "numeric_expression" };
 	string_expression = { string_expression_(_r1), "string_expression" };
 	symbolic_expression = { symbolic_expression_(_r1), "symbolic_expression" };
+
+	conditional_expression = {
+		(
+			lit("if") > '(' > boolean_expression_(_r1) > ')'
+			> typed_expression()(_r1, _r2)
+			> "else"
+			> typed_expression()(_r1, _r2)
+		) [
+			_val = new_<Conditional<Expression>>(_1, _2, _3)
+		]
+	};
 
 	initialize_list_exprs();
 	initialize_compound_exprs();

@@ -69,6 +69,7 @@ void initialize_list_exprs()
 
 	list_expression = {
 		mixed_member_access()(_r1, ListType::name()) [ _val = _1 ]
+			| conditional_expression(_r1, ListType::name()) [ _val = _1 ]
 			| list_atom(_r1) [ _val = _1 ]
 			| braced_list_expression(_r1) [ _val = _1 ]
 		, "list_expression"

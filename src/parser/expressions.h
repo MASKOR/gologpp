@@ -37,6 +37,8 @@ rule<Expression *(Scope &)> &value_expression();
 
 rule<Expression *(Scope &, Typename)> &typed_expression();
 
+extern rule<Conditional<Expression> *(Scope &, Typename)> conditional_expression;
+
 
 extern rule<Expression *(Scope &)> boolean_expression;
 extern rule<Expression *(Scope &)> numeric_expression;

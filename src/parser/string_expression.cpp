@@ -55,6 +55,7 @@ StringExpressionParser::StringExpressionParser()
 	unary_expr =
 		conversion(_r1)
 		| string_value() | var_ref(_r1)
+		| conditional_expression(_r1, StringType::name())
 		| typed_reference<Fluent>()(_r1, StringType::name())
 		| typed_reference<Function>()(_r1, StringType::name())
 		| mixed_member_access()(_r1, StringType::name())

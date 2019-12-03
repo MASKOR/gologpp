@@ -30,15 +30,15 @@ namespace parser {
 
 
 
-struct StatementParser : grammar<Expression *(Scope &)> {
+struct StatementParser : grammar<Instruction *(Scope &)> {
 	StatementParser();
 
-	rule<Expression *(Scope &)> statement;
-	rule<Expression *(Scope &)> simple_statement;
-	rule<Expression *(Scope &)> compound_statement;
+	rule<Instruction *(Scope &)> statement;
+	rule<Instruction *(Scope &)> simple_statement;
+	rule<Instruction *(Scope &)> compound_statement;
 	rule<Block *(Scope &), locals<Scope *>> block;
 	rule<Choose *(Scope &), locals<Scope *>> choose;
-	rule<Conditional *(Scope &)> conditional;
+	rule<Conditional<Instruction> *(Scope &)> conditional;
 	rule<Pick *(Scope &), locals<Scope *, shared_ptr<Variable>>> pick;
 
 	rule<Search *(Scope &)> search;
@@ -52,11 +52,12 @@ struct StatementParser : grammar<Expression *(Scope &)> {
 
 	rule<During *(Scope &)> during;
 
-	rule<Expression *(Scope &)> empty_statement;
+	rule<Instruction *(Scope &)> empty_statement;
 
 	rule<Return *(Scope &)> return_stmt;
 
 	ReferenceParser<Action> action_call;
+	ReferenceParser<Procedure> procedure_call;
 	rule<DurativeCall *(Scope &), locals<DurativeCall::Hook>> durative_call;
 
 	AssignmentParser<Reference<Fluent>> fluent_assignment;
