@@ -45,19 +45,16 @@ protected:
 };
 
 
-enum ComparisonOperator {
-	EQ = 1, NEQ, GE, GT, LE, LT
-};
-
-
-string to_string(ComparisonOperator op);
-
 
 class Comparison : public Expression, public NoScopeOwner, public LanguageElement<Comparison, BoolType> {
 public:
-	Comparison(Expression *lhs, ComparisonOperator op, Expression *rhs);
+	enum Operator {
+		EQ = 1, NEQ, GE, GT, LE, LT
+	};
 
-	ComparisonOperator op() const;
+	Comparison(Expression *lhs, Operator op, Expression *rhs);
+
+	Operator op() const;
 	const Expression &lhs() const;
 	const Expression &rhs() const;
 
@@ -67,9 +64,13 @@ public:
 
 protected:
 	unique_ptr<Expression> lhs_;
-	ComparisonOperator op_;
+	Operator op_;
 	unique_ptr<Expression> rhs_;
 };
+
+using ComparisonOperator = Comparison::Operator;
+
+string to_string(Comparison::Operator op);
 
 
 
@@ -78,25 +79,23 @@ protected:
   Connective formulas, i.e. AND, OR, IMPLIES
 \*--------------------------------------------*/
 
-enum BooleanOperator {
-	// Order is important here since the
-	// enum value encodes operator precedence
-	IMPLIES = 0, OR, AND, XOR, IFF
-	, MIN_PRECEDENCE = IMPLIES
-	, MAX_PRECEDENCE = IFF
-};
-
-string to_string(BooleanOperator op);
-
 
 class BooleanOperation : public Expression, public NoScopeOwner, public LanguageElement<BooleanOperation, BoolType> {
 public:
+	enum Operator {
+		// Order is important here since the
+		// enum value encodes operator precedence
+		IMPLIES = 0, OR, AND, XOR, IFF
+		, MIN_PRECEDENCE = IMPLIES
+		, MAX_PRECEDENCE = IFF
+	};
+
 	BooleanOperation(
 		Expression *lhs,
-		BooleanOperator op,
+		Operator op,
 		Expression *rhs
 	);
-	BooleanOperator op() const;
+	Operator op() const;
 	const Expression &lhs() const;
 	const Expression &rhs() const;
 
@@ -106,9 +105,13 @@ public:
 
 protected:
 	SafeExprOwner<BoolType> lhs_;
-	BooleanOperator op_;
+	Operator op_;
 	SafeExprOwner<BoolType> rhs_;
 };
+
+using BooleanOperator = BooleanOperation::Operator;
+
+string to_string(BooleanOperator op);
 
 
 
@@ -116,24 +119,20 @@ protected:
   Set expressions & Quantifications
 \*--------------------------------------------*/
 
-
-enum QuantificationOperator {
-	EXISTS = 1, FORALL
-};
-
-string to_string(QuantificationOperator op);
-
-
 class Quantification : public Expression, public ScopeOwner, public LanguageElement<Quantification, BoolType> {
 public:
+	enum Operator {
+		EXISTS = 1, FORALL
+	};
+
 	Quantification(
 		Scope *own_scope,
-		QuantificationOperator op,
+		Operator op,
 		const shared_ptr<Variable> &variable,
 		Expression *expression
 	);
 
-	QuantificationOperator op() const;
+	Operator op() const;
 	const Variable &variable() const;
 	const Expression &expression() const;
 
@@ -142,10 +141,15 @@ public:
 	virtual string to_string(const string &pfx) const override;
 
 protected:
-	QuantificationOperator op_;
+	Operator op_;
 	shared_ptr<Variable> variable_;
 	SafeExprOwner<BoolType> expression_;
 };
+
+using QuantificationOperator = Quantification::Operator;
+
+string to_string(QuantificationOperator op);
+
 
 
 

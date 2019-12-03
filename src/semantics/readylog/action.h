@@ -89,9 +89,7 @@ public:
 	virtual ~Semantics() override = default;
 
 	const Activity &activity();
-
 	virtual EC_word plterm() override;
-	EC_word sensing_result();
 };
 
 
@@ -105,7 +103,6 @@ public:
 	virtual ~Semantics() override = default;
 
 	const Transition &trans();
-
 	virtual EC_word plterm() override;
 };
 

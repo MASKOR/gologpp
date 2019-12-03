@@ -17,6 +17,7 @@
 
 #include "fluent.h"
 #include "execution.h"
+#include "effect_axiom.h"
 
 namespace gologpp {
 
@@ -93,7 +94,7 @@ const Scope &InitialValue::parent_scope() const
 
 
 Fluent::Fluent(Scope *own_scope, const string &type_name, const string &name, const vector<shared_ptr<Variable>> &args)
-: Global(name, args)
+: Signified<Expression>(name, args)
 , ScopeOwner(own_scope)
 { set_type_by_name(type_name); }
 
@@ -106,20 +107,29 @@ Fluent::Fluent(Scope *own_scope, const string &type_name, const string &name, co
 const vector<unique_ptr<InitialValue>> &Fluent::initially() const
 { return initial_values_; }
 
-void Fluent::define(const vector<InitialValue *> &initial_values)
-{ define(boost::optional<vector<InitialValue *>>(initial_values)); }
+bool Fluent::synced() const
+{ return sync_action_.get(); }
+
+const ExogAction &Fluent::sync_action() const
+{ return *sync_action_; }
+
+ExogAction &Fluent::sync_action()
+{ return *sync_action_; }
+
+void Fluent::define(const vector<InitialValue *> &initial_values, bool synced)
+{ define(boost::optional<vector<InitialValue *>>(initial_values), synced); }
 
 Reference<Fluent> *Fluent::make_ref(const vector<Expression *> &args)
 { return make_ref_<Fluent>(args); }
 
-Expression *Fluent::ref(const vector<Expression *> &args)
+Reference<Fluent> *Fluent::ref(const vector<Expression *> &args)
 { return make_ref(args); }
 
 void Fluent::compile(AExecutionContext &ctx)
 { ctx.compile(*this); }
 
 
-void Fluent::define(const boost::optional<vector<InitialValue *>> &initial_values)
+void Fluent::define(const boost::optional<vector<InitialValue *>> &initial_values, bool synced)
 {
 	for (shared_ptr<Variable> &param : params())
 		if (param->domain().is_implicit())
@@ -154,6 +164,56 @@ void Fluent::define(const boost::optional<vector<InitialValue *>> &initial_value
 	}
 	else
 		throw UserError("Fluent " + signature_str() + ": No `initially:' block");
+
+	if (synced) {
+		Scope *exog_scope = new Scope(global_scope());
+
+		vector<shared_ptr<Variable>> exog_params;
+		vector<Expression *> effect_fluent_args;
+		for (const auto &fluent_param : this->params()) {
+			shared_ptr<Variable> exog_param = exog_scope->get_var(
+				VarDefinitionMode::FORCE,
+				static_cast<string>(fluent_param->type()),
+				this->name() + "_" + fluent_param->name()
+			);
+			exog_params.push_back(exog_param);
+			effect_fluent_args.push_back(exog_param->ref());
+		}
+
+		exog_params.push_back(
+			exog_scope->get_var(
+				VarDefinitionMode::FORCE,
+				static_cast<string>(this->type()),
+				this->name() + "_value"
+			)
+		);
+
+		Reference<Variable> *effect_fluent_value = exog_params.back()->ref();
+
+		ExogAction *sync_exog = global_scope().declare_global<ExogAction>(
+			exog_scope,
+			UndefinedType::name(),
+			"gpp~sync_" + this->name(),
+			{ exog_params }
+		);
+
+		EffectAxiom<Reference<Fluent>> *set_fluent_effect = new EffectAxiom<Reference<Fluent>>();
+		set_fluent_effect->define(
+			{}, // no condition
+			this->ref(effect_fluent_args),
+			effect_fluent_value
+		);
+
+		sync_exog->define(
+			{}, // no precondition
+			vector<AbstractEffectAxiom *>{ set_fluent_effect },
+			{}  // no mapping
+		);
+
+		global_scope().register_global(sync_exog);
+
+		this->sync_action_.reset(sync_exog);
+	}
 }
 
 

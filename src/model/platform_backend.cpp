@@ -161,5 +161,8 @@ Clock::time_point DummyBackend::time() const noexcept
 }
 
 
+void DummyBackend::sync_event(const ExogEvent &)
+{ throw Bug("Not implemented"); }
+
 
 }

@@ -50,12 +50,13 @@ public:
 	/**
 	 * @brief compile called once for the toplevel @param program.
 	 */
-	virtual void precompile() = 0;
+	void precompile();
 	virtual void compile(const Block &program) = 0;
 	virtual void compile(const Fluent &fluent) = 0;
 	virtual void compile(const AbstractAction &action) = 0;
 	virtual void compile(const Function &function) = 0;
-	virtual void postcompile() = 0;
+	virtual void compile(const Procedure &function) = 0;
+	void postcompile();
 
 	virtual void run(Block &&program) = 0;
 
@@ -70,7 +71,13 @@ public:
 	PlatformBackend &backend();
 	History &history();
 
+protected:
+	void sync_fluent(const Reference<Fluent> &f, const Activity &context);
+
 private:
+	virtual void precompile_() = 0;
+	virtual void postcompile_() = 0;
+
 	std::mutex exog_mutex_;
 	std::condition_variable queue_empty_condition_;
 	std::mutex queue_empty_mutex_;

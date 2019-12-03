@@ -35,7 +35,7 @@ using namespace gologpp;
 
 void test_parser(const string &filename)
 {
-	Expression *mainproc = parser::parse_file(filename).release();
+	Instruction *mainproc = parser::parse_file(filename).release();
 
 	for (shared_ptr<const Global> g : global_scope().globals())
 		std::cout << g->str() << std::endl;

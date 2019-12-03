@@ -63,6 +63,7 @@ public:
 	virtual Clock::time_point time() const noexcept = 0;
 	void set_context(AExecutionContext *ctx);
 
+	virtual void sync_event(const ExogEvent &) = 0;
 
 private:
 	virtual void execute_activity(shared_ptr<Activity> a) = 0;
@@ -81,6 +82,8 @@ public:
 
 	virtual void preempt_activity(shared_ptr<Activity>) override;
 	virtual Clock::time_point time() const noexcept override;
+
+	virtual void sync_event(const ExogEvent &) override;
 
 private:
 	virtual void execute_activity(shared_ptr<Activity> a) override;

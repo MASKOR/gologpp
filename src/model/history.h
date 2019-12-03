@@ -34,7 +34,7 @@ public:
 
 	virtual shared_ptr<Transition> get_last_transition() = 0;
 	virtual void append_exog(shared_ptr<Grounding<AbstractAction>>) = 0;
-	virtual void append_sensing_result(shared_ptr<Activity>) = 0;
+	virtual void append_sensing_result(const Reference<Fluent> &f, const Value &v) = 0;
 	virtual bool should_progress() const = 0;
 	virtual void progress() = 0;
 

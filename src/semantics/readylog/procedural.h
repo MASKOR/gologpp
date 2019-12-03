@@ -58,6 +58,19 @@ private:
 
 
 template<>
+class Semantics<Procedure>
+: public Semantics<AbstractLanguageElement>
+, public AbstractSemantics<Procedure>
+{
+public:
+	using AbstractSemantics<Procedure>::AbstractSemantics;
+	virtual EC_word plterm() override;
+	virtual EC_word definition();
+};
+
+
+
+template<>
 class Semantics<Block>
 : public Semantics<AbstractLanguageElement>
 , public AbstractSemantics<Block>
@@ -86,13 +99,13 @@ public:
 
 
 
-template<>
-class Semantics<Conditional>
+template<class SignT>
+class Semantics<Conditional<SignT>>
 : public Semantics<AbstractLanguageElement>
-, public AbstractSemantics<Conditional>
+, public AbstractSemantics<Conditional<SignT>>
 {
 public:
-	using AbstractSemantics<Conditional>::AbstractSemantics;
+	using AbstractSemantics<Conditional<SignT>>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 

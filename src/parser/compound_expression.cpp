@@ -67,6 +67,7 @@ void initialize_compound_exprs()
 
 	compound_expression =
 		mixed_member_access()(_r1, CompoundType::name()) [ _val = _1 ]
+		| conditional_expression(_r1, CompoundType::name()) [ _val = _1 ]
 		| compound_atom(_r1) [ _val = _1 ]
 		| braced_compound_expr_(_r1) [ _val = _1 ]
 		, "compound_expression"

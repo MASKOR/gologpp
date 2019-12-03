@@ -58,8 +58,7 @@ using ParamsToArgs = std::unordered_map<
 
 template<class TargetT, class ArgsT>
 class ReferenceBase
-: public Expression
-, public virtual AbstractReference
+: public virtual AbstractReference
 , public NoScopeOwner
 {
 public:
@@ -108,6 +107,10 @@ public:
 	)
 	{}
 
+	ReferenceBase(TargetT &target, vector<unique_ptr<ArgsT>> &&args)
+	: ReferenceBase(std::dynamic_pointer_cast<TargetT>(target.shared_from_this()), std::move(args))
+	{}
+
 	ReferenceBase(const string &target_name, const boost::optional<vector<ArgsT *>> &args)
 	: ReferenceBase(target_name, args.get_value_or({}))
 	{}
@@ -123,8 +126,11 @@ public:
 	TargetT &operator * () const
 	{ return target(); }
 
-	TargetT *operator -> () const
-	{ return &target(); }
+	const TargetT *operator -> () const
+	{ return target().get(); }
+
+	TargetT *operator -> ()
+	{ return target().get(); }
 
 	bool operator == (const ReferenceBase<TargetT, ArgsT> &other) const
 	{
@@ -232,6 +238,7 @@ template<class TargetT>
 class Reference
 : public ReferenceBase<TargetT, Expression>
 , public LanguageElement<Reference<TargetT>>
+, public TargetT::SignifierT
 {
 public:
 	using ReferenceBase<TargetT, Expression>::ReferenceBase;

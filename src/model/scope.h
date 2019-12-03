@@ -38,13 +38,6 @@ Scope &global_scope();
 
 
 
-Expression *ref_to_global(
-	const string &name,
-	const boost::optional<vector<Expression *>> &args
-);
-
-
-
 /**
  * @brief The NoScopeOwner class: A language element that does not open a new scope,
  * i.e. its scope and the scope of its children is its parent scope.

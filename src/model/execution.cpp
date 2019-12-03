@@ -22,6 +22,7 @@
 #include "history.h"
 #include "platform_backend.h"
 #include "activity.h"
+#include "effect_axiom.h"
 
 #include <iostream>
 
@@ -100,6 +101,37 @@ History &AExecutionContext::history()
 { return history_; }
 
 
+void AExecutionContext::precompile()
+{
+	precompile_();
+}
+
+void AExecutionContext::postcompile()
+{ postcompile_(); }
+
+
+void AExecutionContext::sync_fluent(const Reference<Fluent> &f, const Activity &context)
+{
+	vector<unique_ptr<Value>> sync_exog_args;
+	for (const unique_ptr<Expression> &arg : f.args())
+		sync_exog_args.emplace_back(
+			new Value(arg->abstract_expr_semantics().evaluate(context, history()))
+		);
+
+	sync_exog_args.emplace_back(
+		new Value(context.target()->senses()->abstract_expr_semantics().evaluate(context, history()))
+	);
+
+	backend().sync_event(
+		ExogEvent(
+			context.target()->senses()->target()->sync_action(),
+			std::move(sync_exog_args)
+		)
+	);
+}
+
+
+
 
 ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&semantics, unique_ptr<PlatformBackend> &&exec_backend)
 : AExecutionContext(std::move(semantics), std::move(exec_backend))
@@ -137,8 +169,25 @@ void ExecutionContext::run(Block &&program)
 					backend().cancel_activity(trans);
 				else if (trans->hook() == Transition::Hook::START)
 					backend().start_activity(trans);
-				else if (trans->hook() == Transition::Hook::FINISH && trans->target()->senses())
-					history().abstract_semantics().append_sensing_result(backend().end_activity(trans));
+				else if (trans->hook() == Transition::Hook::FINISH) {
+					shared_ptr<Activity> activity = backend().end_activity(trans);
+
+					// Sync effects if necessary
+					for (const auto &effect : trans->target()->effects())
+						if (effect->fluent()->synced())
+							sync_fluent(effect->fluent(), *activity);
+
+					if (trans->target()->senses()) {
+						history().abstract_semantics().append_sensing_result(
+							*activity->target()->senses(),
+							activity->sensing_result().get()
+						);
+
+						// Sync sensed fluent if necessary
+						if (trans->target()->senses()->target()->synced())
+							sync_fluent(*trans->target()->senses(), *activity);
+					}
+				}
 				else
 					backend().end_activity(trans);
 			}

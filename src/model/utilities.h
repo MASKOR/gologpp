@@ -182,6 +182,16 @@ string concat_list(const ListT &l, const string sep, const string &pfx = "")
 }
 
 
+template<class T, class T1, class... Ts>
+struct is_member {
+	static constexpr bool value()
+	{ return std::is_same<T, T1>::value || (sizeof...(Ts) && is_member<T, Ts...>::value()); }
+};
+
+
+
+
+
 } // namespace gologpp
 
 

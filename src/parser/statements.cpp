@@ -68,8 +68,8 @@ StatementParser::StatementParser()
 		| action_call(_r1)
 		| list_pop(_r1)
 		| list_push(_r1)
-		| typed_reference<Function>()(_r1, VoidType::name()))
-		> ';';
+		| procedure_call(_r1)
+	) > ';';
 	simple_statement.name("simple_statement");
 
 	compound_statement = block(_r1) | choose(_r1) | conditional(_r1)
@@ -105,7 +105,7 @@ StatementParser::StatementParser()
 			| empty_statement(_r1)
 		)
 	) [
-		_val = new_<Conditional>(_1, _2, _3)
+		_val = new_<Conditional<Instruction>>(_1, _2, _3)
 	];
 	conditional.name("conditional");
 
@@ -123,7 +123,7 @@ StatementParser::StatementParser()
 	];
 	pick.name("pick");
 
-	empty_statement = qi::attr(new_<Block>(new_<Scope>(_r1), construct<vector<Expression *>>()));
+	empty_statement = qi::attr(new_<Block>(new_<Scope>(_r1), construct<vector<Instruction *>>()));
 	empty_statement.name("empty_statement");
 
 	search = (lit("search") > statement(_r1)) [

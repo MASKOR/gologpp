@@ -36,10 +36,11 @@ using fusion_wtf_vector = boost::fusion::vector2<T1, T2>;
 #endif
 
 
-class Expression;
-
-
 using string = std::string;
+
+
+class Expression;
+class Instruction;
 
 class AbstractLanguageElement;
 template<class, class> class LanguageElement;
@@ -90,7 +91,7 @@ class Quantification;
 
 class Block;
 class Choose;
-class Conditional;
+template<class> class Conditional;
 class Concurrent;
 template<class> class Assignment;
 class Pick;
@@ -109,6 +110,7 @@ class ListPush;
 class During;
 
 class Function;
+class Procedure;
 
 class AbstractReference;
 template<class> class Reference;
@@ -122,6 +124,8 @@ class History;
 
 template<class> class Semantics;
 template<class> class AbstractSemantics;
+template<> class AbstractSemantics<Expression>;
+template<> class AbstractSemantics<Instruction>;
 
 class SemanticsFactory;
 
@@ -149,17 +153,21 @@ class PlatformBackend;
 	(Reference<Fluent>) \
 	(Reference<Variable>) \
 	(Reference<Function>) \
+	(Reference<Procedure>) \
 	(Pick)(Return) \
 	(FieldAccess) \
 	(ListAccess)(ListLength) \
 	(ListPop)(ListPush) \
 	(Domain) \
 	(Function) \
+	(Procedure) \
 	(Action)(Activity)(Transition) \
 	(ExogAction)(ExogEvent) \
 	(Scope)(ArithmeticOperation) \
 	(Negation)(BooleanOperation)(Quantification)(Concurrent) \
-	(Block)(Choose)(Conditional)(Search)(Solve)(Test)(While) \
+	(Block)(Choose)(Search)(Solve)(Test)(While) \
+	(Conditional<Instruction>) \
+	(Conditional<Expression>) \
 	(During) \
 	(History)(Reference<Action>) \
 	(Reference<ExogAction>) \

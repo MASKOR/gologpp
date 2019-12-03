@@ -25,6 +25,7 @@ namespace gologpp {
 namespace parser {
 
 
+
 struct FunctionParser
 : grammar <
 	Function *(Scope &),
@@ -46,9 +47,35 @@ struct FunctionParser
 			string
 		>
 	> function;
+};
+
+
+
+struct ProcedureParser
+: grammar <
+	Procedure *(Scope &),
+	locals <
+		Scope *,
+		string,
+		boost::optional<vector<shared_ptr<Variable>>>,
+		string
+	>
+> {
+	ProcedureParser();
+
+	rule<
+		Procedure *(Scope &),
+		locals <
+			Scope *,
+			string,
+			boost::optional<vector<shared_ptr<Variable>>>,
+			string
+		>
+	> procedure;
 
 	StatementParser statement;
 };
+
 
 
 } // namespace parser

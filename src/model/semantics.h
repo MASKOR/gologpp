@@ -19,7 +19,6 @@
 #define GOLOGPP_IMPLEMENTATION_H_
 
 #include "gologpp.h"
-#include "expressions.h"
 #include <memory>
 
 #include <boost/preprocessor/seq/for_each.hpp>
@@ -38,6 +37,7 @@ public:
 };
 
 
+
 template<>
 class AbstractSemantics<Expression>
 : public virtual AbstractSemantics<AbstractLanguageElement>
@@ -45,6 +45,18 @@ class AbstractSemantics<Expression>
 public:
 	virtual Value evaluate(const Activity &context, const History &h) = 0;
 };
+
+
+
+template<>
+class AbstractSemantics<Instruction>
+: public virtual AbstractSemantics<AbstractLanguageElement>
+{
+public:
+	virtual Instruction *trans(History &h) = 0;
+	virtual Instruction *plan(History &h);
+};
+
 
 
 template<class GologT>

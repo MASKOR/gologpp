@@ -135,6 +135,13 @@ public:
 
 	virtual bool operator == (const Value &c) const;
 
+	bool operator >= (const Value &) const;
+	bool operator <= (const Value &) const;
+	bool operator > (const Value &) const;
+	bool operator < (const Value &) const;
+
+	Value operator ! () const;
+
 	bool operator != (const Value &) const;
 	virtual Value *copy() const;
 
