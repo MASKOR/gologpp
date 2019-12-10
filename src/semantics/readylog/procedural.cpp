@@ -137,7 +137,7 @@ EC_word Semantics<Conditional>::plterm()
 EC_word Semantics<Concurrent>::plterm()
 {
 	element().scope().semantics().init_vars();
-	return ::term(EC_functor("pconc", 1), to_ec_list(element().procs()));
+	return to_ec_term("pconc", element().procs());
 }
 
 
