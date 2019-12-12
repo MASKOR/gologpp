@@ -17,6 +17,7 @@
 
 #include "types.h"
 #include "scope.h"
+#include "domain.h"
 
 namespace gologpp {
 
@@ -26,7 +27,18 @@ Type::Type(const string &name)
 {}
 
 bool Type::operator >= (const Type &other) const
-{ return this == &other || name() == other.name() || other.is<UndefinedType>(); }
+{
+	if (other.is<Domain>()) {
+		try {
+			const Domain &d = dynamic_cast<const Domain &>(other);
+			return *this >= d.element_type();
+		} catch (std::bad_cast &) {
+			return false;
+		}
+	}
+	else
+		return this == &other || name() == other.name() || other.is<UndefinedType>();
+}
 
 bool Type::operator >= (const AbstractLanguageElement &e) const
 { return *this >= e.type(); }
@@ -155,6 +167,8 @@ std::unordered_set<string> CompoundType::field_names() const
 
 bool CompoundType::operator >= (const Type &other) const
 {
+	if (other.is<UndefinedType>())
+		return true;
 	try {
 		const CompoundType &o = dynamic_cast<const CompoundType &>(other);
 		for (auto pair : fields_) {
@@ -193,6 +207,8 @@ PType ListType::element_type_ptr() const
 
 bool ListType::operator >= (const Type &other) const
 {
+	if (other.is<UndefinedType>())
+		return true;
 	try {
 		const ListType &t = dynamic_cast<const ListType &>(other);
 		return this->element_type() >= t.element_type();
