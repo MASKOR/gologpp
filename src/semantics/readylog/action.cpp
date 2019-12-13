@@ -88,6 +88,7 @@ EC_word Semantics<Action>::durative_poss()
 
 EC_word Semantics<Action>::senses()
 {
+	element().scope().semantics().init_vars();
 	return ::term(EC_functor("senses", 2),
 		plterm(),
 		element().senses()->semantics().plterm()
@@ -127,6 +128,7 @@ vector<EC_word> Semantics<ExogAction>::causes_vals()
 
 EC_word Semantics<ExogAction>::poss()
 {
+	element().scope().semantics().init_vars();
 	return ::term(EC_functor("poss", 2),
 		plterm(),
 		element().precondition().semantics().plterm()
