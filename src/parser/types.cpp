@@ -65,8 +65,8 @@ void TypeNameParser<BaseT>::init()
 	non_list_type_name = r_name() [
 		_val = phoenix::bind(&Scope::lookup_type<BaseT>, _r1, _1),
 		_pass = !!_val
-	]
-	, "non_list_type_name";
+	];
+	non_list_type_name.name("non_list_type_name");
 
 	//GOLOGPP_DEBUG_NODES((type_name)(list_type_name))
 }
