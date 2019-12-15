@@ -66,6 +66,10 @@ Value Semantics<Expression>::evaluate(const Activity &context, const History &h)
 
 
 
+Instruction *Semantics<Instruction>::trans(History &)
+{ throw Bug("ReadylogSemantics doesn't implement Semantics<Instruction>::trans"); }
+
+
 #define GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL(_r, _data, GologT) \
 unique_ptr<AbstractSemantics<AbstractLanguageElement>> ReadylogSemanticsFactory::make_semantics(GologT &obj) \
 { return unique_ptr<AbstractSemantics<AbstractLanguageElement>>(new Semantics<GologT>(obj)); }

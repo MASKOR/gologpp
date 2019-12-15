@@ -37,9 +37,9 @@ namespace parser {
 
 
 
-unique_ptr<Expression> parse_string(rule<Expression *(Scope &)> &parser, const std::string &code)
+unique_ptr<Instruction> parse_string(rule<Instruction *(Scope &)> &parser, const std::string &code)
 {
-	Expression *rv = nullptr;
+	Instruction *rv = nullptr;
 
 	boost::spirit::qi::phrase_parse(
 		iterator(code.cbegin()),
@@ -48,11 +48,11 @@ unique_ptr<Expression> parse_string(rule<Expression *(Scope &)> &parser, const s
 		gologpp_skipper(),
 		rv
 	);
-	return unique_ptr<Expression>(rv);
+	return unique_ptr<Instruction>(rv);
 }
 
 
-unique_ptr<Expression> parse_recursive(rule<Expression *(Scope &)> &parser, const std::string &filename)
+unique_ptr<Instruction> parse_recursive(rule<Instruction *(Scope &)> &parser, const std::string &filename)
 {
 	std::ifstream file(filename);
 	if (!file.is_open())
@@ -73,8 +73,8 @@ unique_ptr<Expression> parse_recursive(rule<Expression *(Scope &)> &parser, cons
 		++offs;
 		string cur_path = filename.substr(0, filename.find_last_of("/"));
 		string inc_filename = content.substr(offs, content.find_first_of("\"", offs) - offs);
-		ProgramParser any_definition;
-		rule<Expression *(Scope &)> r_include { any_definition(_r1) > eoi };
+		BatParser any_definition;
+		rule<Instruction *(Scope &)> r_include { any_definition(_r1) > eoi };
 		on_error<rethrow>(r_include, phoenix::bind(&handle_error, _1, _3, _2, _4));
 		parse_recursive(r_include, cur_path + '/' + inc_filename);
 	}
@@ -82,7 +82,7 @@ unique_ptr<Expression> parse_recursive(rule<Expression *(Scope &)> &parser, cons
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 
-	unique_ptr<Expression> rv = parse_string(parser, content);
+	unique_ptr<Instruction> rv = parse_string(parser, content);
 	std::chrono::duration<double> td = std::chrono::high_resolution_clock::now() - t1;
 
 	std::cout << "... done. Parsing took " << td.count() << " s." << std::endl;
@@ -91,10 +91,10 @@ unique_ptr<Expression> parse_recursive(rule<Expression *(Scope &)> &parser, cons
 }
 
 
-unique_ptr<Expression> parse_file(const std::string &filename) {
-	ProgramParser any_definition;
+unique_ptr<Instruction> parse_file(const std::string &filename) {
+	BatParser any_definition;
 	StatementParser statement;
-	rule<Expression *(Scope &)> r_main {
+	rule<Instruction *(Scope &)> r_main {
 		omit [any_definition(_r1)]
 		> statement(_r1)[ _val = _1 ]
 		> eoi

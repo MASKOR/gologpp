@@ -36,20 +36,20 @@ namespace gologpp {
  * We also don't need explicit reference representation, i.e. there is no Reference<Domain<...>>.
  * Since domains don't have arguments and anonymous domains can always appear inline,
  * the syntactic separation between named global definition and inline specification is not needed.
+ * A Domain's type is always the @a VoidType since it doesn't represent a value by itself.
  */
 class Domain
 : public virtual AbstractLanguageElement
-, public Name
+, public Type
 , public NoScopeOwner
 , public LanguageElement<Domain>
-, public std::enable_shared_from_this<Domain>
 {
 public:
 	typedef std::unordered_set<unique_ptr<Value>> ElementSet;
 	typedef typename ElementSet::iterator ElementIterator;
 
-	Domain(const string &name, const string &type_name, const vector<Value *> &elements = {}, bool implicit = false);
-	Domain(const string &type_name);
+	Domain(const string &name, const Type &elem_type, const vector<Value *> &elements = {}, bool implicit = false);
+	Domain(const Type &elem_type);
 	Domain(const string &name, const Domain &other);
 	Domain(const Domain &other);
 	Domain();
@@ -57,6 +57,10 @@ public:
 	virtual ~Domain() override = default;
 
 	Domain &operator = (const Domain &other);
+
+	virtual bool operator <= (const Type &other) const override;
+	virtual bool operator >= (const Type &other) const override;
+	virtual bool operator >= (const AbstractLanguageElement &e) const override;
 
 
 	/**
@@ -72,6 +76,8 @@ public:
 
 	ElementSet &elements();
 	const ElementSet &elements() const;
+
+	const Type &element_type() const;
 
 	void add_element(const Value &c);
 
@@ -92,11 +98,14 @@ public:
 
 	virtual string to_string(const string &) const override;
 
-
 private:
+	static string next_anon_name();
+
 	ElementSet elements_;
+	shared_ptr<const Type> element_type_;
 	std::unordered_set<AbstractLanguageElement *> subjects_;
 	bool implicit_;
+	static size_t id_count_;
 };
 
 

@@ -66,7 +66,7 @@ ExpressionTypeMismatch::ExpressionTypeMismatch(const string &msg)
 
 
 TypeError::TypeError(const AbstractLanguageElement &expr, const Type &t)
-: UserError("Expression `" + expr.str() + "` is not of type " + t.name())
+: UserError("Expression " + expr.str() + " is not of type " + t.name())
 {}
 
 

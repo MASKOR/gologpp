@@ -23,10 +23,6 @@ Name::Name(const string &name)
 : name_(name)
 {}
 
-Name::Name(Name &&other)
-: name_(std::move(other.name_))
-{}
-
 Name::operator string () const
 { return name_; }
 

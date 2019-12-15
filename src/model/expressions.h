@@ -45,8 +45,29 @@ public:
 	AbstractLanguageElement *parent();
 	const AbstractLanguageElement *parent() const;
 	void set_parent(AbstractLanguageElement *parent);
+	virtual bool operator <= (const Type &type) const;
 
-	const string &type_name() const;
+protected:
+	AbstractLanguageElement *parent_;
+};
+
+
+
+class Instruction : public virtual AbstractLanguageElement {
+protected:
+	Instruction();
+	Instruction(const Instruction &) = delete;
+	Instruction(Instruction &&) = default;
+	Instruction &operator = (const Instruction &) = delete;
+
+public:
+	virtual ~Instruction() override = default;
+
+	virtual Scope &parent_scope() override;
+	virtual const Scope &parent_scope() const override;
+	AbstractLanguageElement *parent();
+	const AbstractLanguageElement *parent() const;
+	void set_parent(AbstractLanguageElement *parent);
 
 protected:
 	AbstractLanguageElement *parent_;
@@ -74,6 +95,10 @@ public:
 		return *this;
 	}
 };
+
+
+template<class T>
+using SafeVector = vector<SafeExprOwner<T>>;
 
 
 template<class T>

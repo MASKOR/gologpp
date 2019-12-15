@@ -21,18 +21,18 @@ namespace gologpp {
 
 
 ListExpression::ListExpression(
-	const string &type_name,
+	const Type &t,
 	const boost::optional<vector<Expression *>> &entries
 )
 {
-	set_type_unchecked(type_name);
+	set_type_unchecked(t);
 
 	if (!AbstractLanguageElement::type().is<ListType>())
 		throw TypeError("Attempt to construct ListExpression, but type name \""
-			+ type_name + "\" does not refer to a list type");
+			+ t.name() + "\" does not refer to a list type");
 
 	for (Expression *expr : entries.get_value_or({})) {
-		if (type().element_type() == expr->type())
+		if (type().element_type() >= expr->type())
 			entries_.emplace_back(expr);
 		else
 			throw ExpressionTypeMismatch("Cannot assign " + expr->str()

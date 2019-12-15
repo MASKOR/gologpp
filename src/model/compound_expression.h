@@ -35,7 +35,7 @@ class CompoundExpression
 , public NoScopeOwner
 {
 public:
-	CompoundExpression(const string &type_name, const vector<fusion_wtf_vector<string, Expression *>> &entries);
+	CompoundExpression(const Type &type, const vector<fusion_wtf_vector<string, Expression *>> &entries);
 
 	const Expression &entry(const string &key) const;
 

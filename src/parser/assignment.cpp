@@ -47,9 +47,9 @@ AssignmentParser<LhsT>::AssignmentParser()
 {
 	assignment = (
 		(lhs_parser(_r1) >> "=") [
-			_a = phoenix::bind(&Expression::type_name, *_1)
+			_a = phoenix::bind(&Expression::type_ptr, *_1)
 		]
-		> typed_expression()(_r1, _a)
+		> typed_expression()(_r1, *_a)
 	) [
 		_val = new_<Assignment<LhsT>>(_1, _2)
 	];
@@ -73,7 +73,7 @@ void AssignmentParser<Reference<Fluent>>::init()
 template<>
 void AssignmentParser<FieldAccess>::init()
 {
-	lhs_parser = mixed_member_access()(_r1, UndefinedType::name()) [
+	lhs_parser = mixed_member_access()(_r1, undefined_type()) [
 		_pass = (_val = dynamic_cast_<FieldAccess *>(_1))
 	];
 	lhs_parser.name("field_access_lhs");
@@ -83,7 +83,7 @@ void AssignmentParser<FieldAccess>::init()
 template<>
 void AssignmentParser<ListAccess>::init()
 {
-	lhs_parser = mixed_member_access()(_r1, UndefinedType::name()) [
+	lhs_parser = mixed_member_access()(_r1, undefined_type()) [
 		_pass = (_val = dynamic_cast_<ListAccess *>(_1))
 	];
 	lhs_parser.name("list_access_lhs");

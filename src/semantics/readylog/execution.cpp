@@ -141,14 +141,17 @@ void ReadylogContext::compile(const AbstractAction &aa)
 
 void ReadylogContext::compile(const Fluent &fluent)
 {
-	compile_term(fluent.semantics<Fluent>().prim_fluent());
-	for (EC_word &initially : fluent.semantics<Fluent>().initially())
+	compile_term(fluent.semantics().prim_fluent());
+	for (EC_word &initially : fluent.semantics().initially())
 		compile_term(initially);
 }
 
 
 void ReadylogContext::compile(const Function &function)
-{ compile_term(function.semantics<Function>().definition()); }
+{ compile_term(function.semantics().definition()); }
+
+void ReadylogContext::compile(const Procedure &proc)
+{ compile_term(proc.semantics().definition()); }
 
 
 void ReadylogContext::compile_term(const EC_word &term)

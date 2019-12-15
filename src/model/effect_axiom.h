@@ -80,7 +80,8 @@ public:
 
 	void define(boost::optional<Expression *> condition, LhsT *lhs, Expression *value)
 	{
-		ensure_type_equality(*lhs, *value);
+		if (!(lhs->type() >= *value))
+			throw TypeError(*value, lhs->type());
 
 		if (condition)
 			set_condition(*condition);

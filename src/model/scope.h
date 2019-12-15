@@ -38,13 +38,6 @@ Scope &global_scope();
 
 
 
-Expression *ref_to_global(
-	const string &name,
-	const boost::optional<vector<Expression *>> &args
-);
-
-
-
 /**
  * @brief The NoScopeOwner class: A language element that does not open a new scope,
  * i.e. its scope and the scope of its children is its parent scope.
@@ -100,7 +93,7 @@ public:
 
 	~Scope() override;
 
-	shared_ptr<Variable> get_var(VarDefinitionMode var_def_mode, const string &type_name, const string &name);
+	shared_ptr<Variable> get_var(VarDefinitionMode var_def_mode, const Type &type, const string &name);
 	shared_ptr<Variable> lookup_var(const string &name) const;
 	bool has_var(const string &name) const;
 	vector<shared_ptr<Variable>> lookup_vars(const vector<string> &names);
@@ -143,7 +136,7 @@ public:
 	template<class GologT>
 	GologT *declare_global(
 		Scope *own_scope,
-		const string &type_name,
+		const Type &type,
 		const string &name,
 		const boost::optional<vector<shared_ptr<Variable>>> &args
 	) {
@@ -152,9 +145,9 @@ public:
 		if (exists_global(name, arity)) {
 			rv = lookup_global<GologT>(name, arity).get();
 
-			if (rv && rv->type() != type_name)
+			if (rv && !(rv->type() <= type))
 				throw TypeError("Cannot redeclare " + rv->str()
-					+ " with type " + type_name);
+					+ " with type " + type.name());
 
 			// Here be dragons:
 			// own_scope is constructed by the parser, and it may or may not
@@ -165,7 +158,7 @@ public:
 		}
 		else
 			(*globals_) [ { name, arity } ]
-				.reset(new GologT(own_scope, type_name, name, args.get_value_or({})));
+				.reset(new GologT(own_scope, type, name, args.get_value_or({})));
 
 		return lookup_global<GologT>(name, arity).get();
 	}
@@ -174,7 +167,7 @@ public:
 	template<class GologT, class... DefinitionTs>
 	GologT *define_global(
 		Scope *own_scope,
-		const string &type_name,
+		const Type &type,
 		const string &name,
 		const boost::optional<vector<shared_ptr<Variable>>> &args,
 		DefinitionTs... definition_args
@@ -184,9 +177,9 @@ public:
 		if (exists_global(name, arity)) {
 			rv = lookup_global<GologT>(name, arity).get();
 
-			if (rv && rv->type() != type_name)
+			if (rv && !(rv->type() <= type))
 				throw TypeError("Cannot redefine " + rv->str()
-					+ " with type " + type_name);
+					+ " with type " + type.name());
 
 			// Here be dragons:
 			// own_scope is constructed by the parser, and it may or may not
@@ -198,7 +191,7 @@ public:
 			// TODO: if (rv->defined()): Warn on redefinition
 		}
 		else
-			rv = declare_global<GologT>(own_scope, type_name, name, args);
+			rv = declare_global<GologT>(own_scope, type, name, args);
 		rv->define(definition_args...);
 		return rv;
 	}
@@ -208,7 +201,7 @@ public:
 	bool exists_type(const string &name) const;
 
 	template<class TypeT = Type>
-	shared_ptr<const TypeT> lookup_type(const string &name)
+	shared_ptr<const TypeT> lookup_type(const string &name) const
 	{
 		if (exists_type(name))
 			return std::dynamic_pointer_cast<const TypeT>(
@@ -218,19 +211,22 @@ public:
 			return nullptr;
 	}
 
+	shared_ptr<const ListType> lookup_list_type(const Type &elem_type) const;
+
 	const Type *lookup_type_raw(const string &name);
 
-	void register_type(Type *t);
+	void register_type_raw(Type *t);
+	void register_type(shared_ptr<Type> t);
 
 	void register_global(Global *g);
 
 	bool exists_domain(const string &name) const;
-	shared_ptr<Domain> lookup_domain(const string &name, const string &type_name = "");
+	shared_ptr<Domain> lookup_domain(const string &name, const Type &t);
 
-	void register_domain(Domain *d);
+	void register_domain_raw(Domain *d);
 	void register_domain(const shared_ptr<Domain> &d);
-	void declare_domain(const string &name, const string &type_name);
-	void define_domain(const string &name, const string &type_name, const Domain &input);
+	void declare_domain(const string &name, const Type &type);
+	void define_domain(const string &name, const Type &type, const Domain &input);
 
 	Value *get_symbol(const string &name);
 
@@ -255,11 +251,15 @@ private:
 template<class T>
 const T &type()
 {
-	if (!global_scope().exists_type(T::name()))
-		global_scope().register_type(new T());
-	return *global_scope().lookup_type<T>(T::name());
+	if (!global_scope().exists_type(T::static_name()))
+		global_scope().register_type_raw(new T());
+	return *global_scope().lookup_type<T>(T::static_name());
 }
 
+
+template<class T>
+const T &get_type()
+{ return type<T>(); }
 
 
 } // namespace gologpp

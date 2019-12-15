@@ -25,18 +25,19 @@ namespace gologpp {
 namespace parser {
 
 
-struct ProgramParser : grammar<Expression *(Scope &)> {
-	ProgramParser()
-	: ProgramParser::base_type(program)
+struct BatParser : grammar<void(Scope &)> {
+	BatParser()
+	: BatParser::base_type(program)
 	{
-		program = +( omit[ // Discard attributes, they just register themselves as Globals
+		program = +(
 			fluent(_r1)
 			| action(_r1)
 			| exog_action(_r1)
 			| function(_r1)
+			| procedure(_r1)
 			| domain_decl()(_r1)
 			| type_definition(_r1)
-		] );
+		);
 
 		// The rules that parse all the different expression types have to be defined
 		// after all of the other high-level grammars have been initialized to break
@@ -44,14 +45,14 @@ struct ProgramParser : grammar<Expression *(Scope &)> {
 		initialize_cyclic_expressions();
 		initialize_cyclic_values();
 
-		GOLOGPP_DEBUG_NODE(program);
+		GOLOGPP_DEBUG_NODE(program)
 	}
 
-	rule<Expression *(Scope &)> program;
+	rule<void(Scope &)> program;
 	ActionParser<Action> action;
 	ActionParser<ExogAction> exog_action;
 	FunctionParser function;
-	StatementParser statement;
+	ProcedureParser procedure;
 	TypeDefinitionParser type_definition;
 	FluentParser fluent;
 };

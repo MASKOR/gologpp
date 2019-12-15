@@ -36,7 +36,7 @@ class Variable
 , public std::enable_shared_from_this<Variable>
 {
 protected:
-	Variable(const string &type_name, const string &name);
+	Variable(const Type &type, const string &name);
 
 public:
 	virtual ~Variable() override = default;

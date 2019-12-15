@@ -41,7 +41,7 @@ EC_word Semantics<Function>::plterm()
 
 EC_word Semantics<Function>::definition()
 {
-	if (element().type().is<VoidType>() || element().type().is<BoolType>()) {
+	if (element().type().is<BoolType>()) {
 		element().scope().semantics().init_vars();
 		return ::term(EC_functor("proc", 2),
 			plterm(),
@@ -55,10 +55,38 @@ EC_word Semantics<Function>::definition()
 		return ::term(EC_functor("function", 3),
 			plterm(),
 			return_var_,
-			element().definition().semantics().plterm()
+			::term(EC_functor("=", 2),
+				return_var_,
+				element().definition().semantics().plterm()
+			)
 		);
 	}
 }
+
+
+
+EC_word Semantics<Procedure>::plterm()
+{
+	if (element().arity() > 0)
+		return ::term(EC_functor(element().name().c_str(), element().arity()),
+			to_ec_words(element().params()).data()
+		);
+	else
+		return EC_atom(element().name().c_str());
+}
+
+
+EC_word Semantics<Procedure>::definition()
+{
+	element().scope().semantics().init_vars();
+	return ::term(EC_functor("proc", 2),
+		plterm(),
+		element().definition().semantics().plterm()
+	);
+}
+
+
+
 
 
 EC_word Semantics<Function>::return_var()
@@ -110,27 +138,28 @@ EC_word Semantics<Choose>::plterm()
 
 
 
-EC_word Semantics<Conditional>::plterm()
+template<>
+EC_word Semantics<Conditional<Instruction>>::plterm()
 {
-	EC_functor fn("if", 3);
-
-	const AbstractLanguageElement *parent = element().parent();
-	while (parent) {
-		if (parent->is_a<Global>()) {
-			if (parent->is_a<Function>() && !parent->type().is<VoidType>())
-				// An actual ReadyLog function (not a procedure): have to use lif/3
-				fn = EC_functor("lif", 3);
-
-			break;
-		}
-		parent = dynamic_cast<const Expression *>(parent)->parent();
-	}
-	return ::term(fn,
+	return ::term(EC_functor("if", 3),
 		element().condition().semantics().plterm(),
 		element().block_true().semantics().plterm(),
 		element().block_false().semantics().plterm()
 	);
 }
+
+
+template<>
+EC_word Semantics<Conditional<Expression>>::plterm()
+{
+	return ::term(EC_functor("func_if", 3),
+		element().condition().semantics().plterm(),
+		element().block_true().semantics().plterm(),
+		element().block_false().semantics().plterm()
+	);
+}
+
+
 
 
 
@@ -291,7 +320,7 @@ EC_word Semantics<Return>::plterm() {
 	if (!function)
 	throw Bug(element().str() + " outside of function");
 
-	if (function->type() != element().expression().type())
+	if ((function->type() >= element().expression().type()))
 		throw ExpressionTypeMismatch(*function, element().expression());
 
 	if (element().expression().type().is<BoolType>())

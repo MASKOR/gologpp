@@ -74,10 +74,10 @@ rule<Value *()> &numeric_value() {
 	static rule<Value *()> rv {
 		undefined_value() [ _val = _1 ]
 		| strict_double [
-			_val = new_<Value>(NumberType::name(), _1)
+			_val = new_<Value>(number_type(), _1)
 		]
 		| int_ [
-			_val = new_<Value>(NumberType::name(), _1)
+			_val = new_<Value>(number_type(), _1)
 		],
 		"numeric_value"
 	};
@@ -89,10 +89,10 @@ rule<Value *()> &boolean_value() {
 	static rule<Value *()> rv {
 		undefined_value() [ _val = _1 ]
 		| lit("true") [
-			_val = new_<Value>(BoolType::name(), true)
+			_val = new_<Value>(bool_type(), true)
 		]
 		| lit("false") [
-			_val = new_<Value>(BoolType::name(), false)
+			_val = new_<Value>(bool_type(), false)
 		],
 		"boolean_value"
 	};
@@ -105,7 +105,7 @@ rule<Value *()> &string_value() {
 	static rule<Value *()> rv {
 		undefined_value() [ _val = _1 ]
 		| raw_string_literal() [
-			_val = new_<Value>(StringType::name(), _1)
+			_val = new_<Value>(string_type(), _1)
 		],
 		"string_value"
 	};
@@ -132,7 +132,7 @@ rule<Value *()> &symbolic_value() {
 
 rule<Value *()> &symbolic_value_def() {
 	static rule<Value *()> rv {
-		r_name() [ _val = new_<Value>(val(SymbolType::name()), _1) ],
+		r_name() [ _val = new_<Value>(symbol_type(), _1) ],
 		"symbolic_value_definition"
 	};
 //	GOLOGPP_DEBUG_NODE(rv)
@@ -152,12 +152,12 @@ struct CompoundValueParser : grammar<Value *()> {
 		compound_value_ =
 			undefined_value() [ _val = _1 ]
 			| (
-				(any_type_specifier()(phoenix::bind(&global_scope)) >> '{')
+				(type_identifier<CompoundType>()(phoenix::bind(&global_scope)) >> '{')
 				>> (
 					r_name() >> '=' >> any_value_
 				) % ',' >> '}'
 			) [
-				_val = new_<Value>(_1, _2)
+				_val = new_<Value>(*_1, _2)
 			]
 		;
 		compound_value_.name("compound_value");
@@ -192,12 +192,12 @@ struct ListValueParser : grammar<Value *()> {
 		list_value_ =
 			undefined_value() [ _val = _1 ]
 			| (
-				any_type_specifier()(phoenix::bind(&global_scope))
+				type_identifier<ListType>()(phoenix::bind(&global_scope))
 				>> '['
 				>> -(any_value_ % ',')
 				>> ']'
 			) [
-			_val = new_<Value>(_1, _2)
+			_val = new_<Value>(*_1, _2)
 		];
 		list_value_.name("list_value");
 
@@ -249,41 +249,45 @@ rule<Value *()> &any_value() {
 
 
 
-static rule<Value *()> &get_value_parser(Typename type, bool allow_symbol_def)
+static rule<Value *()> &get_value_parser(const Type &type, bool allow_symbol_def)
 {
 	static std::unordered_map <
-		Typename,
+		string,
 		std::reference_wrapper <
 			rule<Value *()>
 		>
 	> value_parser_map {
-		{ BoolType::name(), boolean_value() },
-		{ NumberType::name(), numeric_value() },
-		{ StringType::name(), string_value() },
-		{ SymbolType::name(), symbolic_value() },
+		{ BoolType::static_name(), boolean_value() },
+		{ NumberType::static_name(), numeric_value() },
+		{ StringType::static_name(), string_value() },
+		{ SymbolType::static_name(), symbolic_value() },
 	};
 
-	if (type == SymbolType::name() && allow_symbol_def)
+	if (type.is<SymbolType>() && allow_symbol_def)
 		return symbolic_value_def();
 
-	auto it = value_parser_map.find(type);
+	auto it = value_parser_map.find(type.name());
 	if (it != value_parser_map.end())
 		return it->second;
 	else {
-		shared_ptr<const Type> tt = global_scope().lookup_type(type);
-		if (tt->is<CompoundType>())
+		if (type.is<CompoundType>())
 			return compound_value();
-		else if (tt->is<ListType>())
+		else if (type.is<ListType>())
 			return list_value();
+		else if (type.is<Domain>())
+			return get_value_parser(
+				dynamic_cast<const Domain &>(type).element_type(),
+				allow_symbol_def
+			);
 		else
-			throw Bug("Unknown type " + type);
+			throw Bug("Unknown type " + type.name());
 	}
 }
 
 
 
-rule<Value *(Typename, bool)> &value() {
-	static rule<Value *(Typename, bool)> rv {
+rule<Value *(const Type &, bool)> &value() {
+	static rule<Value *(const Type &, bool)> rv {
 		lazy(phoenix::bind(&get_value_parser, _r1, _r2))
 	};
 //	GOLOGPP_DEBUG_NODE(rv)

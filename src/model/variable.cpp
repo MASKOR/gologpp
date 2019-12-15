@@ -21,11 +21,16 @@
 namespace gologpp {
 
 
-Variable::Variable(const string &type_name, const string &name)
+Variable::Variable(const Type &t, const string &name)
 : Identifier(name, 0)
-, domain_(new Domain(type_name))
 {
-	set_type_by_name(type_name);
+	set_type(t);
+
+	if (t.is<Domain>())
+		domain_ = global_scope().lookup_domain(t.name(), t);
+	else
+		domain_.reset(new Domain(t));
+
 	domain_->add_subject(*this);
 }
 
@@ -55,7 +60,7 @@ void Variable::add_implicit_domain_element(const Value &c)
 
 void Variable::set_domain(const string &domain_name)
 {
-	domain_ = global_scope().lookup_domain(domain_name);
+	domain_ = global_scope().lookup_domain(domain_name, type());
 	domain_->add_subject(*this);
 }
 
@@ -72,7 +77,7 @@ void Variable::set_domain_copy(const Domain &domain)
 
 void Variable::define_implicit_domain(const string &domain_name)
 {
-	global_scope().register_domain(new Domain(domain_name, type().name(), {}, true));
+	global_scope().register_domain_raw(new Domain(domain_name, type(), {}, true));
 	set_domain(domain_name);
 }
 

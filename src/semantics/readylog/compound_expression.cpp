@@ -36,7 +36,7 @@ EC_word Semantics<CompoundExpression>::plterm()
 			field_list
 		);
 	return ::term(EC_functor("gpp_compound", 2),
-		EC_atom(("#" + element().type_name()).c_str()),
+		EC_atom(("#" + element().type().name()).c_str()),
 		field_list
 	);
 }

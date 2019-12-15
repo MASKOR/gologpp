@@ -55,24 +55,24 @@ static rule<Expression *(Scope &)> list_access {
 };
 
 
-rule<Expression *(Scope &, Typename)> &mixed_member_access()
+rule<Expression *(Scope &, const Type &)> &mixed_member_access()
 {
-	static rule<Expression *(Scope &, Typename), locals<Expression *>> rv_local {
+	static rule<Expression *(Scope &, const Type &), locals<Expression *>> rv_local {
 		(
-			(compound_atom(_r1) | list_atom(_r1)) [ _a = _1 ]
+			(compound_atom(_r1, undefined_type()) | list_atom(_r1, undefined_type())) [ _a = _1 ]
 			>> +(
 				field_access [ _a = new_<FieldAccess>(_a, _1) ]
 				| list_access(_r1) [ _a = new_<ListAccess>(_a, _1) ]
 			)
 		) [
 			_val = _a,
-			_pass = (phoenix::bind(&AbstractLanguageElement::type, *_val) == _r2)
+			_pass = (phoenix::bind(&AbstractLanguageElement::type, *_val) <= _r2)
 		]
 		, "mixed_member_access"
 	};
 	GOLOGPP_DEBUG_NODE(rv_local)
 
-	static rule<Expression *(Scope &, Typename)> rv { rv_local(_r1, _r2) };
+	static rule<Expression *(Scope &, const Type &)> rv { rv_local(_r1, _r2) };
 	return rv;
 }
 

@@ -92,10 +92,10 @@ const Scope &InitialValue::parent_scope() const
 
 
 
-Fluent::Fluent(Scope *own_scope, const string &type_name, const string &name, const vector<shared_ptr<Variable>> &args)
-: Global(name, args)
+Fluent::Fluent(Scope *own_scope, const Type &t, const string &name, const vector<shared_ptr<Variable>> &args)
+: Signified<Expression>(name, args)
 , ScopeOwner(own_scope)
-{ set_type_by_name(type_name); }
+{ set_type(t); }
 
 /*Fluent::Fluent(Scope &parent_scope, const string &name)
 : Global(name, {})
@@ -130,7 +130,9 @@ void Fluent::define(const boost::optional<vector<InitialValue *>> &initial_value
 	if (initial_values) {
 		// TODO: fail if already defined
 		for (InitialValue *ival : initial_values.get()) {
-			ensure_type_equality(*this, *ival);
+			if (!(this->type() >= ival->value()))
+				throw TypeError(ival->value(), this->type());
+
 			if (arity() != ival->args().size())
 				throw UserError("Fluent " + str() + ": Arity mismatch with initial value " + ival->str());
 
@@ -138,7 +140,8 @@ void Fluent::define(const boost::optional<vector<InitialValue *>> &initial_value
 				Variable &param = *params()[param_idx];
 				Expression &arg = *ival->args()[param_idx];
 
-				ensure_type_equality(param, arg);
+				if (!(param.type() >= arg))
+					throw TypeError(arg, param.type());
 
 				// Make sure the argument is either a value or a reference to one of this fluent's parameters
 				Reference<Variable> *var_ref = dynamic_cast<Reference<Variable> *>(&arg);

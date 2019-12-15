@@ -20,6 +20,7 @@
 #include "value.h"
 #include "mixed_member_access.h"
 #include "reference.h"
+#include "expressions.h"
 
 #include <model/fluent.h>
 #include <model/procedural.h>
@@ -41,13 +42,14 @@ SymbolicExpressionParser::SymbolicExpressionParser()
 {
 	expression = symbolic_value()
 		| var_ref(_r1)
-		| typed_reference<Fluent>()(_r1, SymbolType::name())
-		| typed_reference<Function>()(_r1, SymbolType::name())
-		| mixed_member_access()(_r1, SymbolType::name())
+		| conditional_expression(_r1, symbol_type())
+		| typed_reference<Fluent>()(_r1, symbol_type())
+		| typed_reference<Function>()(_r1, symbol_type())
+		| mixed_member_access()(_r1, symbol_type())
 	;
 	expression.name("symbolic_expression");
 
-	var_ref = var_usage()(_r1, val(SymbolType::name())) [
+	var_ref = var_usage()(_r1, symbol_type()) [
 		_val = new_<Reference<Variable>>(_1)
 	];
 	var_ref.name("reference_to_symbolic_variable");

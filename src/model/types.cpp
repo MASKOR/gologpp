@@ -17,32 +17,34 @@
 
 #include "types.h"
 #include "scope.h"
+#include "domain.h"
 
 namespace gologpp {
 
 
-void ensure_type_equality(const AbstractLanguageElement &e1, const AbstractLanguageElement &e2)
-{
-	if (e1.type() != e2.type())
-		throw ExpressionTypeMismatch(e1, e2);
-}
-
-
 Type::Type(const string &name)
-: Name(name)
+: name_(name)
 {}
 
-bool Type::operator == (const Type &other) const
-{ return this == &other || typeid(*this) == typeid(other) || other.is<UndefinedType>(); }
+bool Type::operator >= (const Type &other) const
+{
+	if (other.is<Domain>()) {
+		try {
+			const Domain &d = dynamic_cast<const Domain &>(other);
+			return *this >= d.element_type();
+		} catch (std::bad_cast &) {
+			return false;
+		}
+	}
+	else
+		return this == &other || name() == other.name() || other.is<UndefinedType>();
+}
 
-bool Type::operator == (const string &type_name) const
-{ return name() == type_name || type_name == UndefinedType::name(); }
+bool Type::operator >= (const AbstractLanguageElement &e) const
+{ return *this >= e.type(); }
 
-bool Type::operator != (const Type &other) const
-{ return !(*this == other); }
-
-bool Type::operator != (const string &type_name) const
-{ return !(*this == type_name); }
+bool Type::operator <= (const Type &other) const
+{ return other >= *this; }
 
 Type::operator bool () const
 { return true; }
@@ -53,22 +55,25 @@ bool Type::is_compound() const
 bool Type::is_simple() const
 { return !is_compound(); }
 
-void Type::ensure_match(const AbstractLanguageElement &e) const
-{
-	if (e.type() == *this)
-		throw ExpressionTypeMismatch(e.str() + " does not match type " + name());
-}
+string Type::name() const
+{ return name_; }
+
+Type::operator string () const
+{ return name_; }
 
 
 
 UndefinedType::UndefinedType()
-: Type(name())
+: Type(static_name())
 {}
 
-bool UndefinedType::operator == (const Type &) const
+bool UndefinedType::operator >= (const Type &) const
 { return true; }
 
-bool UndefinedType::operator == (const string &) const
+bool UndefinedType::operator >= (const AbstractLanguageElement &) const
+{ return true; }
+
+bool UndefinedType::operator <= (const Type &) const
 { return true; }
 
 bool UndefinedType::is_simple() const
@@ -77,53 +82,53 @@ bool UndefinedType::is_simple() const
 UndefinedType::operator bool () const
 { return false; }
 
-string UndefinedType::name()
+string UndefinedType::static_name()
 { return "~undefined~"; }
 
 
 
 
 BoolType::BoolType()
-: Type(name())
+: Type(static_name())
 {}
 
-string BoolType::name()
+string BoolType::static_name()
 { return "bool"; }
 
 
 
 NumberType::NumberType()
-: Type(name())
+: Type(static_name())
 {}
 
-string NumberType::name()
+string NumberType::static_name()
 { return "number"; }
 
 
 
 StringType::StringType()
-: Type(name())
+: Type(static_name())
 {}
 
-string StringType::name()
+string StringType::static_name()
 { return "string"; }
 
 
 
 SymbolType::SymbolType()
-: Type(name())
+: Type(static_name())
 {}
 
-string SymbolType::name()
+string SymbolType::static_name()
 { return "symbol"; }
 
 
 
 VoidType::VoidType()
-: Type(name())
+: Type(static_name())
 {}
 
-string VoidType::name()
+string VoidType::static_name()
 { return "void"; }
 
 
@@ -132,20 +137,20 @@ CompoundType::CompoundType(const string &name)
 : Type(name)
 {}
 
-string CompoundType::name()
+string CompoundType::static_name()
 { return "compound"; }
 
 
-void CompoundType::add_field(const string &name, const string &type)
+void CompoundType::add_field(const string &name, const Type &type)
 {
 	if (has_field(name))
 		throw UserError("compound type `" + this->name() + "': duplicate field name: `" + name + "'");
 
-	fields_.insert({name, global_scope().lookup_type(type)});
+	fields_.insert({name, type.shared_from_this()});
 }
 
-bool CompoundType::has_field_of_type(const string &field_name, const string &type_name) const
-{ return has_field(field_name) && field_type(field_name) == type_name; }
+bool CompoundType::has_field_of_type(const string &field_name, const Type &type) const
+{ return has_field(field_name) && field_type(field_name) >= type; }
 
 bool CompoundType::has_field(const string &name) const
 { return fields_.find(name) != fields_.end(); }
@@ -160,15 +165,14 @@ std::unordered_set<string> CompoundType::field_names() const
 }
 
 
-bool CompoundType::operator == (const Type &other) const
+bool CompoundType::operator >= (const Type &other) const
 {
 	if (other.is<UndefinedType>())
 		return true;
-
 	try {
 		const CompoundType &o = dynamic_cast<const CompoundType &>(other);
 		for (auto pair : fields_) {
-			if (o.field_type(pair.first) != *pair.second)
+			if (!(o.field_type(pair.first) >= *pair.second))
 				return false;
 		}
 		return true;
@@ -177,8 +181,6 @@ bool CompoundType::operator == (const Type &other) const
 	}
 }
 
-bool CompoundType::operator == (const string &type_name) const
-{ return name() == type_name || type_name == CompoundType::name() || type_name == UndefinedType::name(); }
 
 bool CompoundType::is_compound() const
 { return true; }
@@ -194,17 +196,26 @@ ListType::ListType(const string &elem_type_name)
 : ListType(*global_scope().lookup_type<Type>(elem_type_name))
 {}
 
-string ListType::name()
+string ListType::static_name()
 { return "list"; }
 
 const Type &ListType::element_type() const
 { return elem_type_; }
 
-bool ListType::operator == (const Type &other) const
-{ return other.is<ListType>() || Type::operator == (other); }
+PType ListType::element_type_ptr() const
+{ return elem_type_.shared_from_this(); }
 
-bool ListType::operator == (const string &other) const
-{ return other == ListType::name() || Type::operator == (other); }
+bool ListType::operator >= (const Type &other) const
+{
+	if (other.is<UndefinedType>())
+		return true;
+	try {
+		const ListType &t = dynamic_cast<const ListType &>(other);
+		return this->element_type() >= t.element_type();
+	} catch (std::bad_cast &) {
+		return false;
+	}
+}
 
 bool ListType::is_compound() const
 { return false; }

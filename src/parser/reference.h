@@ -38,7 +38,7 @@ struct ReferenceParser : grammar<Reference<GologT> *(Scope &)> {
 
 
 template<class GologT>
-rule<Reference<GologT> *(Scope &, Typename)> &typed_reference();
+rule<Reference<GologT> *(Scope &, const Type &)> &typed_reference();
 
 
 

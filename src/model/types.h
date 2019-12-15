@@ -28,19 +28,22 @@
 namespace gologpp {
 
 
-void ensure_type_equality(const AbstractLanguageElement &e1, const AbstractLanguageElement &e2);
-
 
 class Type
-: public std::enable_shared_from_this<Type>
-, public Name {
+: public std::enable_shared_from_this<Type> {
 public:
+	friend class Scope;
+
+	Type(const Type &) = delete;
+	Type(Type &&) = delete;
+
 	virtual ~Type() = default;
 
-	virtual bool operator == (const Type &other) const;
-	virtual bool operator == (const string &type_name) const;
-	bool operator != (const Type &other) const;
-	bool operator != (const string &type_name) const;
+	virtual bool operator >= (const Type &other) const;
+	virtual bool operator >= (const AbstractLanguageElement &e) const;
+	virtual bool operator <= (const Type &other) const;
+	bool operator == (const Type &) const = delete;
+	bool operator != (const Type &) const = delete;
 	virtual operator bool () const;
 
 	virtual bool is_compound() const;
@@ -49,11 +52,16 @@ public:
 	template<class T>
 	bool is() const;
 
-	void ensure_match(const AbstractLanguageElement &e) const;
+	string name() const;
+	explicit operator string () const;
 
 protected:
 	Type(const string &name);
+	Name name_;
 };
+
+
+using PType = shared_ptr<const Type>;
 
 
 template<class T>
@@ -66,11 +74,12 @@ class UndefinedType : public Type {
 public:
 	UndefinedType();
 
-	virtual bool operator == (const Type &other) const override;
-	virtual bool operator == (const string &type_name) const override;
+	virtual bool operator >= (const Type &other) const override;
+	virtual bool operator >= (const AbstractLanguageElement &e) const override;
+	virtual bool operator <= (const Type &other) const override;
 	virtual operator bool () const override;
 	virtual bool is_simple() const override;
-	static string name();
+	static string static_name();
 };
 
 
@@ -78,7 +87,7 @@ public:
 class BoolType : public Type {
 public:
 	BoolType();
-	static string name();
+	static string static_name();
 };
 
 
@@ -86,7 +95,7 @@ public:
 class NumberType : public Type {
 public:
 	NumberType();
-	static string name();
+	static string static_name();
 };
 
 
@@ -94,7 +103,7 @@ public:
 class StringType : public Type {
 public:
 	StringType();
-	static string name();
+	static string static_name();
 };
 
 
@@ -102,7 +111,7 @@ public:
 class SymbolType : public Type {
 public:
 	SymbolType();
-	static string name();
+	static string static_name();
 };
 
 
@@ -110,7 +119,7 @@ public:
 class VoidType : public Type {
 public:
 	VoidType();
-	static string name();
+	static string static_name();
 };
 
 
@@ -135,17 +144,16 @@ public:
 	{ return std::dynamic_pointer_cast<T>(field_type(field_name)); }
 
 	bool has_field(const string &name) const;
-	void add_field(const string &name, const string &type);
+	void add_field(const string &name, const Type &type);
 
-	bool has_field_of_type(const string &field_name, const string &type_name) const;
+	bool has_field_of_type(const string &field_name, const Type &type) const;
 	std::unordered_set<string> field_names() const;
 
-	static string name();
-
-	virtual bool operator == (const Type &other) const override;
-	virtual bool operator == (const string &type_name) const override;
+	virtual bool operator >= (const Type &other) const override;
 
 	virtual bool is_compound() const override;
+
+	static string static_name();
 
 private:
 	std::unordered_map<string, shared_ptr<const Type>> fields_;
@@ -160,15 +168,15 @@ public:
 	ListType(const Type &elem_type);
 	ListType(const string &elem_type_name);
 
-	static string name();
-
 	const Type &element_type() const;
+	PType element_type_ptr() const;
 
-	virtual bool operator == (const Type &other) const override;
-	virtual bool operator == (const string &type_name) const override;
+	virtual bool operator >= (const Type &other) const override;
 
 	virtual bool is_compound() const override;
 	virtual bool is_simple() const override;
+
+	static string static_name();
 
 private:
 	const Type &elem_type_;

@@ -31,12 +31,12 @@ namespace parser {
 
 
 template<class LhsT>
-struct AssignmentParser : grammar<Assignment<LhsT> *(Scope &), locals<Typename>> {
+struct AssignmentParser : grammar<Assignment<LhsT> *(Scope &), locals<shared_ptr<const Type>>> {
 	AssignmentParser();
 
 	void init();
 
-	rule<Assignment<LhsT> *(Scope &), locals<Typename>> assignment;
+	rule<Assignment<LhsT> *(Scope &), locals<shared_ptr<const Type>>> assignment;
 	rule<LhsT *(Scope &)> lhs_parser;
 };
 

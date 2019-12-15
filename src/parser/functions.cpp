@@ -18,7 +18,7 @@
 #include "mixed_member_access.h"
 #include "functions.h"
 #include "types.h"
-#include "statements.h"
+#include "expressions.h"
 #include "variable.h"
 
 #include <boost/spirit/include/qi_alternative.hpp>
@@ -48,19 +48,16 @@
 namespace gologpp {
 namespace parser {
 
-static rule<Typename(Scope &)> decl_prefix {
-	lit("procedure") [
-		_val = val(VoidType::name())
-	]
-	| any_type_specifier()(_r1) [ _val = _1 ] >> "function"
-};
 
 
 FunctionParser::FunctionParser()
 : FunctionParser::base_type(function, "function_definition")
 {
 	function =
-		(decl_prefix(_r1) > r_name() > '(') [
+		(
+			(type_identifier<Type>()(_r1) >> "function")
+			> r_name() > '('
+		) [
 			_a = new_<Scope>(_r1),
 			_b = _2,
 			_d = _1
@@ -72,14 +69,14 @@ FunctionParser::FunctionParser()
 			lit(';') [
 				_val = phoenix::bind(
 					&Scope::declare_global<Function>,
-					_r1, _a, _d, _b, _c
+					_r1, _a, *_d, _b, _c
 				),
 				_pass = !!_val
 			]
-			| statement(*_a) [
+			| (lit('=') > typed_expression()(*_a, *_d)) [
 				_val = phoenix::bind(
 					&Scope::define_global<Function, Expression *>,
-					_r1, _a, _d, _b, _c, _1
+					_r1, _a, *_d, _b, _c, _1
 				),
 				_pass = !!_val
 			]
@@ -87,9 +84,43 @@ FunctionParser::FunctionParser()
 	;
 	function.name("function_definition");
 	on_error<rethrow>(function, delete_(_a));
-	GOLOGPP_DEBUG_NODE(function);
+	GOLOGPP_DEBUG_NODE(function)
 }
 
+
+
+ProcedureParser::ProcedureParser()
+: ProcedureParser::base_type(procedure, "procedure_definition")
+{
+	procedure =
+		(lit("procedure") > r_name() > '(') [
+			_a = new_<Scope>(_r1),
+			_b = _1
+		]
+		> ( -(var_decl()(*_a) % ',') > ')' ) [
+			_c = _1
+		]
+		> (
+			lit(';') [
+				_val = phoenix::bind(
+					&Scope::declare_global<Procedure>,
+					_r1, _a, void_type(), _b, _c
+				),
+				_pass = !!_val
+			]
+			| statement(*_a) [
+				_val = phoenix::bind(
+					&Scope::define_global<Procedure, Instruction *>,
+					_r1, _a, void_type(), _b, _c, _1
+				),
+				_pass = !!_val
+			]
+		)
+	;
+	procedure.name("function_definition");
+	on_error<rethrow>(procedure, delete_(_a));
+	GOLOGPP_DEBUG_NODE(procedure)
+}
 
 
 

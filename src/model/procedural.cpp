@@ -29,10 +29,10 @@
 namespace gologpp {
 
 
-Block::Block(Scope *own_scope, const vector<Expression *> &elements)
+Block::Block(Scope *own_scope, const vector<Instruction *> &elements)
 : ScopeOwner(own_scope)
 {
-	for (Expression *stmt : elements) {
+	for (Instruction *stmt : elements) {
 		stmt->set_parent(this);
 		elements_.emplace_back(stmt);
 	}
@@ -48,7 +48,7 @@ void Block::attach_semantics(SemanticsFactory &f)
 	}
 }
 
-const vector<SafeExprOwner<VoidType>> &Block::elements() const
+const vector<unique_ptr<Instruction>> &Block::elements() const
 { return elements_; }
 
 string Block::to_string(const string &pfx) const
@@ -66,16 +66,16 @@ string Block::to_string(const string &pfx) const
 
 
 
-Choose::Choose(Scope *own_scope, const vector<Expression *> &alternatives)
+Choose::Choose(Scope *own_scope, const vector<Instruction *> &alternatives)
 : ScopeOwner(own_scope)
 {
-	for (Expression *stmt : alternatives) {
+	for (Instruction *stmt : alternatives) {
 		stmt->set_parent(this);
 		alternatives_.emplace_back(stmt);
 	}
 }
 
-const vector<SafeExprOwner<VoidType>> &Choose::alternatives() const
+const vector<unique_ptr<Instruction>> &Choose::alternatives() const
 { return alternatives_; }
 
 
@@ -84,7 +84,7 @@ void Choose::attach_semantics(SemanticsFactory &f)
 	if (!semantics_) {
 		semantics_ = f.make_semantics(*this);
 		scope().attach_semantics(f);
-		for (SafeExprOwner<VoidType> &stmt : alternatives_)
+		for (unique_ptr<Instruction> &stmt : alternatives_)
 			stmt->attach_semantics(f);
 	}
 }
@@ -98,11 +98,11 @@ string Choose::to_string(const string &pfx) const
 }
 
 
-
-Conditional::Conditional(
+template<class SignT>
+Conditional<SignT>::Conditional(
 	Expression *condition,
-	Expression *block_true,
-	Expression *block_false
+	SignT *block_true,
+	SignT *block_false
 )
 : condition_(condition)
 , block_true_(block_true)
@@ -113,28 +113,38 @@ Conditional::Conditional(
 	block_false_->set_parent(this);
 }
 
-const Expression &Conditional::condition() const
+template<class SignT>
+const Expression &Conditional<SignT>::condition() const
 { return *condition_; }
 
-const Expression &Conditional::block_false() const
+template<class SignT>
+const SignT &Conditional<SignT>::block_false() const
 { return *block_false_; }
 
-const Expression &Conditional::block_true() const
+template<class SignT>
+const SignT &Conditional<SignT>::block_true() const
 { return *block_true_; }
 
 
-string Conditional::to_string(const string &pfx) const
+template<class SignT>
+string Conditional<SignT>::to_string(const string &pfx) const
 {
 	return linesep + pfx + "if (" + condition().to_string("") + ") " + block_true().to_string(pfx)
 		+ (block_false_ ? pfx + linesep + "else" + block_false().to_string(pfx) : "");
 }
 
+template
+class Conditional<Instruction>;
+
+template
+class Conditional<Expression>;
 
 
-Concurrent::Concurrent(Scope *own_scope, const vector<Expression *> &procs)
+
+Concurrent::Concurrent(Scope *own_scope, const vector<Instruction *> &procs)
 : ScopeOwner(own_scope)
 {
-	for (Expression *p : procs) {
+	for (Instruction *p : procs) {
 		p->set_parent(this);
 		procs_.emplace_back(p);
 	}
@@ -145,11 +155,11 @@ void Concurrent::attach_semantics(SemanticsFactory &f)
 {
 	semantics_ = f.make_semantics(*this);
 	scope().attach_semantics(f);
-	for (SafeExprOwner<VoidType> &p : procs_)
+	for (unique_ptr<Instruction> &p : procs_)
 		p->attach_semantics(f);
 }
 
-const vector<SafeExprOwner<VoidType>> &Concurrent::procs() const
+const vector<unique_ptr<Instruction>> &Concurrent::procs() const
 { return procs_; }
 
 
@@ -166,7 +176,7 @@ Pick::Pick(
 	Scope *own_scope,
 	const shared_ptr<Variable> &variable,
 	const boost::optional<std::vector<Value *>> &domain,
-	Expression *statement
+	Instruction *statement
 )
 : ScopeOwner(own_scope)
 , variable_(variable)
@@ -174,7 +184,9 @@ Pick::Pick(
 {
 	if (domain)
 		for (Value *c : *domain) {
-			ensure_type_equality(*variable, *c);
+			if (!(variable->type() >= *c))
+				throw TypeError(*c, variable->type());
+
 			c->set_parent(this);
 			domain_.emplace_back(c);
 		}
@@ -189,7 +201,7 @@ const vector<unique_ptr<Value>> &Pick::domain() const
 const Variable &Pick::variable() const
 { return *variable_; }
 
-const Expression &Pick::statement() const
+const Instruction &Pick::statement() const
 { return *statement_; }
 
 string Pick::to_string(const string &pfx) const
@@ -213,13 +225,13 @@ void Pick::attach_semantics(SemanticsFactory &f)
 
 
 
-Search::Search(Expression *statement)
+Search::Search(Instruction *statement)
 : statement_(statement)
 {
 	statement_->set_parent(this);
 }
 
-const Expression &Search::statement() const
+const Instruction &Search::statement() const
 { return *statement_; }
 
 string Search::to_string(const string &pfx) const
@@ -230,7 +242,7 @@ string Search::to_string(const string &pfx) const
 Solve::Solve(
 	Expression *horizon,
 	Reference<Function> *reward,
-	Expression *statement
+	Instruction *statement
 )
 : statement_(statement)
 , horizon_(horizon)
@@ -240,7 +252,7 @@ Solve::Solve(
 	reward_->set_parent(this);
 }
 
-const Expression &Solve::statement() const
+const Instruction &Solve::statement() const
 { return *statement_; }
 
 const Expression &Solve::horizon() const
@@ -285,7 +297,7 @@ string Test::to_string(const string &pfx) const
 
 
 
-While::While(Expression *expression, Expression *statement)
+While::While(Expression *expression, Instruction *statement)
 : expression_(expression)
 , statement_(statement)
 {
@@ -296,7 +308,7 @@ While::While(Expression *expression, Expression *statement)
 const Expression &While::expression() const
 { return *expression_; }
 
-const Expression &While::statement() const
+const Instruction &While::statement() const
 { return *statement_; }
 
 string While::to_string(const string &pfx) const
@@ -318,28 +330,39 @@ string Return::to_string(const string &pfx) const
 
 Function::Function(
 	Scope *own_scope,
-	const string &type_name,
+	const Type &t,
 	const string &name,
 	const vector<shared_ptr<Variable>> &args
 )
-: Global(name, args)
-, ScopeOwner(own_scope)
-{ set_type_by_name(type_name); }
+: ScopeOwner(own_scope)
+, Signified<Expression>(name, args)
+{ set_type(t); }
 
 
 Function::Function(
 	Scope *own_scope,
-	const string &type_name,
+	const Type &t,
 	const string &name,
 	const boost::optional<vector<shared_ptr<Variable>>> &args
 )
-: Global(name, args.get_value_or({}))
-, ScopeOwner(own_scope)
-{ set_type_by_name(type_name); }
+: ScopeOwner(own_scope)
+, Signified<Expression>(name, args.get_value_or({}))
+{ set_type(t); }
 
 
-const Expression &Function::definition() const
-{ return *definition_; }
+string Function::to_string(const string &pfx) const
+{
+	return linesep + pfx + type().name() + " function " + name() + '('
+	+ concat_list(params(), ", ")
+	+ ") " + definition().to_string(pfx);
+}
+
+void Function::define(Expression *definition)
+{
+	definition_.reset(definition);
+	definition_->set_parent(this);
+}
+
 
 void Function::compile(AExecutionContext &ctx)
 { ctx.compile(*this); }
@@ -350,26 +373,61 @@ Reference<Function> *Function::make_ref(const vector<Expression *> &args)
 Expression *Function::ref(const vector<Expression *> &args)
 { return make_ref(args); }
 
+const Expression &Function::definition() const
+{ return *definition_; }
 
-void Function::define(Expression *definition)
+
+
+Procedure::Procedure(
+	Scope *own_scope,
+	const Type &t,
+	const string &name,
+	const vector<shared_ptr<Variable>> &args
+)
+: ScopeOwner(own_scope)
+, Signified<Instruction>(name, args)
+{ set_type(t); }
+
+
+Procedure::Procedure(
+	Scope *own_scope,
+	const Type &t,
+	const string &name,
+	const boost::optional<vector<shared_ptr<Variable>>> &args
+)
+: ScopeOwner(own_scope)
+, Signified<Instruction>(name, args.get_value_or({}))
+{ set_type(t); }
+
+
+void Procedure::define(Instruction *definition)
 {
-	definition_ = definition;
+	definition_.reset(definition);
 	definition_->set_parent(this);
 }
 
 
-string Function::to_string(const string &pfx) const
+string Procedure::to_string(const string &pfx) const
 {
-	string fn;
-	if (type() == gologpp::type<VoidType>())
-		fn = "procedure ";
-	else
-		fn = type().name() + " function ";
-
-	return linesep + pfx + fn + name() + '('
+	return linesep + pfx + "procedure " + name() + '('
 	+ concat_list(params(), ", ")
 	+ ") " + definition().to_string(pfx);
 }
+
+
+void Procedure::compile(AExecutionContext &ctx)
+{ ctx.compile(*this); }
+
+Reference<Procedure> *Procedure::make_ref(const vector<Expression *> &args)
+{ return make_ref_<Procedure>(args); }
+
+Instruction *Procedure::ref(const vector<Expression *> &args)
+{ return make_ref(args); }
+
+const Instruction &Procedure::definition() const
+{ return *definition_; }
+
+
 
 
 
@@ -515,9 +573,9 @@ string ListPush::to_string(const string &pfx) const
 
 During::During(
 	Reference<Action> *action_call,
-	Expression *parallel_block,
-	boost::optional<Expression *> on_fail,
-	boost::optional<Expression *> on_cancel
+	Instruction *parallel_block,
+	boost::optional<Instruction *> on_fail,
+	boost::optional<Instruction *> on_cancel
 )
 : action_call_(action_call)
 , parallel_block_(parallel_block)
@@ -543,13 +601,13 @@ During::During(
 const Reference<Action> &During::action_call() const
 { return *action_call_; }
 
-const Expression &During::parallel_block() const
+const Instruction &During::parallel_block() const
 { return *parallel_block_; }
 
-const Expression &During::on_fail() const
+const Instruction &During::on_fail() const
 { return *on_fail_; }
 
-const Expression &During::on_cancel() const
+const Instruction &During::on_cancel() const
 { return *on_cancel_; }
 
 string During::to_string(const string &pfx) const

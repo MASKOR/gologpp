@@ -55,13 +55,14 @@ StringExpressionParser::StringExpressionParser()
 	unary_expr =
 		conversion(_r1)
 		| string_value() | var_ref(_r1)
-		| typed_reference<Fluent>()(_r1, StringType::name())
-		| typed_reference<Function>()(_r1, StringType::name())
-		| mixed_member_access()(_r1, StringType::name())
+		| conditional_expression(_r1, string_type())
+		| typed_reference<Fluent>()(_r1, string_type())
+		| typed_reference<Function>()(_r1, string_type())
+		| mixed_member_access()(_r1, string_type())
 	;
 	unary_expr.name("unary_string_expression");
 
-	var_ref = var_usage()(_r1, val(StringType::name())) [
+	var_ref = var_usage()(_r1, string_type()) [
 		_val = new_<Reference<Variable>>(_1)
 	];
 	var_ref.name("reference_to_string_variable");

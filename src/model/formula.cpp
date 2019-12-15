@@ -43,7 +43,14 @@ Comparison::Comparison(Expression *lhs, ComparisonOperator op, Expression *rhs)
 , op_(op)
 , rhs_(rhs)
 {
-	ensure_type_equality(*lhs, *rhs);
+	if (!(lhs->type() >= *rhs
+		|| lhs->type() <= rhs->type()
+		|| rhs->type() >= *lhs
+		|| rhs->type() <= lhs->type()
+	) )
+		throw TypeError("Incompatible types in comparison: "
+			+ lhs->type().name() + " and " + rhs->type().name()
+		);
 	lhs_->set_parent(this);
 	rhs_->set_parent(this);
 }
@@ -64,17 +71,17 @@ string Comparison::to_string(const string &pfx) const
 string to_string(ComparisonOperator op)
 {
 	switch (op) {
-	case NEQ:
+	case ComparisonOperator::NEQ:
 		return "!=";
-	case EQ:
+	case ComparisonOperator::EQ:
 		return "==";
-	case GE:
+	case ComparisonOperator::GE:
 		return ">=";
-	case GT:
+	case ComparisonOperator::GT:
 		return ">";
-	case LE:
+	case ComparisonOperator::LE:
 		return "<=";
-	case LT:
+	case ComparisonOperator::LT:
 		return "<";
 	}
 	return "[Unkown ComparisonOperator]";
@@ -111,15 +118,15 @@ string BooleanOperation::to_string(const string &pfx) const
 string to_string(BooleanOperator op)
 {
 	switch (op) {
-	case AND:
+	case BooleanOperator::AND:
 		return "&";
-	case OR:
+	case BooleanOperator::OR:
 		return "|";
-	case IFF:
+	case BooleanOperator::IFF:
 		return "==";
-	case IMPLIES:
+	case BooleanOperator::IMPLIES:
 		return "->";
-	case XOR:
+	case BooleanOperator::XOR:
 		return "!=";
 	}
 
@@ -131,9 +138,9 @@ string to_string(BooleanOperator op)
 string to_string(QuantificationOperator op)
 {
 	switch (op) {
-	case EXISTS:
+	case QuantificationOperator::EXISTS:
 		return "exists";
-	case FORALL:
+	case QuantificationOperator::FORALL:
 		return "forall";
 	}
 

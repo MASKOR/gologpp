@@ -35,15 +35,17 @@ void initialize_cyclic_expressions();
 
 rule<Expression *(Scope &)> &value_expression();
 
-rule<Expression *(Scope &, Typename)> &typed_expression();
+rule<Expression *(Scope &, const Type &)> &typed_expression();
+
+extern rule<Conditional<Expression> *(Scope &, const Type &)> conditional_expression;
 
 
 extern rule<Expression *(Scope &)> boolean_expression;
 extern rule<Expression *(Scope &)> numeric_expression;
 extern rule<Expression *(Scope &)> string_expression;
 extern rule<Expression *(Scope &)> symbolic_expression;
-extern rule<Expression *(Scope &)> compound_expression;
-extern rule<Expression *(Scope &)> list_expression;
+extern rule<Expression *(Scope &, const Type &)> compound_expression;
+extern rule<Expression *(Scope &, const Type &)> list_expression;
 
 
 

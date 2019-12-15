@@ -26,15 +26,15 @@ namespace gologpp {
 
 AbstractAction::AbstractAction(
 	Scope *own_scope,
-	const string &, // ignored type_name
+	const Type &, // ignored type
 	const string &name,
 	const vector<shared_ptr<Variable>> &params
 )
-: Global(name, params)
+: Signified<Instruction>(name, params)
 , ScopeOwner(own_scope)
 {
-	set_type_by_name(VoidType::name());
-	set_precondition(new Value(BoolType::name(), true));
+	set_type(gologpp::type<VoidType>());
+	set_precondition(new Value(gologpp::type<BoolType>(), true));
 
 	vector<fusion_wtf_vector<string, Expression *>> default_mapping;
 	for (const shared_ptr<Variable> &param : params)
@@ -128,7 +128,7 @@ string Action::to_string(const string &pfx) const
 Reference<Action> *Action::make_ref(const vector<Expression *> &args)
 { return make_ref_<Action>(args); }
 
-Expression *Action::ref(const vector<Expression *> &args)
+Instruction *Action::ref(const vector<Expression *> &args)
 { return make_ref(args); }
 
 void Action::set_senses(Reference<Fluent> *f)
@@ -174,7 +174,7 @@ string ExogAction::to_string(const string &pfx) const
 Reference<ExogAction> *ExogAction::make_ref(const vector<Expression *> &args)
 { return make_ref_<ExogAction>(args); }
 
-Expression *ExogAction::ref(const vector<Expression *> &args)
+Instruction *ExogAction::ref(const vector<Expression *> &args)
 { return make_ref(args); }
 
 

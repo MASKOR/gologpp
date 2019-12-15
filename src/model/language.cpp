@@ -48,17 +48,8 @@ void AbstractLanguageElement::set_semantics(unique_ptr<AbstractSemantics<Abstrac
 const Type &AbstractLanguageElement::type() const
 { return *type_; }
 
-
-void AbstractLanguageElement::set_type_by_name(const string &name)
-{
-	shared_ptr<const Type> desired_type = global_scope().lookup_type(name);
-
-	if (!type())
-		type_ = desired_type;
-
-	if (type() != *desired_type)
-		throw TypeError("Cannot override type " + type().name() + " of `" + str() + "' with " + name);
-}
+shared_ptr<const Type> AbstractLanguageElement::type_ptr() const
+{ return this->type().shared_from_this(); }
 
 
 void AbstractLanguageElement::set_type(const Type &t)
@@ -66,38 +57,63 @@ void AbstractLanguageElement::set_type(const Type &t)
 	if (!type())
 		type_ = t.shared_from_this();
 
-	if (type() != t)
+	if (!(type() >= t))
 		throw TypeError("Cannot override type " + type().name() + " of `" + str() + "' with " + t.name());
 }
 
 
 template<class T>
 void AbstractLanguageElement::ensure_type() {
-	const Type &this_type = type();
-	if (typeid(this_type) != typeid(T))
-		throw TypeError(this->str() + " is not of type " + T::name());
+	ensure_type(gologpp::type<T>());
+}
+
+template<>
+void AbstractLanguageElement::ensure_type<ListType>() {
+	if (!type().is<ListType>())
+		throw TypeError("Expression " + str() + " is of type " + type().name()
+			+ ", which is not a list type");
+}
+
+template<>
+void AbstractLanguageElement::ensure_type<CompoundType>() {
+	if (!type().is<CompoundType>())
+		throw TypeError("Expression " + str() + " is of type " + type().name()
+			+ ", which is not a compound type");
 }
 
 #define GOLOGPP_INSTANTIATE_ENSURE_TYPE(_r, _data, T) \
 	template \
 	void AbstractLanguageElement::ensure_type<T>();
 
-BOOST_PP_SEQ_FOR_EACH(GOLOGPP_INSTANTIATE_ENSURE_TYPE, (), GOLOGPP_TYPES)
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_INSTANTIATE_ENSURE_TYPE, (), GOLOGPP_PREDEFINED_TYPES)
 
 
 void AbstractLanguageElement::ensure_type(const Type &t) {
 	if (!type())
 		type_ = t.shared_from_this();
 
-	if (type() && type() != t)
+	if (!(type() >= *this))
 		throw TypeError(this->str() + " has type " + type().name()
 			+ " and cannot be redefined to type " + t.name()
 		);
 }
 
 
-void AbstractLanguageElement::set_type_unchecked(const string &name)
-{ type_ = global_scope().lookup_type(name); }
+
+
+void AbstractLanguageElement::set_type_unchecked(const Type &t)
+{ type_ = t.shared_from_this(); }
+
+
+template<class T>
+void AbstractLanguageElement::t_set_type_unchecked()
+{ type_ = get_type<T>().shared_from_this(); }
+
+#define GOLOGPP_INSTANTIATE_T_SET_TYPE_UNCHECKED(_r, _data, T) \
+	template \
+	void AbstractLanguageElement::t_set_type_unchecked<T>();
+
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_INSTANTIATE_T_SET_TYPE_UNCHECKED, (), GOLOGPP_PREDEFINED_TYPES)
 
 
 } // namespace gologpp

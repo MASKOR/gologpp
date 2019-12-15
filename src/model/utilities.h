@@ -29,16 +29,14 @@ namespace gologpp {
 class Name {
 public:
     Name(const string &name);
-    Name(Name &&other);
-    Name(const Name &other) = default;
     virtual ~Name() = default;
     
-    explicit operator string () const;
-    const string &name() const;
+    operator string () const;
     virtual bool operator == (const Name &other) const;
     bool operator != (const Name &other) const;
     virtual size_t hash() const;
-    
+    const string &name() const;
+
 protected:
     string name_;
 };
@@ -180,6 +178,16 @@ string concat_list(const ListT &l, const string sep, const string &pfx = "")
 		rv += to_string(elem, pfx) + sep;
 	return rv.length() ? rv.substr(0, rv.length() - sep.length()) : rv;
 }
+
+
+template<class T, class T1, class... Ts>
+struct is_member {
+	static constexpr bool value()
+	{ return std::is_same<T, T1>::value || (sizeof...(Ts) && is_member<T, Ts...>::value()); }
+};
+
+
+
 
 
 } // namespace gologpp

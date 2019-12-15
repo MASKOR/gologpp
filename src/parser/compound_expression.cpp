@@ -20,6 +20,7 @@
 #include "value.h"
 #include "variable.h"
 #include "expressions.h"
+#include "types.h"
 
 #include <model/fluent.h>
 #include <model/procedural.h>
@@ -36,6 +37,7 @@
 #include <boost/phoenix/object/dynamic_cast.hpp>
 #include <boost/phoenix/object/static_cast.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/operator/comparison.hpp>
 #include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
@@ -46,52 +48,56 @@ namespace parser {
 
 
 
-rule<Expression *(Scope &)> compound_atom;
+rule<Expression *(Scope &, const Type &)> compound_atom;
 
-rule<Expression *(Scope &)> compound_expression;
+rule<Expression *(Scope &, const Type &)> compound_expression;
 
-static rule<Expression *(Scope &), locals<shared_ptr<const CompoundType>, Typename>> braced_compound_expr_;
+static rule<Expression *(Scope &, const Type &), locals<shared_ptr<const CompoundType>, string>> braced_compound_expr_;
 
 
 void initialize_compound_exprs()
 {
 	compound_atom =
-		compound_value() [ _val = _1 ]
-		| typed_reference<Fluent>()(_r1, CompoundType::name()) [ _val = _1 ]
-		| typed_reference<Function>()(_r1, CompoundType::name()) [ _val = _1 ]
-		| var_usage()(_r1, val(CompoundType::name())) [
+		compound_value() [
+			_val = _1,
+			_pass = (*_val <= _r2)
+		]
+		| typed_reference<Fluent>()(_r1, _r2) [ _val = _1 ]
+		| typed_reference<Function>()(_r1, _r2) [ _val = _1 ]
+		| var_usage()(_r1, _r2) [
 			_val = new_<Reference<Variable>>(_1)
 		]
 		, "compound_atom"
 	;
 
 	compound_expression =
-		mixed_member_access()(_r1, CompoundType::name()) [ _val = _1 ]
-		| compound_atom(_r1) [ _val = _1 ]
-		| braced_compound_expr_(_r1) [ _val = _1 ]
+		mixed_member_access()(_r1, _r2) [ _val = _1 ]
+		| conditional_expression(_r1, _r2) [ _val = _1 ]
+		| compound_atom(_r1, _r2) [ _val = _1 ]
+		| braced_compound_expr_(_r1, _r2) [ _val = _1 ]
 		, "compound_expression"
 	;
 
 	braced_compound_expr_ =
 		(
-			(complex_type_identifier<CompoundType>()(_r1) [
-				_a = _1
+			(type_identifier<CompoundType>()(_r1) [
+				_a = _1,
+				_pass = (*_1 <= _r2)
 			]
-			>> '{')
-			>> ((
+			> '{')
+			> ((
 				r_name() [
-					_pass = phoenix::bind(&CompoundType::has_field, *_a, _1),
-					_b = static_cast_<string>(
-						phoenix::bind(&CompoundType::field_type<Type>, _a, _1)
-					)
+					_b = _1,
+					_pass = phoenix::bind(&CompoundType::has_field, *_a, _1)
 				]
-				>> '=' >> typed_expression()(_r1, _b)
-			) % ',') >> '}'
+				> '='
+				> typed_expression()(
+					_r1,
+					phoenix::bind(&CompoundType::field_type<Type>, *_a, _b)
+				)
+			) % ',') > '}'
 		) [
-			_val = new_<CompoundExpression>(
-				static_cast_<string>(*_a),
-				_2
-			)
+			_val = new_<CompoundExpression>(*_a, _2)
 		]
 		, "braced_compound_expression"
 	;

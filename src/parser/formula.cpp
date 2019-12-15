@@ -71,9 +71,9 @@ ComparisonParser::ComparisonParser()
 
 	comparison = (
 		(comparable_expr(_r1) >> cmp_op) [
-			_a = phoenix::bind(&Expression::type_name, *_1)
+			_a = phoenix::bind(&Expression::type_ptr, *_1)
 		]
-		> typed_expression()(_r1, _a)
+		> typed_expression()(_r1, *_a)
 	) [
 		_val = new_<Comparison>(at_c<0>(_1), at_c<1>(_1), _2)
 	];
@@ -151,10 +151,10 @@ BooleanExpressionParser::BooleanExpressionParser()
 
 	unary_expr = quantification(_r1) | negation(_r1) | boolean_value()
 		| bool_var_ref(_r1) | brace(_r1)
-		| mixed_member_access()(_r1, BoolType::name())
+		| mixed_member_access()(_r1, bool_type())
 		| comparison(_r1)
-		| typed_reference<Fluent>()(_r1, BoolType::name())
-		| typed_reference<Function>()(_r1, BoolType::name())
+		| typed_reference<Fluent>()(_r1, bool_type())
+		| typed_reference<Function>()(_r1, bool_type())
 	;
 	unary_expr.name("unary_boolean_expression");
 
@@ -196,7 +196,7 @@ BooleanExpressionParser::BooleanExpressionParser()
 	brace = '(' >> expression(_r1) >> ')';
 	brace.name("braced_boolean_expression");
 
-	bool_var_ref = var_usage()(_r1, val(BoolType::name())) [
+	bool_var_ref = var_usage()(_r1, bool_type()) [
 		_val = new_<Reference<Variable>>(_1)
 	];
 	bool_var_ref.name("reference_to_boolean_variable");

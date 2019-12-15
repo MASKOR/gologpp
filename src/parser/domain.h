@@ -25,21 +25,20 @@
 namespace gologpp {
 namespace parser {
 
-struct DomainExpressionParser : grammar<Domain(Scope &, Typename, bool)> {
+struct DomainExpressionParser : grammar<Domain(Scope &, const Type &, bool)> {
 	DomainExpressionParser();
 
-	rule<Domain(Scope &, Typename, bool)> domain_expr;
+	rule<Domain(Scope &, const Type &, bool)> domain_expr;
 	rule <
-		Domain(Scope &, Typename, bool),
+		Domain(Scope &, const Type &, bool),
 		locals<shared_ptr<Domain>>
 	> unary_domain_expr;
-	rule<Domain(Scope &, Typename, bool)> binary_domain_expr;
+	rule<Domain(Scope &, const Type &, bool)> binary_domain_expr;
 	rule<DomainOperator()> domain_operator;
 };
 
-rule<Domain(Scope &, Typename)> &domain_expression();
-rule<void(Scope &), locals<string, Typename>> &domain_decl();
-rule<void(Scope &, bool), locals<Typename>> &domain_assignment();
+rule<Domain(Scope &, const Type &)> &domain_expression();
+rule<void(Scope &), locals<string, shared_ptr<const Type>>> &domain_decl();
 
 
 } // namespace parser

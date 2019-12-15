@@ -47,6 +47,7 @@ public:
 	virtual void compile(const AbstractAction &action) override;
 	virtual void compile(const Fluent &fluent) override;
 	virtual void compile(const Function &function) override;
+	virtual void compile(const Procedure &proc) override;
 	virtual void postcompile() override;
 
     virtual bool final(Block &program, History &history) override;

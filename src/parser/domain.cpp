@@ -46,15 +46,16 @@ namespace parser {
 
 
 
-rule<Domain(Scope &, Typename)> &domain_expression()
+rule<Domain(Scope &, const Type &)> &domain_expression()
 {
 	static DomainExpressionParser domain_expression_;
-	static rule<Domain(Scope &, Typename)> rv {
+	static rule<Domain(Scope &, const Type &)> rv {
 		domain_expression_(_r1, _r2, false)
 	};
 	GOLOGPP_DEBUG_NODE(rv)
 	return rv;
 };
+
 
 
 DomainExpressionParser::DomainExpressionParser()
@@ -95,20 +96,20 @@ DomainExpressionParser::DomainExpressionParser()
 
 
 
-rule<void(Scope &), locals<string, Typename>> &domain_decl()
+rule<void(Scope &), locals<string, shared_ptr<const Type>>> &domain_decl()
 {
 	static DomainExpressionParser domain_expr_;
-	static rule<void(Scope &), locals<string, Typename>> rv {
-		((any_type_specifier()(_r1) >> "domain") > r_name()) [
-			_a = _1, // type name
-			_b = _2  // domain name
+	static rule<void(Scope &), locals<string, shared_ptr<const Type>>> rv {
+		((type_identifier<Type>()(_r1) >> "domain") > r_name()) [
+			_b = _1, // type
+			_a = _2  // domain name
 		]
 		> (
 			lit(';') [ // forward declaration
-				phoenix::bind(&Scope::declare_domain, _r1, _b, _a)
+				phoenix::bind(&Scope::declare_domain, _r1, _a, *_b)
 			]
-			| ( lit('=') > domain_expr_(_r1, _a, true) ) [ // definition
-				phoenix::bind(&Scope::define_domain, _r1, _b, _a, _1)
+			| ( lit('=') > domain_expr_(_r1, *_b, true) ) [ // definition
+				phoenix::bind(&Scope::define_domain, _r1, _a, *_b, _1)
 			]
 		),
 		"domain_declaration"
@@ -117,24 +118,6 @@ rule<void(Scope &), locals<string, Typename>> &domain_decl()
 	return rv;
 }
 
-
-rule<void(Scope &, bool), locals<Typename>> &domain_assignment()
-{
-	static DomainExpressionParser domain_expr_;
-	static rule<void(Scope &, bool), locals<Typename>> rv {
-		(
-			any_var_usage()(_r1) [
-				_a = phoenix::bind(&Expression::type_name, *_1)
-			]
-			> "in" > domain_expr_(_r1, _a, _r2) > ';'
-		) [
-			phoenix::bind(&Variable::set_domain_copy, _1, _2)
-		],
-		"domain_assignment"
-	};
-	GOLOGPP_DEBUG_NODE(rv)
-	return rv;
-}
 
 
 } // namespace parser

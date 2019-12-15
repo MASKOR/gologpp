@@ -48,6 +48,17 @@ public:
 };
 
 
+template<>
+class Semantics<Instruction>
+: public AbstractSemantics<Instruction>
+, public Semantics<AbstractLanguageElement>
+{
+public:
+	virtual ~Semantics<Instruction>() override = default;
+	virtual Instruction *trans(History &h) override;
+};
+
+
 #define GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE(_r, _data, GologT) \
 	virtual unique_ptr<AbstractSemantics<AbstractLanguageElement>> make_semantics(GologT &) override;
 

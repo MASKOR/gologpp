@@ -22,15 +22,15 @@ namespace gologpp {
 
 
 CompoundExpression::CompoundExpression(
-	const string &type_name,
+	const Type &t,
 	const vector<fusion_wtf_vector<string, Expression *> > &entries
 )
 {
-	set_type_unchecked(type_name);
+	set_type(t);
 
 	if (!AbstractLanguageElement::type().is_compound())
 		throw TypeError("Attempt to construct CompoundExpression, but type name \""
-			+ type_name + "\" does not refer to a compound type");
+			+ type().name() + "\" does not refer to a compound type");
 
 	std::unordered_set<string> unassigned_fields = type().field_names();
 
@@ -38,7 +38,7 @@ CompoundExpression::CompoundExpression(
 		const string &field_name = boost::fusion::at_c<0>(entry);
 		const Type &field_type = type().field_type(field_name);
 		Expression *expr = boost::fusion::at_c<1>(entry);
-		if (field_type == expr->type())
+		if (field_type >= expr->type())
 			entries_.emplace(field_name, expr);
 		else
 			throw ExpressionTypeMismatch("Cannot assign " + expr->str()

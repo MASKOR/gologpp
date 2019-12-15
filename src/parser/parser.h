@@ -25,9 +25,9 @@ namespace gologpp {
 namespace parser {
 
 
-unique_ptr<Expression> parse_string(rule<Expression *(Scope &)> &parser, const std::string &code);
+unique_ptr<Instruction> parse_string(rule<Instruction *(Scope &)> &parser, const std::string &code);
 
-unique_ptr<Expression> parse_file(const std::string &filename);
+unique_ptr<Instruction> parse_file(const std::string &filename);
 
 
 } // namespace parser

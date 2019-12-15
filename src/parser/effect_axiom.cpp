@@ -38,6 +38,7 @@
 #include "reference.h"
 #include "mixed_member_access.h"
 #include "expressions.h"
+#include "types.h"
 
 
 namespace gologpp {
@@ -51,9 +52,9 @@ EffectParser<LhsT>::EffectParser()
 	effect = (
 		(-(lit("if") > '(' > condition(_r1) > ')')
 		>> lhs(_r1) [
-			_a = phoenix::bind(&Expression::type_name, *_1)
+			_a = phoenix::bind(&Expression::type_ptr, *_1)
 		])
-		> '=' > typed_expression()(_r1, _a)
+		> '=' > typed_expression()(_r1, *_a)
 	) [
 		_val = new_<EffectAxiom<LhsT>>(),
 		phoenix::bind(&EffectAxiom<LhsT>::define, *_val, at_c<0>(_1), at_c<1>(_1), _2)
@@ -79,7 +80,7 @@ void EffectParser<Reference<Fluent>>::init()
 template<>
 void EffectParser<FieldAccess>::init()
 {
-	lhs = mixed_member_access()(_r1, UndefinedType::name()) [
+	lhs = mixed_member_access()(_r1, undefined_type()) [
 		_pass = (_val = dynamic_cast_<FieldAccess *>(_1))
 	];
 	lhs.name("field_access_effect_lhs");
@@ -89,7 +90,7 @@ void EffectParser<FieldAccess>::init()
 template<>
 void EffectParser<ListAccess>::init()
 {
-	lhs = mixed_member_access()(_r1, UndefinedType::name()) [
+	lhs = mixed_member_access()(_r1, undefined_type()) [
 		_pass = (_val = dynamic_cast_<ListAccess *>(_1))
 	];
 	lhs.name("list_access_effect_lhs");
