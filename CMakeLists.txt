@@ -318,12 +318,11 @@ if (${BUILD_TOOLS})
 	set(READYLOG_TEST_SRC
 		src/tools/readylog-test.cpp)
 	add_executable(readylog-test ${READYLOG_TEST_SRC})
-	target_link_libraries(readylog-test readylog++ parsegolog++)
-	set_property(TARGET readylog-test PROPERTY CXX_STANDARD 14)
-
 	if (USE_LIBASAN)
 		target_link_libraries(readylog-test asan)
 	endif()
+	target_link_libraries(readylog-test readylog++ parsegolog++)
+	set_property(TARGET readylog-test PROPERTY CXX_STANDARD 14)
 
 	install(TARGETS readylog-test RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
