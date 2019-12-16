@@ -49,6 +49,7 @@ public:
 	typedef typename ElementSet::iterator ElementIterator;
 
 	Domain(const string &name, const Type &elem_type, const vector<Value *> &elements = {}, bool implicit = false);
+	Domain(const string &name, shared_ptr<const Type> elem_type, const vector<Value *> &elements = {}, bool implicit = false);
 	Domain(const Type &elem_type);
 	Domain(const string &name, const Domain &other);
 	Domain(const Domain &other);

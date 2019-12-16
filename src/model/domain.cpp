@@ -28,8 +28,12 @@ string Domain::next_anon_name()
 
 
 Domain::Domain(const string &name, const Type &elem_type, const vector<Value *> &elements, bool implicit)
+: Domain(name, elem_type.shared_from_this(), elements, implicit)
+{}
+
+Domain::Domain(const string &name, shared_ptr<const Type> elem_type, const vector<Value *> &elements, bool implicit)
 : Type(name)
-, element_type_(elem_type.shared_from_this())
+, element_type_(elem_type)
 , implicit_(implicit)
 { add_elements(elements); }
 
@@ -38,15 +42,16 @@ Domain::Domain(const Type &elem_type)
 {}
 
 Domain::Domain(const string &name, const Domain &other)
-: Domain(name, other.element_type(), {}, false)
+: Domain(name, other.element_type_, {}, false)
 { add_elements(other); }
 
 Domain::Domain(const Domain &other)
-: Domain(other.name(), other.element_type(), {}, other.implicit_)
+: Domain(other.name(), other.element_type_, {}, other.implicit_)
 { add_elements(other); }
 
 Domain::Domain()
 : Type(next_anon_name())
+, element_type_(get_type<UndefinedType>().shared_from_this())
 , implicit_(false)
 {}
 
