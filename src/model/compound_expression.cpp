@@ -32,11 +32,11 @@ CompoundExpression::CompoundExpression(
 		throw TypeError("Attempt to construct CompoundExpression, but type name \""
 			+ type().name() + "\" does not refer to a compound type");
 
-	std::unordered_set<string> unassigned_fields = type().field_names();
+	std::unordered_set<string> unassigned_fields = compound_type().field_names();
 
 	for (const auto &entry : entries) {
 		const string &field_name = boost::fusion::at_c<0>(entry);
-		const Type &field_type = type().field_type(field_name);
+		const Type &field_type = compound_type().field_type(field_name);
 		Expression *expr = boost::fusion::at_c<1>(entry);
 		if (field_type >= expr->type())
 			entries_.emplace(field_name, expr);
@@ -89,7 +89,7 @@ string CompoundExpression::to_string(const string &pfx) const
 }
 
 
-const CompoundType &CompoundExpression::type() const
+const CompoundType &CompoundExpression::compound_type() const
 {
 	return dynamic_cast<const CompoundType &>(
 		AbstractLanguageElement::type()

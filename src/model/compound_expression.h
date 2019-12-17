@@ -41,7 +41,7 @@ public:
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
-	virtual const CompoundType &type() const override;
+	const CompoundType &compound_type() const;
 
 private:
 	std::unordered_map<string, unique_ptr<Expression>> entries_;

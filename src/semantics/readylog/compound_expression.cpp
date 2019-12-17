@@ -28,7 +28,7 @@ Semantics<CompoundExpression>::Semantics(const CompoundExpression &expr)
 EC_word Semantics<CompoundExpression>::plterm()
 {
 	EC_word field_list = ::nil();
-	for (auto &field_name : element().type().field_names())
+	for (auto &field_name : element().compound_type().field_names())
 		field_list = ::list(
 			::term(EC_functor(("#" + field_name).c_str(), 1),
 				element().entry(field_name).semantics().plterm()
