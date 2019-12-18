@@ -171,19 +171,19 @@ public:
 			return false;
 
 		// Compare target argument types with this reference's argument types
-		auto it_rarg = args().begin();
-		auto it_targ = target()->params().begin();
-		for (; it_rarg < args().end() && it_targ < target()->params().end(); ++it_rarg, ++it_targ) {
-			const Type &t_ref = (*it_rarg)->type();
-			const Type &t_tgt = (*it_targ)->type();
-			if (!(t_tgt >= **it_rarg)
-				&& !(t_ref.is<SymbolType>() && t_tgt.is<StringType>())
+		auto it_arg = args().begin();
+		auto it_param = target()->params().begin();
+		for (; it_arg < args().end() && it_param < target()->params().end(); ++it_arg, ++it_param) {
+			const Type &t_arg = (*it_arg)->type();
+			const Type &t_param = (*it_param)->type();
+			if (!(t_param >= **it_arg)
+				&& !(t_arg.is<SymbolType>() && t_param.is<StringType>())
 				// TODO: Hack: Allow passing a symbol value to a string argument
 				// This is needed because ReadyLog can't deal with strings.
 			)
 				return false;
 
-			if ((*it_rarg)->is_ref() && !dynamic_cast<AbstractReference &>(**it_rarg).consistent())
+			if ((*it_arg)->is_ref() && !dynamic_cast<AbstractReference &>(**it_arg).consistent())
 				return false;
 		}
 
