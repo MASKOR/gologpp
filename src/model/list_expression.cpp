@@ -49,6 +49,9 @@ const Expression &ListExpression::entry(size_t idx) const
 	return *entries_[idx];
 }
 
+const vector<unique_ptr<Expression> > &ListExpression::entries() const
+{ return entries_; }
+
 size_t ListExpression::size() const
 { return entries_.size(); }
 
@@ -82,6 +85,19 @@ const ListType &ListExpression::type() const
 	);
 }
 
+
+bool ListExpression::operator <= (const Type &t) const
+{
+	try {
+		const ListType &lt = dynamic_cast<const ListType &>(t);
+		for (const auto &entry : entries())
+			if (!(*entry <= lt.element_type()))
+				return false;
+		return true;
+	} catch (std::bad_cast &) {}
+
+	return t >= *this;
+}
 
 
 } // namespace gologpp

@@ -18,6 +18,7 @@
 #include "types.h"
 #include "scope.h"
 #include "domain.h"
+#include "list_expression.h"
 
 namespace gologpp {
 
@@ -215,6 +216,18 @@ bool ListType::operator >= (const Type &other) const
 	} catch (std::bad_cast &) {
 		return false;
 	}
+}
+
+bool ListType::operator >= (const AbstractLanguageElement &other) const
+{
+	if (*this >= other.type())
+		return true;
+	else if (other.is_a<Value>())
+		return dynamic_cast<const Value &>(other) <= *this;
+	else if (other.is_a<ListExpression>())
+		return dynamic_cast<const ListExpression &>(other) <= *this;
+	else
+		return false;
 }
 
 bool ListType::is_compound() const

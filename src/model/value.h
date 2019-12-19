@@ -140,6 +140,8 @@ public:
 	bool operator > (const Value &) const;
 	bool operator < (const Value &) const;
 
+	bool operator <= (const Type &) const override;
+
 	Value operator ! () const;
 
 	bool operator != (const Value &) const;

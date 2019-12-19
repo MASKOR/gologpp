@@ -172,6 +172,7 @@ public:
 	PType element_type_ptr() const;
 
 	virtual bool operator >= (const Type &other) const override;
+	virtual bool operator >= (const AbstractLanguageElement &) const override;
 
 	virtual bool is_compound() const override;
 	virtual bool is_simple() const override;

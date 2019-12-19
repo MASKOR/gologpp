@@ -40,11 +40,13 @@ public:
 	ListExpression(const Type &type, const boost::optional<vector<Expression *>> &entries);
 
 	const Expression &entry(size_t idx) const;
+	const vector<unique_ptr<Expression>> &entries() const;
 	size_t size() const;
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
 	virtual const ListType &type() const override;
+	virtual bool operator <= (const Type &t) const override;
 
 private:
 	vector<unique_ptr<Expression>> entries_;

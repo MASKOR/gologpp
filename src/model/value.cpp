@@ -254,6 +254,23 @@ bool Value::operator == (const Value &c) const
 }
 
 
+bool Value::operator <= (const Type &t) const
+{
+	try {
+		if (type().is<ListType>()) {
+			const ListType &lt = dynamic_cast<const ListType &>(t);
+			for (const auto &elem : boost::get<const ListType::Representation &>(representation_))
+				if (!(*elem <= lt.element_type()))
+					return false;
+			return true;
+		}
+	} catch (std::bad_cast &) {
+		return false;
+	}
+	return t >= *this;
+}
+
+
 void Value::attach_semantics(SemanticsFactory &f)
 {
 	if (!semantics_) {
