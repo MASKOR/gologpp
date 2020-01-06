@@ -1,8 +1,8 @@
 libdir=@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@
-includedir=@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_INCLUDEDIR@/golog++
+includedir=@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_INCLUDEDIR@
 
 Name: golog++
 Description: The golog++ object model library
 Version: @GOLOGPP_VERSION@
-Cflags: -I${includedir} @GOLOGPP_CXXFLAGS@
+Cflags: -I${includedir}/golog++ -I${includedir} @GOLOGPP_CXXFLAGS@
 Libs: -L${libdir} -lgolog++
