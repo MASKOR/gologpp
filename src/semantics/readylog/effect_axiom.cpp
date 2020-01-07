@@ -43,7 +43,7 @@ const EffectAxiom<Reference<Fluent>> &Semantics<EffectAxiom<Reference<Fluent>>>:
 
 EC_word Semantics<EffectAxiom<Reference<Fluent>>>::plterm()
 {
-	effect().lhs().target()->scope().semantics().init_vars();
+	effect().action().scope().semantics().init_vars();
 
 	EC_word condition_term = effect().condition().semantics().plterm();
 	if (effect().lhs().semantics().args_need_eval())

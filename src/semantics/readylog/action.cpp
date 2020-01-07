@@ -118,7 +118,6 @@ EC_word Semantics<ExogAction>::plterm()
 
 vector<EC_word> Semantics<ExogAction>::causes_vals()
 {
-	element().scope().semantics().init_vars();
 	vector<EC_word> rv;
 	for (const unique_ptr<AbstractEffectAxiom> &effect : element().effects())
 		rv.push_back(effect->semantics().plterm());
