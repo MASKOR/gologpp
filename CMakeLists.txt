@@ -325,6 +325,10 @@ if (${BUILD_TOOLS})
 		target_link_libraries(readylog-test asan)
 	endif()
 
+	add_executable(test src/tools/test.cpp)
+	target_link_libraries(test readylog++ parsegolog++)
+	set_property(TARGET test PROPERTY CXX_STANDARD 14)
+
 	install(TARGETS readylog-test RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
