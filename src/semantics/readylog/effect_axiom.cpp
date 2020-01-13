@@ -77,7 +77,7 @@ EC_word Semantics<EffectAxiom<FieldAccess>>::plterm()
 	effect().scope().semantics().init_vars();
 
 	EC_word condition_term = element().condition().semantics().plterm();
-	if (fluent_access.first->semantics().args_need_eval())
+	if (fluent_access.first->semantics().args_need_eval()) {
 
 		fluent_access.first->target()->scope().semantics().init_vars();
 
@@ -85,6 +85,7 @@ EC_word Semantics<EffectAxiom<FieldAccess>>::plterm()
 			fluent_access.first->semantics().args_binding(),
 			condition_term
 		);
+	}
 
 	return ::term(EC_functor(cv_functor.c_str(), 4),
 		effect().action().semantics().plterm(),
@@ -111,7 +112,7 @@ EC_word Semantics<EffectAxiom<ListAccess>>::plterm()
 	effect().scope().semantics().init_vars();
 
 	EC_word condition_term = element().condition().semantics().plterm();
-	if (fluent_access.first->semantics().args_need_eval())
+	if (fluent_access.first->semantics().args_need_eval()) {
 
 		fluent_access.first->target()->scope().semantics().init_vars();
 
@@ -119,7 +120,7 @@ EC_word Semantics<EffectAxiom<ListAccess>>::plterm()
 			fluent_access.first->semantics().args_binding(),
 			condition_term
 		);
-
+	}
 
 	return ::term(EC_functor(cv_functor.c_str(), 4),
 		effect().action().semantics().plterm(),
