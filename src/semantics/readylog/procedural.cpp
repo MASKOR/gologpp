@@ -55,7 +55,10 @@ EC_word Semantics<Function>::definition()
 		return ::term(EC_functor("function", 3),
 			plterm(),
 			return_var_,
-			element().definition().semantics().plterm()
+			::term(EC_functor("=", 2),
+				return_var_,
+				element().definition().semantics().plterm()
+			)
 		);
 	}
 }
@@ -119,12 +122,13 @@ EC_word Semantics<Conditional>::plterm()
 		if (parent->is_a<Global>()) {
 			if (parent->is_a<Function>() && !parent->type().is<VoidType>())
 				// An actual ReadyLog function (not a procedure): have to use lif/3
-				fn = EC_functor("lif", 3);
+				fn = EC_functor("func_if", 3);
 
 			break;
 		}
 		parent = dynamic_cast<const Expression *>(parent)->parent();
 	}
+
 	return ::term(fn,
 		element().condition().semantics().plterm(),
 		element().block_true().semantics().plterm(),
@@ -294,13 +298,7 @@ EC_word Semantics<Return>::plterm() {
 	if (function->type() != element().expression().type())
 		throw ExpressionTypeMismatch(*function, element().expression());
 
-	if (element().expression().type().is<BoolType>())
-		return element().expression().semantics().plterm();
-	else
-		return ::term(EC_functor("=", 2),
-			function->semantics().return_var(),
-			element().expression().semantics().plterm()
-		);
+	return element().expression().semantics().plterm();
 }
 
 

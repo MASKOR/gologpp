@@ -16,6 +16,10 @@ function(to_string(V), R,
 	and(sprintf(S, "%w", V), atom_string(R, S))
 ).
 
+% Yet another wrapper to fix ReadyLog's broken function design
+% This is then a conditional that can actually be subf'ed recursively.
+function(func_if(Cond, V1, V2), R, lif(Cond, R = V1, R = V2)).
+
 
 function(gpp_field_value(Name, Compound), Value,
 	once(pl_field_value(Name, Compound, Value))
