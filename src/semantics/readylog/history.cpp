@@ -148,13 +148,14 @@ bool Semantics<History>::should_progress() const
 
 void Semantics<History>::progress()
 {
-	EC_word New_history = ::newvar();
+	EC_ref New_history;
 	EC_word query = ::term(EC_functor("update_current_val", 2),
 		current_history(),
 		New_history
 	);
+	EC_word q2 = query;
 	if (!ReadylogContext::instance().ec_query(query))
-		throw EclipseError("Failed to progress: " + ReadylogContext::instance().to_string(query));
+		throw EclipseError("Failed to progress: " + ReadylogContext::instance().to_string(q2));
 
 	readylog_history_ = New_history;
 }
