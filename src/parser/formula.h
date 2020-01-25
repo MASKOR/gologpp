@@ -53,6 +53,7 @@ struct BooleanExpressionParser : grammar<Expression *(Scope &)> {
 };
 
 
+
 } // namespace parser
 } // namespace gologpp
 

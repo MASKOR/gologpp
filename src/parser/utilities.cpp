@@ -34,6 +34,11 @@
 #include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_string.hpp>
 
+#include <boost/phoenix/fusion/at.hpp>
+
+#include <model/formula.h>
+#include <model/arithmetic.h>
+
 #include <iostream>
 
 namespace gologpp {
@@ -131,6 +136,70 @@ void handle_error(
 		<< get_error_context(begin, errpos, end)
 		<< "Expected: " << expected << std::endl;
 }
+
+
+
+template<class OperationT>
+OperationT *parse_op_precedence_(op_list<OperationT> vec, Expression *last) {
+	if (vec.size() == 1)
+		return new OperationT(
+			at_c<0>(vec.front()),
+			at_c<1>(vec.front()),
+			last
+		);
+	else {
+		typename OperationT::Operator op = at_c<1>(vec.front());
+		OperationT *rhs = parse_op_precedence_<OperationT>(
+			op_list<OperationT>(++vec.begin(), vec.end()),
+			last
+		);
+		if (precedence(rhs->op()) > precedence(op))
+			return new OperationT(
+				at_c<0>(vec.front()),
+				op,
+				rhs
+			);
+		else {
+			// TODO: This is a memory leak, but what the heck this parser is full of them, anyways
+			// and it's not the worst one, either.
+			typename OperationT::Operator op = at_c<1>(vec.back());
+			OperationT *lhs = parse_op_precedence_<OperationT>(
+				op_list<OperationT>(vec.begin(), --vec.end()),
+				at_c<0>(vec.back())
+			);
+			return new OperationT(
+				lhs,
+				op,
+				last
+			);
+		}
+	}
+}
+
+
+template<class OperationT>
+OperationT *parse_op_precedence(
+	vector<fusion_wtf_vector<Expression *, typename OperationT::Operator>> vec,
+	Expression *rhs
+) {
+	return parse_op_precedence_<OperationT>(
+		op_list<OperationT>(vec.begin(), vec.end()),
+		rhs
+	);
+}
+
+template
+BooleanOperation *parse_op_precedence(
+	vector<fusion_wtf_vector<Expression *, BooleanOperation::Operator>> vec,
+	Expression *rhs
+);
+
+template
+ArithmeticOperation *parse_op_precedence(
+	vector<fusion_wtf_vector<Expression *, ArithmeticOperation::Operator>> vec,
+	Expression *rhs
+);
+
 
 
 } // namespace parser

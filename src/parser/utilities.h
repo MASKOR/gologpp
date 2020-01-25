@@ -101,6 +101,26 @@ void handle_error(
 );
 
 
+
+template<class OperationT>
+using op_list = std::list<fusion_wtf_vector<Expression *, typename OperationT::Operator>>;
+
+/*
+ * Behold the braindeadness of PEGs: Operator precedence is impossible to implement
+ * because left recursion is forbidden. Insert facepalm here.
+ *
+ * So first, we have to parse sequences of unary expressions and operators into an unstructured
+ * list. Then shove it all into this "after-parser" to build a structured BooleanOperation
+ * that properly reflects operator precedence.
+ */
+template<class OperationT>
+OperationT *parse_op_precedence(
+	vector<fusion_wtf_vector<Expression *, typename OperationT::Operator>> vec,
+	Expression *rhs
+);
+
+
+
 #ifdef GOLOGPP_DEBUG_PARSER
 #define GOLOGPP_DEBUG_NODE(n) debug(n);
 #define GOLOGPP_DEBUG_NODE_A(_r, _data, node) GOLOGPP_DEBUG_NODE(node)

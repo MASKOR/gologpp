@@ -79,11 +79,7 @@ protected:
 \*--------------------------------------------*/
 
 enum BooleanOperator {
-	// Order is important here since the
-	// enum value encodes operator precedence
-	IMPLIES = 0, OR, AND, XOR, IFF
-	, MIN_PRECEDENCE = IMPLIES
-	, MAX_PRECEDENCE = IFF
+	IMPLIES, OR, AND, XOR, IFF
 };
 
 string to_string(BooleanOperator op);
@@ -91,6 +87,8 @@ string to_string(BooleanOperator op);
 
 class BooleanOperation : public Expression, public NoScopeOwner, public LanguageElement<BooleanOperation, BoolType> {
 public:
+	using Operator = BooleanOperator;
+
 	BooleanOperation(
 		Expression *lhs,
 		BooleanOperator op,
@@ -108,6 +106,22 @@ protected:
 	SafeExprOwner<BoolType> lhs_;
 	BooleanOperator op_;
 	SafeExprOwner<BoolType> rhs_;
+};
+
+string to_string(BooleanOperator op);
+
+constexpr unsigned int precedence(BooleanOperator op) {
+	switch (op) {
+	case BooleanOperator::IMPLIES:
+	case BooleanOperator::XOR:
+	case BooleanOperator::IFF:
+		return 0;
+	case BooleanOperator::OR:
+		return 1;
+	case BooleanOperator::AND:
+		return 2;
+	}
+	throw Bug("Undefined boolean operator: " + std::to_string(op));
 };
 
 
