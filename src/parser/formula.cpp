@@ -89,60 +89,6 @@ ComparisonParser::ComparisonParser()
 
 
 
-using op_list = std::list<fusion_wtf_vector<Expression *, BooleanOperator>>;
-/*
- * Behold the braindeadness of PEGs: Operator precedence is impossible to implement
- * because left recursion is forbidden. Insert facepalm here.
- *
- * So first, we have to parse sequences of unary expressions and operators into an unstructured
- * list. Then shove it all into this "after-parser" to build a structured BooleanOperation
- * that properly reflects operator precedence.
- */
-BooleanOperation *parse_op_seq_(op_list vec, Expression *last)
-{
-	if (vec.size() == 1)
-		return new BooleanOperation(
-			at_c<0>(vec.front()),
-			at_c<1>(vec.front()),
-			last
-		);
-	else {
-		BooleanOperator op = at_c<1>(vec.front());
-		BooleanOperation *rhs = parse_op_seq_(op_list(++vec.begin(), vec.end()), last);
-		if (rhs->op() > op)
-			return new BooleanOperation(
-				at_c<0>(vec.front()),
-				op,
-				rhs
-			);
-		else {
-			// TODO: This is a memory leak, but what the heck this parser is full of them, anyways
-			// and it's not the worst one, either.
-			BooleanOperator op = at_c<1>(vec.back());
-			BooleanOperation *lhs = parse_op_seq_(op_list(vec.begin(), --vec.end()), at_c<0>(vec.back()));
-			return new BooleanOperation(
-				lhs,
-				op,
-				last
-			);
-		}
-	}
-}
-
-
-
-BooleanOperation *parse_op_seq(
-	vector<fusion_wtf_vector<Expression *, BooleanOperator>> vec,
-	Expression *rhs
-) {
-	return parse_op_seq_(
-		op_list(vec.begin(), vec.end()),
-		rhs
-	);
-}
-
-
-
 BooleanExpressionParser::BooleanExpressionParser()
 : BooleanExpressionParser::base_type(expression, "boolean_expression")
 {
@@ -161,7 +107,7 @@ BooleanExpressionParser::BooleanExpressionParser()
 	operation_seq = (
 		+(unary_expr(_r1) >> bool_op) >> unary_expr(_r1)
 	) [
-		_val = phoenix::bind(&parse_op_seq, _1, _2)
+		_val = phoenix::bind(&parse_op_precedence<BooleanOperation>, _1, _2)
 	];
 	operation_seq.name("operation_seq");
 
