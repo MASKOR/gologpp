@@ -42,6 +42,7 @@ using string = std::string;
 
 class Expression;
 class Instruction;
+class Binding;
 
 class AbstractLanguageElement;
 template<class, class> class LanguageElement;

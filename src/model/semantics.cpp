@@ -23,8 +23,6 @@ namespace gologpp {
 AbstractSemantics<AbstractLanguageElement>::AbstractSemantics()
 {}
 
-Instruction *gologpp::AbstractSemantics<Instruction>::plan(History &h)
-{ return trans(h); }
 
 
 

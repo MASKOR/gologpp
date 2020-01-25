@@ -56,7 +56,7 @@ public:
 	virtual ~PlatformBackend();
 
 	shared_ptr<Activity> end_activity(shared_ptr<Transition>);
-	void start_activity(shared_ptr<Transition>);
+	shared_ptr<Activity> start_activity(shared_ptr<Transition>);
 	void cancel_activity(shared_ptr<Transition>);
 	Lock lock();
 

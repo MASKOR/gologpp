@@ -45,12 +45,33 @@ public:
 	virtual bool bound() const = 0;
 	virtual bool consistent() const = 0;
 
+	virtual const Expression &arg_for_param(shared_ptr<const Variable> param) const = 0;
+
 	void ensure_consistent();
 };
 
 
+// TODO: Properly integrate (use) this class in references, c'tors etc.
+class Binding {
+public:
+	virtual ~Binding() = default;
+
+	void bind(const Variable &, const Expression &expr);
+	virtual Expression &get(const Variable &) const;
+
+private:
+	std::unordered_map <
+		shared_ptr<const Variable>,
+		std::reference_wrapper<Expression>
+	> var_bindings_;
+};
+
+
+
+
+
 template<class ArgsT>
-using ParamsToArgs = std::unordered_map<
+using ParameterBinding = std::unordered_map<
 	shared_ptr<const Variable>,
 	std::reference_wrapper<ArgsT>
 >;
@@ -161,7 +182,7 @@ public:
 	{ return args_; }
 
 
-	const ArgsT &arg_for_param(shared_ptr<const Variable> param) const
+	virtual const ArgsT &arg_for_param(shared_ptr<const Variable> param) const override
 	{
 		auto it = params_to_args_.find(param);
 		if (it == params_to_args_.end())
@@ -218,17 +239,17 @@ public:
 		return rv;
 	}
 
-	virtual ParamsToArgs<ArgsT> &params_to_args()
+	virtual ParameterBinding<ArgsT> &params_to_args()
 	{ return params_to_args_; }
 
-	virtual const ParamsToArgs<ArgsT> &params_to_args() const
+	virtual const ParameterBinding<ArgsT> &params_to_args() const
 	{ return params_to_args_; }
 
 private:
 	vector<unique_ptr<ArgsT>> args_;
 	weak_ptr<TargetT> target_;
 
-	ParamsToArgs<ArgsT> params_to_args_;
+	ParameterBinding<ArgsT> params_to_args_;
 };
 
 

@@ -37,6 +37,7 @@ private:
 	friend class Scope;
 
 public:
+	using SignifierT = AbstractLanguageElement;
 	AbstractLanguageElement();
 
 	// By default, a language element is not copyable, since it is part of a graph

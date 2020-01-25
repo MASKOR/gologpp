@@ -45,22 +45,22 @@ private:
 
 
 template<>
-class AbstractSemantics<Expression>
+class Semantics<Expression>
 : public virtual AbstractSemantics<AbstractLanguageElement>
 {
 public:
-	virtual Value evaluate(const Activity &context, const History &h) = 0;
+	virtual Value evaluate(const Binding &b, const History &h) = 0;
 };
 
 
 
 template<>
-class AbstractSemantics<Instruction>
+class Semantics<Instruction>
 : public virtual AbstractSemantics<AbstractLanguageElement>
 {
 public:
-	virtual Instruction *trans(History &h) = 0;
-	virtual Instruction *plan(History &h);
+	virtual bool trans(const Binding &b, History &h) = 0;
+	virtual unique_ptr<Instruction> plan(const Binding &b, History &h) = 0;
 };
 
 

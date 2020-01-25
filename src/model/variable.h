@@ -25,6 +25,8 @@
 #include "scope.h"
 #include "domain.h"
 
+#include <unordered_map>
+
 namespace gologpp {
 
 

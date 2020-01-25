@@ -145,6 +145,13 @@ public:
 
 	Value operator ! () const;
 
+	Value operator + (const Value &) const;
+	Value operator - (const Value &) const;
+	Value operator * (const Value &) const;
+	Value operator / (const Value &) const;
+	Value operator % (const Value &) const;
+	Value pow(const Value &) const;
+
 	bool operator != (const Value &) const;
 	virtual Value *copy() const;
 
