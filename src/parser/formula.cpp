@@ -60,9 +60,9 @@ ComparisonParser::ComparisonParser()
 : ComparisonParser::base_type(comparison, "comparison")
 {
 	cmp_op =
-		qi::string(">") [ _val = val(ComparisonOperator::GT) ]
-		| qi::string(">=") [ _val = val(ComparisonOperator::GE) ]
+		qi::string(">=") [ _val = val(ComparisonOperator::GE) ]
 		| qi::string("<=") [ _val = val(ComparisonOperator::LE) ]
+		| qi::string(">") [ _val = val(ComparisonOperator::GT) ]
 		| qi::string("<") [ _val = val(ComparisonOperator::LT) ]
 		| qi::string("==") [ _val = val(ComparisonOperator::EQ) ]
 		| qi::string("!=") [ _val = val(ComparisonOperator::NEQ) ]
