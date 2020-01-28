@@ -361,7 +361,6 @@ public:
 
 private:
 	unique_ptr<Instruction> definition_;
-	vector<shared_ptr<Variable>> params_;
 };
 
 
