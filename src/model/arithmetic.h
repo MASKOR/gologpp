@@ -69,21 +69,7 @@ private:
 
 using ArithmeticOperator = ArithmeticOperation::Operator;
 
-
-constexpr unsigned int precedence(ArithmeticOperation::Operator op) {
-	switch (op) {
-	case ArithmeticOperator::ADDITION:
-	case ArithmeticOperator::SUBTRACTION:
-		return 1;
-	case ArithmeticOperator::MULTIPLICATION:
-	case ArithmeticOperator::DIVISION:
-	case ArithmeticOperator::MODULO:
-		return 2;
-	case ArithmeticOperator::POWER:
-		return 3;
-	}
-	throw Bug("Undefined arithmetic operator: " + std::to_string(op));
-}
+unsigned int precedence(ArithmeticOperation::Operator op);
 
 
 

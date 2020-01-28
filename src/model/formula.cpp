@@ -134,6 +134,22 @@ string to_string(BooleanOperator op)
 }
 
 
+unsigned int precedence(BooleanOperation::Operator op)
+{
+	switch (op) {
+	case BooleanOperator::IMPLIES:
+	case BooleanOperator::XOR:
+	case BooleanOperator::IFF:
+		return 0;
+	case BooleanOperator::OR:
+		return 1;
+	case BooleanOperator::AND:
+		return 2;
+	}
+	throw Bug("Undefined boolean operator: " + std::to_string(op));
+};
+
+
 
 string to_string(QuantificationOperator op)
 {

@@ -109,19 +109,7 @@ using BooleanOperator = BooleanOperation::Operator;
 
 string to_string(BooleanOperator op);
 
-constexpr unsigned int precedence(BooleanOperation::Operator op) {
-	switch (op) {
-	case BooleanOperator::IMPLIES:
-	case BooleanOperator::XOR:
-	case BooleanOperator::IFF:
-		return 0;
-	case BooleanOperator::OR:
-		return 1;
-	case BooleanOperator::AND:
-		return 2;
-	}
-	throw Bug("Undefined boolean operator: " + std::to_string(op));
-};
+unsigned int precedence(BooleanOperation::Operator op);
 
 
 
