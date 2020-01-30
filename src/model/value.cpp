@@ -259,7 +259,7 @@ bool Value::operator <= (const Type &t) const
 	try {
 		if (type().is<ListType>()) {
 			const ListType &lt = dynamic_cast<const ListType &>(t);
-			for (const auto &elem : boost::get<const ListType::Representation &>(representation_))
+			for (const auto &elem : boost::get<const ListType::Representation>(representation_))
 				if (!(*elem <= lt.element_type()))
 					return false;
 			return true;
