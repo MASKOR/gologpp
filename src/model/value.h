@@ -41,6 +41,7 @@ public:
 	{}
 
 	unique_ptr(const unique_ptr<Value> &c);
+	unique_ptr(const Value &v);
 
 	unique_ptr<Value> &operator = (const unique_ptr<Value> &c);
 

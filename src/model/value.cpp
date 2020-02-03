@@ -27,6 +27,10 @@ unique_ptr<Value>::unique_ptr(const unique_ptr<Value> &c)
 : std::unique_ptr<Value>(c->copy())
 {}
 
+gologpp::unique_ptr<Value>::unique_ptr(const Value &v)
+: std::unique_ptr<Value>(v.copy())
+{}
+
 unique_ptr<Value> &unique_ptr<Value>::operator = (const unique_ptr<Value> &c)
 {
 	std::unique_ptr<Value>::operator = (std::make_unique<Value>(*c));
@@ -198,9 +202,12 @@ Value::Value(const Type &t, const boost::optional<vector<Value *>> &list_values)
 
 Value::Value(Value &&c)
 {
-	semantics_ = std::move(c.semantics_);
-	set_type(c.type());
 	representation_ = std::move(c.representation_);
+	set_type(c.type());
+	semantics_ = std::move(c.semantics_);
+
+	if (semantics_)
+		dynamic_cast<AbstractSemantics<Value> &>(*semantics_).element_ = this;
 }
 
 
@@ -212,7 +219,6 @@ Value::Value(const Value &c)
 	this->representation_ = c.representation_;
 	set_type(c.type());
 }
-
 
 
 Value &Value::operator = (const Value &c)
@@ -232,6 +238,9 @@ Value &Value::operator = (Value &&c)
 	representation_ = std::move(c.representation_);
 	set_type(c.type());
 	semantics_ = std::move(c.semantics_);
+
+	if (semantics_)
+		dynamic_cast<AbstractSemantics<Value> &>(*semantics_).element_ = this;
 
 	return *this;
 }
@@ -295,6 +304,7 @@ vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v)
 		rv.emplace_back(c->copy());
 	return rv;
 }
+
 
 
 

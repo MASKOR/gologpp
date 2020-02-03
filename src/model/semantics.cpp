@@ -27,6 +27,14 @@ Instruction *gologpp::AbstractSemantics<Instruction>::plan(History &h)
 { return trans(h); }
 
 
+
+gologpp::AbstractSemantics<Value>::~AbstractSemantics()
+{}
+
+const Value &gologpp::AbstractSemantics<Value>::element() const
+{ return *element_; }
+
+
 }
 
 

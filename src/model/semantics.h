@@ -31,10 +31,15 @@ template<>
 class AbstractSemantics<AbstractLanguageElement> {
 public:
 	AbstractSemantics();
+
 	virtual ~AbstractSemantics<AbstractLanguageElement>() = default;
 
 	template<class GologT = AbstractLanguageElement>
 	const GologT &element() const;
+
+private:
+	// Not trivially moveable because cross-referencing with language element
+	AbstractSemantics(AbstractSemantics &&) = default;
 };
 
 
@@ -66,17 +71,38 @@ class AbstractSemantics
 {
 public:
 	AbstractSemantics(const GologT &elem)
-	: element_(elem)
+	: element_(&elem)
 	{}
 
 	virtual ~AbstractSemantics<GologT>() = default;
 
 	template<class = GologT>
 	const GologT &element() const
-	{ return element_; }
+	{ return *element_; }
 
 private:
-	const GologT &element_;
+	const GologT *element_;
+};
+
+
+
+template<>
+class AbstractSemantics<Value>
+: public virtual AbstractSemantics<AbstractLanguageElement>
+{
+public:
+	friend Value;
+
+	AbstractSemantics(const Value &elem)
+	: element_(&elem)
+	{}
+
+	virtual ~AbstractSemantics<Value>();
+
+	const Value &element() const;
+
+private:
+	const Value *element_;
 };
 
 
