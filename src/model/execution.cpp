@@ -21,6 +21,7 @@
 #include "procedural.h"
 #include "history.h"
 #include "platform_backend.h"
+#include "dummy_backend.h"
 #include "activity.h"
 
 #include <iostream>
@@ -68,6 +69,7 @@ shared_ptr<Grounding<AbstractAction>> AExecutionContext::exog_queue_poll()
 void AExecutionContext::terminate()
 {
 	std::lock_guard<std::mutex> l1 { exog_mutex_ };
+	platform_backend_->terminate();
 	terminated = true;
 	queue_empty_condition_.notify_all();
 	std::lock_guard<std::mutex> l2 { wait_mutex_ };

@@ -76,6 +76,7 @@ private:
 	std::condition_variable queue_empty_condition_;
 	std::mutex queue_empty_mutex_;
 	std::mutex wait_mutex_;
+
 	ExogQueue exog_queue_;
 	unique_ptr<PlatformBackend> platform_backend_;
 	unique_ptr<SemanticsFactory> semantics_;

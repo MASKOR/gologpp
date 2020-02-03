@@ -62,47 +62,24 @@ public:
 
 	virtual Clock::time_point time() const noexcept = 0;
 	void set_context(AExecutionContext *ctx);
+	AExecutionContext *exec_context();
 
+	virtual void terminate() = 0;
+
+protected:
+	void wait_until_ready();
 
 private:
 	virtual void execute_activity(shared_ptr<Activity> a) = 0;
 	virtual void preempt_activity(shared_ptr<Activity> a) = 0;
 
 	ActivitySet activities_;
-	AExecutionContext *exec_ctx_ = nullptr;
+	std::atomic<AExecutionContext *> exec_ctx_;
 	Lock::mutex_type mutex_;
+
+	std::mutex ready_mutex_;
+	std::condition_variable ready_condition_;
 };
-
-
-
-class DummyBackend : public PlatformBackend {
-public:
-	DummyBackend();
-
-	virtual void preempt_activity(shared_ptr<Activity>) override;
-	virtual Clock::time_point time() const noexcept override;
-
-private:
-	virtual void execute_activity(shared_ptr<Activity> a) override;
-
-	std::uniform_real_distribution<> uniform_dist_;
-	std::mt19937 prng_;
-	std::mutex thread_mtx_;
-
-	struct ActivityThread {
-	public:
-		std::unique_ptr<std::thread> thread;
-		std::condition_variable cancel_cond;
-		std::mutex cancel_mutex;
-		std::atomic_bool cancel;
-		void end_activity(std::chrono::duration<double> when, DummyBackend &b, shared_ptr<Activity> a);
-	};
-
-	std::unordered_map<
-		shared_ptr<Grounding<Action>>, shared_ptr<ActivityThread>
-	> activity_threads_;
-};
-
 
 
 
