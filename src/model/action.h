@@ -76,10 +76,14 @@ public:
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 
+	void set_silent(bool);
+	bool silent() const;
+
 private:
 	vector<unique_ptr<AbstractEffectAxiom>> effects_;
 	SafeExprOwner<BoolType> precondition_;
 	unique_ptr<ActionMapping> mapping_;
+	bool silent_;
 };
 
 
@@ -129,13 +133,6 @@ public:
 };
 
 
-
-class ExogEvent : public Grounding<ExogAction>, public LanguageElement<ExogEvent> {
-public:
-	using Grounding<ExogAction>::Grounding;
-
-	virtual void attach_semantics(SemanticsFactory &) override;
-};
 
 } // namespace gologpp
 

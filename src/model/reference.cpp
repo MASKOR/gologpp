@@ -33,4 +33,66 @@ void AbstractReference::ensure_consistent()
 		throw UserError("Inconsistent reference: " + str());
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+gologpp::Reference<Variable>::Reference(const shared_ptr<Variable> &target)
+: target_(target)
+{}
+
+gologpp::Reference<Variable>::Reference(Reference<Variable> &&other)
+: target_(std::move(other.target_))
+{}
+
+Variable *gologpp::Reference<Variable>::operator ->()
+{ return target().get(); }
+
+const Variable &gologpp::Reference<Variable>::operator *() const
+{ return *target(); }
+
+Variable &gologpp::Reference<Variable>::operator *()
+{ return *target(); }
+
+const Variable *gologpp::Reference<Variable>::operator ->() const
+{ return target().get(); }
+
+const string &gologpp::Reference<Variable>::name() const
+{ return target()->name(); }
+
+bool gologpp::Reference<Variable>::bound() const
+{ return target_.get(); }
+
+shared_ptr<Variable> gologpp::Reference<Variable>::target()
+{ return target_; }
+
+shared_ptr<const Variable> gologpp::Reference<Variable>::target() const
+{ return std::dynamic_pointer_cast<const Variable>(target_); }
+
+bool gologpp::Reference<Variable>::operator ==(const Reference<Variable> &other) const
+{ return *target() == *other.target(); }
+
+bool gologpp::Reference<Variable>::operator !=(const Reference<Variable> &other) const
+{ return !(*this == other); }
+
+void gologpp::Reference<Variable>::attach_semantics(SemanticsFactory &implementor)
+{
+	if (semantics_)
+		return;
+	semantics_ = implementor.make_semantics(*this);
+}
+
+bool gologpp::Reference<Variable>::consistent() const
+{ return bound(); }
+
+string gologpp::Reference<Variable>::to_string(const string &pfx) const
+{ return target()->to_string(pfx); }
+
+const Type &gologpp::Reference<Variable>::type() const
+{ return target()->type(); }
+
+size_t gologpp::Reference<Variable>::hash() const
+{ return target()->hash(); }
+
+
 }

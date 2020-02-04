@@ -119,10 +119,16 @@ public:
 
 	virtual ~ReferenceBase() override = default;
 
-	TargetT &operator * () const
+	const TargetT &operator * () const
 	{ return target(); }
 
-	TargetT *operator -> () const
+	TargetT &operator * ()
+	{ return target(); }
+
+	const TargetT *operator -> () const
+	{ return &target(); }
+
+	TargetT *operator -> ()
 	{ return &target(); }
 
 	bool operator == (const ReferenceBase<TargetT, ArgsT> &other) const
@@ -248,60 +254,6 @@ public:
 };
 
 
-template<class> class Grounding;
-
-class AbstractGrounding
-: public virtual AbstractReference
-{
-public:
-	virtual const ParamsToArgs<Value> &params_to_args() const = 0;
-	virtual ParamsToArgs<Value> &params_to_args() = 0;
-};
-
-
-
-template<>
-class Grounding<AbstractAction>
-: public virtual AbstractReference
-, public AbstractGrounding
-{};
-
-
-
-template<class TargetT>
-class Grounding
-: public std::conditional<
-	std::is_base_of<AbstractAction, TargetT>::value,
-	Grounding<AbstractAction>, // Have a specific superclass for all Action groundings
-	                           // (used for the exogenous event queue)
-	AbstractGrounding          // All others use some placeholder
-  >::type
-, public ReferenceBase<TargetT, Value>
-{
-public:
-	using ReferenceBase<TargetT, Value>::ReferenceBase;
-
-	Grounding(const Grounding<TargetT> &other)
-	: ReferenceBase<TargetT, Value>(other.target(), copy(other.args()))
-	{}
-
-	virtual ~Grounding() override = default;
-
-
-	virtual Scope &parent_scope() override
-	{ return global_scope(); }
-
-	virtual const Scope &parent_scope() const override
-	{ return global_scope(); }
-
-	virtual const ParamsToArgs<Value> &params_to_args() const override
-	{ return ReferenceBase<TargetT, Value>::params_to_args(); }
-
-	virtual ParamsToArgs<Value> &params_to_args() override
-	{ return ReferenceBase<TargetT, Value>::params_to_args(); }
-};
-
-
 
 template<>
 class Reference<Variable>
@@ -311,62 +263,31 @@ class Reference<Variable>
 , public LanguageElement<Reference<Variable>>
 {
 public:
-	Reference(const shared_ptr<Variable> &target)
-	: target_(target)
-	{}
+	Reference(const shared_ptr<Variable> &target);
 
-	Reference(Reference<Variable> &&other)
-	: target_(std::move(other.target_))
-	{}
+	Reference(Reference<Variable> &&other);
 
 	virtual ~Reference() override = default;
 
-	const Variable &operator * () const
-	{ return *target(); }
+	const Variable &operator * () const;
+	Variable &operator * ();
+	const Variable *operator -> () const;
+	Variable *operator -> ();
 
-	const Variable *operator -> () const
-	{ return target().get(); }
+	bool operator == (const Reference<Variable> &other) const;
+	bool operator != (const Reference<Variable> &other) const;
 
-	const string &name() const
-	{ return target()->name(); }
+	const string &name() const;
+	virtual bool bound() const override;
+	shared_ptr<Variable> target();
+	shared_ptr<const Variable> target() const;
+	virtual bool consistent() const override;
 
-	virtual bool bound() const override
-	{ return target_.get(); }
+	virtual void attach_semantics(SemanticsFactory &implementor) override;
 
-	shared_ptr<Variable> target()
-	{ return target_; }
-
-	shared_ptr<const Variable> target() const
-	{ return std::dynamic_pointer_cast<const Variable>(target_); }
-
-	bool operator == (const Reference<Variable> &other) const
-	{ return *target() == *other.target(); }
-
-	bool operator != (const Reference<Variable> &other) const
-	{ return !(*this == other); }
-
-
-	virtual void attach_semantics(SemanticsFactory &implementor) override
-	{
-		if (semantics_)
-			return;
-		semantics_ = implementor.make_semantics(*this);
-	}
-
-
-	virtual bool consistent() const override
-	{ return bound(); }
-
-
-	virtual string to_string(const string &pfx) const override
-	{ return target()->to_string(pfx); }
-
-	virtual const Type &type() const override
-	{ return target()->type(); }
-
-	size_t hash() const
-	{ return target()->hash(); }
-
+	virtual string to_string(const string &pfx) const override;
+	virtual const Type &type() const override;
+	size_t hash() const;
 
 private:
 	shared_ptr<Variable> target_;

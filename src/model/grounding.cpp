@@ -15,36 +15,19 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef GOLOGPP_TRANSITION_H_
-#define GOLOGPP_TRANSITION_H_
-
-#include "gologpp.h"
-#include "reference.h"
-#include "action.h"
 #include "grounding.h"
-
 
 namespace gologpp {
 
+void ExogEvent::attach_semantics(SemanticsFactory &f)
+{
+	if (!semantics_) {
+		semantics_ = f.make_semantics(*this);
+		for (auto &v : args())
+			v->attach_semantics(f);
+	}
+}
 
-class Transition : public Grounding<Action>, public LanguageElement<Transition> {
-public:
-	enum Hook { START, CANCEL, FINISH, FAIL, END };
-
-	Transition(const shared_ptr<Action> &action, vector<unique_ptr<Value>> &&args, Hook hook);
-
-	Hook hook() const;
-	virtual string to_string(const string &pfx) const override;
-	virtual void attach_semantics(SemanticsFactory &) override;
-
-private:
-	Hook hook_;
-};
-
-
-string to_string(Transition::Hook);
 
 
 }
-
-#endif // GOLOGPP_TRANSITION_H_

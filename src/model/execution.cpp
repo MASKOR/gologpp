@@ -22,6 +22,7 @@
 #include "history.h"
 #include "platform_backend.h"
 #include "activity.h"
+#include "grounding.h"
 
 #include <iostream>
 
@@ -120,11 +121,15 @@ void ExecutionContext::run(Block &&program)
 	program.attach_semantics(semantics_factory());
 	compile(program);
 
+	bool silent_loop;
 	while (!final(program, history()) && !terminated) {
+		silent_loop = true;
 		context_time_ = backend().time();
+
 		while (!exog_empty()) {
 			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_pop();
-			std::cout << ">>> Exogenous event: " << exog << std::endl;
+			if (!(silent_loop &= (*exog)->silent()))
+				std::cout << ">>> Exogenous event: " << exog << std::endl;
 			exog->attach_semantics(semantics_factory());
 			history().abstract_semantics().append_exog(exog);
 		}
@@ -132,7 +137,8 @@ void ExecutionContext::run(Block &&program)
 		if (trans(program, history())) {
 			shared_ptr<Transition> trans = history().abstract_semantics().get_last_transition();
 			if (trans) {
-				std::cout << "<<< trans: " << trans->str() << std::endl;
+				if (!(silent_loop &= (*trans)->silent()))
+					std::cout << "<<< trans: " << trans->str() << std::endl;
 				if (trans->hook() == Transition::Hook::CANCEL)
 					backend().cancel_activity(trans);
 				else if (trans->hook() == Transition::Hook::START)
@@ -147,10 +153,12 @@ void ExecutionContext::run(Block &&program)
 			}
 		}
 		else {
-			std::cout << "=== No transition possible: Waiting for exogenous events..." << std::endl;
+			if (!silent_loop)
+				std::cout << "=== No transition possible: Waiting for exogenous events..." << std::endl;
 			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_poll();
 			if (exog) {
-				std::cout << ">>> Exogenous event: " << exog << std::endl;
+				if (!(silent_loop &= (*exog)->silent()))
+					std::cout << ">>> Exogenous event: " << exog << std::endl;
 				exog->attach_semantics(semantics_factory());
 				history().abstract_semantics().append_exog(exog);
 			}

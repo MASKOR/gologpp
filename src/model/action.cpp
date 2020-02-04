@@ -109,6 +109,12 @@ void AbstractAction::attach_semantics(SemanticsFactory &implementor)
 		pair.second->attach_semantics(implementor);
 }
 
+void AbstractAction::set_silent(bool silent)
+{ silent_ = silent; }
+
+bool AbstractAction::silent() const
+{ return silent_; }
+
 
 
 
@@ -214,16 +220,6 @@ void ExogAction::set_mapping(ActionMapping *m) {
 		AbstractAction::set_mapping(m);
 }
 
-
-
-void ExogEvent::attach_semantics(SemanticsFactory &f)
-{
-	if (!semantics_) {
-		semantics_ = f.make_semantics(*this);
-		for (auto &v : args())
-			v->attach_semantics(f);
-	}
-}
 
 
 
