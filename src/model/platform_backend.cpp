@@ -39,6 +39,12 @@ void PlatformBackend::start_activity(shared_ptr<Transition> trans)
 {
 	Lock l(lock());
 	shared_ptr<Activity> a = std::make_shared<Activity>(trans, *exec_ctx_);
+	auto it = activities_.find(a);
+	if (it != activities_.end())
+		throw UserError(
+			"Cannot start an action while another one with the same arguments is already running."
+			" Currently: " + (*it)->str()
+		);
 	a->attach_semantics(exec_ctx_->semantics_factory());
 	execute_activity(a);
 	activities_.insert(a);
