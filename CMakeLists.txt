@@ -158,6 +158,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/golog++.pc DESTINATION ${CMAKE_INSTALL
 option(BUILD_PARSER "Build the parser library" ON)
 CMAKE_DEPENDENT_OPTION(DEBUG_PARSER "Enable debug output for the parser" OFF "BUILD_PARSER" OFF)
 if (${BUILD_PARSER})
+	set(OPTIMIZE_PARSER 2 CACHE STRING "Optimization level for the parser (0 - 3)")
 	set(PARSER_SRC
 		src/parser/variable.cpp
 		src/parser/action.cpp
@@ -186,7 +187,7 @@ if (${BUILD_PARSER})
 	target_link_libraries(parsegolog++ golog++)
 	set_property(TARGET parsegolog++ PROPERTY CXX_STANDARD 14)
 	set_property(TARGET parsegolog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
-	target_compile_options(parsegolog++ PRIVATE -Wno-undefined-func-template -O2)
+	target_compile_options(parsegolog++ PRIVATE -Wno-undefined-func-template -O${OPTIMIZE_PARSER})
 	if (${DEBUG_PARSER})
 		target_compile_definitions(parsegolog++ PRIVATE -DBOOST_SPIRIT_DEBUG -DGOLOGPP_DEBUG_PARSER)
 	endif()
