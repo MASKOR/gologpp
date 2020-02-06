@@ -72,7 +72,7 @@ template<>
 void EffectParser<Reference<Fluent>>::init()
 {
 	static ReferenceParser<Fluent> ref;
-	lhs = ref(_r1);
+	lhs = ref(_r1, undefined_type());
 	lhs.name("fluent_effect_lhs");
 }
 

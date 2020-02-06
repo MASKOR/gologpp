@@ -22,6 +22,7 @@
 #include <unordered_map>
 #include <boost/optional.hpp>
 #include <cassert>
+#include <list>
 
 #include "utilities.h"
 #include "language.h"
@@ -84,7 +85,7 @@ private:
 
 public:
 	using VariablesMap = unordered_map<string, shared_ptr<Variable>>;
-	using GlobalsMap = unordered_map<Identifier, shared_ptr<Global>>;
+	using GlobalsMap = unordered_map<Name, shared_ptr<Global>>;
 	using DomainsMap = unordered_map<Name, shared_ptr<Domain>>;
 	using TypesMap = unordered_map<Name, shared_ptr<const Type>>;
 
@@ -115,11 +116,11 @@ public:
 	AbstractLanguageElement *owner();
 
 	template<class GologT = Global>
-	shared_ptr<GologT> lookup_global(const string &name, arity_t arity)
+	shared_ptr<GologT> lookup_global(const string &name)
 	{
-		if (exists_global(name, arity))
+		if (exists_global(name))
 			return std::dynamic_pointer_cast<GologT>(
-				(*globals_) [{ name, arity }]
+				(*globals_) [name]
 			);
 		else
 			return shared_ptr<GologT>();
@@ -130,8 +131,9 @@ public:
 	void implement_globals(SemanticsFactory &implementor, AExecutionContext &ctx);
 	void clear();
 
-	bool exists_global(const string &name, arity_t arity) const;
+	bool exists_global(const string &name) const;
 
+	TypeList param_types(const string &global_name);
 
 	template<class GologT>
 	GologT *declare_global(
@@ -141,9 +143,8 @@ public:
 		const boost::optional<vector<shared_ptr<Variable>>> &args
 	) {
 		GologT *rv = nullptr;
-		arity_t arity = static_cast<arity_t>(args.get_value_or({}).size());
-		if (exists_global(name, arity)) {
-			rv = lookup_global<GologT>(name, arity).get();
+		if (exists_global(name)) {
+			rv = lookup_global<GologT>(name).get();
 
 			if (rv && !(rv->type() <= type))
 				throw TypeError("Cannot redeclare " + rv->str()
@@ -157,10 +158,10 @@ public:
 				delete own_scope;
 		}
 		else
-			(*globals_) [ { name, arity } ]
+			(*globals_) [name]
 				.reset(new GologT(own_scope, type, name, args.get_value_or({})));
 
-		return lookup_global<GologT>(name, arity).get();
+		return lookup_global<GologT>(name).get();
 	}
 
 
@@ -173,9 +174,8 @@ public:
 		DefinitionTs... definition_args
 	) {
 		GologT *rv = nullptr;
-		arity_t arity = static_cast<arity_t>(args.get_value_or({}).size());
-		if (exists_global(name, arity)) {
-			rv = lookup_global<GologT>(name, arity).get();
+		if (exists_global(name)) {
+			rv = lookup_global<GologT>(name).get();
 
 			if (rv && !(rv->type() <= type))
 				throw TypeError("Cannot redefine " + rv->str()

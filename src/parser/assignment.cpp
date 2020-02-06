@@ -65,7 +65,7 @@ template<>
 void AssignmentParser<Reference<Fluent>>::init()
 {
 	static ReferenceParser<Fluent> ref_parser;
-	lhs_parser = ref_parser(_r1);
+	lhs_parser = ref_parser(_r1, undefined_type());
 	lhs_parser.name("fluent_lhs");
 }
 

@@ -21,6 +21,7 @@
 #include "list_expression.h"
 #include "mixed_member_access.h"
 #include "expressions.h"
+#include "reference.h"
 
 #include <model/fluent.h>
 #include <model/procedural.h>

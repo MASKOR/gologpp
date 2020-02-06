@@ -30,6 +30,7 @@ namespace parser {
 * Just an undefined template
 ****************************/
 
+rule<Expression *(Scope *, const Type *)> &get_expression_parser(const Type &t);
 
 void initialize_cyclic_expressions();
 

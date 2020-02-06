@@ -221,8 +221,21 @@ void Scope::clear()
 Scope &global_scope()
 { return Scope::global_scope(); }
 
-bool Scope::exists_global(const string &name, arity_t arity) const
-{ return globals_->find( { name, arity } ) != globals_->end(); }
+bool Scope::exists_global(const string &name) const
+{ return globals_->find(name) != globals_->end(); }
+
+
+TypeList Scope::param_types(const string &global_name)
+{
+	TypeList rv;
+	shared_ptr<Global> g = lookup_global<Global>(global_name);
+	if (!g)
+		throw InvalidIdentifier(global_name);
+	for (auto &param : g->params())
+		rv.emplace_back(param->type());
+	return rv;
+}
+
 
 bool Scope::exists_domain(const string &name) const
 { return domains_->find(name) != domains_->end(); }
@@ -242,7 +255,7 @@ string Scope::to_string(const string &) const
 
 void Scope::register_global(Global *g)
 {
-	if (exists_global(g->name(), g->arity()))
+	if (exists_global(g->name()))
 		throw RedefinitionError(g->name(), g->arity());
 	(*globals_)[*g].reset(g);
 }

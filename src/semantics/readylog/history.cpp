@@ -104,7 +104,7 @@ shared_ptr<Transition> Semantics<History>::get_last_transition()
 	headname = get_head_name(head);
 
 	vector<unique_ptr<Value>> args = get_args(head);
-	shared_ptr<Action> action = global_scope().lookup_global<Action>(headname, arity_t(head.arity()));
+	shared_ptr<Action> action = global_scope().lookup_global<Action>(headname);
 	shared_ptr<Transition> rv;
 
 	return std::make_shared<Transition>(action, std::move(args), state_it->second);

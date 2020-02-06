@@ -62,10 +62,10 @@ StatementParser::StatementParser()
 		| field_assignment(_r1)
 		| fluent_assignment(_r1)
 		| list_element_assignment(_r1)
-		| action_call(_r1)
+		| action_call(_r1, undefined_type())
 		| list_pop(_r1)
 		| list_push(_r1)
-		| procedure_call(_r1)
+		| procedure_call(_r1, undefined_type())
 	) > ';';
 	simple_statement.name("simple_statement");
 
@@ -183,7 +183,7 @@ StatementParser::StatementParser()
 	return_stmt.name("return");
 
 	during = (
-		lit("during") > '(' > action_call(_r1) > ')'
+		lit("during") > '(' > action_call(_r1, undefined_type()) > ')'
 		> statement(_r1)
 		> (
 			("on_fail" > statement(_r1))
@@ -203,7 +203,7 @@ StatementParser::StatementParser()
 			| lit("fail") [ _a = DurativeCall::Hook::FAIL ]
 			| lit("end") [ _a = DurativeCall::Hook::END ]
 		) >> "(" )
-		> action_call(_r1) > ")"
+		> action_call(_r1, undefined_type()) > ")"
 	) [
 		_val = new_<DurativeCall>(_a, _1)
 	];

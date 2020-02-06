@@ -30,16 +30,22 @@ namespace parser {
 ******************/
 
 template<class GologT>
-struct ReferenceParser : grammar<Reference<GologT> *(Scope &)> {
+struct ReferenceParser : grammar<Reference<GologT> *(Scope &, const Type &)> {
 	ReferenceParser();
 
-	rule<Reference<GologT> *(Scope &)> pred_ref;
+	rule<Reference<GologT> *(Scope &, const Type &)> start;
+	rule<Reference<GologT> *(Scope &, const Type &), locals<TypeList>> pred_ref;
+	rule<vector<Expression *>(Scope &, TypeList), locals<TypeList>> ref_args;
 };
 
 
 template<class GologT>
-rule<Reference<GologT> *(Scope &, const Type &)> &typed_reference();
-
+rule<Reference<GologT> *(Scope &, const Type &)> &typed_reference()
+{
+	static ReferenceParser<GologT> rp;
+	static rule<Reference<GologT> *(Scope &, const Type &)> rv { rp(_r1, _r2) };
+	return rv;
+}
 
 
 } // namespace parser

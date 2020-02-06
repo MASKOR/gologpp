@@ -138,11 +138,39 @@ std::basic_ostream<CharT, TraitsT>
 	typename vector<ElemT>::const_iterator it = v.begin();
 	for (const ElemT &e : v) {
 		stream << e;
-		if (++it < v.end())
+		if (++it < v.cend())
 			stream << ", ";
 	}
 	return stream << "]";
 }
+
+
+template<class CharT, class TraitsT, class ElemT>
+std::basic_ostream<CharT, TraitsT>
+&operator << (
+	std::basic_ostream<CharT, TraitsT> &stream,
+	const std::list<ElemT> &v
+)
+{
+	stream << "[";
+	typename std::list<ElemT>::const_iterator it = v.begin();
+	for (const ElemT &e : v) {
+		stream << e;
+		if (++it != v.cend())
+			stream << ", ";
+	}
+	return stream << "]";
+}
+
+
+template<class CharT, class TraitsT, class T>
+std::basic_ostream<CharT, TraitsT>
+&operator << (
+	std::basic_ostream<CharT, TraitsT> &stream,
+	const std::reference_wrapper<T> &v
+)
+{ return stream << v.get(); }
+
 
 
 

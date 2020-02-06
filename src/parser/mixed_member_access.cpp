@@ -70,7 +70,7 @@ rule<Expression *(Scope &, const Type &)> &mixed_member_access()
 		]
 		, "mixed_member_access"
 	};
-	GOLOGPP_DEBUG_NODE(rv_local)
+	//GOLOGPP_DEBUG_NODE(rv_local)
 
 	static rule<Expression *(Scope &, const Type &)> rv { rv_local(_r1, _r2) };
 	return rv;

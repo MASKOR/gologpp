@@ -113,7 +113,7 @@ rule<Expression *(Scope &)> &value_expression()
 
 
 
-static rule<Expression *(Scope *, const Type *)> &get_expression_parser(const Type &t)
+rule<Expression *(Scope *, const Type *)> &get_expression_parser(const Type &t)
 {
 	static BooleanExpressionParser boolean_expression_;
 	static NumericExpressionParser numeric_expression_;

@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <list>
 
 #include <boost/fusion/include/vector.hpp>
 
@@ -65,6 +66,9 @@ class VoidType;
 class UndefinedType;
 class CompoundType;
 class ListType;
+
+using TypeList = std::list<std::reference_wrapper<const Type>>;
+
 
 class AbstractEffectAxiom;
 template<class> class EffectAxiom;

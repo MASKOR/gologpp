@@ -102,7 +102,7 @@ public:
 
 	ReferenceBase(const string &target_name, const vector<ArgsT *> &args)
 	: ReferenceBase(
-		global_scope().lookup_global<TargetT>(target_name, arity_t(args.size())),
+		global_scope().lookup_global<TargetT>(target_name),
 		args
 	)
 	{}

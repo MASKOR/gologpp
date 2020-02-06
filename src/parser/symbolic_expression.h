@@ -19,6 +19,7 @@
 #define GOLOGPP_PARSER_SYMBOLIC_EXPRESSION_H_
 
 #include "utilities.h"
+#include "reference.h"
 
 #include <model/expressions.h>
 
@@ -31,6 +32,8 @@ struct SymbolicExpressionParser : grammar<Expression *(Scope &)> {
 
 	rule<Expression *(Scope &)> expression;
 	rule<Reference<Variable> *(Scope &)> var_ref;
+	ReferenceParser<Fluent> fluent_ref;
+	ReferenceParser<Function> function_ref;
 };
 
 

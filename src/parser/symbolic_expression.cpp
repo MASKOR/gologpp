@@ -43,8 +43,8 @@ SymbolicExpressionParser::SymbolicExpressionParser()
 	expression = symbolic_value()
 		| var_ref(_r1)
 		| conditional_expression(_r1, symbol_type())
-		| typed_reference<Fluent>()(_r1, symbol_type())
-		| typed_reference<Function>()(_r1, symbol_type())
+		| fluent_ref(_r1, symbol_type())
+		| function_ref(_r1, symbol_type())
 		| mixed_member_access()(_r1, symbol_type())
 	;
 	expression.name("symbolic_expression");

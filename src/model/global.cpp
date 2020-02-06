@@ -42,7 +42,7 @@ shared_ptr<Variable> Global::parameter(arity_t idx) const
 void Global::set_params(const vector<shared_ptr<Variable>> &args)
 {
 	if (static_cast<arity_t>(args.size()) != arity() &&
-		global_scope().exists_global(this->name(), this->arity())
+		global_scope().exists_global(this->name())
 	)
 		throw Bug("Cannot change the arity of a Global that is already registered.");
 

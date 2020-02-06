@@ -19,7 +19,6 @@
 #define GOLOGPP_PARSER_ARITHMETIC_H_
 
 #include "utilities.h"
-#include "reference.h"
 
 #include <model/arithmetic.h>
 

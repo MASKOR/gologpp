@@ -32,6 +32,8 @@
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_lazy.hpp>
+#include <boost/spirit/include/qi_eps.hpp>
+#include <boost/spirit/include/qi_repeat.hpp>
 
 #include <boost/phoenix/object/dynamic_cast.hpp>
 #include <boost/phoenix/object/delete.hpp>
@@ -42,6 +44,7 @@
 #include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
+#include <boost/phoenix/bind/bind_function_object.hpp>
 
 #include <model/reference.h>
 
@@ -49,32 +52,72 @@ namespace gologpp {
 namespace parser {
 
 
+
 template<class GologT>
-Reference<GologT> *get_ref(const string &name, const boost::optional<vector<Expression *>> &args)
-{
-	if (global_scope().lookup_global<GologT>(name, static_cast<arity_t>(args.get_value_or({}).size())))
+Reference<GologT> *get_ref(
+	const Type &type,
+	const string &name,
+	const boost::optional<vector<Expression *>> &args
+) {
+	shared_ptr<GologT> g = global_scope().lookup_global<GologT>(name);
+
+	if (g && g->type() <= type)
 		return new Reference<GologT>(name, args);
 	else
 		return nullptr;
 }
 
 
+rule<void()> conditional_comma(const TypeList &tl)
+{
+	static rule<void()> comma { ',' };
+	static rule<void()> nothing { eps };
+	return tl.empty() ? nothing : comma;
+}
+
+
+static std::function<const Type &(TypeList &)> pop_front {
+	[] (TypeList &tl) -> const Type & {
+		const Type &rv = tl.front();
+		tl.pop_front();
+		return rv;
+	}
+};
+
+
 template<class GologT>
 ReferenceParser<GologT>::ReferenceParser()
-: ReferenceParser::base_type(pred_ref, "reference")
+: ReferenceParser::base_type(start, "reference")
 {
-	pred_ref = (((r_name() >> "(") >> -(
-		value_expression()(_r1) %  ","
-	) ) >> ")") [
-			_val = phoenix::bind(&get_ref<GologT>, _1, _2),
-			if_(!_val || !phoenix::bind(&ReferenceBase<GologT, Expression>::consistent, *_val)) [
-				_pass = false,
-				delete_(_val)
+	start = pred_ref(_r1, _r2);
+
+	pred_ref = (
+		(r_name() >> "(") [
+			_pass = phoenix::bind(&Scope::exists_global, _r1, _1),
+			if_(_pass) [
+				_a = phoenix::bind(&Scope::param_types, _r1, _1)
 			]
+		]
+		> ref_args(_r1, _a)
+		> ")"
+	) [
+		_val = phoenix::bind(&get_ref<GologT>, _r2, _1, _2),
+		if_(!_val || !phoenix::bind(&ReferenceBase<GologT, Expression>::consistent, *_val)) [
+			_pass = false,
+			delete_(_val)
+		]
 	];
 	pred_ref.name("reference");
 
-	//GOLOGPP_DEBUG_NODE(pred_ref)
+	ref_args =
+		eps [ _a = _r2 ]
+		> repeat(phoenix::bind(&TypeList::size, _r2)) [
+			typed_expression()(_r1, phoenix::bind(pop_front, _a))
+			> lazy(phoenix::bind(conditional_comma, _a))
+		] [ _val = _1 ]
+	;
+
+	GOLOGPP_DEBUG_NODE(pred_ref)
 }
 
 
@@ -85,52 +128,6 @@ template struct ReferenceParser<Function>;
 template struct ReferenceParser<Procedure>;
 template struct ReferenceParser<Fluent>;
 
-
-
-template<class GologT>
-Reference<GologT> *get_typed_ref(
-	const Type &type,
-	const string &name,
-	const boost::optional<vector<Expression *>> &args
-) {
-	shared_ptr<GologT> g = global_scope().lookup_global<GologT>(
-		name,
-		static_cast<arity_t>(args.get_value_or({}).size())
-	);
-
-	if (g && g->type() <= type)
-		return new Reference<GologT>(name, args);
-	else
-		return nullptr;
-}
-
-
-
-template<class GologT>
-rule<Reference<GologT> *(Scope &, const Type &)> &typed_reference()
-{
-	static rule<Reference<GologT> *(Scope &, const Type &)> rv {
-		(((r_name() >> "(") >> -(
-			value_expression()(_r1) %  ","
-		) ) >> ")") [
-			_val = phoenix::bind(&get_typed_ref<GologT>, _r2, _1, _2),
-			if_(!_val || !phoenix::bind(&ReferenceBase<GologT, Expression>::consistent, *_val)) [
-				_pass = false,
-				delete_(_val)
-			]
-		],
-		"typed_reference"
-	};
-	//GOLOGPP_DEBUG_NODE(rv)
-	return rv;
-}
-
-
-template
-rule<Reference<Fluent> *(Scope &, const Type &)> &typed_reference();
-
-template
-rule<Reference<Function> *(Scope &, const Type &)> &typed_reference();
 
 
 
