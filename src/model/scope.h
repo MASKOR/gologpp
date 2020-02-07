@@ -146,6 +146,11 @@ public:
 		if (exists_global(name)) {
 			rv = lookup_global<GologT>(name).get();
 
+			if (!rv) {
+				shared_ptr<Global> tmp = lookup_global(name);
+				throw RedefinitionError(*tmp, name, typeid(GologT));
+			}
+
 			if (rv && !(rv->type() <= type))
 				throw TypeError("Cannot redeclare " + rv->str()
 					+ " with type " + type.name());
@@ -177,7 +182,12 @@ public:
 		if (exists_global(name)) {
 			rv = lookup_global<GologT>(name).get();
 
-			if (rv && !(rv->type() <= type))
+			if (!rv) {
+				shared_ptr<Global> tmp = lookup_global(name);
+				throw RedefinitionError(*tmp, name, typeid(GologT));
+			}
+
+			if (!(rv->type() <= type))
 				throw TypeError("Cannot redefine " + rv->str()
 					+ " with type " + type.name());
 

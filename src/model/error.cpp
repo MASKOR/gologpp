@@ -18,6 +18,9 @@
 #include "language.h"
 #include "types.h"
 #include "error.h"
+#include "global.h"
+
+#include <boost/core/demangle.hpp>
 
 #include <parser/utilities.h>
 
@@ -89,6 +92,14 @@ RedefinitionError::RedefinitionError(const string &name)
 RedefinitionError::RedefinitionError(const string &name, arity_t arity)
 : UserError("Symbol already defined: " + name + "/" + std::to_string(arity))
 {}
+
+RedefinitionError::RedefinitionError(const Global &existing, const string &new_name, const std::type_info &new_type)
+: UserError(
+	"Cannot define or declare \"" + new_name + "\" as a " + boost::core::demangle(new_type.name())
+	+ " because it is already defined as a " + boost::core::demangle(typeid(existing).name())
+  )
+{}
+
 
 
 

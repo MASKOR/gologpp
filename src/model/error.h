@@ -94,6 +94,7 @@ class RedefinitionError : public UserError {
 public:
 	RedefinitionError(const string &name);
 	RedefinitionError(const string &name, arity_t arity);
+	RedefinitionError(const Global &existing, const string &new_name, const std::type_info &new_type);
 };
 
 
