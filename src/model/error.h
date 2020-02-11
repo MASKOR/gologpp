@@ -20,6 +20,7 @@
 
 #include "gologpp.h"
 
+#include <stdexcept>
 #include <exception>
 #include <string>
 
