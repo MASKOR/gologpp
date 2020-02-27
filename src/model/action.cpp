@@ -35,6 +35,7 @@ AbstractAction::AbstractAction(
 {
 	set_type(gologpp::type<VoidType>());
 	set_precondition(new Value(gologpp::type<BoolType>(), true));
+	set_silent(false);
 
 	vector<fusion_wtf_vector<string, Expression *>> default_mapping;
 	for (const shared_ptr<Variable> &param : params)
@@ -112,9 +113,15 @@ void AbstractAction::attach_semantics(SemanticsFactory &implementor)
 void AbstractAction::set_silent(bool silent)
 { silent_ = silent; }
 
+void AbstractAction::set_silent_v(boost::optional<Value *> silent)
+{
+	if (silent.has_value())
+		set_silent(static_cast<bool>(*silent.get()));
+}
+
+
 bool AbstractAction::silent() const
 { return silent_; }
-
 
 
 

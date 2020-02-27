@@ -17,6 +17,7 @@
 
 #include "action.h"
 #include "variable.h"
+#include "value.h"
 
 #include <boost/spirit/home/qi/nonterminal/error_handler.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>
@@ -66,9 +67,10 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 		^ ( "effect:" > +(effect(*_r2) > ';') )
 		^ ( "senses:" > senses(*_r2, undefined_type()) )
 		^ ( "mapping:" > mapping(*_r2) )
+		^ ( "silent:" > boolean_value() )
 		^ qi::eps
 	) > '}' ) [
-		phoenix::bind(
+		_a = phoenix::bind(
 			&Scope::define_global<
 				Action,
 				boost::optional<Expression *>,
@@ -78,7 +80,9 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 			>,
 			_r1,
 			_r2, undefined_type(), _r3, _r4, _1, _2, _3, _4
-		)
+		),
+		phoenix::bind(&AbstractAction::set_silent_v, _a, _5)
+		// Have to use two binds because the maximum number of arguments is limited :facepalm:
 	];
 
 	effect = list_effect(_r1) | field_effect(_r1) | fluent_effect(_r1);
@@ -98,9 +102,10 @@ ActionDefinitionParser<ExogAction>::ActionDefinitionParser()
 		( "precondition:" > boolean_expression(*_r2) )
 		^ ( "effect:" > +(effect(*_r2) > ';') )
 		^ ( "mapping:" > mapping(*_r2) )
+		^ ( "silent:" > boolean_value() )
 		^ qi::eps
 	) > '}' ) [
-		phoenix::bind(
+		_a = phoenix::bind(
 			&Scope::define_global<
 				ExogAction,
 				boost::optional<Expression *>,
@@ -109,7 +114,9 @@ ActionDefinitionParser<ExogAction>::ActionDefinitionParser()
 			>,
 			_r1,
 			_r2, undefined_type(), _r3, _r4, _1, _2, _3
-		)
+		),
+		phoenix::bind(&AbstractAction::set_silent_v, _a, _4)
+		// Have to use two binds because the maximum number of arguments is limited :facepalm:
 	];
 
 	effect = list_effect(_r1) | field_effect(_r1) | fluent_effect(_r1);

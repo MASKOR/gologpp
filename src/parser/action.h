@@ -38,7 +38,7 @@ struct ActionDefinitionParser
 	Scope *, // owned scope
 	string, // action name
 	boost::optional<vector<shared_ptr<Variable>>> // action args
-) > {
+), locals<ActionT *> > {
 	ActionDefinitionParser();
 
 
@@ -47,7 +47,7 @@ struct ActionDefinitionParser
 		Scope *, // owned scope
 		string, // action name
 		boost::optional<vector<shared_ptr<Variable>>> // action args
-	) > definition;
+	), locals<ActionT *> > definition;
 
 	rule<AbstractEffectAxiom *(Scope &)> effect;
 	EffectParser<Reference<Fluent>> fluent_effect;

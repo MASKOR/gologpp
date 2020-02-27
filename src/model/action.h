@@ -77,6 +77,7 @@ public:
 	virtual void attach_semantics(SemanticsFactory &) override;
 
 	void set_silent(bool);
+	void set_silent_v(boost::optional<Value *>);
 	bool silent() const;
 
 private:
