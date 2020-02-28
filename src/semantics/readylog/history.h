@@ -43,8 +43,7 @@ public:
 	bool has_changed() const;
 
 private:
-	string get_head_name(EC_word head);
-	EC_word get_history_head();
+  EC_word get_history_head();
 
 	ManagedTerm readylog_history_;
 	bool has_changed_;

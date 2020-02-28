@@ -61,6 +61,7 @@ private:
 
 class Plan {
 public:
+	Plan() = default;
 	Plan(std::initializer_list<unique_ptr<Instruction>> &&step);
 	Plan(const Plan &sub);
 

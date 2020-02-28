@@ -29,6 +29,7 @@
 namespace gologpp {
 
 
+
 struct eclipse_opts {
 	bool trace = false;
 	bool guitrace = false;
@@ -58,6 +59,9 @@ public:
 	void ec_write(EC_word t);
 	string to_string(EC_word t);
 
+  static unique_ptr<Transition> get_transition_from_term(EC_word t);
+  static string get_head_name(EC_word head);
+  static vector<unique_ptr<Value>> get_args(EC_word t);
 private:
     ReadylogContext(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend);
 
