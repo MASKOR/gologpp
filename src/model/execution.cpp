@@ -128,8 +128,10 @@ void ExecutionContext::run(Block &&program)
 
 		while (!exog_empty()) {
 			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_pop();
-			if (!(silent_loop &= (*exog)->silent()))
+			if (!(*exog)->silent()) {
 				std::cout << ">>> Exogenous event: " << exog << std::endl;
+				silent_loop = false;
+			}
 			exog->attach_semantics(semantics_factory());
 			history().abstract_semantics().append_exog(exog);
 		}
@@ -137,8 +139,10 @@ void ExecutionContext::run(Block &&program)
 		if (trans(program, history())) {
 			shared_ptr<Transition> trans = history().abstract_semantics().get_last_transition();
 			if (trans) {
-				if (!(silent_loop &= (*trans)->silent()))
+				if (!(*trans)->silent()) {
 					std::cout << "<<< trans: " << trans->str() << std::endl;
+					silent_loop = false;
+				}
 				if (trans->hook() == Transition::Hook::CANCEL)
 					backend().cancel_activity(trans);
 				else if (trans->hook() == Transition::Hook::START)
@@ -157,8 +161,10 @@ void ExecutionContext::run(Block &&program)
 				std::cout << "=== No transition possible: Waiting for exogenous events..." << std::endl;
 			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_poll();
 			if (exog) {
-				if (!(silent_loop &= (*exog)->silent()))
+				if (!(*exog)->silent()) {
 					std::cout << ">>> Exogenous event: " << exog << std::endl;
+					silent_loop = false;
+				}
 				exog->attach_semantics(semantics_factory());
 				history().abstract_semantics().append_exog(exog);
 			}
