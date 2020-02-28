@@ -403,4 +403,28 @@ unique_ptr<Transition> ReadylogContext::get_transition_from_term(EC_word t) {
 	return unique_ptr<Transition>(new Transition(action, std::move(args), state_it->second));
 }
 
+vector<shared_ptr<Transition>> ReadylogContext::get_plan_from_policy_term(EC_word policy) {
+  vector<shared_ptr<Transition>> actions;
+  do {
+    EC_functor headfunctor;
+    if(policy.is_nil() != EC_succeed) {
+      if (policy.functor(&headfunctor) == EC_succeed) {
+        if(strcmp(headfunctor.name(),"applyPolicy") == 0) {
+          policy.arg(1,policy); // skip list of [plan, history]
+          EC_word action_term;
+          while(policy.is_list(action_term, policy) == EC_succeed) {
+            shared_ptr<Transition> curr_action = ReadylogContext::get_transition_from_term(action_term);
+            if(curr_action != nullptr) {
+              std::cout << curr_action->str() << std::endl;
+              actions.emplace_back(curr_action);
+            }
+          }
+        }
+      }
+    }
+  } while (policy.arg(1, policy) == EC_succeed);
+  return actions;
+}
+
+
 } // namespace gologpp
