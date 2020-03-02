@@ -279,7 +279,7 @@ bool ReadylogContext::trans(Block &program, History &history)
 	if (ec_query(q)) {
 		if (EC_word(Ball).is_var() != EC_succeed)
 			// Caught eclipse exception
-			throw EclipseError(this->to_string(Ball));
+			throw EclipseError(this->to_string(q) + ": " + this->to_string(Ball));
 		else {
 			// Successful transition
 			program.semantics().set_current_program(e1);
