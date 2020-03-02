@@ -26,6 +26,8 @@
 #include "utilities.h"
 #include "history.h"
 
+#include <model/plan.h>
+#include <model/transformation.h>
 #include <model/action.h>
 
 namespace filesystem = std::experimental::filesystem;
@@ -249,7 +251,7 @@ bool ReadylogContext::final(Block &program, History &history)
 }
 
 
-bool ReadylogContext::trans(Block &program, History &history)
+unique_ptr<Plan> ReadylogContext::trans(Block &program, History &history)
 {
 	if (!options_.guitrace && options_.toplevel) {
 		post_goal("toplevel");
@@ -282,13 +284,43 @@ bool ReadylogContext::trans(Block &program, History &history)
 			throw EclipseError(this->to_string(q) + ": " + this->to_string(Ball));
 		else {
 			// Successful transition
+
+			EC_word prog(e1), head, tail;
+
+			if (prog.is_list(head, tail) != EC_succeed)
+				throw EclipseError("Output program ist not a list: " + this->to_string(prog));
+			EC_functor head_fn;
+
+			unique_ptr<Plan> rv;
+
+			if (head.functor(&head_fn) == EC_succeed && string(head_fn.name()) == "applyPolicy") {
+				// program executed a solve operator: a policy was produced
+				rv = parse_plan(program.semantics().current_program());
+			}
+			else {
+				// Normal transition
+				rv.reset(new Plan());
+				rv->append_element(history.semantics().get_last_transition().release());
+			}
+
 			program.semantics().set_current_program(e1);
 			history.semantics().extend_history(h1);
-			return true;
+
+			return rv;
 		}
 	} else
-		return false;
+		return nullptr;
 }
+
+
+unique_ptr<Plan> ReadylogContext::parse_plan(const EC_word &term)
+{
+	// TODO: Stub
+	return unique_ptr<Plan>(new Plan());
+}
+
+
+
 
 
 bool ReadylogContext::ec_query(EC_word t)

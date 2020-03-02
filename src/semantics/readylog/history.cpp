@@ -84,7 +84,7 @@ static const std::unordered_map<string, Transition::Hook> name2state {
 };
 
 
-shared_ptr<Transition> Semantics<History>::get_last_transition()
+unique_ptr<Transition> Semantics<History>::get_last_transition()
 {
 	if (!has_changed())
 		return nullptr;
@@ -105,9 +105,9 @@ shared_ptr<Transition> Semantics<History>::get_last_transition()
 
 	vector<unique_ptr<Value>> args = get_args(head);
 	shared_ptr<Action> action = global_scope().lookup_global<Action>(headname);
-	shared_ptr<Transition> rv;
+	unique_ptr<Transition> rv;
 
-	return std::make_shared<Transition>(action, std::move(args), state_it->second);
+	return unique_ptr<Transition>(new Transition(action, std::move(args), state_it->second));
 }
 
 

@@ -51,7 +51,7 @@ public:
 	virtual void postcompile() override;
 
     virtual bool final(Block &program, History &history) override;
-    virtual bool trans(Block &program, History &history) override;
+    virtual unique_ptr<Plan> trans(Block &program, History &history) override;
 
 	bool ec_query(EC_word t);
 	void ec_cut();
@@ -64,6 +64,8 @@ private:
     virtual void compile_term(const EC_word &term);
     std::string find_readylog();
     std::string find_boilerplate();
+
+	unique_ptr<Plan> parse_plan(const EC_word &policy);
 
 	EC_ref *ec_start_;
 	int last_rv_;
