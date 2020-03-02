@@ -97,7 +97,7 @@ public:
 
 private:
 	virtual bool final(Block &program, History &h) = 0;
-	virtual bool trans(Block &program, History &h) = 0;
+	virtual unique_ptr<Plan> trans(Block &program, History &h) = 0;
 
 	Clock::time_point context_time_;
 };

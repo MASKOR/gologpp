@@ -222,11 +222,8 @@ public:
 	}
 
 
-	shared_ptr<TargetT> target()
+	shared_ptr<TargetT> target() const
 	{ return target_.lock(); }
-
-	shared_ptr<const TargetT> target() const
-	{ return std::dynamic_pointer_cast<const TargetT>(target_.lock()); }
 
 	virtual string to_string(const string &pfx) const override
 	{ return pfx + name() + '(' + concat_list(args(), ", ", "") + ')'; }

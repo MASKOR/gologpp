@@ -27,6 +27,10 @@ Transition::Transition(const shared_ptr<Action> &action, vector<unique_ptr<Value
 , hook_(hook)
 {}
 
+Transition::Transition(const Transition &other)
+: Grounding<Action>(other)
+{}
+
 Transition::Hook Transition::hook() const
 { return hook_; }
 

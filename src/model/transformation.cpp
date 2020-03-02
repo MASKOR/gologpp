@@ -15,44 +15,13 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "plan.h"
+#include "transformation.h"
 
 namespace gologpp {
 
 
-TimedInstruction::TimedInstruction(unique_ptr<Instruction> &&i)
-: instruction_(std::forward<unique_ptr<Instruction>>(i))
-, earliest_(TimePoint::min())
-, latest_(TimePoint::max())
+PlanTransformation::~PlanTransformation()
 {}
-
-TimedInstruction::TimedInstruction(Instruction *i)
-: TimedInstruction(unique_ptr<Instruction>(i))
-{}
-
-const Instruction &TimedInstruction::instruction() const
-{ return *instruction_; }
-
-TimePoint TimedInstruction::earliest_timepoint() const
-{ return earliest_; }
-
-TimePoint TimedInstruction::latest_timepoint() const
-{ return latest_; }
-
-void TimedInstruction::set_earliest(TimePoint t)
-{ earliest_ = t; }
-
-void TimedInstruction::set_latest(TimePoint t)
-{ latest_ = t; }
-
-
-
-
-void Plan::append_element(TimedInstruction &&i)
-{ elements_.push_back(std::forward<TimedInstruction>(i)); }
-
-vector<TimedInstruction> &Plan::elements()
-{ return elements_; }
 
 
 

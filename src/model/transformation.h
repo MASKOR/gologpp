@@ -15,37 +15,28 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef GOLOGPP_TRANSITION_H_
-#define GOLOGPP_TRANSITION_H_
+#pragma once
 
 #include "gologpp.h"
-#include "reference.h"
-#include "action.h"
-#include "grounding.h"
-
 
 namespace gologpp {
 
 
-class Transition : public Grounding<Action>, public LanguageElement<Transition> {
+
+class Plan;
+
+
+/**
+ * @class PlanTransformation
+ * Keep this abstract so we can have multiple implementations.
+ */
+class PlanTransformation {
 public:
-	enum Hook { START, CANCEL, FINISH, FAIL, END };
+	virtual ~PlanTransformation();
 
-	Transition(const shared_ptr<Action> &action, vector<unique_ptr<Value>> &&args, Hook hook);
-	Transition(const Transition &);
-
-	Hook hook() const;
-	virtual string to_string(const string &pfx) const override;
-	virtual void attach_semantics(SemanticsFactory &) override;
-
-private:
-	Hook hook_;
+	virtual unique_ptr<Plan> transform(const Plan &) = 0;
 };
 
 
-string to_string(Transition::Hook);
-
 
 }
-
-#endif // GOLOGPP_TRANSITION_H_

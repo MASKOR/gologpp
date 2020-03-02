@@ -26,6 +26,8 @@
 
 #include <iostream>
 
+#include <model/plan.h>
+
 
 namespace gologpp {
 
@@ -136,24 +138,36 @@ void ExecutionContext::run(Block &&program)
 			history().abstract_semantics().append(exog);
 		}
 
-		if (trans(program, history())) {
-			shared_ptr<Transition> trans = history().abstract_semantics().get_last_transition();
-			if (trans) {
-				if (!(*trans)->silent()) {
-					std::cout << "<<< trans: " << trans->str() << std::endl;
-					silent_loop = false;
-				}
-				if (trans->hook() == Transition::Hook::CANCEL)
-					backend().cancel_activity(trans);
-				else if (trans->hook() == Transition::Hook::START)
-					backend().start_activity(trans);
-				else if (
+		unique_ptr<Plan> plan;
+
+		if ((plan = trans(program, history()))) {
+			for (const TimedInstruction &timed_instr : plan->elements()) {
+				if (timed_instr.instruction().is_a<Transition>()) {
+					// TODO: handle timing
+					shared_ptr<Transition> trans(new Transition(
+						dynamic_cast<const Transition &>(timed_instr.instruction())
+					));
+					if (!(*trans)->silent()) {
+						std::cout << "<<< trans: " << trans->str() << std::endl;
+						silent_loop = false;
+					}
+					if (trans->hook() == Transition::Hook::CANCEL)
+						backend().cancel_activity(trans);
+					else if (trans->hook() == Transition::Hook::START)
+						backend().start_activity(trans);
+					else if (
 					(trans->hook() == Transition::Hook::FINISH || trans->hook() == Transition::Hook::END)
 					&& trans->target()->senses()
-				)
-					history().abstract_semantics().append_sensing_result(backend().end_activity(trans));
+					)
+						history().abstract_semantics().append_sensing_result(backend().end_activity(trans));
+					else
+						backend().end_activity(trans);
+				}
+				else if (timed_instr.instruction().is_a<Test>()) {
+					// TODO: check condition marker
+				}
 				else
-					backend().end_activity(trans);
+					throw Bug("Unexpected instruction in plan: " + timed_instr.instruction().str());
 			}
 		}
 		else {

@@ -41,6 +41,7 @@ template<>
 class Grounding<AbstractAction>
 : public virtual AbstractReference
 , public AbstractGrounding
+, public Instruction
 {
 public:
 	virtual const AbstractAction &operator * () const = 0;
