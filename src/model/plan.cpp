@@ -33,6 +33,9 @@ TimedInstruction::TimedInstruction(Instruction *i)
 const Instruction &TimedInstruction::instruction() const
 { return *instruction_; }
 
+Instruction &TimedInstruction::instruction()
+{ return *instruction_; }
+
 TimePoint TimedInstruction::earliest_timepoint() const
 { return earliest_; }
 
@@ -47,11 +50,13 @@ void TimedInstruction::set_latest(TimePoint t)
 
 
 
-
 void Plan::append_element(TimedInstruction &&i)
 { elements_.push_back(std::forward<TimedInstruction>(i)); }
 
 vector<TimedInstruction> &Plan::elements()
+{ return elements_; }
+
+const vector<TimedInstruction> &Plan::elements() const
 { return elements_; }
 
 

@@ -325,9 +325,28 @@ unique_ptr<Plan> ReadylogContext::parse_plan(EC_word policy)
 	EC_word head;
 	while(list.is_nil() != EC_succeed && list.is_list(head, list) == EC_succeed) {
 		shared_ptr<Transition> curr_action = Semantics<Transition>::transition_from_plterm(head);
-		if(curr_action != nullptr) {
-			std::cout << curr_action->str() << std::endl;
+
+		if (curr_action)
 			rv->append_element(new Transition(*curr_action));
+
+		else if (functor_name(head) == "marker") {
+
+			Test *marker = new Test(new Value(get_type<BoolType>(), false));
+			marker->attach_semantics(this->semantics_factory());
+
+			EC_word cond, value;
+			EC_atom v_atom;
+			if (head.arg(1, cond) != EC_succeed
+				|| head.arg(2, value) != EC_succeed
+				|| value.is_atom(&v_atom) != EC_succeed
+			)
+				throw Bug("Unexpected marker: " + ReadylogContext::to_string(head));
+
+			if (v_atom == EC_atom("fail") || v_atom == EC_atom("false"))
+				cond = ::term(EC_functor("not", 1), cond);
+
+			marker->semantics().make_plan_marker(cond);
+			rv->append_element(marker);
 		}
 	}
 

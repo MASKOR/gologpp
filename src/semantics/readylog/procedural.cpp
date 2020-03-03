@@ -302,12 +302,21 @@ EC_word Semantics<Solve>::plterm()
 
 
 
-template<>
 EC_word Semantics<Test>::plterm()
 {
-	return ::term(EC_functor("?", 1),
-		element().expression().semantics().plterm()
-	);
+	if (is_plan_marker_)
+		return marker_cond_;
+	else
+		return ::term(EC_functor("?", 1),
+			element().expression().semantics().plterm()
+		);
+}
+
+
+void Semantics<Test>::make_plan_marker(EC_word cond)
+{
+	marker_cond_ = cond;
+	is_plan_marker_ = true;
 }
 
 

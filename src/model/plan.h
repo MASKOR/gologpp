@@ -45,6 +45,7 @@ public:
 	TimedInstruction(Instruction *);
 
 	const Instruction &instruction() const;
+	Instruction &instruction();
 	TimePoint earliest_timepoint() const;
 	TimePoint latest_timepoint() const;
 
@@ -70,6 +71,7 @@ public:
 	void append_element(TimedInstruction &&);
 
 	vector<TimedInstruction> &elements();
+	const vector<TimedInstruction> &elements() const;
 
 private:
 	vector<TimedInstruction> elements_;

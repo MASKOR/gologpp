@@ -120,6 +120,23 @@ public:
 
 
 
+template<>
+class Semantics<Test>
+: public Semantics<Instruction>
+, public AbstractSemantics<Test>
+{
+public:
+	using AbstractSemantics<Test>::AbstractSemantics;
+	virtual EC_word plterm() override;
+
+	void make_plan_marker(EC_word cond);
+
+private:
+	bool is_plan_marker_ = false;
+	ManagedTerm marker_cond_;
+};
+
+
 std::pair<const Reference<Fluent> *, EC_word>
 traverse_mixed_field_access(const FieldAccess *fa, const ListAccess *la);
 

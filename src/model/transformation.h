@@ -22,7 +22,6 @@
 namespace gologpp {
 
 
-
 class Plan;
 
 
