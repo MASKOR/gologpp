@@ -315,10 +315,29 @@ unique_ptr<Plan> ReadylogContext::trans(Block &program, History &history)
 }
 
 
-unique_ptr<Plan> ReadylogContext::parse_plan(const EC_word &term)
+unique_ptr<Plan> ReadylogContext::parse_plan(EC_word policy)
 {
-	// TODO: Stub
-	return unique_ptr<Plan>(new Plan());
+	unique_ptr<Plan> rv(new Plan());
+	do {
+		EC_functor headfunctor;
+		if(policy.is_nil() != EC_succeed) {
+			if (policy.functor(&headfunctor) == EC_succeed) {
+				if(strcmp(headfunctor.name(),"applyPolicy") == 0) {
+					policy.arg(1,policy); // skip list of [plan, history]
+					EC_word action_term;
+					while(policy.is_list(action_term, policy) == EC_succeed) {
+						shared_ptr<Transition> curr_action = Semantics<Transition>::transition_from_plterm(action_term);
+						if(curr_action != nullptr) {
+							std::cout << curr_action->str() << std::endl;
+							rv->append_element(new Transition(*curr_action));
+						}
+					}
+				}
+			}
+		}
+	} while (policy.arg(1, policy) == EC_succeed);
+
+	return rv;
 }
 
 
@@ -343,29 +362,6 @@ bool ReadylogContext::ec_query(EC_word t)
 	return last_rv_ == EC_status::EC_succeed;
 }
 
-
-vector<shared_ptr<Transition>> ReadylogContext::get_plan_from_policy_term(EC_word policy) {
-  vector<shared_ptr<Transition>> actions;
-  do {
-    EC_functor headfunctor;
-    if(policy.is_nil() != EC_succeed) {
-      if (policy.functor(&headfunctor) == EC_succeed) {
-        if(strcmp(headfunctor.name(),"applyPolicy") == 0) {
-          policy.arg(1,policy); // skip list of [plan, history]
-          EC_word action_term;
-          while(policy.is_list(action_term, policy) == EC_succeed) {
-            shared_ptr<Transition> curr_action = Semantics<Transition>::transition_from_plterm(action_term);
-            if(curr_action != nullptr) {
-              std::cout << curr_action->str() << std::endl;
-              actions.emplace_back(curr_action);
-            }
-          }
-        }
-      }
-    }
-  } while (policy.arg(1, policy) == EC_succeed);
-  return actions;
-}
 
 
 } // namespace gologpp

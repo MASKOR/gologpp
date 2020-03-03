@@ -59,7 +59,6 @@ public:
 	void ec_write(EC_word t);
 	string to_string(EC_word t);
 
-	static vector<shared_ptr<Transition>> get_plan_from_policy_term(EC_word policy);
 private:
     ReadylogContext(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend);
 
@@ -67,7 +66,7 @@ private:
     std::string find_readylog();
     std::string find_boilerplate();
 
-	unique_ptr<Plan> parse_plan(const EC_word &policy);
+	unique_ptr<Plan> parse_plan(EC_word policy);
 
 	EC_ref *ec_start_;
 	int last_rv_;
