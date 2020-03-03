@@ -34,7 +34,7 @@ public:
 
 	virtual EC_word plterm() override;
 
-	static unique_ptr<Transition> transition_from_plterm(EC_word);
+	static shared_ptr<Transition> transition_from_plterm(EC_word);
 };
 
 

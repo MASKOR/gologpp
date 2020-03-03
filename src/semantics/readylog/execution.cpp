@@ -291,13 +291,12 @@ unique_ptr<Plan> ReadylogContext::trans(Block &program, History &history)
 
 			if (prog.is_list(head, tail) != EC_succeed)
 				throw EclipseError("Output program ist not a list: " + this->to_string(prog));
-			EC_functor head_fn;
 
 			unique_ptr<Plan> rv;
 
-			if (head.functor(&head_fn) == EC_succeed && string(head_fn.name()) == "applyPolicy") {
+			if (functor_name(head) == "applyPolicy") {
 				// program executed a solve operator: a policy was produced
-				rv = parse_plan(program.semantics().current_program());
+				rv = parse_plan(head);
 			}
 			else {
 				// Normal transition
@@ -318,24 +317,19 @@ unique_ptr<Plan> ReadylogContext::trans(Block &program, History &history)
 unique_ptr<Plan> ReadylogContext::parse_plan(EC_word policy)
 {
 	unique_ptr<Plan> rv(new Plan());
-	do {
-		EC_functor headfunctor;
-		if(policy.is_nil() != EC_succeed) {
-			if (policy.functor(&headfunctor) == EC_succeed) {
-				if(strcmp(headfunctor.name(),"applyPolicy") == 0) {
-					policy.arg(1,policy); // skip list of [plan, history]
-					EC_word action_term;
-					while(policy.is_list(action_term, policy) == EC_succeed) {
-						shared_ptr<Transition> curr_action = Semantics<Transition>::transition_from_plterm(action_term);
-						if(curr_action != nullptr) {
-							std::cout << curr_action->str() << std::endl;
-							rv->append_element(new Transition(*curr_action));
-						}
-					}
-				}
-			}
+
+	EC_word list;
+	if (policy.arg(1, list) != EC_succeed)
+		throw Bug("Unexpected policy: " + ReadylogContext::to_string(policy));
+
+	EC_word head;
+	while(list.is_nil() != EC_succeed && list.is_list(head, list) == EC_succeed) {
+		shared_ptr<Transition> curr_action = Semantics<Transition>::transition_from_plterm(head);
+		if(curr_action != nullptr) {
+			std::cout << curr_action->str() << std::endl;
+			rv->append_element(new Transition(*curr_action));
 		}
-	} while (policy.arg(1, policy) == EC_succeed);
+	}
 
 	return rv;
 }

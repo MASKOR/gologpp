@@ -45,7 +45,7 @@ EC_word Semantics<History>::get_history_head()
 	return head;
 }
 
-unique_ptr<Transition> Semantics<History>::get_last_transition()
+shared_ptr<Transition> Semantics<History>::get_last_transition()
 {
 	if (!has_changed())
 		return nullptr;

@@ -43,7 +43,7 @@ static const ::std::unordered_map<::std::string, Transition::Hook> name2state {
 };
 
 
-unique_ptr<Transition> gologpp::Semantics<Transition>::transition_from_plterm(EC_word t)
+shared_ptr<Transition> gologpp::Semantics<Transition>::transition_from_plterm(EC_word t)
 {
 	string headname = functor_name(t);
 
@@ -62,8 +62,7 @@ unique_ptr<Transition> gologpp::Semantics<Transition>::transition_from_plterm(EC
 	shared_ptr<Action> action = global_scope().lookup_global<Action>(headname);
 	shared_ptr<Transition> rv;
 
-	return unique_ptr<Transition>(new Transition(action, std::move(args), state_it->second));
-
+	return std::make_shared<Transition>(action, std::move(args), state_it->second);
 }
 
 
