@@ -304,7 +304,7 @@ unique_ptr<Plan> ReadylogContext::trans(Block &program, History &history)
 				rv->append_element(new Transition(*history.semantics().get_last_transition()));
 			}
 
-			program.semantics().set_current_program(e1);
+			program.semantics().set_current_program(tail);
 			history.semantics().extend_history(h1);
 
 			return rv;
