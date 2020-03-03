@@ -15,42 +15,27 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef READYLOG_HISTORY_H_
-#define READYLOG_HISTORY_H_
+#pragma once
 
 #include "semantics.h"
-#include "utilities.h"
-#include <model/history.h>
-
 
 namespace gologpp {
 
 
 template<>
-class Semantics<History> : public AbstractSemantics<History> {
+class Semantics<Activity>
+: public Semantics<ModelElement>
+, public AbstractSemantics<Activity>
+{
 public:
-	Semantics(History &);
+	using AbstractSemantics<Activity>::AbstractSemantics;
 	virtual ~Semantics() override = default;
 
-	virtual unique_ptr<Transition> get_last_transition() override;
-	virtual void append(shared_ptr<Grounding<AbstractAction>> exog) override;
-	virtual void append_sensing_result(shared_ptr<Activity>) override;
-	virtual bool should_progress() const override;
-	virtual void progress() override;
+	const Activity &activity();
 
-	EC_word current_history() const;
-	void extend_history(EC_word h);
-	bool has_changed() const;
-
-private:
-	EC_word get_history_head();
-
-	ManagedTerm readylog_history_;
-	bool has_changed_;
+	virtual EC_word plterm() override;
+	EC_word sensing_result();
 };
 
 
-
 } // namespace gologpp
-
-#endif // READYLOG_HISTORY_H_

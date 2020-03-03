@@ -20,13 +20,11 @@
 #include "action.h"
 #include "effect_axiom.h"
 #include "scope.h"
-#include "execution.h"
 #include "variable.h"
 #include "value.h"
 
 #include <eclipseclass.h>
 
-#include <unordered_map>
 
 namespace gologpp {
 
@@ -140,40 +138,6 @@ EC_word Semantics<ExogAction>::poss()
 template<>
 EC_word Semantics<ExogEvent>::plterm()
 { return reference_term(element()); }
-
-
-
-const Activity &Semantics<Activity>::activity()
-{ return dynamic_cast<const Activity &>(element()); }
-
-
-EC_word Semantics<Activity>::plterm()
-{
-	return ::term(EC_functor("exog_state_change", 2),
-		reference_term(element()),
-		EC_atom(to_string(element().state()).c_str())
-	);
-}
-
-
-EC_word Semantics<Activity>::sensing_result()
-{
-	return ::term(EC_functor("e", 2),
-		activity().target()->senses()->semantics().plterm(),
-		activity().sensing_result()->semantics().plterm()
-	);
-}
-
-
-
-template<>
-EC_word Semantics<Transition>::plterm()
-{
-	return ::term(EC_functor(to_string(element().hook()).c_str(), 2),
-		reference_term(element()),
-		EC_word(ReadylogContext::instance().backend().time().time_since_epoch().count())
-	);
-}
 
 
 

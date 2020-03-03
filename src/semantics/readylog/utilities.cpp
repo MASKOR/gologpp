@@ -18,6 +18,8 @@
 #include <model/expressions.h>
 #include "error.h"
 #include "utilities.h"
+#include "value.h"
+#include "execution.h"
 
 #include <cstring>
 
@@ -118,6 +120,40 @@ EC_word copy_term(EC_word t)
 	else
 		throw std::runtime_error("Unrecognized term type");
 }
+
+
+string functor_name(EC_word term) {
+	EC_functor headfunctor;
+	EC_atom head_atom;
+	if (term.functor(&headfunctor) == EC_succeed)
+		return headfunctor.name();
+	else if (term.is_atom(&head_atom) == EC_succeed)
+		return head_atom.name();
+
+	throw Bug("Unknown term. Cannot get head name.");
+}
+
+
+vector<unique_ptr<Value>> plterm_args(EC_word head) {
+	EC_word term;
+	vector<unique_ptr<Value>> rv;
+
+	for (int j = 1; j <= head.arity(); j++) {
+		head.arg(j,term);
+		Value *v = new Value(pl_term_to_value(term));
+
+		if (!v)
+			throw Bug(
+				"Invalid argument #" + std::to_string(j) + " in expression "
+				+ ReadylogContext::instance().to_string(head)
+			);
+
+		rv.emplace_back(v);
+	}
+
+	return rv;
+}
+
 
 
 int ManagedTerm::count_ = 0;

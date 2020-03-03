@@ -22,6 +22,8 @@
 #include "execution.h"
 #include "utilities.h"
 #include "value.h"
+#include "transition.h"
+#include "activity.h"
 
 #include <iostream>
 #include <unordered_map>
@@ -50,7 +52,7 @@ unique_ptr<Transition> Semantics<History>::get_last_transition()
 
 	EC_word head = get_history_head();
 
-	return ReadylogContext::get_transition_from_term(head);
+	return Semantics<Transition>::transition_from_plterm(head);
 }
 
 

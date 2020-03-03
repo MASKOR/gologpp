@@ -28,8 +28,6 @@
 
 namespace gologpp {
 
-class Action;
-
 
 template<>
 class Semantics<Action>
@@ -63,22 +61,6 @@ public:
 	EC_word poss();
 
 	virtual EC_word plterm() override;
-};
-
-
-template<>
-class Semantics<Activity>
-: public Semantics<ModelElement>
-, public AbstractSemantics<Activity>
-{
-public:
-	using AbstractSemantics<Activity>::AbstractSemantics;
-	virtual ~Semantics() override = default;
-
-	const Activity &activity();
-
-	virtual EC_word plterm() override;
-	EC_word sensing_result();
 };
 
 

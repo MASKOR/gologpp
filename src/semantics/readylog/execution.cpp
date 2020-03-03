@@ -26,6 +26,7 @@
 #include "utilities.h"
 #include "history.h"
 #include "value.h"
+#include "transition.h"
 
 #include <model/plan.h>
 #include <model/transformation.h>
@@ -34,14 +35,6 @@
 namespace filesystem = std::experimental::filesystem;
 
 namespace gologpp {
-
-  static const ::std::unordered_map<::std::string, Transition::Hook> name2state {
-	{ "start", Transition::Hook::START },
-	{ "cancel", Transition::Hook::CANCEL },
-	{ "finish", Transition::Hook::FINISH },
-	{ "fail", Transition::Hook::FAIL },
-	{ "end", Transition::Hook::END }
-};
 
 
 unique_ptr<ReadylogContext> ReadylogContext::instance_;
@@ -309,7 +302,7 @@ unique_ptr<Plan> ReadylogContext::trans(Block &program, History &history)
 			else {
 				// Normal transition
 				rv.reset(new Plan());
-				rv->append_element(history.semantics().get_last_transition().release());
+				rv->append_element(new Transition(*history.semantics().get_last_transition()));
 			}
 
 			program.semantics().set_current_program(e1);
@@ -327,9 +320,6 @@ unique_ptr<Plan> ReadylogContext::parse_plan(const EC_word &term)
 	// TODO: Stub
 	return unique_ptr<Plan>(new Plan());
 }
-
-
-
 
 
 bool ReadylogContext::ec_query(EC_word t)
@@ -353,55 +343,6 @@ bool ReadylogContext::ec_query(EC_word t)
 	return last_rv_ == EC_status::EC_succeed;
 }
 
-std::string ReadylogContext::get_head_name(EC_word head) {
-	EC_functor headfunctor;
-	EC_atom head_atom;
-	if (head.functor(&headfunctor) == EC_succeed)
-		return headfunctor.name();
-	else if (head.is_atom(&head_atom) == EC_succeed)
-		return head_atom.name();
-
-	throw Bug("Unknown term. Cannot get head name.");
-}
-
-vector<unique_ptr<Value>> ReadylogContext::get_args(EC_word head) {
-	EC_word term;
-	vector<unique_ptr<Value>> rv;
-
-	for (int j = 1; j <= head.arity(); j++) {
-		head.arg(j,term);
-		Value *v = new Value(pl_term_to_value(term));
-
-		if (!v)
-			throw Bug("Invalid argument #" + std::to_string(j) + " in expression " + ReadylogContext::instance().to_string(head));
-
-		rv.emplace_back(v);
-	}
-
-	return rv;
-}
-
-
-unique_ptr<Transition> ReadylogContext::get_transition_from_term(EC_word t) {
-	string headname = get_head_name(t);
-
-	auto state_it = name2state.find(headname);
-
-	if (state_it == name2state.end())
-		return nullptr;
-
-	if (t.arity() != 2)
-		throw EngineError("Transition arity must be 2: " + headname);
-
-	t.arg(1, t);
-	headname = get_head_name(t);
-
-	vector<unique_ptr<Value>> args = get_args(t);
-	shared_ptr<Action> action = global_scope().lookup_global<Action>(headname);
-	shared_ptr<Transition> rv;
-
-	return unique_ptr<Transition>(new Transition(action, std::move(args), state_it->second));
-}
 
 vector<shared_ptr<Transition>> ReadylogContext::get_plan_from_policy_term(EC_word policy) {
   vector<shared_ptr<Transition>> actions;
@@ -413,7 +354,7 @@ vector<shared_ptr<Transition>> ReadylogContext::get_plan_from_policy_term(EC_wor
           policy.arg(1,policy); // skip list of [plan, history]
           EC_word action_term;
           while(policy.is_list(action_term, policy) == EC_succeed) {
-            shared_ptr<Transition> curr_action = ReadylogContext::get_transition_from_term(action_term);
+            shared_ptr<Transition> curr_action = Semantics<Transition>::transition_from_plterm(action_term);
             if(curr_action != nullptr) {
               std::cout << curr_action->str() << std::endl;
               actions.emplace_back(curr_action);

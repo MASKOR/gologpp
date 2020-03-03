@@ -109,8 +109,11 @@ EC_word to_ec_list(const ListT &vec)
 
 EC_word make_ec_list(const std::vector<EC_word> &words);
 
-
 EC_word copy_term(EC_word t);
+
+string functor_name(EC_word t);
+
+vector<unique_ptr<Value>> plterm_args(EC_word t);
 
 
 class ManagedTerm {

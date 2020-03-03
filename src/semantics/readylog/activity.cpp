@@ -15,42 +15,38 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef READYLOG_HISTORY_H_
-#define READYLOG_HISTORY_H_
+#include "activity.h"
+#include "reference.h"
+#include "execution.h"
+#include "value.h"
 
-#include "semantics.h"
-#include "utilities.h"
-#include <model/history.h>
-
+#include <model/activity.h>
 
 namespace gologpp {
 
 
-template<>
-class Semantics<History> : public AbstractSemantics<History> {
-public:
-	Semantics(History &);
-	virtual ~Semantics() override = default;
+const Activity &Semantics<Activity>::activity()
+{ return dynamic_cast<const Activity &>(element()); }
 
-	virtual unique_ptr<Transition> get_last_transition() override;
-	virtual void append(shared_ptr<Grounding<AbstractAction>> exog) override;
-	virtual void append_sensing_result(shared_ptr<Activity>) override;
-	virtual bool should_progress() const override;
-	virtual void progress() override;
 
-	EC_word current_history() const;
-	void extend_history(EC_word h);
-	bool has_changed() const;
+EC_word Semantics<Activity>::plterm()
+{
+	return ::term(EC_functor("exog_state_change", 3),
+		reference_term(element()),
+		EC_word(ReadylogContext::instance().backend().time().time_since_epoch().count()),
+		EC_atom(to_string(element().state()).c_str())
+	);
+}
 
-private:
-	EC_word get_history_head();
 
-	ManagedTerm readylog_history_;
-	bool has_changed_;
-};
+EC_word Semantics<Activity>::sensing_result()
+{
+	return ::term(EC_functor("e", 2),
+		activity().target()->senses()->semantics().plterm(),
+		activity().sensing_result()->semantics().plterm()
+	);
+}
 
 
 
 } // namespace gologpp
-
-#endif // READYLOG_HISTORY_H_

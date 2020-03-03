@@ -32,6 +32,8 @@
 #include "history.h"
 #include "compound_expression.h"
 #include "list_expression.h"
+#include "activity.h"
+#include "transition.h"
 
 namespace gologpp {
 
