@@ -138,6 +138,8 @@ install(FILES
 	src/model/history.h
 	src/model/mapping.h
 	src/model/platform_backend.h
+	src/model/platform_model.h
+	src/model/platform_constraints.h
 	src/model/transition.h
 	src/model/types.h
 	src/model/compound_expression.h
@@ -195,6 +197,9 @@ if (${BUILD_PARSER})
 		src/parser/mapping.cpp
 		src/parser/list_expression.cpp
 		src/parser/value.cpp
+		src/parser/platform_parser.cpp
+		src/parser/platform_model.cpp
+		src/parser/platform_constraints.cpp
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
@@ -228,6 +233,9 @@ if (${BUILD_PARSER})
 		src/parser/mapping.h
 		src/parser/list_expression.h
 		src/parser/value.h
+		src/parser/platform_model.h
+		src/parser/platform_parser.h
+		src/parser/platform_constraints.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)
 
@@ -347,6 +355,13 @@ if (${BUILD_TOOLS})
 	set_property(TARGET readylog-test PROPERTY CXX_STANDARD 14)
 
 	install(TARGETS readylog-test RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+	set(PLAN_TRANSFORMATION_TEST_SRC
+		src/tools/plan-transformation-test.cpp)
+	add_executable(plan-transformation-test ${PLAN_TRANSFORMATION_TEST_SRC})
+	target_link_libraries(plan-transformation-test parsegolog++)
+	set_property(TARGET plan-transformation-test PROPERTY CXX_STANDARD 14)
+	install(TARGETS plan-transformation-test RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 

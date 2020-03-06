@@ -1,0 +1,15 @@
+Occ
+	put(null,null)
+ Then
+Future
+	idle, warmup
+	Within
+			[5,7];
+Occ
+	put(null,null)
+ Then
+	idle, warmup
+Until
+	idle, warmup
+	Within
+			[5,7];
