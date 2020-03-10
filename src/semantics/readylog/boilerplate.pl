@@ -174,83 +174,74 @@ pl_list_push_back(Lhs, Elem, Result) :-
  * Durative Action semantics
  * ******************************/
 
-exog_prim_fluent(now).
-
 prim_fluent(state(A)) :- durative_action(A).
 initial_val(state(A), idle) :- durative_action(A).
 reserved_fluent(state(_A)).
 
-exog_action(exog_state_change(A, _T, State)) :- durative_action(A).
-poss(exog_state_change(A, _T, State), true) :- durative_action(A).
-causes_val(exog_state_change(A, _T, State), state(A), State, true) :- durative_action(A).
+exog_action(exog_state_change(A, State)) :- durative_action(A).
+poss(exog_state_change(A, State), true) :- durative_action(A).
+causes_val(exog_state_change(A, State), state(A), State, true) :- durative_action(A).
 
 
 % start action
 % ============
-prim_action(start(A, _T)) :- durative_action(A).
+prim_action(start(A)) :- durative_action(A).
 
 % Precondition only applies to starting a durative action
-poss(start(A, T),
+poss(start(A),
 	and([
 		not(state(A) = running)
-		, now >= T
 		, C
 	])
 ) :-
 	durative_action(A)
 	, durative_poss(A, C)
 .
-causes_val(start(A, _T), state(A), running, true) :- durative_action(A).
+causes_val(start(A), state(A), running, true) :- durative_action(A).
 
 
 % finish action
 % ============
-prim_action(finish(A, _T)) :- durative_action(A).
-poss(finish(A, T),
-	and(
-		lif(online = true
-			% Online: Wait for real action to complete
-			, state(A) = final
-			% Offline: Final immediately
-			, true
-		)
-		, now >= T
+prim_action(finish(A)) :- durative_action(A).
+poss(finish(A),
+	lif(online = true
+		% Online: Wait for real action to complete
+		, state(A) = final
+		% Offline: Final immediately
+		, true
 	)
 ) :- durative_action(A).
-causes_val(finish(A, _T), state(A), final, true) :- durative_action(A).
+causes_val(finish(A), state(A), final, true) :- durative_action(A).
 
 % Only the finish action applies a durative action's effects:
-causes_val(finish(A, T), F, V, C) :- durative_causes_val(A, F, V, C).
+causes_val(finish(A), F, V, C) :- durative_causes_val(A, F, V, C).
 
 
 % end action
 % ==========
-prim_action(end(A, _T)) :- durative_action(A).
-poss(end(A, T),
-	and(
-		lif(online
-			% Online: Wait for real action to complete
-			, or( [
-				state(A) = final
-				, state(A) = failed
-				, state(A) = cancelled
-			] )
-			% Offline: Final immediately
-			, true
-		)
-		, now >= T
+prim_action(end(A)) :- durative_action(A).
+poss(end(A),
+	lif(online
+		% Online: Wait for real action to complete
+		, or( [
+			state(A) = final
+			, state(A) = failed
+			, state(A) = cancelled
+		] )
+		% Offline: Final immediately
+		, true
 	)
 ) :- durative_action(A).
 
 % ONLY During planning end(A) puts A in the final state.
 % Online this happens exogenously.
-causes_val(end(A, _T), state(A), final, not(online)) :- durative_action(A).
+causes_val(end(A), state(A), final, not(online)) :- durative_action(A).
 
 % Offline: Just apply effect & disregard state because state is changed
 %          by another effect.
 % Online:  Apply effect only if state is final
 causes_val(
-	end(A, _T)
+	end(A)
 	, F, V
 	, lif(online
 		, and(state(A) = final, C)
@@ -263,30 +254,26 @@ causes_val(
 
 % stop action
 % ===========
-prim_action(stop(A, _T)) :- durative_action(A).
-poss(stop(A, T),
-	and(
-		lif(online = true
-			, state(A) = running
-			, true
-		)
-		, now >= T
+prim_action(stop(A)) :- durative_action(A).
+poss(stop(A),
+	lif(online = true
+		, state(A) = running
+		, true
 	)
 ) :- durative_action(A).
-causes_val(stop(A, _T), state(A), cancelled, true) :- durative_action(A).
+causes_val(stop(A), state(A), cancelled, true) :- durative_action(A).
 
 
 % fail action
 % =============
-prim_action(fail(A, _T)) :- durative_action(A).
-poss(fail(A, T),
+prim_action(fail(A)) :- durative_action(A).
+poss(fail(A),
 	and([
 		online = true
 		, state(A) = failed
-		, now >= T
 	])
 ) :- durative_action(A).
-causes_val(fail(A, _T), state(A), failed, true) :- durative_action(A).
+causes_val(fail(A), state(A), failed, true) :- durative_action(A).
 
 
 
