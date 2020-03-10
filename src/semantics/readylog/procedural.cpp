@@ -336,9 +336,8 @@ EC_word Semantics<Return>::plterm() {
 
 EC_word Semantics<DurativeCall>::plterm()
 {
-	return ::term(EC_functor(to_string(element().hook()).c_str(), 2),
-		reference_term(element().action()),
-		EC_atom("now")
+	return ::term(EC_functor(to_string(element().hook()).c_str(), 1),
+		reference_term(element().action())
 	);
 }
 
@@ -443,13 +442,11 @@ EC_word Semantics<ListLength>::plterm()
 
 EC_word Semantics<During>::plterm()
 {
-	EC_word start = ::term(EC_functor(to_string(Transition::Hook::START).c_str(), 2),
-		reference_term(element().action_call()),
-		EC_atom("now")
+	EC_word start = ::term(EC_functor(to_string(Transition::Hook::START).c_str(), 1),
+		reference_term(element().action_call())
 	);
-	EC_word end = ::term(EC_functor(to_string(Transition::Hook::END).c_str(), 2),
-		reference_term(element().action_call()),
-		EC_atom("now")
+	EC_word end = ::term(EC_functor(to_string(Transition::Hook::END).c_str(), 1),
+		reference_term(element().action_call())
 	);
 	EC_word if_failed = ::term(EC_functor("if", 2),
 		::term(EC_functor("=", 2),

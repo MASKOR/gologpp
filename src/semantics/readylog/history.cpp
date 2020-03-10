@@ -97,8 +97,8 @@ shared_ptr<Transition> Semantics<History>::get_last_transition()
 	if (state_it == name2state.end())
 		return nullptr;
 
-	if (head.arity() != 2)
-		throw EngineError("Transition arity must be 2: " + headname);
+	if (head.arity() != 1)
+		throw EngineError("Transition arity must be 1: " + headname);
 
 	head.arg(1, head);
 	headname = get_head_name(head);

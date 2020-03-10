@@ -148,9 +148,8 @@ const Activity &Semantics<Activity>::activity()
 
 EC_word Semantics<Activity>::plterm()
 {
-	return ::term(EC_functor("exog_state_change", 3),
+	return ::term(EC_functor("exog_state_change", 2),
 		reference_term(element()),
-		EC_word(ReadylogContext::instance().backend().time().time_since_epoch().count()),
 		EC_atom(to_string(element().state()).c_str())
 	);
 }
