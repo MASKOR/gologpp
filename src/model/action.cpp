@@ -115,7 +115,7 @@ void AbstractAction::set_silent(bool silent)
 
 void AbstractAction::set_silent_v(boost::optional<Value *> silent)
 {
-	if (silent.has_value())
+	if (silent.is_initialized())
 		set_silent(static_cast<bool>(*silent.get()));
 }
 
