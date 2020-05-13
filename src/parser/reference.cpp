@@ -31,6 +31,8 @@
 #include <boost/spirit/include/qi_attr.hpp>
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_char.hpp>
+#include <boost/spirit/include/qi_lit.hpp>
+#include <boost/spirit/include/qi_string.hpp>
 #include <boost/spirit/include/qi_lazy.hpp>
 #include <boost/spirit/include/qi_eps.hpp>
 #include <boost/spirit/include/qi_repeat.hpp>
@@ -45,6 +47,7 @@
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
 #include <boost/phoenix/bind/bind_function_object.hpp>
+#include <boost/phoenix/scope/local_variable.hpp>
 
 #include <model/reference.h>
 

@@ -23,6 +23,7 @@
 #include <boost/spirit/include/qi_expect.hpp>
 #include <boost/phoenix/object/dynamic_cast.hpp>
 #include <boost/phoenix/operator/self.hpp>
+#include <boost/phoenix/core/reference.hpp>
 
 #include "statements.h"
 #include "utilities.h"
