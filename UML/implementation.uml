@@ -286,6 +286,10 @@
         <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_XK41QJkiEeqe46BPIU1eqA"/>
         <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_XK41QZkiEeqe46BPIU1eqA" value="*"/>
       </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_9ATDwJk5Eeq5iLvDPQ6u6g" name="exog_transitions" type="_ctWNsJkhEeqe46BPIU1eqA">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_BPKQ4Jk6Eeq5iLvDPQ6u6g"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_BPQXgJk6Eeq5iLvDPQ6u6g" value="*"/>
+      </ownedAttribute>
       <ownedOperation xmi:type="uml:Operation" xmi:id="_3JrHEJkXEeqe46BPIU1eqA" name="exog_change">
         <ownedParameter xmi:type="uml:Parameter" xmi:id="_-mKt0JkXEeqe46BPIU1eqA" name="to" type="_MFnAYJkWEeqe46BPIU1eqA" effect="read"/>
       </ownedOperation>
