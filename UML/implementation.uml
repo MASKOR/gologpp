@@ -269,7 +269,7 @@
       </ownedAttribute>
       <ownedAttribute xmi:type="uml:Property" xmi:id="_lR_dYJkjEeqe46BPIU1eqA" name="clock_formula" type="_djtjcJZKEeiWs6lj50gzIQ"/>
     </packagedElement>
-    <packagedElement xmi:type="uml:Class" xmi:id="_65vxUJkVEeqe46BPIU1eqA" name="Component" isAbstract="true">
+    <packagedElement xmi:type="uml:Class" xmi:id="_65vxUJkVEeqe46BPIU1eqA" name="PlatformComponent" isAbstract="true">
       <ownedAttribute xmi:type="uml:Property" xmi:id="_Owl_8JkWEeqe46BPIU1eqA" name="states" type="_MFnAYJkWEeqe46BPIU1eqA" aggregation="composite" association="_Owkx0JkWEeqe46BPIU1eqA">
         <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_Owl_8ZkWEeqe46BPIU1eqA"/>
         <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_Owl_8pkWEeqe46BPIU1eqA" value="*"/>
@@ -400,24 +400,11 @@
       </eAnnotations>
       <ownedEnd xmi:type="uml:Property" xmi:id="_1uTLYNceEemh-qHlCUfyOw" type="_7aiWcNcTEemh-qHlCUfyOw" association="_1uRWMNceEemh-qHlCUfyOw"/>
     </packagedElement>
-    <packagedElement xmi:type="uml:Class" xmi:id="_p51zQJkYEeqe46BPIU1eqA" name="RosComponentManager">
-      <generalization xmi:type="uml:Generalization" xmi:id="_aV1dYJkZEeqe46BPIU1eqA" general="_65vxUJkVEeqe46BPIU1eqA"/>
-      <ownedOperation xmi:type="uml:Operation" xmi:id="_FmpRgJkZEeqe46BPIU1eqA" name="switch_state">
-        <ownedParameter xmi:type="uml:Parameter" xmi:id="_WD4gAJkZEeqe46BPIU1eqA" name="to" type="_MFnAYJkWEeqe46BPIU1eqA" effect="read"/>
-      </ownedOperation>
-    </packagedElement>
-    <packagedElement xmi:type="uml:Class" xmi:id="_dQYXYJkjEeqe46BPIU1eqA" name="SwitchStateMessage">
-      <ownedAttribute xmi:type="uml:Property" xmi:id="_rBTesJklEeqe46BPIU1eqA" name="component">
-        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
-      </ownedAttribute>
-      <ownedAttribute xmi:type="uml:Property" xmi:id="_w6F3AJklEeqe46BPIU1eqA" name="to_state">
-        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
-      </ownedAttribute>
-    </packagedElement>
     <packagedElement xmi:type="uml:Usage" xmi:id="_I06jUJkkEeqe46BPIU1eqA" client="_p51zQJkYEeqe46BPIU1eqA" supplier="_dQYXYJkjEeqe46BPIU1eqA"/>
-  </packagedElement>
-  <packagedElement xmi:type="uml:Component" xmi:id="_6VPGoIEYEeicVNo5AIZ6Lg" name="RosPlatformBackend">
-    <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_s8GDMNdQEem75av07R3dow" client="_6VPGoIEYEeicVNo5AIZ6Lg" supplier="_H45tENc_Eemh-qHlCUfyOw" contract="_H45tENc_Eemh-qHlCUfyOw"/>
+    <packagedElement xmi:type="uml:Component" xmi:id="_6VPGoIEYEeicVNo5AIZ6Lg" name="RosPlatformBackend">
+      <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_s8GDMNdQEem75av07R3dow" client="_6VPGoIEYEeicVNo5AIZ6Lg" supplier="_H45tENc_Eemh-qHlCUfyOw" contract="_H45tENc_Eemh-qHlCUfyOw"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_w_yccJl_EeqwyqGQV7-y8Q" client="_TPbAcJl-EeqwyqGQV7-y8Q" supplier="_dQYXYJkjEeqe46BPIU1eqA"/>
   </packagedElement>
   <packagedElement xmi:type="uml:Association" xmi:id="_uszlQJkTEeqe46BPIU1eqA" memberEnd="_us2okJkTEeqe46BPIU1eqA _us3PoZkTEeqe46BPIU1eqA">
     <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_us1acJkTEeqe46BPIU1eqA" source="org.eclipse.papyrus">
@@ -446,6 +433,67 @@
       <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_XK4OMZkiEeqe46BPIU1eqA" key="nature" value="UML_Nature"/>
     </eAnnotations>
     <ownedEnd xmi:type="uml:Property" xmi:id="_XK41QpkiEeqe46BPIU1eqA" type="_65vxUJkVEeqe46BPIU1eqA" association="_XK3nIJkiEeqe46BPIU1eqA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Usage" xmi:id="_bTLwoJmAEeqwyqGQV7-y8Q" client="_2nW-YJl-EeqwyqGQV7-y8Q" supplier="_DG7oAJmAEeqwyqGQV7-y8Q"/>
+  <packagedElement xmi:type="uml:Usage" xmi:id="_b3btMJmAEeqwyqGQV7-y8Q" client="_5W87sJl_EeqwyqGQV7-y8Q" supplier="_DG7oAJmAEeqwyqGQV7-y8Q"/>
+  <packagedElement xmi:type="uml:Association" xmi:id="_nx5UEJmAEeqwyqGQV7-y8Q" memberEnd="_nx7wUJmAEeqwyqGQV7-y8Q _nx8XYJmAEeqwyqGQV7-y8Q">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_nx6iMJmAEeqwyqGQV7-y8Q" source="org.eclipse.papyrus">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_nx6iMZmAEeqwyqGQV7-y8Q" key="nature" value="UML_Nature"/>
+    </eAnnotations>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_nx8XYJmAEeqwyqGQV7-y8Q" name="interface" type="_DG7oAJmAEeqwyqGQV7-y8Q" association="_nx5UEJmAEeqwyqGQV7-y8Q"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_QywCUJmBEeqwyqGQV7-y8Q" name="Fawkes">
+    <packagedElement xmi:type="uml:Class" xmi:id="_ig57kJmAEeqwyqGQV7-y8Q" name="SwitchComponentStateMessage">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_Xu3qcJmCEeqwyqGQV7-y8Q" name="component_name">
+        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_bJySIJmCEeqwyqGQV7-y8Q" name="to_state">
+        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+      </ownedAttribute>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_DG7oAJmAEeqwyqGQV7-y8Q" name="ComponentStateInterface">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_nx7wUJmAEeqwyqGQV7-y8Q" name="msg_queue" type="_ig57kJmAEeqwyqGQV7-y8Q" aggregation="shared" association="_nx5UEJmAEeqwyqGQV7-y8Q">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_nx7wUZmAEeqwyqGQV7-y8Q"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_nx7wUpmAEeqwyqGQV7-y8Q" value="*"/>
+      </ownedAttribute>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_2nW-YJl-EeqwyqGQV7-y8Q" name="FawkesComponent">
+      <generalization xmi:type="uml:Generalization" xmi:id="_OaF-UJmAEeqwyqGQV7-y8Q" general="_65vxUJkVEeqe46BPIU1eqA"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_4NywsJl-EeqwyqGQV7-y8Q" name="switch_state">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_4NywsZl-EeqwyqGQV7-y8Q" name="to" type="_MFnAYJkWEeqe46BPIU1eqA" effect="read"/>
+      </ownedOperation>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_5W87sJl_EeqwyqGQV7-y8Q" name="FawkesExternalComponentManager">
+      <generalization xmi:type="uml:Generalization" xmi:id="_O_ULQJmAEeqwyqGQV7-y8Q" general="_65vxUJkVEeqe46BPIU1eqA"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_5W87sZl_EeqwyqGQV7-y8Q" name="switch_state">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_5W87spl_EeqwyqGQV7-y8Q" name="to" type="_MFnAYJkWEeqe46BPIU1eqA" effect="read"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_6pW-wJl_EeqwyqGQV7-y8Q" name="switch_state">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_6pW-wZl_EeqwyqGQV7-y8Q" name="to" type="_MFnAYJkWEeqe46BPIU1eqA" effect="read"/>
+      </ownedOperation>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_4v1mcJmBEeqwyqGQV7-y8Q" name="ROS">
+    <packagedElement xmi:type="uml:Class" xmi:id="_dQYXYJkjEeqe46BPIU1eqA" name="SwitchComponentStateMessage">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_rBTesJklEeqe46BPIU1eqA" name="component_name">
+        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_w6F3AJklEeqe46BPIU1eqA" name="to_state">
+        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+      </ownedAttribute>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_TPbAcJl-EeqwyqGQV7-y8Q" name="RosExternalComponentManager">
+      <generalization xmi:type="uml:Generalization" xmi:id="_vs9YEJl-EeqwyqGQV7-y8Q" general="_65vxUJkVEeqe46BPIU1eqA"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_g0fvAJl-EeqwyqGQV7-y8Q" name="switch_state">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_g0fvAZl-EeqwyqGQV7-y8Q" name="to" type="_MFnAYJkWEeqe46BPIU1eqA" effect="read"/>
+      </ownedOperation>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_p51zQJkYEeqe46BPIU1eqA" name="RosComponent">
+      <generalization xmi:type="uml:Generalization" xmi:id="_jrVVEJmFEeqwyqGQV7-y8Q" general="_65vxUJkVEeqe46BPIU1eqA"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_FmpRgJkZEeqe46BPIU1eqA" name="switch_state">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_WD4gAJkZEeqe46BPIU1eqA" name="to" type="_MFnAYJkWEeqe46BPIU1eqA" effect="read"/>
+      </ownedOperation>
+    </packagedElement>
   </packagedElement>
   <profileApplication xmi:type="uml:ProfileApplication" xmi:id="_ze-T4AHsEeiE5sF1lHU_MQ">
     <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_zfAJEAHsEeiE5sF1lHU_MQ" source="http://www.eclipse.org/uml2/2.0.0/UML">
