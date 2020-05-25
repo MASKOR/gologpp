@@ -54,8 +54,6 @@ struct StatementParser : grammar<Instruction *(Scope &)> {
 
 	rule<Instruction *(Scope &)> empty_statement;
 
-	rule<Return *(Scope &)> return_stmt;
-
 	ReferenceParser<Action> action_call;
 	ReferenceParser<Procedure> procedure_call;
 	rule<DurativeCall *(Scope &), locals<DurativeCall::Hook>> durative_call;

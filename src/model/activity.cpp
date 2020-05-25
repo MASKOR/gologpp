@@ -95,7 +95,7 @@ Value Activity::mapped_arg_value(const string &name) const
 	return
 		dynamic_cast<AbstractSemantics<Expression> &>(
 			target()->mapping().mapped_expr(name).abstract_semantics()
-		).evaluate(*this, exec_context_.history());
+		).evaluate(this->params_to_args(), exec_context_.history());
 }
 
 

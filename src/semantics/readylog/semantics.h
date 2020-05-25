@@ -44,7 +44,7 @@ class Semantics<Expression>
 {
 public:
 	virtual ~Semantics<Expression>() override = default;
-	virtual Value evaluate(const Activity &context, const History &h) override;
+	virtual Value evaluate(const Binding &b, const History &h) override;
 };
 
 
@@ -55,7 +55,7 @@ class Semantics<Instruction>
 {
 public:
 	virtual ~Semantics<Instruction>() override = default;
-	virtual Instruction *trans(History &h) override;
+	virtual Plan trans(const Binding &b, History &h) override;
 };
 
 

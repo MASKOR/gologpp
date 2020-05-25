@@ -15,29 +15,16 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "semantics.h"
+#include "plan.h"
 
 namespace gologpp {
 
 
-AbstractSemantics<AbstractLanguageElement>::AbstractSemantics()
-{}
-
-AbstractSemantics<AbstractLanguageElement>::~AbstractSemantics()
-{}
-
-
-/*
-gologpp::AbstractSemantics<Value>::~AbstractSemantics()
-{}
-
-const Value &gologpp::AbstractSemantics<Value>::element() const
-{ return *element_; }
-//*/
-
-
+EC_word Semantics<Plan>::plterm()
+{
+	EC_word list = ::nil();
+	for (const TimedInstru
 }
 
 
-
-
+}

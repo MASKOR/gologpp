@@ -36,28 +36,18 @@
 namespace gologpp {
 
 
-Value Semantics<Expression>::evaluate(const Activity &context, const History &h)
+Value Semantics<Expression>::evaluate(const Binding &b, const History &h)
 {
-	context.target()->scope().semantics().init_vars();
-
-	vector<EC_word> queries;
-	for (const ParamsToArgs<Value>::value_type &param_value : context.params_to_args()) {
-		queries.push_back(
-			::term(EC_functor("=", 2),
-				param_value.first->semantics().plterm(),
-				param_value.second.get().semantics().plterm()
-			)
-		);
-	}
 	EC_ref Result;
-	queries.push_back(
+	EC_word query = ::term(EC_functor(",", 2),
+		b.semantics().plterm(),
 		::term(EC_functor("subf", 3),
 			this->plterm(),
 			Result,
 			h.semantics().current_history()
 		)
 	);
-	EC_word query = to_ec_term(",", queries);
+
 	if (ReadylogContext::instance().ec_query(query))
 		return pl_term_to_value(Result);
 	else
@@ -66,7 +56,7 @@ Value Semantics<Expression>::evaluate(const Activity &context, const History &h)
 
 
 
-Instruction *Semantics<Instruction>::trans(History &)
+Plan Semantics<Instruction>::trans(const Binding &, History &)
 { throw Bug("ReadylogSemantics doesn't implement Semantics<Instruction>::trans"); }
 
 

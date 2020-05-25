@@ -18,6 +18,7 @@
 #ifndef GOLOGPP_REFERENCE_H_
 #define GOLOGPP_REFERENCE_H_
 
+#include "abstract_reference.h"
 #include "language.h"
 #include "expressions.h"
 #include "utilities.h"
@@ -32,49 +33,71 @@
 #include <boost/optional.hpp>
 #include <boost/functional/hash.hpp>
 
+
 namespace gologpp {
 
 
-class AbstractReference
+class Binding
 : public virtual AbstractLanguageElement
+, public NoScopeOwner
 {
 public:
-	AbstractReference();
-	virtual ~AbstractReference();
-
-	virtual bool bound() const = 0;
-	virtual bool consistent() const = 0;
-
-	virtual const Expression &arg_for_param(shared_ptr<const Variable> param) const = 0;
-
-	void ensure_consistent();
+	virtual Scope &parent_scope() override;
+	virtual const Scope &parent_scope() const override;
+	virtual Expression &get(shared_ptr<const Variable> param) const = 0;
 };
 
 
-// TODO: Properly integrate (use) this class in references, c'tors etc.
-class Binding {
+template<class ExprT>
+class TBinding
+: public LanguageElement<TBinding<ExprT>>
+, public Binding
+{
 public:
-	virtual ~Binding() = default;
+	using MapT = std::unordered_map <
+		shared_ptr<const Variable>,
+		std::reference_wrapper<ExprT>
+	>;
 
-	void bind(const Variable &, const Expression &expr);
-	virtual Expression &get(const Variable &) const;
+	virtual ~TBinding() = default;
+
+	void bind(shared_ptr<const Variable> var, ExprT &expr)
+	{ var_bindings_.insert(std::make_pair(var, std::ref(expr))); }
+
+	virtual ExprT &get(shared_ptr<const Variable> param) const override
+	{
+		auto it = var_bindings_.find(param);
+		if (it == var_bindings_.end())
+			throw Bug("No parameter by the name " + param->str());
+
+		return it->second;
+	}
+
+	virtual void attach_semantics(SemanticsFactory &f) override
+	{
+		if (!semantics_)
+			for (auto &entry : var_bindings_)
+				entry.second.get().attach_semantics(f);
+	}
+
+	const MapT &map() const
+	{ return var_bindings_; }
+
+	virtual string to_string(const string &pfx) const override
+	{
+		string rv;
+		for (auto &entry : var_bindings_)
+			rv += entry.first->to_string(pfx) + "=" + entry.second.get().to_string(pfx) + ", ";
+		if (!rv.empty())
+			rv = rv.substr(0, rv.length() - 2);
+		return rv;
+	}
 
 private:
-	std::unordered_map <
-		shared_ptr<const Variable>,
-		std::reference_wrapper<Expression>
-	> var_bindings_;
+	MapT var_bindings_;
 };
 
 
-
-
-
-template<class ArgsT>
-using ParameterBinding = std::unordered_map<
-	shared_ptr<const Variable>,
-	std::reference_wrapper<ArgsT>
->;
 
 
 template<class TargetT, class ArgsT>
@@ -91,7 +114,7 @@ public:
 		while (idx < this->args().size() && idx < this->target()->params().size()) {
 			ArgsT &arg = *this->args()[idx];
 			shared_ptr<Variable> param = this->target()->params()[idx];
-			params_to_args_.insert( { param, arg } );
+			arg_binding_.bind(param, arg);
 			dynamic_cast<Expression &>(arg).set_parent(this);
 			++idx;
 		}
@@ -102,16 +125,12 @@ public:
 	: target_(target)
 	{
 		args_.resize(params_to_args.size());
-		for (auto it = params_to_args.begin(); it != params_to_args.end(); it++){
-
+		for (auto it = params_to_args.begin(); it != params_to_args.end(); it++) {
 			auto target_it = std::find(this->target()->params().begin(), this->target()->params().end(), it->first.target());
 			int pos_in_target = std::distance(this->target()->params().begin(), target_it);
 			args_[pos_in_target] = std::move(it->second);
 			std::reference_wrapper<ArgsT> var = std::ref((*args_[pos_in_target]));
-			params_to_args_.insert(std::make_pair(
-				it->first.target()
-				, var
-			));
+			arg_binding_.bind(it->first.target(), var);
 		}
 		ensure_consistent();
 	}
@@ -181,15 +200,8 @@ public:
 	vector<unique_ptr<ArgsT>> &args()
 	{ return args_; }
 
-
 	virtual const ArgsT &arg_for_param(shared_ptr<const Variable> param) const override
-	{
-		auto it = params_to_args_.find(param);
-		if (it == params_to_args_.end())
-			throw Bug(target()->str() + " has no parameter by the name " + param->str());
-
-		return it->second;
-	}
+	{ return arg_binding_.get(param); }
 
 
 	virtual bool consistent() const override
@@ -239,17 +251,17 @@ public:
 		return rv;
 	}
 
-	virtual ParameterBinding<ArgsT> &params_to_args()
-	{ return params_to_args_; }
+	virtual TBinding<ArgsT> &params_to_args()
+	{ return arg_binding_; }
 
-	virtual const ParameterBinding<ArgsT> &params_to_args() const
-	{ return params_to_args_; }
+	virtual const TBinding<ArgsT> &params_to_args() const
+	{ return arg_binding_; }
 
 private:
 	vector<unique_ptr<ArgsT>> args_;
 	weak_ptr<TargetT> target_;
 
-	ParameterBinding<ArgsT> params_to_args_;
+	TBinding<ArgsT> arg_binding_;
 };
 
 
@@ -309,6 +321,8 @@ public:
 	virtual string to_string(const string &pfx) const override;
 	virtual const Type &type() const override;
 	size_t hash() const;
+
+	virtual const Expression &arg_for_param(shared_ptr<const Variable> param) const override;
 
 private:
 	shared_ptr<Variable> target_;

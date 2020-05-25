@@ -15,29 +15,27 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "semantics.h"
+#include "abstract_reference.h"
+#include "error.h"
 
 namespace gologpp {
 
 
-AbstractSemantics<AbstractLanguageElement>::AbstractSemantics()
+
+AbstractReference::AbstractReference()
 {}
 
-AbstractSemantics<AbstractLanguageElement>::~AbstractSemantics()
+AbstractReference::~AbstractReference()
 {}
 
 
-/*
-gologpp::AbstractSemantics<Value>::~AbstractSemantics()
-{}
-
-const Value &gologpp::AbstractSemantics<Value>::element() const
-{ return *element_; }
-//*/
-
-
+void AbstractReference::ensure_consistent()
+{
+	if (!consistent())
+		throw UserError("Inconsistent reference: " + str());
 }
 
 
 
 
+}

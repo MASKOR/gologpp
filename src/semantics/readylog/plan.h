@@ -15,29 +15,24 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
+#pragma once
+
 #include "semantics.h"
+
 
 namespace gologpp {
 
 
-AbstractSemantics<AbstractLanguageElement>::AbstractSemantics()
-{}
+template<>
+class Semantics<Plan>
+: public AbstractSemantics<Plan>
+, public Semantics<Instruction>
+{
+public:
+	using AbstractSemantics<Plan>::AbstractSemantics;
 
-AbstractSemantics<AbstractLanguageElement>::~AbstractSemantics()
-{}
-
-
-/*
-gologpp::AbstractSemantics<Value>::~AbstractSemantics()
-{}
-
-const Value &gologpp::AbstractSemantics<Value>::element() const
-{ return *element_; }
-//*/
+	virtual EC_word plterm() override;
+};
 
 
-}
-
-
-
-
+} // namespace gologpp

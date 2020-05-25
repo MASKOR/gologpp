@@ -207,7 +207,7 @@ Value::Value(Value &&c)
 	semantics_ = std::move(c.semantics_);
 
 	if (semantics_)
-		dynamic_cast<AbstractSemantics<Value> &>(*semantics_).element_ = this;
+		abstract_semantics().update_element(this);
 }
 
 
@@ -240,7 +240,7 @@ Value &Value::operator = (Value &&c)
 	semantics_ = std::move(c.semantics_);
 
 	if (semantics_)
-		dynamic_cast<AbstractSemantics<Value> &>(*semantics_).element_ = this;
+		abstract_semantics().update_element(this);
 
 	return *this;
 }

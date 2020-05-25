@@ -42,7 +42,11 @@ using string = std::string;
 
 class Expression;
 class Instruction;
+
+// TODO: clean up this mess
 class Binding;
+template<class> class TBinding;
+template<class T> using ParameterBinding = TBinding<T>;
 
 class AbstractLanguageElement;
 template<class, class> class LanguageElement;
@@ -156,6 +160,7 @@ class PlatformBackend;
 	(Reference<Variable>) \
 	(Reference<Function>) \
 	(Reference<Procedure>) \
+	(TBinding<Expression>)(TBinding<Value>) \
 	(Pick) \
 	(FieldAccess) \
 	(ListAccess)(ListLength) \

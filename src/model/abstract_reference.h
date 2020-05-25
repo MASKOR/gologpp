@@ -15,29 +15,30 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "semantics.h"
+#pragma once
+
+
+#include "model_element.h"
+
 
 namespace gologpp {
 
 
-AbstractSemantics<AbstractLanguageElement>::AbstractSemantics()
-{}
+class AbstractReference
+: public virtual AbstractLanguageElement
+{
+public:
+	AbstractReference();
+	virtual ~AbstractReference();
 
-AbstractSemantics<AbstractLanguageElement>::~AbstractSemantics()
-{}
+	virtual bool bound() const = 0;
+	virtual bool consistent() const = 0;
 
+	virtual const Expression &arg_for_param(shared_ptr<const Variable> param) const = 0;
 
-/*
-gologpp::AbstractSemantics<Value>::~AbstractSemantics()
-{}
+	void ensure_consistent();
+};
 
-const Value &gologpp::AbstractSemantics<Value>::element() const
-{ return *element_; }
-//*/
 
 
 }
-
-
-
-

@@ -31,8 +31,8 @@ class AbstractGrounding
 : public virtual AbstractReference
 {
 public:
-	virtual const ParameterBinding<Value> &params_to_args() const = 0;
-	virtual ParameterBinding<Value> &params_to_args() = 0;
+	virtual const TBinding<Value> &params_to_args() const = 0;
+	virtual TBinding<Value> &params_to_args() = 0;
 };
 
 
@@ -88,10 +88,10 @@ public:
 	virtual const Scope &parent_scope() const override
 	{ return global_scope(); }
 
-	virtual const ParameterBinding<Value> &params_to_args() const override
+	virtual const TBinding<Value> &params_to_args() const override
 	{ return ReferenceBase<TargetT, Value>::params_to_args(); }
 
-	virtual ParameterBinding<Value> &params_to_args() override
+	virtual TBinding<Value> &params_to_args() override
 	{ return ReferenceBase<TargetT, Value>::params_to_args(); }
 };
 

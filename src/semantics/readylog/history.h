@@ -33,7 +33,7 @@ public:
 	virtual ~Semantics() override = default;
 
 	virtual shared_ptr<Transition> get_last_transition() override;
-	virtual void append_exog(shared_ptr<Grounding<AbstractAction>> exog) override;
+	virtual void append(shared_ptr<Grounding<AbstractAction>> exog) override;
 	virtual void append_sensing_result(shared_ptr<Activity>) override;
 	virtual bool should_progress() const override;
 	virtual void progress() override;

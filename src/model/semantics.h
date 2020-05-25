@@ -18,6 +18,7 @@
 #ifndef GOLOGPP_IMPLEMENTATION_H_
 #define GOLOGPP_IMPLEMENTATION_H_
 
+#include "model_element.h"
 #include "gologpp.h"
 #include "expressions.h"
 #include "plan.h"
@@ -35,18 +36,19 @@ public:
 
 	virtual ~AbstractSemantics<AbstractLanguageElement>();
 
-	template<class GologT = AbstractLanguageElement>
-	const GologT &element() const;
+	/// @return a reference to the model element that this semantics refers to
+	//virtual	const AbstractLanguageElement &element() const = 0;
 
 private:
 	// Not trivially moveable because cross-referencing with language element
-	AbstractSemantics(AbstractSemantics &&) = default;
+	AbstractSemantics(AbstractSemantics &&) = delete;
+	AbstractSemantics & operator = (AbstractSemantics &&) = delete;
 };
 
 
 
 template<>
-class Semantics<Expression>
+class AbstractSemantics<Expression>
 : public virtual AbstractSemantics<AbstractLanguageElement>
 {
 public:
@@ -56,12 +58,11 @@ public:
 
 
 template<>
-class Semantics<Instruction>
+class AbstractSemantics<Instruction>
 : public virtual AbstractSemantics<AbstractLanguageElement>
 {
 public:
-	virtual void trans(const Binding &b, History &h) = 0;
-	virtual Plan plan(const Binding &b, History &h) = 0;
+	virtual Plan trans(const Binding &b, History &h) = 0;
 };
 
 
@@ -77,9 +78,11 @@ public:
 
 	virtual ~AbstractSemantics<GologT>() = default;
 
-	template<class = GologT>
 	const GologT &element() const
 	{ return *element_; }
+
+	void update_element(const GologT *new_element)
+	{ element_ = new_element; }
 
 private:
 	const GologT *element_;
@@ -87,9 +90,9 @@ private:
 
 
 
-template<>
+/*template<>
 class AbstractSemantics<Value>
-: public virtual AbstractSemantics<AbstractLanguageElement>
+: public AbstractSemantics<Expression>
 {
 public:
 	friend Value;
@@ -104,7 +107,7 @@ public:
 
 private:
 	const Value *element_;
-};
+};//*/
 
 
 

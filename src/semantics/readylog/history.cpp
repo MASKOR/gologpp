@@ -111,7 +111,7 @@ shared_ptr<Transition> Semantics<History>::get_last_transition()
 }
 
 
-void Semantics<History>::append_exog(shared_ptr<Grounding<AbstractAction>> trans)
+void Semantics<History>::append(shared_ptr<Grounding<AbstractAction>> trans)
 { extend_history(::list(trans->semantics().plterm(), current_history())); }
 
 void Semantics<History>::append_sensing_result(shared_ptr<Activity> a)

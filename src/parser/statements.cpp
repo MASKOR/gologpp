@@ -57,7 +57,6 @@ StatementParser::StatementParser()
 	statement.name("statement");
 
 	simple_statement = (test(_r1)
-		| return_stmt(_r1)
 		| durative_call(_r1)
 		| field_assignment(_r1)
 		| fluent_assignment(_r1)
@@ -149,7 +148,7 @@ StatementParser::StatementParser()
 	] > +statement(*_a) > '}') [
 		_val = new_<Concurrent>(_a, _1)
 	];
-	choose.name("concurrent");
+	concurrent.name("concurrent");
 	on_error<rethrow>(concurrent, delete_(_a));
 
 	list_pop = (
@@ -176,11 +175,6 @@ StatementParser::StatementParser()
 		_val = new_<ListPush>(_1, _a, _2)
 	];
 	list_push.name("list_push");
-
-	return_stmt = (lit("return") >> value_expression()(_r1)) [
-		_val = new_<Return>(_1)
-	];
-	return_stmt.name("return");
 
 	during = (
 		lit("during") > '(' > action_call(_r1, undefined_type()) > ')'

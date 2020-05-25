@@ -133,7 +133,7 @@ void ExecutionContext::run(Block &&program)
 				silent_loop = false;
 			}
 			exog->attach_semantics(semantics_factory());
-			history().abstract_semantics().append_exog(exog);
+			history().abstract_semantics().append(exog);
 		}
 
 		if (trans(program, history())) {
@@ -166,7 +166,7 @@ void ExecutionContext::run(Block &&program)
 					silent_loop = false;
 				}
 				exog->attach_semantics(semantics_factory());
-				history().abstract_semantics().append_exog(exog);
+				history().abstract_semantics().append(exog);
 			}
 		}
 

@@ -38,6 +38,8 @@ class Semantics<Value>
 public:
 	Semantics(const Value &value);
 
+	using Semantics<Expression>::evaluate;
+
 	virtual ~Semantics() override = default;
 	virtual EC_word plterm() override;
 };

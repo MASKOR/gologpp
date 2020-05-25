@@ -122,6 +122,13 @@ EC_word Semantics<Block>::plterm()
 }
 
 
+Plan Semantics<Block>::trans(const Binding &b, History &h)
+{
+
+}
+
+
+
 EC_word Semantics<Block>::current_program()
 { return current_program_; }
 
@@ -309,31 +316,6 @@ EC_word Semantics<While>::plterm()
 
 
 
-EC_word Semantics<Return>::plterm() {
-	const AbstractLanguageElement *root_parent = element().parent();
-	const Expression *parent_expr = nullptr;
-	while ((parent_expr = dynamic_cast<const Expression *>(root_parent))) {
-		root_parent = parent_expr->parent();
-	}
-
-	const Function *function = dynamic_cast<const Function *>(root_parent);
-	if (!function)
-	throw Bug(element().str() + " outside of function");
-
-	if ((function->type() >= element().expression().type()))
-		throw ExpressionTypeMismatch(*function, element().expression());
-
-	if (element().expression().type().is<BoolType>())
-		return element().expression().semantics().plterm();
-	else
-		return ::term(EC_functor("=", 2),
-			function->semantics().return_var(),
-			element().expression().semantics().plterm()
-		);
-}
-
-
-
 EC_word Semantics<DurativeCall>::plterm()
 {
 	return ::term(EC_functor(to_string(element().hook()).c_str(), 1),
@@ -471,7 +453,6 @@ EC_word Semantics<During>::plterm()
 		if_cancelled
 	} );
 }
-
 
 
 }

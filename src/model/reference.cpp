@@ -17,82 +17,83 @@
 
 #include "reference.h"
 
+
 namespace gologpp {
 
 
-AbstractReference::AbstractReference()
-{}
-
-AbstractReference::~AbstractReference()
-{}
-
-
-void AbstractReference::ensure_consistent()
+Scope &Binding::parent_scope()
 {
-	if (!consistent())
-		throw UserError("Inconsistent reference: " + str());
+
+}
+
+const Scope &Binding::parent_scope() const
+{
+
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-gologpp::Reference<Variable>::Reference(const shared_ptr<Variable> &target)
+Reference<Variable>::Reference(const shared_ptr<Variable> &target)
 : target_(target)
 {}
 
-gologpp::Reference<Variable>::Reference(Reference<Variable> &&other)
+Reference<Variable>::Reference(Reference<Variable> &&other)
 : target_(std::move(other.target_))
 {}
 
-Variable *gologpp::Reference<Variable>::operator ->()
+Variable *Reference<Variable>::operator ->()
 { return target().get(); }
 
-const Variable &gologpp::Reference<Variable>::operator *() const
+const Variable &Reference<Variable>::operator *() const
 { return *target(); }
 
-Variable &gologpp::Reference<Variable>::operator *()
+Variable &Reference<Variable>::operator *()
 { return *target(); }
 
-const Variable *gologpp::Reference<Variable>::operator ->() const
+const Variable *Reference<Variable>::operator ->() const
 { return target().get(); }
 
-const string &gologpp::Reference<Variable>::name() const
+const string &Reference<Variable>::name() const
 { return target()->name(); }
 
-bool gologpp::Reference<Variable>::bound() const
+bool Reference<Variable>::bound() const
 { return target_.get(); }
 
-shared_ptr<Variable> gologpp::Reference<Variable>::target()
+shared_ptr<Variable> Reference<Variable>::target()
 { return target_; }
 
-shared_ptr<const Variable> gologpp::Reference<Variable>::target() const
+shared_ptr<const Variable> Reference<Variable>::target() const
 { return std::dynamic_pointer_cast<const Variable>(target_); }
 
-bool gologpp::Reference<Variable>::operator ==(const Reference<Variable> &other) const
+bool Reference<Variable>::operator ==(const Reference<Variable> &other) const
 { return *target() == *other.target(); }
 
-bool gologpp::Reference<Variable>::operator !=(const Reference<Variable> &other) const
+bool Reference<Variable>::operator !=(const Reference<Variable> &other) const
 { return !(*this == other); }
 
-void gologpp::Reference<Variable>::attach_semantics(SemanticsFactory &implementor)
+void Reference<Variable>::attach_semantics(SemanticsFactory &implementor)
 {
 	if (semantics_)
 		return;
 	semantics_ = implementor.make_semantics(*this);
 }
 
-bool gologpp::Reference<Variable>::consistent() const
+bool Reference<Variable>::consistent() const
 { return bound(); }
 
-string gologpp::Reference<Variable>::to_string(const string &pfx) const
+string Reference<Variable>::to_string(const string &pfx) const
 { return target()->to_string(pfx); }
 
-const Type &gologpp::Reference<Variable>::type() const
+const Type &Reference<Variable>::type() const
 { return target()->type(); }
 
-size_t gologpp::Reference<Variable>::hash() const
+size_t Reference<Variable>::hash() const
 { return target()->hash(); }
+
+const Expression &Reference<Variable>::arg_for_param(shared_ptr<const Variable>) const
+{ throw Bug("This method is undefined and should not have been called"); }
 
 
 }

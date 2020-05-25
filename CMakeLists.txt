@@ -69,6 +69,8 @@ set(GOLOGPP_VERSION 0.0.1)
 ######################################################################################
 
 set(INTERFACE_SRC
+	src/model/model_element.cpp
+	src/model/abstract_reference.cpp
 	src/model/action.cpp
 	src/model/activity.cpp
 	src/model/variable.cpp
@@ -107,6 +109,8 @@ set_property(TARGET golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
 install(TARGETS golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES
+	src/model/model_element.h
+	src/model/abstract_reference.h
 	src/model/activity.h
 	src/model/semantics.h
 	src/model/formula.h

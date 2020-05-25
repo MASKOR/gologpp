@@ -40,4 +40,5 @@ EC_word Semantics<Reference<Action>>::plterm()
 	);
 }
 
+
 } // namespace gologpp

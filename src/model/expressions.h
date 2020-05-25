@@ -18,7 +18,7 @@
 #ifndef GOLOGPP_EXPRESSIONS_H_
 #define GOLOGPP_EXPRESSIONS_H_
 
-#include "language.h"
+#include "model_element.h"
 #include "utilities.h"
 #include "gologpp.h"
 #include "types.h"

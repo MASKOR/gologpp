@@ -18,6 +18,7 @@
 #ifndef READYLOG_REFERENCE_H_
 #define READYLOG_REFERENCE_H_
 
+#include <model/scope.h>
 #include <model/reference.h>
 
 // Include headers for everything we might have a reference to (see plterm() method)
@@ -35,6 +36,33 @@
 namespace gologpp {
 
 template<class GologT> class Reference;
+
+
+
+template<class ArgsT>
+class Semantics<TBinding<ArgsT>>
+: public Semantics<AbstractLanguageElement>
+, public AbstractSemantics<TBinding<ArgsT>>
+{
+public:
+	using AbstractSemantics<TBinding<ArgsT>>::AbstractSemantics;
+
+	virtual EC_word plterm() override
+	{
+		vector<EC_word> pl_binds;
+		for (const auto &pval : this->element().map()) {
+			pval.first->semantics().init();
+			pl_binds.push_back(
+				::term(EC_functor("=", 2),
+					pval.first->semantics().plterm(),
+					pval.second.get().semantics().plterm()
+				)
+			);
+		}
+
+		return to_ec_term(",", pl_binds);
+	}
+};
 
 
 
@@ -73,7 +101,7 @@ public:
 	using AbstractSemantics<Reference<TargetT>>::AbstractSemantics;
 
 	const Reference<TargetT> &ref()
-	{ return AbstractSemantics<Reference<TargetT>>::template element(); }
+	{ return this->element(); }
 
 	virtual EC_word plterm() override
 	{ return reference_term(ref()); }

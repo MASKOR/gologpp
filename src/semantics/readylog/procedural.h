@@ -72,12 +72,15 @@ public:
 
 template<>
 class Semantics<Block>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<Instruction>
 , public AbstractSemantics<Block>
 {
 public:
 	using AbstractSemantics<Block>::AbstractSemantics;
+
 	virtual EC_word plterm() override;
+	virtual Plan trans(const Binding &b, History &h) override;
+
 	EC_word current_program();
 	void set_current_program(EC_word e);
 
@@ -232,18 +235,6 @@ class Semantics<While>
 {
 public:
 	using AbstractSemantics<While>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
-
-
-
-template<>
-class Semantics<Return>
-: public Semantics<AbstractLanguageElement>
-, public AbstractSemantics<Return>
-{
-public:
-	using AbstractSemantics<Return>::AbstractSemantics;
 	virtual EC_word plterm() override;
 };
 
