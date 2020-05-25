@@ -27,7 +27,7 @@ namespace gologpp {
 
 template<>
 class Semantics<Domain>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Domain>
 {
 public:

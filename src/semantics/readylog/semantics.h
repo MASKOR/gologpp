@@ -28,10 +28,10 @@ namespace gologpp {
 
 
 template<>
-class Semantics<AbstractLanguageElement>
-: public virtual AbstractSemantics<AbstractLanguageElement> {
+class Semantics<ModelElement>
+: public virtual AbstractSemantics<ModelElement> {
 public:
-	virtual ~Semantics<AbstractLanguageElement>() override = default;
+	virtual ~Semantics<ModelElement>() override = default;
 
 	virtual EC_word plterm() = 0;
 };
@@ -40,7 +40,7 @@ public:
 template<>
 class Semantics<Expression>
 : public AbstractSemantics<Expression>
-, public Semantics<AbstractLanguageElement>
+, public Semantics<ModelElement>
 {
 public:
 	virtual ~Semantics<Expression>() override = default;
@@ -51,7 +51,7 @@ public:
 template<>
 class Semantics<Instruction>
 : public AbstractSemantics<Instruction>
-, public Semantics<AbstractLanguageElement>
+, public Semantics<ModelElement>
 {
 public:
 	virtual ~Semantics<Instruction>() override = default;
@@ -60,7 +60,7 @@ public:
 
 
 #define GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE(_r, _data, GologT) \
-	virtual unique_ptr<AbstractSemantics<AbstractLanguageElement>> make_semantics(GologT &) override;
+	virtual unique_ptr<AbstractSemantics<ModelElement>> make_semantics(GologT &) override;
 
 
 class ReadylogSemanticsFactory : public SemanticsFactory {

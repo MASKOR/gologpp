@@ -42,7 +42,7 @@ class AbstractEffectAxiom;
 class AbstractAction
 : public Signified<Instruction>
 , public ScopeOwner
-, public virtual AbstractLanguageElement {
+, public virtual ModelElement {
 public:
 	typedef AbstractAction abstract_t;
 

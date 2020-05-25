@@ -140,7 +140,7 @@ private:
 class AbstractAssignment
 : public Instruction
 , public NoScopeOwner
-, public virtual AbstractLanguageElement {
+, public virtual ModelElement {
 public:
 	virtual const Expression &lhs() const = 0;
 	virtual const Expression &rhs() const = 0;

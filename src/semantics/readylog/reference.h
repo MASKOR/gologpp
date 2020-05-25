@@ -41,7 +41,7 @@ template<class GologT> class Reference;
 
 template<class ArgsT>
 class Semantics<TBinding<ArgsT>>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<TBinding<ArgsT>>
 {
 public:

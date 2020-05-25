@@ -27,7 +27,7 @@ Semantics<Variable>::Semantics(const Variable &var)
 : AbstractSemantics<Variable>(var)
 , as_golog_var_(false)
 {
-	const AbstractLanguageElement *parent = dynamic_cast<const Expression &>(element()).parent();
+	const ModelElement *parent = dynamic_cast<const Expression &>(element()).parent();
 	size_t level = 1;
 	while (parent && parent != &element() && dynamic_cast<const Expression *>(parent)) {
 		parent = dynamic_cast<const Expression *>(parent)->parent();

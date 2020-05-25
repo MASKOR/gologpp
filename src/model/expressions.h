@@ -18,7 +18,7 @@
 #ifndef GOLOGPP_EXPRESSIONS_H_
 #define GOLOGPP_EXPRESSIONS_H_
 
-#include "model_element.h"
+#include "language.h"
 #include "utilities.h"
 #include "gologpp.h"
 #include "types.h"
@@ -42,8 +42,8 @@ public:
 
 	virtual Scope &parent_scope() override;
 	virtual const Scope &parent_scope() const override;
-	AbstractLanguageElement *parent();
-	const AbstractLanguageElement *parent() const;
+	ModelElement *parent();
+	const ModelElement *parent() const;
 	void set_parent(AbstractLanguageElement *parent);
 	virtual bool operator <= (const Type &type) const;
 
@@ -65,8 +65,8 @@ public:
 
 	virtual Scope &parent_scope() override;
 	virtual const Scope &parent_scope() const override;
-	AbstractLanguageElement *parent();
-	const AbstractLanguageElement *parent() const;
+	ModelElement *parent();
+	const ModelElement *parent() const;
 	void set_parent(AbstractLanguageElement *parent);
 
 protected:

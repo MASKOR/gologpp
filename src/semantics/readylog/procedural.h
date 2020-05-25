@@ -42,7 +42,7 @@ namespace gologpp {
 
 template<>
 class Semantics<Function>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Function>
 {
 public:
@@ -59,7 +59,7 @@ private:
 
 template<>
 class Semantics<Procedure>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Procedure>
 {
 public:
@@ -92,7 +92,7 @@ private:
 
 template<>
 class Semantics<Choose>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Choose>
 {
 public:
@@ -104,7 +104,7 @@ public:
 
 template<class SignT>
 class Semantics<Conditional<SignT>>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Conditional<SignT>>
 {
 public:
@@ -116,7 +116,7 @@ public:
 
 template<>
 class Semantics<Concurrent>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Concurrent>
 {
 public:
@@ -128,7 +128,7 @@ public:
 
 template<class LhsT>
 class Semantics<Assignment<LhsT>>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Assignment<LhsT>>
 {
 public:
@@ -146,7 +146,7 @@ public:
 
 template<>
 class Semantics<Assignment<Reference<Fluent>>>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Assignment<Reference<Fluent>>>
 {
 public:
@@ -158,7 +158,7 @@ public:
 
 template<>
 class Semantics<Assignment<FieldAccess>>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Assignment<FieldAccess>>
 {
 public:
@@ -170,7 +170,7 @@ public:
 
 template<>
 class Semantics<Assignment<ListAccess>>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Assignment<ListAccess>>
 {
 public:
@@ -182,7 +182,7 @@ public:
 
 template<>
 class Semantics<Pick>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Pick>
 {
 public:
@@ -194,7 +194,7 @@ public:
 
 template<>
 class Semantics<Search>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Search>
 {
 public:
@@ -206,7 +206,7 @@ public:
 
 template<>
 class Semantics<Solve>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Solve>
 {
 public:
@@ -218,7 +218,7 @@ public:
 
 template<>
 class Semantics<Test>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Test>
 {
 public:
@@ -230,7 +230,7 @@ public:
 
 template<>
 class Semantics<While>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<While>
 {
 public:
@@ -242,7 +242,7 @@ public:
 
 template<>
 class Semantics<DurativeCall>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<DurativeCall>
 {
 public:
@@ -286,7 +286,7 @@ public:
 
 template<>
 class Semantics<ListPop>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<ListPop>
 {
 public:
@@ -298,7 +298,7 @@ public:
 
 template<>
 class Semantics<ListPush>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<ListPush>
 {
 public:
@@ -322,7 +322,7 @@ public:
 
 template<>
 class Semantics<During>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<During>
 {
 public:

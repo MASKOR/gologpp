@@ -25,7 +25,7 @@ namespace gologpp {
 
 
 class AbstractReference
-: public virtual AbstractLanguageElement
+: public virtual ModelElement
 {
 public:
 	AbstractReference();

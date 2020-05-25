@@ -48,6 +48,7 @@ class Binding;
 template<class> class TBinding;
 template<class T> using ParameterBinding = TBinding<T>;
 
+class ModelElement;
 class AbstractLanguageElement;
 template<class, class> class LanguageElement;
 

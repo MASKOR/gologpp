@@ -37,22 +37,14 @@
 namespace gologpp {
 
 
-class Binding
-: public virtual AbstractLanguageElement
-, public NoScopeOwner
-{
+class Binding : public ModelElement {
 public:
-	virtual Scope &parent_scope() override;
-	virtual const Scope &parent_scope() const override;
 	virtual Expression &get(shared_ptr<const Variable> param) const = 0;
 };
 
 
 template<class ExprT>
-class TBinding
-: public LanguageElement<TBinding<ExprT>>
-, public Binding
-{
+class TBinding : public Binding {
 public:
 	using MapT = std::unordered_map <
 		shared_ptr<const Variable>,

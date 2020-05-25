@@ -29,7 +29,7 @@ namespace gologpp {
 
 
 class InitialValue
-: public virtual AbstractLanguageElement
+: public virtual ModelElement
 , public NoScopeOwner
 , public LanguageElement<InitialValue> {
 public:
@@ -66,7 +66,7 @@ private:
 class Fluent
 : public Signified<Expression>
 , public ScopeOwner
-, public virtual AbstractLanguageElement
+, public virtual ModelElement
 , public LanguageElement<Fluent>
 {
 public:

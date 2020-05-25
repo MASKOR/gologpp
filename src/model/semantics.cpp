@@ -20,13 +20,6 @@
 namespace gologpp {
 
 
-AbstractSemantics<AbstractLanguageElement>::AbstractSemantics()
-{}
-
-AbstractSemantics<AbstractLanguageElement>::~AbstractSemantics()
-{}
-
-
 /*
 gologpp::AbstractSemantics<Value>::~AbstractSemantics()
 {}

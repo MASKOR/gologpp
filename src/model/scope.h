@@ -89,7 +89,7 @@ public:
 	using DomainsMap = unordered_map<Name, shared_ptr<Domain>>;
 	using TypesMap = unordered_map<Name, shared_ptr<const Type>>;
 
-	using SignifierT = AbstractLanguageElement;
+	using SignifierT = ModelElement;
 
 	explicit Scope(AbstractLanguageElement &owner, const vector<shared_ptr<Variable>> &lookup_vars = {});
 	Scope(Scope &parent_scope);

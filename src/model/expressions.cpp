@@ -31,10 +31,10 @@ Scope &Expression::parent_scope()
 const Scope &Expression::parent_scope() const
 { return parent_->scope(); }
 
-AbstractLanguageElement *Expression::parent()
+ModelElement *Expression::parent()
 { return parent_; }
 
-const AbstractLanguageElement *Expression::parent() const
+const ModelElement *Expression::parent() const
 { return parent_; }
 
 void Expression::set_parent(AbstractLanguageElement *parent)
@@ -54,10 +54,10 @@ Scope &Instruction::parent_scope()
 const Scope &Instruction::parent_scope() const
 { return parent_->scope(); }
 
-AbstractLanguageElement *Instruction::parent()
+ModelElement *Instruction::parent()
 { return parent_; }
 
-const AbstractLanguageElement *Instruction::parent() const
+const ModelElement *Instruction::parent() const
 { return parent_; }
 
 void Instruction::set_parent(AbstractLanguageElement *parent)

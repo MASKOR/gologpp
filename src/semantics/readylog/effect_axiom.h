@@ -35,7 +35,7 @@ namespace gologpp {
 
 template<>
 class Semantics<AbstractEffectAxiom>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<AbstractEffectAxiom>
 {
 public:

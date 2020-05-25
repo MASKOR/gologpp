@@ -55,7 +55,7 @@ public:
 	Reference<Variable> *param_ref(const string &name);
 
 	virtual void compile(AExecutionContext &ctx) = 0;
-	virtual AbstractLanguageElement *ref(const vector<Expression *> &params = {}) = 0;
+	virtual ModelElement *ref(const vector<Expression *> &params = {}) = 0;
 
 	virtual Scope &parent_scope() override;
 	virtual const Scope &parent_scope() const override;

@@ -33,7 +33,7 @@ class Action;
 
 template<>
 class Semantics<Action>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Action>
 {
 public:
@@ -51,7 +51,7 @@ public:
 
 template<>
 class Semantics<ExogAction>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<ExogAction>
 {
 public:
@@ -68,7 +68,7 @@ public:
 
 template<>
 class Semantics<ExogEvent>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<ExogEvent>
 {
 public:
@@ -81,7 +81,7 @@ public:
 
 template<>
 class Semantics<Activity>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Activity>
 {
 public:
@@ -97,7 +97,7 @@ public:
 
 template<>
 class Semantics<Transition>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Transition>
 {
 public:

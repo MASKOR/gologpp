@@ -61,8 +61,8 @@ Plan Semantics<Instruction>::trans(const Binding &, History &)
 
 
 #define GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL(_r, _data, GologT) \
-unique_ptr<AbstractSemantics<AbstractLanguageElement>> ReadylogSemanticsFactory::make_semantics(GologT &obj) \
-{ return unique_ptr<AbstractSemantics<AbstractLanguageElement>>(new Semantics<GologT>(obj)); }
+unique_ptr<AbstractSemantics<ModelElement>> ReadylogSemanticsFactory::make_semantics(GologT &obj) \
+{ return unique_ptr<AbstractSemantics<ModelElement>>(new Semantics<GologT>(obj)); }
 
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL, (), GOLOGPP_SEMANTIC_TYPES)
 

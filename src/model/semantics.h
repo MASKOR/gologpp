@@ -30,26 +30,8 @@ namespace gologpp {
 
 
 template<>
-class AbstractSemantics<AbstractLanguageElement> {
-public:
-	AbstractSemantics();
-
-	virtual ~AbstractSemantics<AbstractLanguageElement>();
-
-	/// @return a reference to the model element that this semantics refers to
-	//virtual	const AbstractLanguageElement &element() const = 0;
-
-private:
-	// Not trivially moveable because cross-referencing with language element
-	AbstractSemantics(AbstractSemantics &&) = delete;
-	AbstractSemantics & operator = (AbstractSemantics &&) = delete;
-};
-
-
-
-template<>
 class AbstractSemantics<Expression>
-: public virtual AbstractSemantics<AbstractLanguageElement>
+: public virtual AbstractSemantics<ModelElement>
 {
 public:
 	virtual Value evaluate(const Binding &b, const History &h) = 0;
@@ -59,7 +41,7 @@ public:
 
 template<>
 class AbstractSemantics<Instruction>
-: public virtual AbstractSemantics<AbstractLanguageElement>
+: public virtual AbstractSemantics<ModelElement>
 {
 public:
 	virtual Plan trans(const Binding &b, History &h) = 0;
@@ -69,7 +51,7 @@ public:
 
 template<class GologT>
 class AbstractSemantics
-: public virtual AbstractSemantics<AbstractLanguageElement>
+: public virtual AbstractSemantics<ModelElement>
 {
 public:
 	AbstractSemantics(const GologT &elem)
@@ -112,7 +94,7 @@ private:
 
 
 #define GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS(r, data, T) \
-	virtual unique_ptr<AbstractSemantics<AbstractLanguageElement>> make_semantics(T &) = 0;
+	virtual unique_ptr<AbstractSemantics<ModelElement>> make_semantics(T &) = 0;
 
 class SemanticsFactory {
 public:

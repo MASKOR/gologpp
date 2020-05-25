@@ -29,7 +29,7 @@ namespace gologpp {
 
 
 template<>
-class Semantics<Scope> : public AbstractSemantics<AbstractLanguageElement> {
+class Semantics<Scope> : public AbstractSemantics<ModelElement> {
 public:
 	Semantics(const Scope &);
 

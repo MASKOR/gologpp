@@ -49,8 +49,7 @@ void Scope::init_types()
 
 
 Scope::Scope()
-: AbstractLanguageElement(std::make_shared<UndefinedType>())
-, parent_scope_(*this)
+: parent_scope_(*this)
 , owner_(nullptr)
 , globals_(new GlobalsMap())
 , domains_(new DomainsMap())

@@ -90,7 +90,7 @@ struct identifier_equals {
 
 template<class CharT, class TraitsT, class GologT>
 typename std::enable_if<
-	std::is_base_of<AbstractLanguageElement, GologT>::value
+	std::is_base_of<ModelElement, GologT>::value
 	|| std::is_base_of<Expression, GologT>::value,
 	std::basic_ostream<CharT, TraitsT>
 >::type
@@ -103,7 +103,7 @@ typename std::enable_if<
 
 template<class CharT, class TraitsT, class GologT>
 typename std::enable_if<
-	std::is_base_of<AbstractLanguageElement, GologT>::value
+	std::is_base_of<ModelElement, GologT>::value
 	|| std::is_base_of<Expression, GologT>::value,
 	std::basic_ostream<CharT, TraitsT>
 >::type
@@ -116,7 +116,7 @@ typename std::enable_if<
 
 template<class CharT, class TraitsT, class GologT>
 typename std::enable_if<
-	std::is_base_of<AbstractLanguageElement, GologT>::value
+	std::is_base_of<ModelElement, GologT>::value
 	|| std::is_base_of<Expression, GologT>::value,
 	std::basic_ostream<CharT, TraitsT>
 >::type

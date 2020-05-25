@@ -26,75 +26,55 @@
 namespace gologpp {
 
 
-class AbstractLanguageElement {
-private:
-	// Used by the constructor of the first Scope (i.e. the global scope) because at that time
-	// the type registry isn't initialized, yet. So we have to pass the type instead of looking it up.
-	AbstractLanguageElement(shared_ptr<const UndefinedType>);
-	friend class Scope;
-
+class ModelElement {
 public:
-	using SignifierT = AbstractLanguageElement;
-	AbstractLanguageElement();
+	using SignifierT = ModelElement;
+	ModelElement() = default;
 
 	// By default, a language element is not copyable, since it is part of a graph
 	// that may even contain cycles.
-	AbstractLanguageElement(const AbstractLanguageElement &) = delete;
-	AbstractLanguageElement(AbstractLanguageElement &&) = delete;
-	AbstractLanguageElement &operator = (const AbstractLanguageElement &) = delete;
-	AbstractLanguageElement &operator = (AbstractLanguageElement &&) = delete;
+	ModelElement(const ModelElement &) = delete;
+	ModelElement(ModelElement &&) = delete;
+	ModelElement &operator = (const ModelElement &) = delete;
+	ModelElement &operator = (ModelElement &&) = delete;
 
-	virtual ~AbstractLanguageElement() = default;
+	virtual ~ModelElement() = default;
 
-	virtual AbstractSemantics<AbstractLanguageElement> &abstract_semantics() const
+	virtual AbstractSemantics<ModelElement> &abstract_semantics() const
 	{ return *semantics_; }
 
-	template<class GologT = AbstractLanguageElement>
+	template<class GologT = ModelElement>
 	Semantics<GologT> &semantics() const
 	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
 
-	void set_semantics(unique_ptr<AbstractSemantics<AbstractLanguageElement>> &&impl);
+	void set_semantics(unique_ptr<AbstractSemantics<ModelElement>> &&impl);
 	virtual void attach_semantics(SemanticsFactory &) = 0;
 
 	virtual string to_string(const string &pfx) const = 0;
 	string str() const;
 
-	virtual Scope &scope() = 0;
-	virtual const Scope &scope() const = 0;
-	virtual Scope &parent_scope() = 0;
-	virtual const Scope &parent_scope() const = 0;
-
-	void set_type_by_name(const string &name);
-	void set_type(const Type &t);
-	virtual const Type &type() const;
-	shared_ptr<const Type> type_ptr() const;
-
-	// Unambiguous alias name to simplify type resolution for phoenix::bind in the parser
-	Scope &m_scope();
-
-	bool is_ref() const;
-
-	template<class T>
-	bool is_a() const
-	{ return dynamic_cast<const T *>(this); }
-
-	template<class T>
-	void ensure_type();
-
-	void ensure_type(const Type &t);
-
-
 protected:
-	void set_type_unchecked(const Type &t);
+	unique_ptr<AbstractSemantics<ModelElement>> semantics_;
+};
 
-	template<class TypeT>
-	void t_set_type_unchecked();
 
-	unique_ptr<AbstractSemantics<AbstractLanguageElement>> semantics_;
+
+template<>
+class AbstractSemantics<ModelElement> {
+public:
+	AbstractSemantics();
+
+	virtual ~AbstractSemantics<ModelElement>();
+
+	/// @return a reference to the model element that this semantics refers to
+	//virtual	const AbstractLanguageElement &element() const = 0;
 
 private:
-	shared_ptr<const Type> type_;
+	// Not trivially moveable because cross-referencing with language element
+	AbstractSemantics(AbstractSemantics &&) = delete;
+	AbstractSemantics & operator = (AbstractSemantics &&) = delete;
 };
+
 
 
 #define DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(...) \
@@ -112,6 +92,7 @@ private:
 		if (!semantics_) \
 			semantics_ = f.make_semantics(*this); \
 	}
+
 
 
 

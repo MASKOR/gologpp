@@ -25,6 +25,52 @@
 namespace gologpp {
 
 
+class AbstractLanguageElement : public virtual ModelElement {
+private:
+	// Used by the constructor of the first Scope (i.e. the global scope) because at that time
+	// the type registry isn't initialized, yet. So we have to pass the type instead of looking it up.
+	AbstractLanguageElement(shared_ptr<const UndefinedType>);
+	friend class Scope;
+
+public:
+	AbstractLanguageElement();
+
+	virtual Scope &scope() = 0;
+	virtual const Scope &scope() const = 0;
+	virtual Scope &parent_scope() = 0;
+	virtual const Scope &parent_scope() const = 0;
+
+	// Unambiguous alias name to simplify type resolution for phoenix::bind in the parser
+	Scope &m_scope();
+
+	bool is_ref() const;
+
+	template<class T>
+	bool is_a() const
+	{ return dynamic_cast<const T *>(this); }
+
+	template<class T>
+	void ensure_type();
+
+	void ensure_type(const Type &t);
+
+	void set_type_by_name(const string &name);
+	void set_type(const Type &t);
+	virtual const Type &type() const;
+	shared_ptr<const Type> type_ptr() const;
+
+protected:
+	void set_type_unchecked(const Type &t);
+
+	template<class TypeT>
+	void t_set_type_unchecked();
+
+private:
+	shared_ptr<const Type> type_;
+};
+
+
+
 template<class GologT, class TypeT = UndefinedType>
 class LanguageElement : public virtual AbstractLanguageElement {
 public:
@@ -46,6 +92,7 @@ public:
 	Semantics<GologT> &semantics() const
 	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
 };
+
 
 
 } // namespace gologpp

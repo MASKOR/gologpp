@@ -29,7 +29,7 @@ namespace gologpp {
 
 template<>
 class Semantics<InitialValue>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<InitialValue>
 {
 public:
@@ -43,7 +43,7 @@ public:
 
 template<>
 class Semantics<Fluent>
-: public Semantics<AbstractLanguageElement>
+: public Semantics<ModelElement>
 , public AbstractSemantics<Fluent>
 {
 public:
