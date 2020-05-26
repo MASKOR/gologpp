@@ -90,42 +90,6 @@ private:
 
 
 
-template<>
-class Semantics<Choose>
-: public Semantics<ModelElement>
-, public AbstractSemantics<Choose>
-{
-public:
-	using AbstractSemantics<Choose>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
-
-
-
-template<class SignT>
-class Semantics<Conditional<SignT>>
-: public Semantics<ModelElement>
-, public AbstractSemantics<Conditional<SignT>>
-{
-public:
-	using AbstractSemantics<Conditional<SignT>>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
-
-
-
-template<>
-class Semantics<Concurrent>
-: public Semantics<ModelElement>
-, public AbstractSemantics<Concurrent>
-{
-public:
-	using AbstractSemantics<Concurrent>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
-
-
-
 template<class LhsT>
 class Semantics<Assignment<LhsT>>
 : public Semantics<ModelElement>
@@ -145,42 +109,6 @@ public:
 
 
 template<>
-class Semantics<Assignment<Reference<Fluent>>>
-: public Semantics<ModelElement>
-, public AbstractSemantics<Assignment<Reference<Fluent>>>
-{
-public:
-	using AbstractSemantics<Assignment<Reference<Fluent>>>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
-
-
-
-template<>
-class Semantics<Assignment<FieldAccess>>
-: public Semantics<ModelElement>
-, public AbstractSemantics<Assignment<FieldAccess>>
-{
-public:
-	using AbstractSemantics<Assignment<FieldAccess>>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
-
-
-
-template<>
-class Semantics<Assignment<ListAccess>>
-: public Semantics<ModelElement>
-, public AbstractSemantics<Assignment<ListAccess>>
-{
-public:
-	using AbstractSemantics<Assignment<ListAccess>>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
-
-
-
-template<>
 class Semantics<Pick>
 : public Semantics<ModelElement>
 , public AbstractSemantics<Pick>
@@ -190,65 +118,6 @@ public:
 	virtual EC_word plterm() override;
 };
 
-
-
-template<>
-class Semantics<Search>
-: public Semantics<ModelElement>
-, public AbstractSemantics<Search>
-{
-public:
-	using AbstractSemantics<Search>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
-
-
-
-template<>
-class Semantics<Solve>
-: public Semantics<ModelElement>
-, public AbstractSemantics<Solve>
-{
-public:
-	using AbstractSemantics<Solve>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
-
-
-
-template<>
-class Semantics<Test>
-: public Semantics<ModelElement>
-, public AbstractSemantics<Test>
-{
-public:
-	using AbstractSemantics<Test>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
-
-
-
-template<>
-class Semantics<While>
-: public Semantics<ModelElement>
-, public AbstractSemantics<While>
-{
-public:
-	using AbstractSemantics<While>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
-
-
-
-template<>
-class Semantics<DurativeCall>
-: public Semantics<ModelElement>
-, public AbstractSemantics<DurativeCall>
-{
-public:
-	using AbstractSemantics<DurativeCall>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
 
 
 std::pair<const Reference<Fluent> *, EC_word>
@@ -282,53 +151,6 @@ public:
 	EC_word pl_index();
 };
 
-
-
-template<>
-class Semantics<ListPop>
-: public Semantics<ModelElement>
-, public AbstractSemantics<ListPop>
-{
-public:
-	using AbstractSemantics<ListPop>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
-
-
-
-template<>
-class Semantics<ListPush>
-: public Semantics<ModelElement>
-, public AbstractSemantics<ListPush>
-{
-public:
-	using AbstractSemantics<ListPush>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
-
-
-
-template<>
-class Semantics<ListLength>
-: public Semantics<Expression>
-, public AbstractSemantics<ListLength>
-{
-public:
-	using AbstractSemantics<ListLength>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
-
-
-
-template<>
-class Semantics<During>
-: public Semantics<ModelElement>
-, public AbstractSemantics<During>
-{
-public:
-	using AbstractSemantics<During>::AbstractSemantics;
-	virtual EC_word plterm() override;
-};
 
 
 } // namespace gologpp

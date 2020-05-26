@@ -25,18 +25,6 @@
 
 namespace gologpp {
 
-template<>
-class Semantics<Domain>
-: public Semantics<ModelElement>
-, public AbstractSemantics<Domain>
-{
-public:
-	Semantics(const Domain &domain);
-
-	virtual EC_word plterm() override;
-};
-
-
 
 }
 

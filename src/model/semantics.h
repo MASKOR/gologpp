@@ -72,27 +72,6 @@ private:
 
 
 
-/*template<>
-class AbstractSemantics<Value>
-: public AbstractSemantics<Expression>
-{
-public:
-	friend Value;
-
-	AbstractSemantics(const Value &elem)
-	: element_(&elem)
-	{}
-
-	virtual ~AbstractSemantics<Value>();
-
-	const Value &element() const;
-
-private:
-	const Value *element_;
-};//*/
-
-
-
 #define GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS(r, data, T) \
 	virtual unique_ptr<AbstractSemantics<ModelElement>> make_semantics(T &) = 0;
 

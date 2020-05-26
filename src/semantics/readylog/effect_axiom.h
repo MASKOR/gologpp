@@ -21,9 +21,10 @@
 #include "semantics.h"
 
 #include <model/effect_axiom.h>
-#include "reference.h"
 #include <model/action.h>
 #include <model/fluent.h>
+
+#include "reference.h"
 #include "scope.h"
 #include "execution.h"
 
@@ -31,47 +32,6 @@
 
 
 namespace gologpp {
-
-
-template<>
-class Semantics<AbstractEffectAxiom>
-: public Semantics<ModelElement>
-, public AbstractSemantics<AbstractEffectAxiom>
-{
-public:
-	Semantics(const AbstractEffectAxiom &eff);
-
-	string cv_functor;
-};
-
-
-template<>
-class Semantics<EffectAxiom<Reference<Fluent>>> : public Semantics<AbstractEffectAxiom> {
-public:
-	using Semantics<AbstractEffectAxiom>::Semantics;
-
-	const EffectAxiom<Reference<Fluent>> &effect() const;
-	virtual EC_word plterm() override;
-};
-
-
-template<>
-class Semantics<EffectAxiom<FieldAccess>> : public Semantics<AbstractEffectAxiom> {
-	using Semantics<AbstractEffectAxiom>::Semantics;
-
-	const EffectAxiom<FieldAccess> &effect() const;
-	virtual EC_word plterm() override;
-};
-
-
-template<>
-class Semantics<EffectAxiom<ListAccess>> : public Semantics<AbstractEffectAxiom> {
-	using Semantics<AbstractEffectAxiom>::Semantics;
-
-	const EffectAxiom<ListAccess> &effect() const;
-	virtual EC_word plterm() override;
-};
-
 
 
 } /* namespace gologpp */

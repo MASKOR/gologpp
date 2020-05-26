@@ -19,11 +19,8 @@
 
 namespace gologpp {
 
-Semantics<ListExpression>::Semantics(const ListExpression &expr)
-: AbstractSemantics<ListExpression>(expr)
-{}
 
-
+template<>
 EC_word Semantics<ListExpression>::plterm()
 {
 	EC_word list = ::nil();
@@ -38,8 +35,6 @@ EC_word Semantics<ListExpression>::plterm()
 		list
 	);
 }
-
-
 
 
 } // namespace gologpp

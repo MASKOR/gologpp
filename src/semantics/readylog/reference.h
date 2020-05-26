@@ -66,19 +66,6 @@ public:
 
 
 
-template<>
-class Semantics<Reference<Variable>>
-: public Semantics<Expression>
-, public AbstractSemantics<Reference<Variable>>
-{
-public:
-	Semantics(const Reference<Variable> &ref);
-
-	virtual EC_word plterm() override;
-};
-
-
-
 template<class GologT, class ExprT>
 EC_word reference_term(const ReferenceBase<GologT, ExprT> &ref)
 {
@@ -91,23 +78,23 @@ EC_word reference_term(const ReferenceBase<GologT, ExprT> &ref)
 }
 
 
+EC_word reference_term(const Reference<Variable> &ref);
+
+
 
 template<class TargetT>
 class Semantics<Reference<TargetT>>
 : public AbstractSemantics<Reference<TargetT>>
-, public Semantics<typename TargetT::SignifierT>
+, public Semantics<typename Reference<TargetT>::ElementType>
 {
 public:
 	using AbstractSemantics<Reference<TargetT>>::AbstractSemantics;
 
-	const Reference<TargetT> &ref()
-	{ return this->element(); }
-
 	virtual EC_word plterm() override
-	{ return reference_term(ref()); }
+	{ return reference_term(this->element()); }
 
 	bool args_need_eval() {
-		for (const unique_ptr<Expression> &expr : ref().args())
+		for (const unique_ptr<Expression> &expr : this->element().args())
 			if (!expr->is_a<Reference<Variable>>() && !expr->is_a<Value>())
 				return true;
 
@@ -116,20 +103,20 @@ public:
 
 	EC_word plterm_free_args()
 	{
-		if (ref().arity() == 0)
-			return EC_atom(ref().name().c_str());
+		if (this->element().arity() == 0)
+			return EC_atom(this->element().name().c_str());
 		else {
 			vector<EC_word> args;
 			arity_t i = 0;
-			for (const unique_ptr<Expression> &expr : ref().args()) {
+			for (const unique_ptr<Expression> &expr : this->element().args()) {
 				if (!expr->is_a<Reference<Variable>>() && !expr->is_a<Value>())
-					args.push_back(ref().target()->parameter(i)->semantics().plterm());
+					args.push_back(this->element().target()->parameter(i)->semantics().plterm());
 				else
 					args.push_back(expr->semantics().plterm());
 				++i;
 			}
 
-			return ::term(EC_functor(ref().name().c_str(), ref().arity()),
+			return ::term(EC_functor(this->element().name().c_str(), this->element().arity()),
 				args.data()
 			);
 		}
@@ -137,8 +124,8 @@ public:
 
 	EC_word args_binding() {
 		EC_word list = ::nil();
-		for (const shared_ptr<Variable> &param : ref().target()->params()) {
-			const Expression &arg = ref().arg_for_param(param);
+		for (const shared_ptr<Variable> &param : this->element().target()->params()) {
+			const Expression &arg = this->element().arg_for_param(param);
 			if (!arg.is_a<Reference<Variable>>() && !arg.is_a<Value>()) {
 				list = ::list(
 					::term(EC_functor("=", 2),
@@ -153,10 +140,6 @@ public:
 		return ::term(EC_functor("and", 1), list);
 	}
 };
-
-
-template<>
-EC_word Semantics<Reference<Action>>::plterm();
 
 
 

@@ -137,6 +137,7 @@ EC_word Semantics<ExogAction>::poss()
 
 
 
+template<>
 EC_word Semantics<ExogEvent>::plterm()
 { return reference_term(element()); }
 
@@ -165,9 +166,7 @@ EC_word Semantics<Activity>::sensing_result()
 
 
 
-const Transition &Semantics<Transition>::trans()
-{ return dynamic_cast<const Transition &>(element()); }
-
+template<>
 EC_word Semantics<Transition>::plterm()
 {
 	return ::term(EC_functor(to_string(element().hook()).c_str(), 2),

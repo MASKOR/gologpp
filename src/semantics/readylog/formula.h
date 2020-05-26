@@ -27,61 +27,6 @@
 namespace gologpp {
 
 
-template<>
-class Semantics<Negation>
-: public Semantics<Expression>
-, public AbstractSemantics<Negation>
-{
-public:
-	Semantics(const Negation &);
-	virtual ~Semantics() override = default;
-
-	virtual EC_word plterm() override;
-};
-
-
-template<>
-class Semantics<Comparison>
-: public Semantics<Expression>
-, public AbstractSemantics<Comparison>
-{
-public:
-	Semantics(const Comparison &cmp);
-
-	virtual ~Semantics() override = default;
-	virtual EC_word plterm() override;
-
-private:
-	const char *functor_;
-};
-
-
-template<>
-class Semantics<BooleanOperation>
-: public Semantics<Expression>
-, public AbstractSemantics<BooleanOperation>
-{
-public:
-	Semantics(const BooleanOperation &);
-	virtual EC_word plterm() override;
-
-private:
-	const char *functor_;
-};
-
-
-template<>
-class Semantics<Quantification>
-: public Semantics<Expression>
-, public AbstractSemantics<Quantification>
-{
-public:
-	Semantics(const Quantification &);
-	virtual EC_word plterm() override;
-};
-
-
-
 } // namespace gologpp
 
 

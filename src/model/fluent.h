@@ -33,6 +33,8 @@ class InitialValue
 , public NoScopeOwner
 , public LanguageElement<InitialValue> {
 public:
+	using ElementType = ModelElement;
+
 	InitialValue(const vector<Expression *> &args, Value *value);
 	InitialValue(const boost::optional<vector<Expression *>> &args, Value *value);
 

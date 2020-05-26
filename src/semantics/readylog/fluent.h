@@ -27,19 +27,6 @@
 namespace gologpp {
 
 
-template<>
-class Semantics<InitialValue>
-: public Semantics<ModelElement>
-, public AbstractSemantics<InitialValue>
-{
-public:
-	Semantics(const InitialValue &v);
-
-	virtual ~Semantics() override = default;
-	virtual EC_word plterm() override;
-};
-
-
 
 template<>
 class Semantics<Fluent>

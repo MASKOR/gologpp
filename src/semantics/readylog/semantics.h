@@ -37,6 +37,7 @@ public:
 };
 
 
+
 template<>
 class Semantics<Expression>
 : public AbstractSemantics<Expression>
@@ -56,6 +57,25 @@ class Semantics<Instruction>
 public:
 	virtual ~Semantics<Instruction>() override = default;
 	virtual Plan trans(const Binding &b, History &h) override;
+};
+
+
+template<>
+class Semantics<Type>
+: public virtual AbstractSemantics<ModelElement>
+, public Semantics<ModelElement>
+{
+};
+
+
+template<class GologT>
+class Semantics
+: public Semantics<typename GologT::ElementType>
+, public AbstractSemantics<GologT>
+{
+public:
+	using AbstractSemantics<GologT>::AbstractSemantics;
+	virtual EC_word plterm() override;
 };
 
 

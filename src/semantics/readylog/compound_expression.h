@@ -25,17 +25,6 @@
 namespace gologpp {
 
 
-template<>
-class Semantics<CompoundExpression>
-: public Semantics<Expression>
-, public AbstractSemantics<CompoundExpression>
-{
-public:
-	Semantics(const CompoundExpression &expr);
-	virtual EC_word plterm() override;
-};
-
-
 }
 
 #endif // READYLOG_COMPOUND_EXPRESSION_H_

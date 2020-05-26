@@ -32,6 +32,8 @@ namespace gologpp {
 class Type
 : public std::enable_shared_from_this<Type> {
 public:
+	using ElementType = Type;
+
 	friend class Scope;
 
 	Type(const Type &) = delete;

@@ -25,16 +25,6 @@
 namespace gologpp {
 
 
-template<>
-class Semantics<ListExpression>
-: public Semantics<Expression>
-, public AbstractSemantics<ListExpression>
-{
-public:
-	Semantics(const ListExpression &expr);
-	virtual EC_word plterm() override;
-};
-
 
 }
 

@@ -35,7 +35,9 @@ namespace gologpp {
 class Expression;
 
 
-class AbstractEffectAxiom : public virtual AbstractLanguageElement {
+class AbstractEffectAxiom
+: public virtual AbstractLanguageElement
+{
 public:
 	AbstractEffectAxiom();
 	AbstractEffectAxiom(AbstractEffectAxiom &&) = default;
@@ -55,8 +57,14 @@ protected:
 
 
 template<class LhsT>
-class EffectAxiom : public AbstractEffectAxiom, public NoScopeOwner, public LanguageElement<EffectAxiom<LhsT>> {
+class EffectAxiom
+: public AbstractEffectAxiom
+, public NoScopeOwner
+, public LanguageElement<EffectAxiom<LhsT>>
+{
 public:
+	using ElementType = ModelElement;
+
 	EffectAxiom()
 	{}
 

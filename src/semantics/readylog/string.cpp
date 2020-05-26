@@ -20,11 +20,7 @@
 namespace gologpp {
 
 
-Semantics<ToString>::Semantics(const ToString &to_string)
-: AbstractSemantics<ToString>(to_string)
-{}
-
-
+template<>
 EC_word Semantics<ToString>::plterm()
 {
 	return ::term(EC_functor("to_string", 1),
@@ -34,11 +30,7 @@ EC_word Semantics<ToString>::plterm()
 
 
 
-Semantics<StringConcatenation>::Semantics(const StringConcatenation &subject)
-: AbstractSemantics<StringConcatenation>(subject)
-{}
-
-
+template<>
 EC_word Semantics<StringConcatenation>::plterm()
 {
 	return ::term(EC_functor("strcat", 2),

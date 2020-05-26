@@ -20,15 +20,6 @@
 namespace gologpp {
 
 
-/*
-gologpp::AbstractSemantics<Value>::~AbstractSemantics()
-{}
-
-const Value &gologpp::AbstractSemantics<Value>::element() const
-{ return *element_; }
-//*/
-
-
 }
 
 

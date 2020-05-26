@@ -67,19 +67,6 @@ public:
 
 
 template<>
-class Semantics<ExogEvent>
-: public Semantics<ModelElement>
-, public AbstractSemantics<ExogEvent>
-{
-public:
-	using AbstractSemantics<ExogEvent>::AbstractSemantics;
-	virtual ~Semantics() override = default;
-
-	virtual EC_word plterm() override;
-};
-
-
-template<>
 class Semantics<Activity>
 : public Semantics<ModelElement>
 , public AbstractSemantics<Activity>
@@ -94,20 +81,6 @@ public:
 	EC_word sensing_result();
 };
 
-
-template<>
-class Semantics<Transition>
-: public Semantics<ModelElement>
-, public AbstractSemantics<Transition>
-{
-public:
-	using AbstractSemantics<Transition>::AbstractSemantics;
-	virtual ~Semantics() override = default;
-
-	const Transition &trans();
-
-	virtual EC_word plterm() override;
-};
 
 
 } // namespace gologpp

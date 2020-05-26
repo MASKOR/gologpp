@@ -21,10 +21,11 @@
 namespace gologpp {
 
 
-Semantics<Reference<Variable>>::Semantics(const Reference<Variable> &ref)
-: AbstractSemantics<Reference<Variable>>(ref)
-{}
+EC_word reference_term(const Reference<Variable> &ref)
+{ return EC_atom(ref.name().c_str()); }
 
+
+template<>
 EC_word Semantics<Reference<Variable>>::plterm()
 { return element().target()->semantics().plterm(); }
 

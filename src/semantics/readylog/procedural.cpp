@@ -136,7 +136,7 @@ void Semantics<Block>::set_current_program(EC_word e)
 { current_program_ = e; }
 
 
-
+template<>
 EC_word Semantics<Choose>::plterm()
 {
 	element().scope().semantics().init_vars();
@@ -169,7 +169,7 @@ EC_word Semantics<Conditional<Expression>>::plterm()
 
 
 
-
+template<>
 EC_word Semantics<Concurrent>::plterm()
 {
 	element().scope().semantics().init_vars();
@@ -178,6 +178,7 @@ EC_word Semantics<Concurrent>::plterm()
 
 
 
+template<>
 EC_word Semantics<Assignment<Reference<Fluent>>>::plterm()
 {
 	return ::term(EC_functor("set", 2),
@@ -223,6 +224,7 @@ std::pair<const Reference<Fluent> *, EC_word> traverse_mixed_field_access(const 
 
 
 
+template<>
 EC_word Semantics<Assignment<FieldAccess>>::plterm()
 {
 	std::pair<const Reference<Fluent> *, EC_word> fluent_access
@@ -240,6 +242,7 @@ EC_word Semantics<Assignment<FieldAccess>>::plterm()
 
 
 
+template<>
 EC_word Semantics<Assignment<ListAccess>>::plterm()
 {
 	std::pair<const Reference<Fluent> *, EC_word> fluent_access
@@ -277,6 +280,7 @@ EC_word Semantics<Pick>::plterm()
 
 
 
+template<>
 EC_word Semantics<Search>::plterm()
 {
 	return ::term(EC_functor("search", 1),
@@ -286,6 +290,7 @@ EC_word Semantics<Search>::plterm()
 
 
 
+template<>
 EC_word Semantics<Solve>::plterm()
 {
 	return ::term(EC_functor("solve", 3),
@@ -297,6 +302,7 @@ EC_word Semantics<Solve>::plterm()
 
 
 
+template<>
 EC_word Semantics<Test>::plterm()
 {
 	return ::term(EC_functor("?", 1),
@@ -306,6 +312,7 @@ EC_word Semantics<Test>::plterm()
 
 
 
+template<>
 EC_word Semantics<While>::plterm()
 {
 	return ::term(EC_functor("while", 2),
@@ -316,6 +323,7 @@ EC_word Semantics<While>::plterm()
 
 
 
+template<>
 EC_word Semantics<DurativeCall>::plterm()
 {
 	return ::term(EC_functor(to_string(element().hook()).c_str(), 1),
@@ -363,6 +371,7 @@ EC_word Semantics<ListAccess>::plterm()
 
 
 
+template<>
 EC_word Semantics<ListPop>::plterm()
 {
 	string fn;
@@ -388,6 +397,7 @@ EC_word Semantics<ListPop>::plterm()
 
 
 
+template<>
 EC_word Semantics<ListPush>::plterm()
 {
 	string fn;
@@ -413,6 +423,7 @@ EC_word Semantics<ListPush>::plterm()
 
 
 
+template<>
 EC_word Semantics<ListLength>::plterm()
 {
 	return ::term(EC_functor("gpp_list_length", 1),
@@ -422,6 +433,7 @@ EC_word Semantics<ListLength>::plterm()
 
 
 
+template<>
 EC_word Semantics<During>::plterm()
 {
 	EC_word start = ::term(EC_functor(to_string(Transition::Hook::START).c_str(), 1),

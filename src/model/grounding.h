@@ -62,6 +62,7 @@ class Grounding
 , public ReferenceBase<TargetT, Value>
 {
 public:
+	using ElementType = ModelElement;
 	using ReferenceBase<TargetT, Value>::ReferenceBase;
 
 	Grounding(const Grounding<TargetT> &other)

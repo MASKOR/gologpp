@@ -45,6 +45,8 @@ protected:
 	}
 
 public:
+	using ElementType = ModelElement;
+
 	virtual ~Global() override = default;
 
 	vector<shared_ptr<Variable>> &params();

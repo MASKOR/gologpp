@@ -38,6 +38,8 @@ protected:
 	Expression &operator = (const Expression &) = delete;
 
 public:
+	using ElementType = Expression;
+
 	virtual ~Expression() override = default;
 
 	virtual Scope &parent_scope() override;
@@ -61,6 +63,8 @@ protected:
 	Instruction &operator = (const Instruction &) = delete;
 
 public:
+	using ElementType = Instruction;
+
 	virtual ~Instruction() override = default;
 
 	virtual Scope &parent_scope() override;

@@ -23,11 +23,7 @@
 
 namespace gologpp {
 
-Semantics<Negation>::Semantics(const Negation &neg)
-: AbstractSemantics<Negation>(neg)
-{}
-
-
+template<>
 EC_word Semantics<Negation>::plterm()
 {
 	return ::term(EC_functor("neg", 1),
@@ -37,35 +33,31 @@ EC_word Semantics<Negation>::plterm()
 
 
 
-Semantics<Comparison>::Semantics(const Comparison &cmp)
-: AbstractSemantics<Comparison>(cmp)
+string cmp_functor(const Comparison &cmp)
 {
-	switch(element().op()) {
+	switch(cmp.op()) {
 	case ComparisonOperator::EQ:
-		functor_ = "=";
-		break;
+		return "=";
 	case ComparisonOperator::GE:
-		functor_ = ">=";
-		break;
+		return ">=";
 	case ComparisonOperator::GT:
-		functor_ = ">";
-		break;
+		return ">";
 	case ComparisonOperator::LE:
-		functor_ = "=<";
-		break;
+		return "=<";
 	case ComparisonOperator::LT:
-		functor_ = "<";
-		break;
+		return "<";
 	case ComparisonOperator::NEQ:
-		functor_ = "\\=";
+		return "\\=";
 	}
 }
 
 
+
+template<>
 EC_word Semantics<Comparison>::plterm()
 {
 	if (element().lhs().type().is<NumberType>())
-		return ::term(EC_functor(functor_, 2),
+		return ::term(EC_functor(cmp_functor(element()).c_str(), 2),
 			element().lhs().semantics().plterm(),
 			element().rhs().semantics().plterm()
 		);
@@ -99,43 +91,35 @@ EC_word Semantics<Comparison>::plterm()
 
 
 
-Semantics<BooleanOperation>::Semantics(const BooleanOperation &c)
-: AbstractSemantics<BooleanOperation>(c)
+string log_functor(const BooleanOperation &c)
 {
-	switch(element().op()) {
+	switch(c.op()) {
 	case BooleanOperator::AND:
-		functor_ = "and";
-		break;
+		return "and";
 	case BooleanOperator::IFF:
-		functor_ = "=";
-		break;
+		return "=";
 	case BooleanOperator::IMPLIES:
-		functor_ = "lif";
-		break;
+		return "lif";
 	case BooleanOperator::OR:
-		functor_ = "or";
-		break;
+		return "or";
 	case BooleanOperator::XOR:
-		functor_ = "\\=";
-		break;
+		return "\\=";
 	}
 }
 
 
+template<>
 EC_word Semantics<BooleanOperation>::plterm()
 {
-	return ::term(EC_functor(functor_, 2),
+	return ::term(EC_functor(log_functor(element()).c_str(), 2),
 		element().lhs().semantics().plterm(),
 		element().rhs().semantics().plterm()
 	);
 }
 
 
-Semantics<Quantification>::Semantics(const Quantification &q)
-: AbstractSemantics<Quantification>(q)
-{}
 
-
+template<>
 EC_word Semantics<Quantification>::plterm()
 {
 	{ GologVarMutator guard(element().variable().semantics());

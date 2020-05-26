@@ -20,11 +20,7 @@
 namespace gologpp {
 
 
-Semantics<CompoundExpression>::Semantics(const CompoundExpression &expr)
-: AbstractSemantics<CompoundExpression>(expr)
-{}
-
-
+template<>
 EC_word Semantics<CompoundExpression>::plterm()
 {
 	EC_word field_list = ::nil();

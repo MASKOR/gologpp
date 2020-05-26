@@ -63,10 +63,7 @@ int p_exog_fluent_getValue()
 namespace gologpp {
 
 
-Semantics<InitialValue>::Semantics(const InitialValue &v)
-: AbstractSemantics<InitialValue>(v)
-{}
-
+template<>
 EC_word Semantics<InitialValue>::plterm()
 {
 	element().fluent().scope().semantics().init_vars();
