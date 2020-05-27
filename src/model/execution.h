@@ -44,9 +44,6 @@ public:
 	AExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<PlatformBackend> &&platform_backend);
 	virtual ~AExecutionContext() = default;
 
-	virtual bool final(Block &program, History &h) = 0;
-	virtual bool trans(Block &program, History &h) = 0;
-
 	/**
 	 * @brief compile called once for the toplevel @param program.
 	 */
@@ -62,6 +59,7 @@ public:
 
 	shared_ptr<Grounding<AbstractAction>> exog_queue_pop();
 	shared_ptr<Grounding<AbstractAction>> exog_queue_poll();
+	void wait_for_exog();
 	bool exog_empty();
 	void exog_queue_push(shared_ptr<Grounding<AbstractAction>> exog);
 
@@ -98,6 +96,9 @@ public:
 	Clock::time_point context_time() const;
 
 private:
+	virtual bool final(Block &program, History &h) = 0;
+	virtual bool trans(Block &program, History &h) = 0;
+
 	Clock::time_point context_time_;
 };
 

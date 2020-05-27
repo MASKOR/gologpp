@@ -15,29 +15,25 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "semantics.h"
+#pragma once
+
+#include "gologpp.h"
+
+#include <initializer_list>
 
 namespace gologpp {
 
 
-AbstractSemantics<AbstractLanguageElement>::AbstractSemantics()
-{}
+class Plan {
+public:
+	Plan(std::initializer_list<unique_ptr<Instruction>> &&step);
+	Plan(const Plan &sub);
 
-AbstractSemantics<AbstractLanguageElement>::~AbstractSemantics()
-{}
+	Value max_reward(const Binding &binding, const Reference<Function> &reward_func);
 
-
-
-gologpp::AbstractSemantics<Value>::~AbstractSemantics()
-{}
-
-const Value &gologpp::AbstractSemantics<Value>::element() const
-{ return *element_; }
-
+private:
+	vector<unique_ptr<Instruction>> steps_;
+};
 
 
 }
-
-
-
-

@@ -20,6 +20,7 @@
 
 #include "gologpp.h"
 #include "expressions.h"
+#include "plan.h"
 #include <memory>
 
 #include <boost/preprocessor/seq/for_each.hpp>
@@ -32,7 +33,7 @@ class AbstractSemantics<AbstractLanguageElement> {
 public:
 	AbstractSemantics();
 
-	virtual ~AbstractSemantics<AbstractLanguageElement>() = default;
+	virtual ~AbstractSemantics<AbstractLanguageElement>();
 
 	template<class GologT = AbstractLanguageElement>
 	const GologT &element() const;
@@ -59,8 +60,8 @@ class Semantics<Instruction>
 : public virtual AbstractSemantics<AbstractLanguageElement>
 {
 public:
-	virtual bool trans(const Binding &b, History &h) = 0;
-	virtual unique_ptr<Instruction> plan(const Binding &b, History &h) = 0;
+	virtual void trans(const Binding &b, History &h) = 0;
+	virtual Plan plan(const Binding &b, History &h) = 0;
 };
 
 

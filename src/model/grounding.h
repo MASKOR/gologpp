@@ -19,6 +19,7 @@
 
 #include "reference.h"
 #include "action.h"
+#include "plan.h"
 
 
 namespace gologpp {
