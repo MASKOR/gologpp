@@ -105,7 +105,6 @@ class Search;
 class Solve;
 class Test;
 class While;
-class Return;
 class DurativeCall;
 class FieldAccess;
 class ListAccess;
@@ -157,7 +156,7 @@ class PlatformBackend;
 	(Reference<Variable>) \
 	(Reference<Function>) \
 	(Reference<Procedure>) \
-	(Pick)(Return) \
+	(Pick) \
 	(FieldAccess) \
 	(ListAccess)(ListLength) \
 	(ListPop)(ListPush) \

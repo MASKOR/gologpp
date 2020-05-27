@@ -311,23 +311,6 @@ protected:
 
 
 
-/**
- * @brief Return a value from a function.
- */
-class Return : public Instruction, public NoScopeOwner, public LanguageElement<Return, VoidType> {
-public:
-	Return(Expression *expr);
-	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*expr_)
-
-	const Expression &expression() const;
-	virtual string to_string(const string &pfx) const override;
-
-private:
-	unique_ptr<Expression> expr_;
-};
-
-
-
 class Procedure
 : public ScopeOwner
 , public Signified<Instruction>
