@@ -29,7 +29,7 @@ namespace gologpp {
 template<>
 class Semantics<History> : public AbstractSemantics<History> {
 public:
-	Semantics(History &);
+	Semantics(History &, ReadylogContext &context);
 	virtual ~Semantics() override = default;
 
 	virtual shared_ptr<Transition> get_last_transition() override;

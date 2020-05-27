@@ -31,7 +31,7 @@ class Semantics<ArithmeticOperation>
 , public AbstractSemantics<ArithmeticOperation>
 {
 public:
-	Semantics(const ArithmeticOperation &);
+	Semantics(const ArithmeticOperation &, ReadylogContext &context);
 
 	EC_word plterm() override;
 

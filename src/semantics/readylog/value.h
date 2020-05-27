@@ -36,7 +36,7 @@ class Semantics<Value>
 , public AbstractSemantics<Value>
 {
 public:
-	Semantics(const Value &value);
+	Semantics(const Value &value, ReadylogContext &context);
 
 	using Semantics<Expression>::evaluate;
 

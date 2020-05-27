@@ -34,6 +34,7 @@
 #include "list_expression.h"
 #include "activity.h"
 #include "transition.h"
+#include "execution.h"
 
 namespace gologpp {
 
@@ -62,9 +63,14 @@ Plan Semantics<Instruction>::trans(const Binding &, History &)
 { throw Bug("ReadylogSemantics doesn't implement Semantics<Instruction>::trans"); }
 
 
+
+ReadylogSemanticsFactory::ReadylogSemanticsFactory(ReadylogContext &context)
+: context_(context)
+{}
+
 #define GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL(_r, _data, GologT) \
 unique_ptr<AbstractSemantics<ModelElement>> ReadylogSemanticsFactory::make_semantics(GologT &obj) \
-{ return unique_ptr<AbstractSemantics<ModelElement>>(new Semantics<GologT>(obj)); }
+{ return unique_ptr<AbstractSemantics<ModelElement>>(new Semantics<GologT>(obj, context_)); }
 
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL, (), GOLOGPP_SEMANTIC_TYPES)
 

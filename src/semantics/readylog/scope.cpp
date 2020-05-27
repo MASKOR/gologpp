@@ -17,11 +17,13 @@
 
 #include "scope.h"
 #include "variable.h"
+#include "execution.h"
 
 namespace gologpp {
 
-Semantics<Scope>::Semantics(const Scope &s)
+Semantics<Scope>::Semantics(const Scope &s, ReadylogContext &context)
 : scope_(s)
+, context_(context)
 {}
 
 

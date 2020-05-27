@@ -25,11 +25,10 @@
 
 namespace gologpp {
 
-
 template<>
 class AbstractSemantics<History> : public AbstractSemantics<ModelElement> {
 public:
-	AbstractSemantics<History>(History &history);
+	AbstractSemantics<History>(History &history, ExecutionContext &context);
 	virtual ~AbstractSemantics<History>() override;
 
 	virtual shared_ptr<Transition> get_last_transition() = 0;
@@ -42,6 +41,7 @@ public:
 
 protected:
 	History &history_;
+	ExecutionContext &context_;
 };
 
 

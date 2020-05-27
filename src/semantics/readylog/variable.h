@@ -37,7 +37,7 @@ class Semantics<Variable>
 , public AbstractSemantics<Variable>
 {
 public:
-	Semantics(const Variable &var);
+	Semantics(const Variable &var, ReadylogContext &context);
 	virtual ~Semantics() override;
 
 	void init();

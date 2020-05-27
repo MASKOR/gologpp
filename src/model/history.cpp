@@ -21,8 +21,9 @@ namespace gologpp {
 
 
 
-AbstractSemantics<History>::AbstractSemantics(History &h)
+AbstractSemantics<History>::AbstractSemantics(History &h, ExecutionContext &context)
 : history_(h)
+, context_(context)
 {}
 
 AbstractSemantics<History>::~AbstractSemantics<History>()

@@ -17,6 +17,7 @@
 
 
 #include "model_element.h"
+#include "semantics.h"
 
 namespace gologpp {
 
@@ -24,16 +25,8 @@ namespace gologpp {
 string ModelElement::str() const
 { return to_string(""); }
 
-void ModelElement::set_semantics(unique_ptr<AbstractSemantics<ModelElement>> &&impl)
+void ModelElement::set_semantics(std::unique_ptr<AbstractSemantics<ModelElement>> &&impl)
 { semantics_ = std::move(impl); }
-
-
-
-AbstractSemantics<ModelElement>::AbstractSemantics()
-{}
-
-AbstractSemantics<ModelElement>::~AbstractSemantics()
-{}
 
 
 

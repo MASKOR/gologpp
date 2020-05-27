@@ -96,8 +96,8 @@ class Semantics<Assignment<LhsT>>
 , public AbstractSemantics<Assignment<LhsT>>
 {
 public:
-	Semantics(const Assignment<LhsT> &ass)
-	: AbstractSemantics<Assignment<LhsT>>(ass)
+	Semantics(const Assignment<LhsT> &ass, ReadylogContext &context)
+	: AbstractSemantics<Assignment<LhsT>>(ass, context)
 	{
 		throw std::runtime_error(string("Assignment to ") + typeid(LhsT).name() + " is not implemented");
 	}
@@ -114,7 +114,7 @@ class Semantics<Pick>
 , public AbstractSemantics<Pick>
 {
 public:
-	Semantics(const Pick &);
+	Semantics(const Pick &, ReadylogContext &context);
 	virtual EC_word plterm() override;
 };
 

@@ -258,8 +258,8 @@ EC_word Semantics<Assignment<ListAccess>>::plterm()
 	);
 }
 
-Semantics<Pick>::Semantics(const Pick &pick)
-: AbstractSemantics<Pick>(pick)
+Semantics<Pick>::Semantics(const Pick &pick, ReadylogContext &context)
+: AbstractSemantics<Pick>(pick, context)
 {
 	if (element().domain().empty())
 		throw std::runtime_error("ReadyLog requires a domain for pick()!");

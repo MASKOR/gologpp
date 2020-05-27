@@ -18,13 +18,14 @@
 #include "variable.h"
 #include "reference.h"
 #include "domain.h"
+#include "execution.h"
 
 namespace gologpp {
 
 
 
-Semantics<Variable>::Semantics(const Variable &var)
-: AbstractSemantics<Variable>(var)
+Semantics<Variable>::Semantics(const Variable &var, ReadylogContext &context)
+: AbstractSemantics<Variable>(var, context)
 , as_golog_var_(false)
 {
 	const ModelElement *parent = dynamic_cast<const Expression &>(element()).parent();

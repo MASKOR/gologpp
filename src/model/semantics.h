@@ -30,6 +30,21 @@ namespace gologpp {
 
 
 template<>
+class AbstractSemantics<ModelElement> {
+public:
+	AbstractSemantics();
+
+	virtual ~AbstractSemantics<ModelElement>();
+
+private:
+	// Not trivially moveable because cross-referencing with language element
+	AbstractSemantics(AbstractSemantics &&) = delete;
+	AbstractSemantics & operator = (AbstractSemantics &&) = delete;
+};
+
+
+
+template<>
 class AbstractSemantics<Expression>
 : public virtual AbstractSemantics<ModelElement>
 {
@@ -54,8 +69,9 @@ class AbstractSemantics
 : public virtual AbstractSemantics<ModelElement>
 {
 public:
-	AbstractSemantics(const GologT &elem)
+	AbstractSemantics(const GologT &elem, ExecutionContext &context)
 	: element_(&elem)
+	, context_(context)
 	{}
 
 	virtual ~AbstractSemantics<GologT>() = default;
@@ -66,8 +82,12 @@ public:
 	void update_element(const GologT *new_element)
 	{ element_ = new_element; }
 
+	ExecutionContext &context()
+	{ return context_; }
+
 private:
 	const GologT *element_;
+	ExecutionContext &context_;
 };
 
 

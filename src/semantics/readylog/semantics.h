@@ -27,6 +27,9 @@
 namespace gologpp {
 
 
+class ReadylogContext;
+
+
 template<>
 class Semantics<ModelElement>
 : public virtual AbstractSemantics<ModelElement> {
@@ -85,10 +88,13 @@ public:
 
 class ReadylogSemanticsFactory : public SemanticsFactory {
 public:
-	ReadylogSemanticsFactory() = default;
+	ReadylogSemanticsFactory(ReadylogContext &context);
 	virtual ~ReadylogSemanticsFactory() override = default;
 
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE, (), GOLOGPP_SEMANTIC_TYPES)
+
+private:
+	ReadylogContext &context_;
 };
 
 

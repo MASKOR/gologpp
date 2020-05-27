@@ -31,13 +31,14 @@ namespace gologpp {
 template<>
 class Semantics<Scope> : public AbstractSemantics<ModelElement> {
 public:
-	Semantics(const Scope &);
+	Semantics(const Scope &, ReadylogContext &context);
 
 	EC_word *variables(const vector<string> &names);
 	void init_vars();
 
 private:
 	const Scope &scope_;
+	ReadylogContext &context_;
 };
 
 

@@ -51,7 +51,7 @@ void ReadylogContext::shutdown()
 
 
 ReadylogContext::ReadylogContext(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend)
-: ExecutionContext(std::make_unique<ReadylogSemanticsFactory>(), std::move(exec_backend))
+: ExecutionContext(std::make_unique<ReadylogSemanticsFactory>(*this), std::move(exec_backend))
 , options_(options)
 {
 	ec_set_option_ptr(EC_OPTION_ECLIPSEDIR, const_cast<void *>(static_cast<const void *>(ECLIPSE_DIR)));

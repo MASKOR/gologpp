@@ -16,13 +16,14 @@
 **************************************************************************/
 
 #include "arithmetic.h"
+#include "execution.h"
 #include <model/arithmetic.h>
 
 namespace gologpp {
 
 
-Semantics<ArithmeticOperation>::Semantics(const ArithmeticOperation &op)
-: AbstractSemantics<ArithmeticOperation>(op)
+Semantics<ArithmeticOperation>::Semantics(const ArithmeticOperation &op, ReadylogContext &context)
+: AbstractSemantics<ArithmeticOperation>(op, context)
 {
 	switch (element().op()) {
 	case ArithmeticOperation::ADDITION:

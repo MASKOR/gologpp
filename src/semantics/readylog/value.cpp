@@ -21,8 +21,8 @@
 
 namespace gologpp {
 
-Semantics<Value>::Semantics(const Value &value)
-: AbstractSemantics<Value>(value)
+Semantics<Value>::Semantics(const Value &value, ReadylogContext &context)
+: AbstractSemantics<Value>(value, context)
 {}
 
 EC_word Semantics<Value>::plterm()

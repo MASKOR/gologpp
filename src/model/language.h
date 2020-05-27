@@ -84,7 +84,7 @@ public:
 
 	virtual ~LanguageElement() = default;
 
-	virtual AbstractSemantics<GologT> &abstract_semantics() const override {
+	AbstractSemantics<GologT> &abstract_semantics() const {
 		return dynamic_cast<AbstractSemantics<GologT> &>(*semantics_);
 	}
 
