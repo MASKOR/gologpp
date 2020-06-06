@@ -25,6 +25,8 @@
 
 #include <boost/preprocessor/seq/for_each.hpp>
 
+#include <boost/phoenix/statement/sequence.hpp>
+
 
 namespace gologpp {
 namespace parser {
