@@ -15,12 +15,14 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
+#include "value.h"
 #include "scope.h"
 #include "procedural.h"
 #include "reference.h"
 #include "execution.h"
-#include "value.h"
 #include "action.h"
+#include "history.h"
+#include "plan.h"
 
 #include <model/procedural.h>
 
@@ -99,7 +101,7 @@ EC_word Semantics<Function>::return_var()
 
 
 
-
+template<>
 EC_word Semantics<Block>::plterm()
 {
 	element().scope().semantics().init_vars();
@@ -116,24 +118,9 @@ EC_word Semantics<Block>::plterm()
 	else
 		rv = to_ec_list(element().elements(), element().elements().begin());
 
-	set_current_program(rv);
-
 	return rv;
 }
 
-
-Plan Semantics<Block>::trans(const Binding &b, History &h)
-{
-
-}
-
-
-
-EC_word Semantics<Block>::current_program()
-{ return current_program_; }
-
-void Semantics<Block>::set_current_program(EC_word e)
-{ current_program_ = e; }
 
 
 template<>
@@ -168,7 +155,6 @@ EC_word Semantics<Conditional<Expression>>::plterm()
 
 
 
-
 template<>
 EC_word Semantics<Concurrent>::plterm()
 {
@@ -176,6 +162,12 @@ EC_word Semantics<Concurrent>::plterm()
 	return to_ec_term("pconc", element().procs());
 }
 
+
+
+template<>
+Semantics<Assignment<Reference<Fluent>>>::Semantics(const Assignment<Reference<Fluent>> &ass, ReadylogContext &context)
+: AbstractSemantics<Assignment<Reference<Fluent>>>(ass, context)
+{}
 
 
 template<>
@@ -305,7 +297,7 @@ EC_word Semantics<Solve>::plterm()
 EC_word Semantics<Test>::plterm()
 {
 	if (is_plan_marker_)
-		return marker_cond_;
+		return ::term(EC_functor("?", 1), marker_cond_);
 	else
 		return ::term(EC_functor("?", 1),
 			element().expression().semantics().plterm()

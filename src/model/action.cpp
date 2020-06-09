@@ -79,6 +79,9 @@ bool AbstractAction::operator == (const AbstractAction &other) const
 const Expression &AbstractAction::precondition() const
 { return *precondition_; }
 
+Expression &AbstractAction::precondition()
+{ return *precondition_; }
+
 
 void AbstractAction::set_precondition(Expression *cond)
 {

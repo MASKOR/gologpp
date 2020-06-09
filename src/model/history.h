@@ -25,26 +25,6 @@
 
 namespace gologpp {
 
-template<>
-class AbstractSemantics<History> : public AbstractSemantics<ModelElement> {
-public:
-	AbstractSemantics<History>(History &history, ExecutionContext &context);
-	virtual ~AbstractSemantics<History>() override;
-
-	virtual shared_ptr<Transition> get_last_transition() = 0;
-	virtual void append(shared_ptr<Grounding<AbstractAction>>) = 0;
-	virtual void append_sensing_result(shared_ptr<Activity>) = 0;
-	virtual bool should_progress() const = 0;
-	virtual void progress() = 0;
-
-	const History &element() const;
-
-protected:
-	History &history_;
-	ExecutionContext &context_;
-};
-
-
 class History : public LanguageElement<History>, public NoScopeOwner {
 public:
 	History() = default;
@@ -56,6 +36,30 @@ public:
 	DEFINE_ATTACH_SEMANTICS
 
 	virtual string to_string(const string &pfx) const override;
+};
+
+
+
+template<>
+class AbstractSemantics<History> : public virtual AbstractSemantics<ModelElement> {
+public:
+	AbstractSemantics<History>(History &history, ExecutionContext &context);
+	virtual ~AbstractSemantics<History>() override;
+
+	virtual shared_ptr<Transition> get_last_transition() = 0;
+	virtual void append(shared_ptr<Grounding<AbstractAction>>) = 0;
+	virtual void append_sensing_result(shared_ptr<Activity>) = 0;
+	virtual bool should_progress() const = 0;
+	virtual void progress() = 0;
+
+	const History &element() const;
+	virtual const ModelElement &model_element() const override;
+
+	virtual ExecutionContext &context() const override;
+
+protected:
+	History &history_;
+	ExecutionContext &context_;
 };
 
 

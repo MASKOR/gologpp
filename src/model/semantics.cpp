@@ -16,16 +16,9 @@
 **************************************************************************/
 
 #include "semantics.h"
+#include "procedural.h"
 
 namespace gologpp {
-
-
-AbstractSemantics<ModelElement>::AbstractSemantics()
-{}
-
-AbstractSemantics<ModelElement>::~AbstractSemantics()
-{}
-
 
 
 }

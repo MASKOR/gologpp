@@ -207,14 +207,14 @@ Value::Value(Value &&c)
 	semantics_ = std::move(c.semantics_);
 
 	if (semantics_)
-		abstract_semantics().update_element(this);
+		abstract_semantics<Value>().update_element(this);
 }
 
 
 Value::Value(const Value &c)
 {
 	if (c.semantics_)
-		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
+		semantics_.reset(c.abstract_semantics<Value>().copy(*this));
 
 	this->representation_ = c.representation_;
 	set_type(c.type());
@@ -224,7 +224,7 @@ Value::Value(const Value &c)
 Value &Value::operator = (const Value &c)
 {
 	if (c.semantics_)
-		throw Bug("Copying a Constant after Semantics have been assigned is forbidden");
+		semantics_.reset(c.abstract_semantics<Value>().copy(*this));
 
 	this->representation_ = c.representation_;
 	set_type(c.type());
@@ -240,7 +240,7 @@ Value &Value::operator = (Value &&c)
 	semantics_ = std::move(c.semantics_);
 
 	if (semantics_)
-		abstract_semantics().update_element(this);
+		abstract_semantics<Value>().update_element(this);
 
 	return *this;
 }
@@ -305,6 +305,30 @@ vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v)
 	return rv;
 }
 
+
+
+AbstractSemantics<Value>::AbstractSemantics(const Value &elem, ExecutionContext &context)
+: expression_(&elem)
+, context_(context)
+{}
+
+const Expression &AbstractSemantics<Value>::expression() const
+{ return *expression_; }
+
+ExecutionContext &AbstractSemantics<Value>::context() const
+{ return context_; }
+
+Value AbstractSemantics<Value>::evaluate(const Binding &, const History &)
+{ return *expression_; }
+
+const ModelElement &AbstractSemantics<Value>::model_element() const
+{ return *expression_; }
+
+const Value &AbstractSemantics<Value>::element() const
+{ return *expression_; }
+
+void AbstractSemantics<Value>::update_element(const Value *elem)
+{ expression_ = elem; }
 
 
 

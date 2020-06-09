@@ -162,12 +162,6 @@ void Scope::attach_semantics(SemanticsFactory &implementor)
 	}
 }
 
-Scope &Scope::scope()
-{ return *this; }
-
-const Scope &Scope::scope() const
-{ return *this; }
-
 Scope &Scope::parent_scope()
 { return parent_scope_; }
 
@@ -319,7 +313,7 @@ void Scope::define_domain(const string &name, const Type &t, const Domain &input
 {
 	shared_ptr<Domain> d = lookup_domain(name, t);
 	if (d) {
-		set_type(t);
+		d->set_type(t);
 		d->define(input);
 	}
 	else

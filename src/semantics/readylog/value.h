@@ -18,11 +18,11 @@
 #ifndef READYLOG_CONSTANT_H_
 #define READYLOG_CONSTANT_H_
 
-#include "semantics.h"
-
 #include <model/semantics.h>
 #include <model/variable.h>
 #include <model/error.h>
+
+#include "semantics.h"
 
 #include <eclipseclass.h>
 
@@ -38,10 +38,12 @@ class Semantics<Value>
 public:
 	Semantics(const Value &value, ReadylogContext &context);
 
-	using Semantics<Expression>::evaluate;
+	using AbstractSemantics<Value>::evaluate;
+	using Semantics<Expression>::expression;
 
 	virtual ~Semantics() override = default;
 	virtual EC_word plterm() override;
+	virtual Semantics<Value> *copy(const Value &target_elem) const override;
 };
 
 

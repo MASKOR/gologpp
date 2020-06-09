@@ -82,4 +82,21 @@ const Expression &Reference<Variable>::arg_for_param(shared_ptr<const Variable>)
 { throw Bug("This method is undefined and should not have been called"); }
 
 
+
+AbstractSemantics<TBinding<Value> >::AbstractSemantics(const TBinding<Value> &elem, ExecutionContext &context)
+: element_(&elem)
+, context_(context)
+{}
+
+const TBinding<Value> &AbstractSemantics<TBinding<Value> >::element() const
+{ return *element_; }
+
+void AbstractSemantics<TBinding<Value> >::update_element(const TBinding<Value> *new_element)
+{ element_ = new_element; }
+
+ExecutionContext &AbstractSemantics<TBinding<Value> >::context() const
+{ return context_; }
+
+
+
 }

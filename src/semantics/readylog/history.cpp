@@ -17,11 +17,11 @@
 
 #include <model/transition.h>
 
+#include "value.h"
 #include "history.h"
 #include "action.h"
 #include "execution.h"
 #include "utilities.h"
-#include "value.h"
 #include "transition.h"
 #include "activity.h"
 
@@ -37,10 +37,17 @@ Semantics<History>::Semantics(History &history, ReadylogContext &context)
 { readylog_history_ = ::list(EC_atom("s0"), ::nil()); }
 
 
+EC_word Semantics<History>::plterm()
+{ return readylog_history_; }
+
+EC_word Semantics<History>::plterm() const
+{ return readylog_history_; }
+
+
 EC_word Semantics<History>::get_history_head()
 {
 	EC_word head, tail;
-	if (current_history().is_list(head, tail) != EC_succeed)
+	if (plterm().is_list(head, tail) != EC_succeed)
 		throw Bug("ReadyLog history is not a list");
 	return head;
 }
@@ -57,13 +64,10 @@ shared_ptr<Transition> Semantics<History>::get_last_transition()
 
 
 void Semantics<History>::append(shared_ptr<Grounding<AbstractAction>> trans)
-{ extend_history(::list(trans->semantics().plterm(), current_history())); }
+{ extend_history(::list(trans->semantics().plterm(), plterm())); }
 
 void Semantics<History>::append_sensing_result(shared_ptr<Activity> a)
-{ extend_history(::list(a->semantics().sensing_result(), current_history())); }
-
-EC_word Semantics<History>::current_history() const
-{ return readylog_history_; }
+{ extend_history(::list(a->semantics().sensing_result(), plterm())); }
 
 bool Semantics<History>::has_changed() const
 { return has_changed_; }
@@ -74,7 +78,7 @@ void Semantics<History>::extend_history(EC_word h)
 	ManagedTerm new_history(h);
 	has_changed_ = ReadylogContext::instance().ec_query(::term(EC_functor(">", 2),
 		::term(EC_functor("length", 1), new_history),
-		::term(EC_functor("length", 1), current_history())
+		::term(EC_functor("length", 1), plterm())
 	));
 	if (has_changed_)
 		readylog_history_ = h;
@@ -85,7 +89,7 @@ bool Semantics<History>::should_progress() const
 {
 	return ReadylogContext::instance().ec_query(
 		::term(EC_functor("should_progress", 1),
-			current_history()
+			plterm()
 		)
 	);
 }
@@ -95,7 +99,7 @@ void Semantics<History>::progress()
 {
 	EC_ref New_history;
 	EC_word query = ::term(EC_functor("update_current_val", 2),
-		current_history(),
+		plterm(),
 		New_history
 	);
 	EC_word q2 = query;
@@ -104,8 +108,6 @@ void Semantics<History>::progress()
 
 	readylog_history_ = New_history;
 }
-
-
 
 
 

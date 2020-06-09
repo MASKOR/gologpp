@@ -49,8 +49,29 @@ public:
 	void set_parent(AbstractLanguageElement *parent);
 	virtual bool operator <= (const Type &type) const;
 
+	template<class GologT = Expression>
+	AbstractSemantics<GologT> &abstract_semantics() const
+	{ return ModelElement::abstract_semantics<GologT>(); }
+
+	template<class GologT = Expression>
+	Semantics<GologT> &elem_semantics() const
+	{ return ModelElement::semantics<GologT>(); }
+
 protected:
 	AbstractLanguageElement *parent_;
+};
+
+
+
+template<>
+class AbstractSemantics<Expression>
+: public virtual AbstractSemantics<ModelElement>
+{
+public:
+	AbstractSemantics() = default;
+	virtual Value evaluate(const Binding &b, const History &h) = 0;
+
+	virtual const Expression &expression() const = 0;
 };
 
 
@@ -73,8 +94,36 @@ public:
 	const ModelElement *parent() const;
 	void set_parent(AbstractLanguageElement *parent);
 
+	template<class GologT = Instruction>
+	AbstractSemantics<GologT> &abstract_semantics() const
+	{ return ModelElement::abstract_semantics<GologT>(); }
+
+	template<class GologT = Instruction>
+	Semantics<GologT> &elem_semantics() const
+	{ return ModelElement::semantics<GologT>(); }
+
 protected:
 	AbstractLanguageElement *parent_;
+};
+
+
+
+template<>
+class AbstractSemantics<Instruction>
+: public virtual AbstractSemantics<ModelElement>
+{
+public:
+	AbstractSemantics() = default;
+	virtual bool final(const Binding &b, const History &h) = 0;
+
+	/**
+	 * @param b Binding that gives a value to all child variables that aren't bound by a pick statement
+	 * @param h Current history (i.e. the current situation)
+	 * @return Protocol: nullptr = not possible. Empty Plan = final. Non-empty plan = Execute plan and re-execute trans if not final.
+	 */
+	virtual unique_ptr<Plan> trans(const Binding &b, History &h) = 0;
+
+	virtual const Instruction &instruction() const = 0;
 };
 
 

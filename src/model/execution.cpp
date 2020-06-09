@@ -35,6 +35,7 @@ namespace gologpp {
 AExecutionContext::AExecutionContext(unique_ptr<SemanticsFactory> &&semantics, unique_ptr<PlatformBackend> &&platform_backend)
 : platform_backend_(move(platform_backend))
 , semantics_(std::move(semantics))
+, silent_(false)
 , terminated(false)
 {
 	if (!platform_backend_)
@@ -102,6 +103,42 @@ PlatformBackend &AExecutionContext::backend()
 History &AExecutionContext::history()
 { return history_; }
 
+void AExecutionContext::drain_exog_queue()
+{
+	while (!exog_empty()) {
+		shared_ptr<Grounding<AbstractAction>> exog = exog_queue_pop();
+		if (!(*exog)->silent()) {
+			std::cout << ">>> Exogenous event: " << exog << std::endl;
+			silent_ = false;
+		}
+		exog->attach_semantics(semantics_factory());
+		history().abstract_semantics<History>().append(exog);
+	}
+}
+
+void AExecutionContext::drain_exog_queue_blocking()
+{
+	if (!silent_)
+		std::cout << "=== No transition possible: Waiting for exogenous events..." << std::endl;
+
+	shared_ptr<Grounding<AbstractAction>> exog = exog_queue_poll();
+	if (exog) {
+		if (!(*exog)->silent()) {
+			std::cout << ">>> Exogenous event: " << exog << std::endl;
+			silent_ = false;
+		}
+		exog->attach_semantics(semantics_factory());
+		history().abstract_semantics<History>().append(exog);
+		drain_exog_queue();
+	}
+}
+
+bool AExecutionContext::silent() const
+{ return silent_; }
+
+void AExecutionContext::set_silent(bool silent)
+{ silent_ = silent; }
+
 
 
 ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&semantics, unique_ptr<PlatformBackend> &&exec_backend)
@@ -117,81 +154,60 @@ Clock::time_point ExecutionContext::context_time() const
 
 void ExecutionContext::run(Block &&program)
 {
-	history().attach_semantics(semantics_factory());
-	global_scope().implement_globals(semantics_factory(), *this);
+	try {
+		history().attach_semantics(semantics_factory());
+		global_scope().implement_globals(semantics_factory(), *this);
 
-	program.attach_semantics(semantics_factory());
-	compile(program);
+		program.attach_semantics(semantics_factory());
+		compile(program);
 
-	bool silent_loop;
-	while (!final(program, history()) && !terminated) {
-		silent_loop = true;
-		context_time_ = backend().time();
+		TBinding<Value> empty_binding;
+		empty_binding.attach_semantics(semantics_factory());
 
-		while (!exog_empty()) {
-			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_pop();
-			if (!(*exog)->silent()) {
-				std::cout << ">>> Exogenous event: " << exog << std::endl;
-				silent_loop = false;
-			}
-			exog->attach_semantics(semantics_factory());
-			history().abstract_semantics().append(exog);
-		}
+		while (!program.abstract_semantics().final(empty_binding, history())) {
+			//set_silent(true);
+			context_time_ = backend().time();
 
-		unique_ptr<Plan> plan;
+			drain_exog_queue();
 
-		if ((plan = trans(program, history()))) {
-			for (const TimedInstruction &timed_instr : plan->elements()) {
-				if (timed_instr.instruction().is_a<Transition>()) {
-					// TODO: handle timing
-					shared_ptr<Transition> trans(new Transition(
-						dynamic_cast<const Transition &>(timed_instr.instruction())
-					));
-					if (!(*trans)->silent()) {
-						std::cout << "<<< trans: " << trans->str() << std::endl;
-						silent_loop = false;
+			unique_ptr<Plan> plan(program.abstract_semantics().trans(empty_binding, history()));
+
+			if (plan) {
+				auto plan_it = plan->elements().begin();
+				while (plan_it != plan->elements().end()) {
+					if (terminated)
+						throw Terminate();
+
+					// Plan elements are expected to not return plans again (nullptr or empty Plan).
+					unique_ptr<Plan> empty_plan {
+						plan_it->instruction().abstract_semantics().trans(empty_binding, history())
+					};
+					if (empty_plan) {
+						if (!empty_plan->elements().empty())
+							throw Bug("Plan instruction returned a plan: " + plan_it->instruction().str());
+						++plan_it;
 					}
-					if (trans->hook() == Transition::Hook::CANCEL)
-						backend().cancel_activity(trans);
-					else if (trans->hook() == Transition::Hook::START)
-						backend().start_activity(trans);
-					else if (
-					(trans->hook() == Transition::Hook::FINISH || trans->hook() == Transition::Hook::END)
-					&& trans->target()->senses()
-					)
-						history().abstract_semantics().append_sensing_result(backend().end_activity(trans));
-					else
-						backend().end_activity(trans);
+					else {
+						// Current Plan element not executable
+						drain_exog_queue_blocking();
+					}
 				}
-				else if (timed_instr.instruction().is_a<Test>()) {
-					// TODO: check condition marker
-				}
-				else
-					throw Bug("Unexpected instruction in plan: " + timed_instr.instruction().str());
+			}
+			else {
+				drain_exog_queue_blocking();
+			}
+
+			if (terminated)
+				throw Terminate();
+
+			if (history().abstract_semantics<History>().should_progress()) {
+				std::cout << "=== Progressing history." << std::endl;
+				history().abstract_semantics<History>().progress();
 			}
 		}
-		else {
-			if (!silent_loop)
-				std::cout << "=== No transition possible: Waiting for exogenous events..." << std::endl;
-			shared_ptr<Grounding<AbstractAction>> exog = exog_queue_poll();
-			if (exog) {
-				if (!(*exog)->silent()) {
-					std::cout << ">>> Exogenous event: " << exog << std::endl;
-					silent_loop = false;
-				}
-				exog->attach_semantics(semantics_factory());
-				history().abstract_semantics().append(exog);
-			}
-		}
-
-		if (history().abstract_semantics().should_progress()) {
-			std::cout << "=== Progressing history." << std::endl;
-			history().abstract_semantics().progress();
-		}
-	}
-
-	if (terminated)
+	} catch (Terminate &) {
 		std::cout << ">>> Terminated." << std::endl;
+	}
 }
 
 

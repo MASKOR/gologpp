@@ -15,11 +15,11 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
+#include "value.h"
 #include "transition.h"
 #include "execution.h"
 #include "reference.h"
 #include "utilities.h"
-#include "value.h"
 
 
 namespace gologpp {
@@ -52,18 +52,24 @@ shared_ptr<Transition> gologpp::Semantics<Transition>::transition_from_plterm(EC
 	if (state_it == name2state.end())
 		return nullptr;
 
-	if (t.arity() != 2)
-		throw EngineError("Transition arity must be 2: " + headname);
+	if (t.arity() != 1)
+		throw EngineError("Transition arity must be 1: " + headname);
 
 	t.arg(1, t);
 	headname = functor_name(t);
 
 	vector<unique_ptr<Value>> args = plterm_args(t);
 	shared_ptr<Action> action = global_scope().lookup_global<Action>(headname);
-	shared_ptr<Transition> rv;
 
-	return std::make_shared<Transition>(action, std::move(args), state_it->second);
+	shared_ptr<Transition> rv { new Transition { action, std::move(args), state_it->second} };
+	rv->attach_semantics(ReadylogContext::instance().semantics_factory());
+
+	return rv;
 }
+
+
+Semantics<Transition> *Semantics<Transition>::copy(const Transition &target_element) const
+{ return new Semantics<Transition>(target_element, rl_context()); }
 
 
 

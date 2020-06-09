@@ -22,12 +22,17 @@
 #include "reference.h"
 #include "action.h"
 #include "grounding.h"
+#include "expressions.h"
 
 
 namespace gologpp {
 
 
-class Transition : public Grounding<Action>, public LanguageElement<Transition> {
+class Transition
+: public Grounding<Action>
+, public LanguageElement<Transition>
+, public std::enable_shared_from_this<Transition>
+{
 public:
 	enum Hook { START, CANCEL, FINISH, FAIL, END };
 
@@ -44,6 +49,35 @@ private:
 
 
 string to_string(Transition::Hook);
+
+
+
+template<>
+class AbstractSemantics<Transition>
+: public AbstractSemantics<Instruction>
+{
+public:
+	AbstractSemantics(const Transition &elem, ExecutionContext &context);
+	AbstractSemantics(const AbstractSemantics<Transition> &other);
+
+	virtual bool final(const Binding &, const History &) override;
+	virtual unique_ptr<Plan> trans(const Binding &, History &) override;
+
+	const Transition &element() const;
+	virtual const ModelElement &model_element() const override;
+	virtual const Instruction &instruction() const override;
+
+	void update_element(const Transition *new_element);
+	virtual AbstractSemantics<Transition> *copy(const Transition &target_element) const = 0;
+
+	virtual ExecutionContext &context() const override;
+
+private:
+	const Transition *element_;
+	ExecutionContext &context_;
+	bool final_;
+};
+
 
 
 }

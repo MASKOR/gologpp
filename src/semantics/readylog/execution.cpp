@@ -15,6 +15,7 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
+#include "value.h"
 #include "execution.h"
 
 #include <eclipseclass.h>
@@ -25,7 +26,6 @@
 #include "fluent.h"
 #include "utilities.h"
 #include "history.h"
-#include "value.h"
 #include "transition.h"
 
 #include <model/plan.h>
@@ -233,124 +233,15 @@ string ReadylogContext::to_string(EC_word t)
 		throw Bug("Error converting eclipse term to string");
 }
 
+const eclipse_opts &ReadylogContext::options() const
+{ return options_; }
+
 
 void ReadylogContext::ec_cut()
 {
 	EC_resume();
 	if (last_rv_ == EC_status::EC_succeed)
 		ec_start_->cut_to();
-}
-
-
-bool ReadylogContext::final(Block &program, History &history)
-{
-	EC_word final = ::term(EC_functor("final", 2),
-		program.semantics().current_program(),
-		history.semantics().current_history()
-	);
-	bool rv = ec_query(final);
-	return rv;
-}
-
-
-unique_ptr<Plan> ReadylogContext::trans(Block &program, History &history)
-{
-	if (!options_.guitrace && options_.toplevel) {
-		post_goal("toplevel");
-		EC_resume();
-	}//*/
-
-	EC_ref h1, e1;
-
-	EC_word trans = ::term(EC_functor("trans", 4),
-		program.semantics().current_program(),
-		history.semantics().current_history(),
-		e1, h1
-	);
-
-	EC_ref Ball;
-	EC_word catch_trans = ::term(EC_functor("catch", 3),
-		trans, Ball, EC_atom("true")
-	);
-
-	EC_word q;
-	if (options_.trace)
-		q = ::term(EC_functor("trace", 1), catch_trans);
-	else
-		q = catch_trans;
-
-
-	if (ec_query(q)) {
-		if (EC_word(Ball).is_var() != EC_succeed)
-			// Caught eclipse exception
-			throw EclipseError(this->to_string(q) + ": " + this->to_string(Ball));
-		else {
-			// Successful transition
-
-			EC_word prog(e1), head, tail;
-
-			if (prog.is_list(head, tail) != EC_succeed)
-				throw EclipseError("Output program ist not a list: " + this->to_string(prog));
-
-			unique_ptr<Plan> rv;
-
-			if (functor_name(head) == "applyPolicy") {
-				// program executed a solve operator: a policy was produced
-				rv = parse_plan(head);
-			}
-			else {
-				// Normal transition
-				rv.reset(new Plan());
-				rv->append_element(new Transition(*history.semantics().get_last_transition()));
-			}
-
-			program.semantics().set_current_program(tail);
-			history.semantics().extend_history(h1);
-
-			return rv;
-		}
-	} else
-		return nullptr;
-}
-
-
-unique_ptr<Plan> ReadylogContext::parse_plan(EC_word policy)
-{
-	unique_ptr<Plan> rv(new Plan());
-
-	EC_word list;
-	if (policy.arg(1, list) != EC_succeed)
-		throw Bug("Unexpected policy: " + ReadylogContext::to_string(policy));
-
-	EC_word head;
-	while(list.is_nil() != EC_succeed && list.is_list(head, list) == EC_succeed) {
-		shared_ptr<Transition> curr_action = Semantics<Transition>::transition_from_plterm(head);
-
-		if (curr_action)
-			rv->append_element(new Transition(*curr_action));
-
-		else if (functor_name(head) == "marker") {
-
-			Test *marker = new Test(new Value(get_type<BoolType>(), false));
-			marker->attach_semantics(this->semantics_factory());
-
-			EC_word cond, value;
-			EC_atom v_atom;
-			if (head.arg(1, cond) != EC_succeed
-				|| head.arg(2, value) != EC_succeed
-				|| value.is_atom(&v_atom) != EC_succeed
-			)
-				throw Bug("Unexpected marker: " + ReadylogContext::to_string(head));
-
-			if (v_atom == EC_atom("fail") || v_atom == EC_atom("false"))
-				cond = ::term(EC_functor("not", 1), cond);
-
-			marker->semantics().make_plan_marker(cond);
-			rv->append_element(marker);
-		}
-	}
-
-	return rv;
 }
 
 

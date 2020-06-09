@@ -49,6 +49,7 @@ string cmp_functor(const Comparison &cmp)
 	case ComparisonOperator::NEQ:
 		return "\\=";
 	}
+	throw Bug("Unkown comparison operator " + std::to_string(cmp.op()));
 }
 
 

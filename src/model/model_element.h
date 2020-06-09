@@ -40,8 +40,9 @@ public:
 
 	virtual ~ModelElement() = default;
 
-	AbstractSemantics<ModelElement> &abstract_semantics() const
-	{ return *semantics_; }
+	template<class GologT = ModelElement>
+	AbstractSemantics<GologT> &abstract_semantics() const
+	{ return dynamic_cast<AbstractSemantics<GologT> &>(*semantics_); }
 
 	template<class GologT = ModelElement>
 	Semantics<GologT> &semantics() const
@@ -55,6 +56,24 @@ public:
 
 protected:
 	std::unique_ptr<AbstractSemantics<ModelElement>> semantics_;
+};
+
+
+
+template<>
+class AbstractSemantics<ModelElement> {
+public:
+	AbstractSemantics() = default;
+
+	virtual ~AbstractSemantics<ModelElement>();
+
+	virtual ExecutionContext &context() const = 0;
+	virtual const ModelElement &model_element() const = 0;
+
+private:
+	// Not trivially moveable because cross-referencing with language element
+	AbstractSemantics(AbstractSemantics &&) = delete;
+	AbstractSemantics & operator = (AbstractSemantics &&) = delete;
 };
 
 

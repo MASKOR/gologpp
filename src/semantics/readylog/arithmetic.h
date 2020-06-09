@@ -18,12 +18,12 @@
 #ifndef READYLOG_ARITHMETIC_H_
 #define READYLOG_ARITHMETIC_H_
 
+
+#include <model/arithmetic.h>
 #include "semantics.h"
 #include <eclipseclass.h>
 
 namespace gologpp {
-
-class ArithmeticOperation;
 
 template<>
 class Semantics<ArithmeticOperation>

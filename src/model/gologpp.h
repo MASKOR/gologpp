@@ -7,6 +7,7 @@
 #include <list>
 
 #include <boost/fusion/include/vector.hpp>
+#include <boost/fusion/container/map.hpp>
 
 namespace gologpp {
 
@@ -143,50 +144,108 @@ class ExecutionContext;
 
 class PlatformBackend;
 
+
+
+
+
 #define GOLOGPP_PREDEFINED_TYPES \
 	(NumberType)(BoolType)(StringType)(SymbolType)(VoidType)(UndefinedType)
 
 #define GOLOGPP_TYPES \
 	GOLOGPP_PREDEFINED_TYPES(CompoundType)(ListType)
 
-#define GOLOGPP_SEMANTIC_TYPES \
-	(EffectAxiom<Reference<Fluent>>) \
-	(EffectAxiom<FieldAccess>) \
-	(EffectAxiom<ListAccess>) \
-	(InitialValue)(Fluent)(Variable) \
-	(Value) \
+#define GOLOGPP_INSTRUCTIONS \
 	(Assignment<Reference<Fluent>>) \
 	(Assignment<Reference<Variable>>) \
 	(Assignment<FieldAccess>) \
 	(Assignment<ListAccess>) \
+	(Pick) \
+	(ExogEvent) \
+	(Concurrent) \
+	(Block) \
+	(Choose) \
+	(Search) \
+	(Solve) \
+	(Test) \
+	(While) \
+	(Conditional<Instruction>) \
+	(During) \
+	(Reference<Action>) \
+	(Reference<ExogAction>) \
+	(DurativeCall) \
+	(Reference<Procedure>) \
+	(ListPop) \
+	(ListPush)
+
+#define GOLOGPP_EXPRESSIONS \
+	(Variable) \
+	(Value) \
 	(Reference<Fluent>) \
 	(Reference<Variable>) \
 	(Reference<Function>) \
-	(Reference<Procedure>) \
-	(TBinding<Expression>)(TBinding<Value>) \
-	(Pick) \
 	(FieldAccess) \
-	(ListAccess)(ListLength) \
-	(ListPop)(ListPush) \
+	(ListAccess) \
+	(ListLength) \
+	(ArithmeticOperation) \
+	(Negation) \
+	(BooleanOperation) \
+	(Quantification) \
+	(Conditional<Expression>) \
+	(StringConcatenation) \
+	(ToString) \
+	(Comparison) \
+	(CompoundExpression) \
+	(ListExpression)
+
+#define GOLOGPP_OTHER \
+	(EffectAxiom<Reference<Fluent>>) \
+	(EffectAxiom<FieldAccess>) \
+	(EffectAxiom<ListAccess>) \
+	(InitialValue)(Fluent) \
+	(TBinding<Expression>) \
+	(TBinding<Value>) \
 	(Domain) \
 	(Function) \
 	(Procedure) \
-	(Action)(Activity)(Transition) \
-	(ExogAction)(ExogEvent) \
-	(Scope)(ArithmeticOperation) \
-	(Negation)(BooleanOperation)(Quantification)(Concurrent) \
-	(Block)(Choose)(Search)(Solve)(Test)(While) \
-	(Conditional<Instruction>) \
-	(Conditional<Expression>) \
-	(During) \
-	(History)(Reference<Action>) \
-	(Reference<ExogAction>) \
-	(StringConcatenation) \
-	(ToString) \
-	(DurativeCall) \
-	(Comparison) \
-	(CompoundExpression) (ListExpression)
+	(Action) \
+	(Activity) \
+	(Transition) \
+	(ExogAction) \
+	(Scope) \
+	(History)
 
+#define GOLOGPP_SEMANTIC_TYPES \
+	GOLOGPP_INSTRUCTIONS \
+	GOLOGPP_EXPRESSIONS \
+	GOLOGPP_OTHER
+
+
+/*
+using elem_types = boost::mpl::map <
+boost::mpl::pair<Assignment<Reference<Fluent>>, Instruction>,
+boost::mpl::pair<Assignment<Reference<Variable>>, Instruction>,
+boost::mpl::pair<Assignment<FieldAccess>, Instruction>,
+boost::mpl::pair<Assignment<ListAccess>, Instruction>,
+boost::mpl::pair<Pick, Instruction>,
+boost::mpl::pair<Plan, Instruction>,
+boost::mpl::pair<ExogEvent, Instruction>,
+boost::mpl::pair<Concurrent, Instruction>,
+boost::mpl::pair<Block, Instruction>,
+boost::mpl::pair<Choose, Instruction>,
+boost::mpl::pair<Search, Instruction>,
+boost::mpl::pair<Solve, Instruction>,
+boost::mpl::pair<Test, Instruction>,
+boost::mpl::pair<While, Instruction>,
+boost::mpl::pair<Conditional<Instruction>, Instruction>,
+boost::mpl::pair<During, Instruction>,
+boost::mpl::pair<Reference<Action>, Instruction>,
+boost::mpl::pair<Reference<ExogAction>, Instruction>,
+boost::mpl::pair<DurativeCall, Instruction>,
+boost::mpl::pair<Reference<Procedure>, Instruction>,
+boost::mpl::pair<ListPop, Instruction>,
+boost::mpl::pair<ListPush, Instruction>
+
+>;*/
 
 } // namespace gologpp
 

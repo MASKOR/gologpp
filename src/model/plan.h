@@ -22,8 +22,6 @@
 #include <initializer_list>
 
 #include "gologpp.h"
-
-#include "gologpp.h"
 #include "expressions.h"
 
 
@@ -60,7 +58,9 @@ private:
 
 
 
-class Plan {
+class Plan
+//: public ModelElement
+{
 public:
 	Plan() = default;
 	Plan(std::initializer_list<unique_ptr<Instruction>> &&step);
@@ -68,10 +68,15 @@ public:
 
 	Value max_reward(const Binding &binding, const Reference<Function> &reward_func);
 
-	void append_element(TimedInstruction &&);
+	void append(TimedInstruction &&);
+	void append(Plan &&);
 
 	vector<TimedInstruction> &elements();
 	const vector<TimedInstruction> &elements() const;
+
+/*	virtual void attach_semantics(SemanticsFactory &f) override;
+
+	virtual string to_string(const string &pfx) const override;*/
 
 private:
 	vector<TimedInstruction> elements_;

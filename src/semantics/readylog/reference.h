@@ -62,6 +62,40 @@ public:
 
 		return to_ec_term(",", pl_binds);
 	}
+
+	virtual const TBinding<ArgsT> &model_element() const override
+	{ return this->element(); }
+};
+
+
+
+template<>
+class Semantics<TBinding<Value>>
+: public Semantics<ModelElement>
+, public AbstractSemantics<TBinding<Value>>
+{
+public:
+	using AbstractSemantics<TBinding<Value>>::AbstractSemantics;
+
+	virtual EC_word plterm() override
+	{
+		vector<EC_word> pl_binds;
+		for (const auto &pval : this->element().map()) {
+			pval.first->semantics().init();
+			pl_binds.push_back(
+				::term(EC_functor("=", 2),
+					pval.first->semantics().plterm(),
+					pval.second.get().semantics().plterm()
+				)
+			);
+		}
+
+		return to_ec_term(",", pl_binds);
+	}
+
+	virtual Semantics<TBinding<Value>> *copy(const TBinding<Value> &target_element) const override;
+
+	virtual const TBinding<Value> &model_element() const override;
 };
 
 

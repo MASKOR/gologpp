@@ -123,6 +123,8 @@ public:
 	ManagedTerm();
 	~ManagedTerm();
 
+	bool initialized() const;
+
 	operator EC_word () const;
 	ManagedTerm &operator = (const EC_word &w);
 	ManagedTerm &operator = (const ManagedTerm &);

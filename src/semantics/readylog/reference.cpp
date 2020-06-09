@@ -42,4 +42,13 @@ EC_word Semantics<Reference<Action>>::plterm()
 }
 
 
+Semantics<TBinding<Value>> *Semantics<TBinding<Value>>::copy(const TBinding<Value> &target_element) const
+{ return new Semantics<TBinding<Value>>(target_element, rl_context()); }
+
+const TBinding<Value> &Semantics<TBinding<Value> >::model_element() const
+{ return this->element(); }
+
+
+
+
 } // namespace gologpp

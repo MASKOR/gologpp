@@ -179,6 +179,30 @@ vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v);
 
 
 
+template<>
+class AbstractSemantics<Value>
+: public AbstractSemantics<Expression> {
+public:
+	AbstractSemantics(const Value &elem, ExecutionContext &context);
+
+	virtual ~AbstractSemantics<Value>() = default;
+
+	virtual ExecutionContext &context() const override;
+
+	virtual Value evaluate(const Binding &, const History &) override;
+	virtual AbstractSemantics<Value> *copy(const Value &target_element) const = 0;
+	virtual void update_element(const Value *elem);
+
+	virtual const Expression &expression() const override;
+	virtual const ModelElement &model_element() const override;
+	const Value &element() const;
+
+private:
+	const Value *expression_;
+	ExecutionContext &context_;
+};
+
+
 } // namespace gologpp
 
 

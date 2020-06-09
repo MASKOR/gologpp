@@ -30,4 +30,11 @@ void ModelElement::set_semantics(std::unique_ptr<AbstractSemantics<ModelElement>
 
 
 
+/*AbstractSemantics<ModelElement>::AbstractSemantics()
+{}*/
+
+AbstractSemantics<ModelElement>::~AbstractSemantics()
+{}
+
+
 }

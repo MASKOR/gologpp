@@ -21,6 +21,7 @@
 #include "gologpp.h"
 #include "action.h"
 #include "reference.h"
+#include "transition.h"
 
 #include <random>
 #include <chrono>
@@ -50,14 +51,17 @@ struct Clock {
 
 class PlatformBackend {
 public:
-	using ActivitySet = std::unordered_set<shared_ptr<Grounding<Action>>>;
+	using ActivityMap = std::unordered_map <
+		size_t,
+		shared_ptr<Grounding<Action>>
+	>;
 	using Lock = std::unique_lock<std::recursive_mutex>;
 
 	virtual ~PlatformBackend();
 
-	shared_ptr<Activity> end_activity(shared_ptr<Transition>);
-	shared_ptr<Activity> start_activity(shared_ptr<Transition>);
-	void cancel_activity(shared_ptr<Transition>);
+	shared_ptr<Activity> end_activity(const Transition &);
+	shared_ptr<Activity> start_activity(const Transition &);
+	void cancel_activity(const Transition &);
 	Lock lock();
 
 	virtual Clock::time_point time() const noexcept = 0;
@@ -68,7 +72,7 @@ private:
 	virtual void execute_activity(shared_ptr<Activity> a) = 0;
 	virtual void preempt_activity(shared_ptr<Activity> a) = 0;
 
-	ActivitySet activities_;
+	ActivityMap activities_;
 	AExecutionContext *exec_ctx_ = nullptr;
 	Lock::mutex_type mutex_;
 };

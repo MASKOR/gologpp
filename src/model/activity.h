@@ -37,7 +37,7 @@ public:
 	enum State { IDLE, RUNNING, FINAL, CANCELLED, FAILED };
 
 	Activity(const shared_ptr<Action> &action, vector<unique_ptr<Value>> &&args, AExecutionContext &, State state = IDLE);
-	Activity(const shared_ptr<Transition> &, AExecutionContext &);
+	Activity(const Transition &, AExecutionContext &);
 
 	State state() const;
 	void set_state(State s);

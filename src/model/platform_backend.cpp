@@ -35,30 +35,30 @@ Clock::time_point Clock::now() noexcept
 PlatformBackend::~PlatformBackend()
 {}
 
-shared_ptr<Activity> PlatformBackend::start_activity(shared_ptr<Transition> trans)
+shared_ptr<Activity> PlatformBackend::start_activity(const Transition &trans)
 {
 	Lock l(lock());
 	shared_ptr<Activity> a = std::make_shared<Activity>(trans, *exec_ctx_);
-	auto it = activities_.find(a);
+	auto it = activities_.find(a->hash());
 	if (it != activities_.end())
 		throw UserError(
 			"Cannot start an action while another one with the same arguments is already running."
-			" Currently: " + (*it)->str()
+			" Currently: " + it->second->str()
 		);
 	a->attach_semantics(exec_ctx_->semantics_factory());
 	execute_activity(a);
-	activities_.insert(a);
+	activities_.insert({a->hash(), a});
 	return a;
 }
 
-void PlatformBackend::cancel_activity(shared_ptr<Transition> trans)
+void PlatformBackend::cancel_activity(const Transition &trans)
 {
 	Lock l(lock());
-	auto it = activities_.find(trans);
+	auto it = activities_.find(trans.hash());
 	if (it == activities_.end())
 		throw Bug("Activity lost: " + trans->str());
 	else
-		preempt_activity(std::dynamic_pointer_cast<Activity>(*it));
+		preempt_activity(std::dynamic_pointer_cast<Activity>(it->second));
 }
 
 
@@ -66,28 +66,28 @@ PlatformBackend::Lock PlatformBackend::lock()
 { return Lock(mutex_); }
 
 
-shared_ptr<Activity> PlatformBackend::end_activity(shared_ptr<Transition> trans)
+shared_ptr<Activity> PlatformBackend::end_activity(const Transition &trans)
 {
 	Lock l(lock());
 
-	ActivitySet::iterator it = activities_.find(trans);
+	ActivityMap::iterator it = activities_.find(trans.hash());
 	shared_ptr<Activity> dur_running;
 	if (it != activities_.end())
-		dur_running = std::dynamic_pointer_cast<Activity>(*it);
+		dur_running = std::dynamic_pointer_cast<Activity>(it->second);
 
 	if (!dur_running)
 		throw LostTransition(trans->str());
 
 	// Either the durative action's state exactly matches the primitive action's hook,
 	// or the hook is END, which may be executed if the durative state is either FINAL, FAILED or CANCELLED
-	if ((trans->hook() == Transition::Hook::END
+	if ((trans.hook() == Transition::Hook::END
 			&& (
 				dur_running->state() == Activity::State::FINAL
 				|| dur_running->state() == Activity::State::FAILED
 				|| dur_running->state() == Activity::State::CANCELLED
 			)
 		)
-		|| dur_running->state() == Activity::target_state(trans->hook())
+		|| dur_running->state() == Activity::target_state(trans.hook())
 	) {
 		activities_.erase(it);
 		return dur_running;

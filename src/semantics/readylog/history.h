@@ -27,7 +27,10 @@ namespace gologpp {
 
 
 template<>
-class Semantics<History> : public AbstractSemantics<History> {
+class Semantics<History>
+: public AbstractSemantics<History>
+, public Semantics<ModelElement>
+{
 public:
 	Semantics(History &, ReadylogContext &context);
 	virtual ~Semantics() override = default;
@@ -38,9 +41,11 @@ public:
 	virtual bool should_progress() const override;
 	virtual void progress() override;
 
-	EC_word current_history() const;
 	void extend_history(EC_word h);
 	bool has_changed() const;
+
+	virtual EC_word plterm() override;
+	EC_word plterm() const;
 
 private:
 	EC_word get_history_head();

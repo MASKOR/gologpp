@@ -268,6 +268,7 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/list_expression.cpp
 		src/semantics/readylog/transition.cpp
 		src/semantics/readylog/activity.cpp
+		src/semantics/readylog/plan.cpp
 	)
 
 	link_directories(${ECLIPSE_LIBRARY_DIRS})
@@ -303,6 +304,7 @@ if (${BUILD_READYLOG_IMPL})
 		src/semantics/readylog/list_expression.h
 		src/semantics/readylog/transition.h
 		src/semantics/readylog/activity.h
+		src/semantics/readylog/plan.h
 
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/readylog
 	)

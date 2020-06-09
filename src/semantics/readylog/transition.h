@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <model/transition.h>
 #include "semantics.h"
 
 
@@ -25,14 +26,17 @@ namespace gologpp {
 
 template<>
 class Semantics<Transition>
-: public Semantics<ModelElement>
-, public AbstractSemantics<Transition>
+: public AbstractSemantics<Transition>
+, public Semantics<Instruction>
 {
 public:
 	using AbstractSemantics<Transition>::AbstractSemantics;
-	virtual ~Semantics() override = default;
+	using AbstractSemantics<Transition>::final;
+	using AbstractSemantics<Transition>::trans;
 
 	virtual EC_word plterm() override;
+
+	virtual Semantics<Transition> *copy(const Transition &target_element) const override;
 
 	static shared_ptr<Transition> transition_from_plterm(EC_word);
 };

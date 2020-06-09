@@ -36,6 +36,10 @@
 namespace gologpp {
 
 
+class Terminate {
+};
+
+
 
 class AExecutionContext {
 public:
@@ -69,6 +73,12 @@ public:
 	PlatformBackend &backend();
 	History &history();
 
+	void drain_exog_queue();
+	void drain_exog_queue_blocking();
+
+	void set_silent(bool silent);
+	bool silent() const;
+
 private:
 	std::mutex exog_mutex_;
 	std::condition_variable queue_empty_condition_;
@@ -78,6 +88,7 @@ private:
 	unique_ptr<PlatformBackend> platform_backend_;
 	unique_ptr<SemanticsFactory> semantics_;
 	History history_;
+	bool silent_;
 
 protected:
 	std::atomic_bool terminated;
@@ -96,9 +107,6 @@ public:
 	Clock::time_point context_time() const;
 
 private:
-	virtual bool final(Block &program, History &h) = 0;
-	virtual unique_ptr<Plan> trans(Block &program, History &h) = 0;
-
 	Clock::time_point context_time_;
 };
 

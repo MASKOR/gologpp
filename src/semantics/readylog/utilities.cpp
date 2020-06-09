@@ -244,7 +244,8 @@ ManagedTerm &ManagedTerm::operator= (const EC_word &other)
 ManagedTerm &ManagedTerm::operator= (const ManagedTerm &other)
 { return operator= (EC_word(other)); }
 
-
+bool ManagedTerm::initialized() const
+{ return index_ >= 0; }
 
 
 }

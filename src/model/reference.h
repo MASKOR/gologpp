@@ -51,6 +51,9 @@ public:
 		std::reference_wrapper<ExprT>
 	>;
 
+	TBinding(const TBinding<ExprT> &) = default;
+	TBinding() = default;
+
 	virtual ~TBinding() = default;
 
 	void bind(shared_ptr<const Variable> var, ExprT &expr)
@@ -67,9 +70,11 @@ public:
 
 	virtual void attach_semantics(SemanticsFactory &f) override
 	{
-		if (!semantics_)
+		if (!semantics_) {
+			set_semantics(f.make_semantics(*this));
 			for (auto &entry : var_bindings_)
 				entry.second.get().attach_semantics(f);
+		}
 	}
 
 	const MapT &map() const
@@ -89,6 +94,27 @@ private:
 	MapT var_bindings_;
 };
 
+
+
+template<>
+class AbstractSemantics<TBinding<Value>>
+: public virtual AbstractSemantics<ModelElement>
+{
+public:
+	AbstractSemantics(const TBinding<Value> &elem, ExecutionContext &context);
+
+	virtual ~AbstractSemantics<TBinding<Value>>() = default;
+
+	const TBinding<Value> &element() const;
+	void update_element(const TBinding<Value> *new_element);
+	virtual ExecutionContext &context() const override;
+
+	virtual AbstractSemantics<TBinding<Value>> *copy(const TBinding<Value> &target_element) const = 0;
+
+private:
+	const TBinding<Value> *element_;
+	ExecutionContext &context_;
+};
 
 
 
@@ -269,6 +295,7 @@ public:
 	{
 		if (!this->semantics_) {
 			this->semantics_ = f.make_semantics(*this);
+			this->params_to_args().attach_semantics(f);
 			for (auto &arg : this->args())
 				arg->attach_semantics(f);
 		}
@@ -375,46 +402,6 @@ struct equal_to<gologpp::Reference<TargetT> *> {
 	bool operator () (
 		const gologpp::Reference<TargetT> *lhs,
 		const gologpp::Reference<TargetT> *rhs
-	) const {
-		return *lhs == *rhs;
-	}
-};
-
-
-template<class TargetT>
-struct hash<gologpp::Grounding<TargetT>> {
-	size_t operator () (const gologpp::Grounding<TargetT> &o) const
-	{ return o.hash(); }
-};
-
-template<class TargetT>
-struct hash<gologpp::unique_ptr<gologpp::Grounding<TargetT>>> {
-	size_t operator () (const gologpp::unique_ptr<gologpp::Grounding<TargetT>> &o) const
-	{ return o->hash(); }
-};
-
-template<class TargetT>
-struct hash<gologpp::shared_ptr<gologpp::Grounding<TargetT>>> {
-	size_t operator () (const gologpp::shared_ptr<gologpp::Grounding<TargetT>> &o) const
-	{ return o->hash(); }
-};
-
-
-template<class TargetT>
-struct equal_to<gologpp::unique_ptr<gologpp::Grounding<TargetT>>> {
-	bool operator () (
-		const gologpp::unique_ptr<gologpp::Grounding<TargetT>> &lhs,
-		const gologpp::unique_ptr<gologpp::Grounding<TargetT>> &rhs
-	) const {
-		return *lhs == *rhs;
-	}
-};
-
-template<class TargetT>
-struct equal_to<gologpp::shared_ptr<gologpp::Grounding<TargetT>>> {
-	bool operator () (
-		const gologpp::shared_ptr<gologpp::Grounding<TargetT>> &lhs,
-		const gologpp::shared_ptr<gologpp::Grounding<TargetT>> &rhs
 	) const {
 		return *lhs == *rhs;
 	}

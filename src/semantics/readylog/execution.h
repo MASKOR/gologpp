@@ -21,10 +21,7 @@
 #include <iostream>
 
 #include <model/execution.h>
-
-#include "semantics.h"
-#include "history.h"
-
+#include <eclipseclass.h>
 
 namespace gologpp {
 
@@ -51,13 +48,12 @@ public:
 	virtual void compile(const Procedure &proc) override;
 	virtual void postcompile() override;
 
-    virtual bool final(Block &program, History &history) override;
-    virtual unique_ptr<Plan> trans(Block &program, History &history) override;
-
 	bool ec_query(EC_word t);
 	void ec_cut();
 	void ec_write(EC_word t);
 	string to_string(EC_word t);
+
+	const eclipse_opts &options() const;
 
 private:
     ReadylogContext(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend);
@@ -65,8 +61,6 @@ private:
     virtual void compile_term(const EC_word &term);
     std::string find_readylog();
     std::string find_boilerplate();
-
-	unique_ptr<Plan> parse_plan(EC_word policy);
 
 	EC_ref *ec_start_;
 	int last_rv_;

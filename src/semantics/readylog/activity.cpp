@@ -15,10 +15,10 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
+#include "value.h"
 #include "activity.h"
 #include "reference.h"
 #include "execution.h"
-#include "value.h"
 
 #include <model/activity.h>
 

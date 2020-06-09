@@ -15,15 +15,56 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
+#include <model/transition.h>
+#include <model/procedural.h>
+
 #include "plan.h"
+#include "execution.h"
+#include "transition.h"
+#include "utilities.h"
+#include "procedural.h"
 
 namespace gologpp {
 
 
-EC_word Semantics<Plan>::plterm()
+
+unique_ptr<Plan> plan_from_ec_word(EC_word policy)
 {
-	EC_word list = ::nil();
-	for (const TimedInstru
+	unique_ptr<Plan> rv(new Plan());
+
+	EC_word list;
+	if (policy.arg(1, list) != EC_succeed)
+		throw Bug("Unexpected policy: " + ReadylogContext::instance().to_string(policy));
+
+	EC_word head;
+	while(list.is_nil() != EC_succeed && list.is_list(head, list) == EC_succeed) {
+		shared_ptr<Transition> curr_action = Semantics<Transition>::transition_from_plterm(head);
+
+		if (curr_action)
+			rv->append(new Transition(*curr_action));
+
+		else if (functor_name(head) == "marker") {
+
+			Test *marker = new Test(new Value(get_type<BoolType>(), false));
+			marker->attach_semantics(ReadylogContext::instance().semantics_factory());
+
+			EC_word cond, value;
+			EC_atom v_atom;
+			if (head.arg(1, cond) != EC_succeed
+				|| head.arg(2, value) != EC_succeed
+				|| value.is_atom(&v_atom) != EC_succeed
+			)
+				throw Bug("Unexpected marker: " + ReadylogContext::instance().to_string(head));
+
+			if (v_atom == EC_atom("fail") || v_atom == EC_atom("false"))
+				cond = ::term(EC_functor("not", 1), cond);
+
+			marker->semantics().make_plan_marker(cond);
+			rv->append(marker);
+		}
+	}
+
+	return rv;
 }
 
 

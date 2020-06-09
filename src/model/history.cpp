@@ -48,6 +48,12 @@ string History::to_string(const string &pfx) const
 const History &gologpp::AbstractSemantics<History>::element() const
 { return history_; }
 
+ExecutionContext &AbstractSemantics<History>::context() const
+{ return context_; }
+
+const ModelElement &AbstractSemantics<History>::model_element() const
+{ return history_; }
+
 
 
 } // namespace gologpp

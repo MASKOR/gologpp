@@ -17,22 +17,14 @@
 
 #pragma once
 
+#include <model/plan.h>
 #include "semantics.h"
 
 
 namespace gologpp {
 
 
-template<>
-class Semantics<Plan>
-: public AbstractSemantics<Plan>
-, public Semantics<Instruction>
-{
-public:
-	using AbstractSemantics<Plan>::AbstractSemantics;
-
-	virtual EC_word plterm() override;
-};
+unique_ptr<Plan> plan_from_ec_word(EC_word policy);
 
 
 } // namespace gologpp

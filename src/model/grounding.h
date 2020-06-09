@@ -68,7 +68,15 @@ public:
 
 	Grounding(const Grounding<TargetT> &other)
 	: ReferenceBase<TargetT, Value>(other.target(), copy(other.args()))
-	{}
+	{
+		if (other.semantics_) {
+			params_to_args().set_semantics(
+				std::unique_ptr<AbstractSemantics<ModelElement>>(
+					other.params_to_args().template abstract_semantics<TBinding<Value>>().copy(params_to_args())
+				)
+			);
+		}
+	}
 
 	virtual ~Grounding() override = default;
 
@@ -106,6 +114,53 @@ public:
 	virtual void attach_semantics(SemanticsFactory &) override;
 };
 
+} // namespace gologpp
+
+
+
+namespace std {
+
+
+template<class TargetT>
+struct hash<gologpp::Grounding<TargetT>> {
+	size_t operator () (const gologpp::Grounding<TargetT> &o) const
+	{ return o.hash(); }
+};
+
+template<class TargetT>
+struct hash<gologpp::unique_ptr<gologpp::Grounding<TargetT>>> {
+	size_t operator () (const gologpp::unique_ptr<gologpp::Grounding<TargetT>> &o) const
+	{ return o->hash(); }
+};
+
+template<class TargetT>
+struct hash<gologpp::shared_ptr<gologpp::Grounding<TargetT>>> {
+	size_t operator () (const gologpp::shared_ptr<gologpp::Grounding<TargetT>> &o) const
+	{ return o->hash(); }
+};
+
+
+template<class TargetT>
+struct equal_to<gologpp::unique_ptr<gologpp::Grounding<TargetT>>> {
+	bool operator () (
+		const gologpp::unique_ptr<gologpp::Grounding<TargetT>> &lhs,
+		const gologpp::unique_ptr<gologpp::Grounding<TargetT>> &rhs
+	) const {
+		return *lhs == *rhs;
+	}
+};
+
+template<class TargetT>
+struct equal_to<gologpp::shared_ptr<gologpp::Grounding<TargetT>>> {
+	bool operator () (
+		const gologpp::shared_ptr<gologpp::Grounding<TargetT>> &lhs,
+		const gologpp::shared_ptr<gologpp::Grounding<TargetT>> &rhs
+	) const {
+		return *lhs == *rhs;
+	}
+};
 
 
 }
+
+

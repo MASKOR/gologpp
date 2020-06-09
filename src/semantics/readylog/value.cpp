@@ -196,6 +196,9 @@ Value pl_term_to_value(EC_word term) {
 		throw Bug("Invalid prolog value: " + ReadylogContext::instance().to_string(term));
 }
 
+Semantics<Value> *Semantics<Value>::copy(const Value &target_elem) const
+{ return new Semantics<Value>(target_elem, rl_context()); }
+
 
 
 } // namespace gologpp

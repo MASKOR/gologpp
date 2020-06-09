@@ -42,7 +42,7 @@ namespace gologpp {
 
 template<>
 class Semantics<Function>
-: public Semantics<ModelElement>
+: public virtual Semantics<ModelElement>
 , public AbstractSemantics<Function>
 {
 public:
@@ -59,7 +59,7 @@ private:
 
 template<>
 class Semantics<Procedure>
-: public Semantics<ModelElement>
+: public virtual Semantics<ModelElement>
 , public AbstractSemantics<Procedure>
 {
 public:
@@ -70,29 +70,9 @@ public:
 
 
 
-template<>
-class Semantics<Block>
-: public Semantics<Instruction>
-, public AbstractSemantics<Block>
-{
-public:
-	using AbstractSemantics<Block>::AbstractSemantics;
-
-	virtual EC_word plterm() override;
-	virtual Plan trans(const Binding &b, History &h) override;
-
-	EC_word current_program();
-	void set_current_program(EC_word e);
-
-private:
-	ManagedTerm current_program_;
-};
-
-
-
 template<class LhsT>
 class Semantics<Assignment<LhsT>>
-: public Semantics<ModelElement>
+: public Semantics<Instruction>
 , public AbstractSemantics<Assignment<LhsT>>
 {
 public:
@@ -110,7 +90,7 @@ public:
 
 template<>
 class Semantics<Pick>
-: public Semantics<ModelElement>
+: public Semantics<Instruction>
 , public AbstractSemantics<Pick>
 {
 public:

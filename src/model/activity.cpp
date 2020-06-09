@@ -29,12 +29,12 @@ Activity::Activity(const shared_ptr<Action> &action, vector<unique_ptr<Value>> &
 , exec_context_(ctx)
 {}
 
-Activity::Activity(const shared_ptr<Transition> &trans, AExecutionContext &ctx)
-: Grounding<Action>(trans->target(), copy(trans->args()))
+Activity::Activity(const Transition &trans, AExecutionContext &ctx)
+: Grounding<Action>(trans.target(), copy(trans.args()))
 , state_(State::IDLE)
 , exec_context_(ctx)
 {
-	if (trans->hook() != Transition::Hook::START)
+	if (trans.hook() != Transition::Hook::START)
 		throw Bug("Activity must be constructed from a START Transition");
 }
 
@@ -108,6 +108,7 @@ string Activity::to_string(const string &pfx) const
 void Activity::attach_semantics(SemanticsFactory &implementor)
 {
 	if (!semantics_) {
+		params_to_args().attach_semantics(implementor);
 		semantics_ = implementor.make_semantics(*this);
 		for (unique_ptr<Value> &c : args())
 			c->attach_semantics(implementor);

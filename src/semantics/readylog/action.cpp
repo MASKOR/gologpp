@@ -17,11 +17,11 @@
 
 #include <model/activity.h>
 
+#include "value.h"
 #include "action.h"
 #include "effect_axiom.h"
 #include "scope.h"
 #include "variable.h"
-#include "value.h"
 
 #include <eclipseclass.h>
 

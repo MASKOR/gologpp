@@ -16,6 +16,7 @@
 **************************************************************************/
 
 #include "plan.h"
+#include "semantics.h"
 
 namespace gologpp {
 
@@ -50,7 +51,7 @@ void TimedInstruction::set_latest(TimePoint t)
 
 
 
-void Plan::append_element(TimedInstruction &&i)
+void Plan::append(TimedInstruction &&i)
 { elements_.push_back(std::forward<TimedInstruction>(i)); }
 
 vector<TimedInstruction> &Plan::elements()
@@ -58,6 +59,25 @@ vector<TimedInstruction> &Plan::elements()
 
 const vector<TimedInstruction> &Plan::elements() const
 { return elements_; }
+
+/*void Plan::attach_semantics(SemanticsFactory &f)
+{
+	if (semantics_)
+		set_semantics(f.make_semantics(*this));
+}
+
+string Plan::to_string(const string &pfx) const
+{
+	string rv = pfx + "Plan {\n";
+
+	for (auto &e : elements())
+		rv += pfx + e.instruction().to_string(pfx + indent)
+			+ " [" + std::to_string(e.earliest_timepoint().time_since_epoch().count())
+			+ ", " + std::to_string(e.latest_timepoint().time_since_epoch().count())
+			+ "]\n";
+
+	return rv + pfx + "}\n";
+}*/
 
 
 

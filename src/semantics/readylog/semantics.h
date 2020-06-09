@@ -24,6 +24,9 @@
 
 #include <boost/preprocessor/seq/for_each.hpp>
 
+#include "execution.h"
+#include "utilities.h"
+
 namespace gologpp {
 
 
@@ -34,7 +37,10 @@ template<>
 class Semantics<ModelElement>
 : public virtual AbstractSemantics<ModelElement> {
 public:
+	using AbstractSemantics<ModelElement>::AbstractSemantics;
 	virtual ~Semantics<ModelElement>() override = default;
+
+	ReadylogContext &rl_context() const;
 
 	virtual EC_word plterm() = 0;
 };
@@ -44,22 +50,31 @@ public:
 template<>
 class Semantics<Expression>
 : public AbstractSemantics<Expression>
-, public Semantics<ModelElement>
+, public virtual Semantics<ModelElement>
 {
 public:
 	virtual ~Semantics<Expression>() override = default;
 	virtual Value evaluate(const Binding &b, const History &h) override;
+	virtual const Expression &expression() const override;
 };
 
 
 template<>
 class Semantics<Instruction>
-: public AbstractSemantics<Instruction>
-, public Semantics<ModelElement>
+: public virtual AbstractSemantics<Instruction>
+, public virtual Semantics<ModelElement>
 {
 public:
 	virtual ~Semantics<Instruction>() override = default;
-	virtual Plan trans(const Binding &b, History &h) override;
+	virtual unique_ptr<Plan> trans(const Binding &b, History &h) override;
+	virtual bool final(const Binding &b, const History &h) override;
+
+	using Semantics<ModelElement>::rl_context;
+	EC_word next_readylog_term();
+	virtual const Instruction &instruction() const override;
+
+protected:
+	ManagedTerm next_readylog_term_;
 };
 
 
@@ -79,6 +94,9 @@ class Semantics
 public:
 	using AbstractSemantics<GologT>::AbstractSemantics;
 	virtual EC_word plterm() override;
+
+	virtual const GologT &model_element() const override
+	{ return AbstractSemantics<GologT>::element(); }
 };
 
 

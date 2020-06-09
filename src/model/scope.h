@@ -74,7 +74,7 @@ protected:
  * @brief The Scope class: A container and definition space for language elements.
  * The global (root) scope is its own parent.
  */
-class Scope : public LanguageElement<Scope> {
+class Scope : public ModelElement {
 private:
 	Scope();
 
@@ -107,11 +107,8 @@ public:
 	static Scope &global_scope()
 	{ return global_scope_; }
 
-	virtual Scope &scope() override;
-	virtual const Scope &scope() const override;
-
-	virtual Scope &parent_scope() override;
-	virtual const Scope &parent_scope() const override;
+	Scope &parent_scope();
+	const Scope &parent_scope() const;
 
 	void set_owner(AbstractLanguageElement *owner);
 	const AbstractLanguageElement *owner() const;
@@ -245,6 +242,10 @@ public:
 	virtual string to_string(const string &pfx) const override;
 
 	vector<shared_ptr<Global>> globals() const;
+
+	template<class = Scope>
+	Semantics<Scope> &semantics() const
+	{ return ModelElement::semantics<Scope>(); }
 
 
 private:

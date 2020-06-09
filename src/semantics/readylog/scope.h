@@ -29,16 +29,17 @@ namespace gologpp {
 
 
 template<>
-class Semantics<Scope> : public AbstractSemantics<ModelElement> {
+class Semantics<Scope>
+: public AbstractSemantics<Scope>
+, public Semantics<ModelElement>
+{
 public:
 	Semantics(const Scope &, ReadylogContext &context);
 
+	virtual EC_word plterm() override;
+
 	EC_word *variables(const vector<string> &names);
 	void init_vars();
-
-private:
-	const Scope &scope_;
-	ReadylogContext &context_;
 };
 
 
