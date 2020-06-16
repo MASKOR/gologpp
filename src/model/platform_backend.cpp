@@ -47,6 +47,7 @@ shared_ptr<Activity> PlatformBackend::start_activity(const Transition &trans)
 		);
 	a->attach_semantics(exec_ctx_->semantics_factory());
 	execute_activity(a);
+	a->set_state(Activity::target_state(trans.hook()));
 	activities_.insert({a->hash(), a});
 	return a;
 }
