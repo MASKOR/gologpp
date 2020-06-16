@@ -51,7 +51,7 @@ public:
 	{ return context_; }
 
 	void update_element(const GologT *new_element)
-	{ element_ = &new_element; }
+	{ element_ = new_element; }
 
 	virtual const ModelElement &model_element() const override
 	{ return *element_; }

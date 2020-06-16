@@ -191,11 +191,11 @@ public:
 
 	virtual Value evaluate(const Binding &, const History &) override;
 	virtual AbstractSemantics<Value> *copy(const Value &target_element) const = 0;
-	virtual void update_element(const Value *elem);
 
 	virtual const Expression &expression() const override;
 	virtual const ModelElement &model_element() const override;
 	const Value &element() const;
+	void update_element(const Value *);
 
 private:
 	const Value *expression_;
