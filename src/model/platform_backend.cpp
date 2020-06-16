@@ -101,6 +101,19 @@ void PlatformBackend::set_context(AExecutionContext *ctx)
 { exec_ctx_ = ctx; }
 
 
+Activity::State PlatformBackend::current_state(const Grounding<Action> &a)
+{
+	Lock l(lock());
+
+	auto it = activities_.find(a.hash());
+	if (it == activities_.end())
+		return Activity::State::IDLE;
+	else {
+		return it->second->cast<Activity>().state();
+	}
+}
+
+
 
 DummyBackend::DummyBackend()
 : uniform_dist_(0.1, 2.0)

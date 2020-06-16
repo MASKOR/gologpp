@@ -54,6 +54,10 @@ public:
 	virtual string to_string(const string &pfx) const = 0;
 	string str() const;
 
+	template<class T>
+	T &cast()
+	{ return dynamic_cast<typename std::remove_reference<T>::type &>(*this); }
+
 protected:
 	std::unique_ptr<AbstractSemantics<ModelElement>> semantics_;
 };

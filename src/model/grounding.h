@@ -65,6 +65,7 @@ class Grounding
 public:
 	using ElementType = ModelElement;
 	using ReferenceBase<TargetT, Value>::ReferenceBase;
+	using ReferenceBase<TargetT, Value>::hash;
 
 	Grounding(const Grounding<TargetT> &other)
 	: ReferenceBase<TargetT, Value>(other.target(), copy(other.args()))

@@ -22,6 +22,7 @@
 #include "action.h"
 #include "reference.h"
 #include "transition.h"
+#include "activity.h"
 
 #include <random>
 #include <chrono>
@@ -66,6 +67,8 @@ public:
 
 	virtual Clock::time_point time() const noexcept = 0;
 	void set_context(AExecutionContext *ctx);
+
+	Activity::State current_state(const Grounding<Action> &);
 
 
 private:
