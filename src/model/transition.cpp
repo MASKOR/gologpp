@@ -19,6 +19,8 @@
 #include "value.h"
 #include "action.h"
 #include "execution.h"
+#include "logger.h"
+#include "history.h"
 
 #include <iostream>
 
@@ -90,43 +92,67 @@ void AbstractSemantics<Transition>::update_element(const Transition *new_element
 ExecutionContext &AbstractSemantics<Transition>::context() const
 { return context_; }
 
-bool AbstractSemantics<Transition>::final(const Binding &, const History &)
-{ return final_; }
-
 
 unique_ptr<Plan> AbstractSemantics<Transition>::trans(const Binding &, History &history)
 {
-	unique_ptr<Plan> rv;
+	shared_ptr<Activity> a;
+
+	switch(element().hook())
+	{
+	case Transition::Hook::CANCEL:
+		if (context().backend().current_state(element()) == Activity::State::RUNNING)
+			context().backend().cancel_activity(element());
+		else
+			return nullptr;
+	break;
+	case Transition::Hook::START:
+		if (
+			context().backend().current_state(element()) != Activity::State::RUNNING
+			&& static_cast<bool>(
+				element().target()->precondition()
+					.abstract_semantics().evaluate(
+						element().params_to_args(), history
+					)
+			)
+		)
+			context().backend().start_activity(element());
+		else
+			return nullptr;
+	break;
+	case Transition::Hook::FINISH:
+		if (context().backend().current_state(element()) == Activity::State::FINAL) {
+			a = context().backend().end_activity(element());
+
+			if (element().target()->senses())
+				history.abstract_semantics<History>().append_sensing_result(a);
+		}
+		else
+			return nullptr;
+	break;
+	case Transition::Hook::FAIL:
+		if (context().backend().current_state(element()) == Activity::State::FAILED)
+			context().backend().end_activity(element());
+		else
+			return nullptr;
+	break;
+	case Transition::Hook::END:
+		if (
+			context().backend().current_state(element()) == Activity::State::FAILED
+			|| context().backend().current_state(element()) == Activity::State::FINAL
+		)
+			context().backend().end_activity(element());
+		else
+			return nullptr;
+	}
+
 	if (!element()->silent()) {
 		std::cout << "<<< trans: " << element().str() << std::endl;
 		context().set_silent(false);
 	}
-	if (element().hook() == Transition::Hook::CANCEL) {
-		context().backend().cancel_activity(element());
-		rv.reset(new Plan());
-	}
-	else if (element().hook() == Transition::Hook::START) {
-		while (!static_cast<bool>(
-			element().target()->precondition()
-				.abstract_semantics().evaluate(
-					element().params_to_args(), history
-				)
-		) )
-			context().drain_exog_queue_blocking();
-		context().backend().start_activity(element());
-	}
-	else if (
-		(element().hook() == Transition::Hook::FINISH || element().hook() == Transition::Hook::END)
-		&& element().target()->senses()
-	)
-		history.abstract_semantics<History>().append_sensing_result(
-			context().backend().end_activity(element())
-		);
-	else
-		context().backend().end_activity(element());
 
-	final_ = true;
-	return rv;
+	history.abstract_semantics<History>().append(element());
+
+	return unique_ptr<Plan>(new Plan());
 }
 
 const ModelElement &AbstractSemantics<Transition>::model_element() const

@@ -54,13 +54,12 @@ string to_string(Transition::Hook);
 
 template<>
 class AbstractSemantics<Transition>
-: public AbstractSemantics<Instruction>
+: public virtual AbstractSemantics<Instruction>
 {
 public:
 	AbstractSemantics(const Transition &elem, ExecutionContext &context);
 	AbstractSemantics(const AbstractSemantics<Transition> &other);
 
-	virtual bool final(const Binding &, const History &) override;
 	virtual unique_ptr<Plan> trans(const Binding &, History &) override;
 
 	const Transition &element() const;
