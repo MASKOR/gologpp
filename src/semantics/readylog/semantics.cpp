@@ -70,6 +70,9 @@ Value Semantics<Expression>::evaluate(const Binding &b, const History &h)
 				h.semantics().plterm()
 			)
 		);
+		if (rl_context().options().trace)
+			query = ::term(EC_functor("trace", 1), query);
+
 		if (ReadylogContext::instance().ec_query(query))
 			return pl_term_to_value(Result);
 		else
