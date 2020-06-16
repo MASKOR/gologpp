@@ -8,6 +8,8 @@
 
 should_progress(H) :- length(H, L), L >= 10.
 
+eval_formula(T) :- call(T).
+
 % execute/3 is useless in golog++. Just ignore it and log a message
 execute(Action, _Sr, _H) :- printf("Dummy execute %W%n", [Action]).
 

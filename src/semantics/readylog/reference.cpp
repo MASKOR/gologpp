@@ -48,6 +48,12 @@ Semantics<TBinding<Value>> *Semantics<TBinding<Value>>::copy(const TBinding<Valu
 const TBinding<Value> &Semantics<TBinding<Value> >::model_element() const
 { return this->element(); }
 
+void Semantics<TBinding<Value> >::init_vars()
+{
+	for (const auto &pval : this->element().map())
+		pval.first->semantics().init();
+}
+
 
 
 

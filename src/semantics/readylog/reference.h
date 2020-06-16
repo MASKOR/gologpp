@@ -38,10 +38,18 @@ namespace gologpp {
 template<class GologT> class Reference;
 
 
+template<>
+class Semantics<Binding>
+: public Semantics<ModelElement>
+{
+public:
+	virtual void init_vars() = 0;
+};
+
 
 template<class ArgsT>
 class Semantics<TBinding<ArgsT>>
-: public Semantics<ModelElement>
+: public Semantics<Binding>
 , public AbstractSemantics<TBinding<ArgsT>>
 {
 public:
@@ -51,7 +59,6 @@ public:
 	{
 		vector<EC_word> pl_binds;
 		for (const auto &pval : this->element().map()) {
-			pval.first->semantics().init();
 			pl_binds.push_back(
 				::term(EC_functor("=", 2),
 					pval.first->semantics().plterm(),
@@ -65,13 +72,20 @@ public:
 
 	virtual const TBinding<ArgsT> &model_element() const override
 	{ return this->element(); }
+
+	virtual void init_vars() override
+	{
+		for (const auto &pval : this->element().map())
+			pval.first->semantics().init();
+	}
 };
+
 
 
 
 template<>
 class Semantics<TBinding<Value>>
-: public Semantics<ModelElement>
+: public Semantics<Binding>
 , public AbstractSemantics<TBinding<Value>>
 {
 public:
@@ -81,7 +95,6 @@ public:
 	{
 		vector<EC_word> pl_binds;
 		for (const auto &pval : this->element().map()) {
-			pval.first->semantics().init();
 			pl_binds.push_back(
 				::term(EC_functor("=", 2),
 					pval.first->semantics().plterm(),
@@ -96,6 +109,7 @@ public:
 	virtual Semantics<TBinding<Value>> *copy(const TBinding<Value> &target_element) const override;
 
 	virtual const TBinding<Value> &model_element() const override;
+	void init_vars();
 };
 
 

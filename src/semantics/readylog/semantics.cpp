@@ -46,18 +46,19 @@ ReadylogContext &Semantics<ModelElement>::rl_context() const
 
 Value Semantics<Expression>::evaluate(const Binding &b, const History &h)
 {
+	b.semantics<Binding>().init_vars();
 	if (expression().type().is<BoolType>()) {
-		return Value(get_type<BoolType>(),
-			ReadylogContext::instance().ec_query(
-				::term(EC_functor(",", 2),
-					b.semantics().plterm(),
-					::term(EC_functor("holds", 2),
-						this->plterm(),
-						h.semantics().plterm()
-					)
-				)
+		EC_word query = ::term(EC_functor("eval_formula", 1), ::term(EC_functor(",", 2),
+			b.semantics().plterm(),
+			::term(EC_functor("holds", 2),
+				this->plterm(),
+				h.semantics().plterm()
 			)
-		);
+		) );
+		if (rl_context().options().trace)
+			query = ::term(EC_functor("trace", 1), query);
+
+		return Value(get_type<BoolType>(), ReadylogContext::instance().ec_query(query));
 	}
 	else {
 		EC_ref Result;
