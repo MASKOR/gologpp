@@ -30,11 +30,13 @@ class Semantics<Transition>
 , public Semantics<Instruction>
 {
 public:
-	using AbstractSemantics<Transition>::AbstractSemantics;
-	using AbstractSemantics<Transition>::final;
-	using AbstractSemantics<Transition>::trans;
+	Semantics(const Transition &elem, ExecutionContext &context);
+	virtual ~Semantics() override = default;
 
 	virtual EC_word plterm() override;
+
+	virtual unique_ptr<Plan> trans(const Binding &b, History &h) override;
+	virtual const Instruction &instruction() const override;
 
 	virtual Semantics<Transition> *copy(const Transition &target_element) const override;
 
