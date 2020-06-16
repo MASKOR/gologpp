@@ -54,6 +54,9 @@ ExecutionContext &AbstractSemantics<History>::context() const
 const ModelElement &AbstractSemantics<History>::model_element() const
 { return history_; }
 
+void AbstractSemantics<History>::append(shared_ptr<Grounding<AbstractAction>> a)
+{ append(*a); }
+
 
 
 } // namespace gologpp

@@ -168,8 +168,6 @@ void ExecutionContext::run(Block &&program)
 			//set_silent(true);
 			context_time_ = backend().time();
 
-			drain_exog_queue();
-
 			unique_ptr<Plan> plan(program.abstract_semantics().trans(empty_binding, history()));
 
 			if (plan) {
@@ -178,11 +176,14 @@ void ExecutionContext::run(Block &&program)
 					if (terminated)
 						throw Terminate();
 
+					drain_exog_queue();
+
 					// Plan elements are expected to not return plans again (nullptr or empty Plan).
 					unique_ptr<Plan> empty_plan {
 						plan_it->instruction().abstract_semantics().trans(empty_binding, history())
 					};
 					if (empty_plan) {
+						// Empty plan: successfully executed
 						if (!empty_plan->elements().empty())
 							throw Bug("Plan instruction returned a plan: " + plan_it->instruction().str());
 						++plan_it;
@@ -190,6 +191,11 @@ void ExecutionContext::run(Block &&program)
 					else {
 						// Current Plan element not executable
 						drain_exog_queue_blocking();
+					}
+
+					if (history().abstract_semantics<History>().should_progress()) {
+						std::cout << "=== Progressing history." << std::endl;
+						history().abstract_semantics<History>().progress();
 					}
 				}
 			}
@@ -200,10 +206,6 @@ void ExecutionContext::run(Block &&program)
 			if (terminated)
 				throw Terminate();
 
-			if (history().abstract_semantics<History>().should_progress()) {
-				std::cout << "=== Progressing history." << std::endl;
-				history().abstract_semantics<History>().progress();
-			}
 		}
 	} catch (Terminate &) {
 		std::cout << ">>> Terminated." << std::endl;
