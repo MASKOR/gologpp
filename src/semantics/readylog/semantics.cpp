@@ -118,9 +118,13 @@ unique_ptr<Plan> Semantics<Instruction>::trans(const Binding &, History &history
 		else {
 			// Successful transition
 
-			EC_word prog(e1), head, tail;
+			ManagedTerm prog(e1);
 
-			if (prog.is_list(head, tail) != EC_succeed)
+			history.semantics().extend_history(h1);
+
+			EC_word head, tail;
+
+			if (EC_word(prog).is_list(head, tail) != EC_succeed)
 				throw EclipseError("Output program ist not a list: " + rl_context().to_string(prog));
 
 			unique_ptr<Plan> rv;
@@ -137,7 +141,6 @@ unique_ptr<Plan> Semantics<Instruction>::trans(const Binding &, History &history
 					rv->append(new Transition(*trans));
 			}
 
-			history.semantics().extend_history(h1);
 			next_readylog_term_ = e1;
 
 			return rv;
