@@ -49,7 +49,7 @@ void Transition::attach_semantics(SemanticsFactory &implementor)
 {
 	if (!semantics_) {
 		semantics_ = implementor.make_semantics(*this);
-		params_to_args().attach_semantics(implementor);
+		binding().attach_semantics(implementor);
 		for (unique_ptr<Value> &c : args())
 			c->attach_semantics(implementor);
 	}
@@ -93,10 +93,8 @@ ExecutionContext &AbstractSemantics<Transition>::context() const
 { return context_; }
 
 
-unique_ptr<Plan> AbstractSemantics<Transition>::trans(const Binding &, History &history)
+unique_ptr<Plan> AbstractSemantics<Transition>::trans(const ABinding &, History &history)
 {
-	shared_ptr<Activity> a;
-
 	switch(element().hook())
 	{
 	case Transition::Hook::CANCEL:
@@ -111,7 +109,7 @@ unique_ptr<Plan> AbstractSemantics<Transition>::trans(const Binding &, History &
 			&& static_cast<bool>(
 				element().target()->precondition()
 					.abstract_semantics().evaluate(
-						element().params_to_args(), history
+						element().binding(), history
 					)
 			)
 		)
@@ -121,7 +119,7 @@ unique_ptr<Plan> AbstractSemantics<Transition>::trans(const Binding &, History &
 	break;
 	case Transition::Hook::FINISH:
 		if (context().backend().current_state(element()) == Activity::State::FINAL) {
-			a = context().backend().end_activity(element());
+			shared_ptr<Activity> a = context().backend().end_activity(element());
 
 			if (element().target()->senses())
 				history.abstract_semantics<History>().append_sensing_result(a);

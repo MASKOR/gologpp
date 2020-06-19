@@ -27,12 +27,12 @@ namespace gologpp {
 
 template<class> class Grounding;
 
-class AbstractGrounding
+class AGrounding
 : public virtual AbstractReference
 {
 public:
-	virtual const TBinding<Value> &params_to_args() const = 0;
-	virtual TBinding<Value> &params_to_args() = 0;
+	virtual const Binding<Value> &binding() const = 0;
+	virtual Binding<Value> &binding() = 0;
 };
 
 
@@ -40,7 +40,7 @@ public:
 template<>
 class Grounding<AbstractAction>
 : public virtual AbstractReference
-, public AbstractGrounding
+, public AGrounding
 , public Instruction
 {
 public:
@@ -58,7 +58,7 @@ class Grounding
 	std::is_base_of<AbstractAction, TargetT>::value,
 	Grounding<AbstractAction>, // Have a specific superclass for all Action groundings
 	                           // (used for the exogenous event queue)
-	AbstractGrounding          // All others use some placeholder
+	AGrounding          // All others use some placeholder
   >::type
 , public ReferenceBase<TargetT, Value>
 {
@@ -71,9 +71,9 @@ public:
 	: ReferenceBase<TargetT, Value>(other.target(), copy(other.args()))
 	{
 		if (other.semantics_) {
-			params_to_args().set_semantics(
+			binding().set_semantics(
 				std::unique_ptr<AbstractSemantics<ModelElement>>(
-					other.params_to_args().template abstract_semantics<TBinding<Value>>().copy(params_to_args())
+					other.binding().template abstract_semantics<Binding<Value>>().copy(binding())
 				)
 			);
 		}
@@ -99,11 +99,11 @@ public:
 	virtual const Scope &parent_scope() const override
 	{ return global_scope(); }
 
-	virtual const TBinding<Value> &params_to_args() const override
-	{ return ReferenceBase<TargetT, Value>::params_to_args(); }
+	virtual const Binding<Value> &binding() const override
+	{ return ReferenceBase<TargetT, Value>::binding(); }
 
-	virtual TBinding<Value> &params_to_args() override
-	{ return ReferenceBase<TargetT, Value>::params_to_args(); }
+	virtual Binding<Value> &binding() override
+	{ return ReferenceBase<TargetT, Value>::binding(); }
 };
 
 

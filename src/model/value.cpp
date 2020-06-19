@@ -317,7 +317,7 @@ const Expression &AbstractSemantics<Value>::expression() const
 ExecutionContext &AbstractSemantics<Value>::context() const
 { return context_; }
 
-Value AbstractSemantics<Value>::evaluate(const Binding &, const History &)
+Value AbstractSemantics<Value>::evaluate(const ABinding &, const History &)
 { return *expression_; }
 
 const ModelElement &AbstractSemantics<Value>::model_element() const

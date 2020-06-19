@@ -45,9 +45,9 @@ class Expression;
 class Instruction;
 
 // TODO: clean up this mess
-class Binding;
-template<class> class TBinding;
-template<class T> using ParameterBinding = TBinding<T>;
+class ABinding;
+template<class> class Binding;
+template<class T> using ParameterBinding = Binding<T>;
 
 class ModelElement;
 class Plan;
@@ -126,7 +126,7 @@ class Procedure;
 
 class AbstractReference;
 template<class> class Reference;
-class AbstractGrounding;
+class AGrounding;
 template<class> class Grounding;
 
 class CompoundExpression;
@@ -202,8 +202,8 @@ class PlatformBackend;
 	(EffectAxiom<FieldAccess>) \
 	(EffectAxiom<ListAccess>) \
 	(InitialValue)(Fluent) \
-	(TBinding<Expression>) \
-	(TBinding<Value>) \
+	(Binding<Expression>) \
+	(Binding<Value>) \
 	(Domain) \
 	(Function) \
 	(Procedure) \

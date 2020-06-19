@@ -23,7 +23,7 @@ void ExogEvent::attach_semantics(SemanticsFactory &f)
 {
 	if (!semantics_) {
 		semantics_ = f.make_semantics(*this);
-		params_to_args().attach_semantics(f);
+		binding().attach_semantics(f);
 		for (auto &v : args())
 			v->attach_semantics(f);
 	}

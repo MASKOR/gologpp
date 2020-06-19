@@ -42,13 +42,13 @@ EC_word Semantics<Reference<Action>>::plterm()
 }
 
 
-Semantics<TBinding<Value>> *Semantics<TBinding<Value>>::copy(const TBinding<Value> &target_element) const
-{ return new Semantics<TBinding<Value>>(target_element, rl_context()); }
+Semantics<Binding<Value>> *Semantics<Binding<Value>>::copy(const Binding<Value> &target_element) const
+{ return new Semantics<Binding<Value>>(target_element, rl_context()); }
 
-const TBinding<Value> &Semantics<TBinding<Value> >::model_element() const
+const Binding<Value> &Semantics<Binding<Value> >::model_element() const
 { return this->element(); }
 
-void Semantics<TBinding<Value> >::init_vars()
+void Semantics<Binding<Value> >::init_vars()
 {
 	for (const auto &pval : this->element().map())
 		pval.first->semantics().init();

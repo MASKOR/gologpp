@@ -60,7 +60,7 @@ public:
 	AbstractSemantics(const Transition &elem, ExecutionContext &context);
 	AbstractSemantics(const AbstractSemantics<Transition> &other);
 
-	virtual unique_ptr<Plan> trans(const Binding &, History &) override;
+	virtual unique_ptr<Plan> trans(const ABinding &, History &) override;
 
 	const Transition &element() const;
 	virtual const ModelElement &model_element() const override;

@@ -39,7 +39,7 @@ template<class GologT> class Reference;
 
 
 template<>
-class Semantics<Binding>
+class Semantics<ABinding>
 : public Semantics<ModelElement>
 {
 public:
@@ -48,12 +48,12 @@ public:
 
 
 template<class ArgsT>
-class Semantics<TBinding<ArgsT>>
-: public Semantics<Binding>
-, public AbstractSemantics<TBinding<ArgsT>>
+class Semantics<Binding<ArgsT>>
+: public Semantics<ABinding>
+, public AbstractSemantics<Binding<ArgsT>>
 {
 public:
-	using AbstractSemantics<TBinding<ArgsT>>::AbstractSemantics;
+	using AbstractSemantics<Binding<ArgsT>>::AbstractSemantics;
 
 	virtual EC_word plterm() override
 	{
@@ -70,7 +70,7 @@ public:
 		return to_ec_term(",", pl_binds);
 	}
 
-	virtual const TBinding<ArgsT> &model_element() const override
+	virtual const Binding<ArgsT> &model_element() const override
 	{ return this->element(); }
 
 	virtual void init_vars() override
@@ -84,12 +84,12 @@ public:
 
 
 template<>
-class Semantics<TBinding<Value>>
-: public Semantics<Binding>
-, public AbstractSemantics<TBinding<Value>>
+class Semantics<Binding<Value>>
+: public Semantics<ABinding>
+, public AbstractSemantics<Binding<Value>>
 {
 public:
-	using AbstractSemantics<TBinding<Value>>::AbstractSemantics;
+	using AbstractSemantics<Binding<Value>>::AbstractSemantics;
 
 	virtual EC_word plterm() override
 	{
@@ -106,9 +106,9 @@ public:
 		return to_ec_term(",", pl_binds);
 	}
 
-	virtual Semantics<TBinding<Value>> *copy(const TBinding<Value> &target_element) const override;
+	virtual Semantics<Binding<Value>> *copy(const Binding<Value> &target_element) const override;
 
-	virtual const TBinding<Value> &model_element() const override;
+	virtual const Binding<Value> &model_element() const override;
 	void init_vars();
 };
 

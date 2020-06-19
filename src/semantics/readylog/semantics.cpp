@@ -44,9 +44,9 @@ ReadylogContext &Semantics<ModelElement>::rl_context() const
 { return dynamic_cast<ReadylogContext &>(context()); }
 
 
-Value Semantics<Expression>::evaluate(const Binding &b, const History &h)
+Value Semantics<Expression>::evaluate(const ABinding &b, const History &h)
 {
-	b.semantics<Binding>().init_vars();
+	b.semantics<ABinding>().init_vars();
 	if (expression().type().is<BoolType>()) {
 		EC_word query = ::term(EC_functor("eval_formula", 1), ::term(EC_functor(",", 2),
 			b.semantics().plterm(),
@@ -84,7 +84,7 @@ const Expression &Semantics<Expression>::expression() const
 { return dynamic_cast<const Expression &>(model_element()); }
 
 
-unique_ptr<Plan> Semantics<Instruction>::trans(const Binding &, History &history)
+unique_ptr<Plan> Semantics<Instruction>::trans(const ABinding &, History &history)
 {
 	if (!rl_context().options().guitrace && rl_context().options().toplevel) {
 		post_goal("toplevel");
@@ -159,7 +159,7 @@ EC_word gologpp::Semantics<Instruction>::next_readylog_term()
 }
 
 
-bool Semantics<Instruction>::final(const Binding &, const History &h)
+bool Semantics<Instruction>::final(const ABinding &, const History &h)
 {
 	EC_word final = ::term(EC_functor("final", 2),
 		next_readylog_term(),

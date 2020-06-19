@@ -37,24 +37,24 @@
 namespace gologpp {
 
 
-class Binding : public ModelElement {
+class ABinding : public ModelElement {
 public:
 	virtual Expression &get(shared_ptr<const Variable> param) const = 0;
 };
 
 
 template<class ExprT>
-class TBinding : public Binding {
+class Binding : public ABinding {
 public:
 	using MapT = std::unordered_map <
 		shared_ptr<const Variable>,
 		std::reference_wrapper<ExprT>
 	>;
 
-	TBinding(const TBinding<ExprT> &) = default;
-	TBinding() = default;
+	Binding(const Binding<ExprT> &) = default;
+	Binding() = default;
 
-	virtual ~TBinding() = default;
+	virtual ~Binding() = default;
 
 	void bind(shared_ptr<const Variable> var, ExprT &expr)
 	{ var_bindings_.insert(std::make_pair(var, std::ref(expr))); }
@@ -97,22 +97,22 @@ private:
 
 
 template<>
-class AbstractSemantics<TBinding<Value>>
+class AbstractSemantics<Binding<Value>>
 : public virtual AbstractSemantics<ModelElement>
 {
 public:
-	AbstractSemantics(const TBinding<Value> &elem, ExecutionContext &context);
+	AbstractSemantics(const Binding<Value> &elem, ExecutionContext &context);
 
-	virtual ~AbstractSemantics<TBinding<Value>>() = default;
+	virtual ~AbstractSemantics<Binding<Value>>() = default;
 
-	const TBinding<Value> &element() const;
-	void update_element(const TBinding<Value> *new_element);
+	const Binding<Value> &element() const;
+	void update_element(const Binding<Value> *new_element);
 	virtual ExecutionContext &context() const override;
 
-	virtual AbstractSemantics<TBinding<Value>> *copy(const TBinding<Value> &target_element) const = 0;
+	virtual AbstractSemantics<Binding<Value>> *copy(const Binding<Value> &target_element) const = 0;
 
 private:
-	const TBinding<Value> *element_;
+	const Binding<Value> *element_;
 	ExecutionContext &context_;
 };
 
@@ -266,17 +266,17 @@ public:
 		return rv;
 	}
 
-	virtual TBinding<ArgsT> &params_to_args()
+	virtual Binding<ArgsT> &binding()
 	{ return arg_binding_; }
 
-	virtual const TBinding<ArgsT> &params_to_args() const
+	virtual const Binding<ArgsT> &binding() const
 	{ return arg_binding_; }
 
 private:
 	vector<unique_ptr<ArgsT>> args_;
 	weak_ptr<TargetT> target_;
 
-	TBinding<ArgsT> arg_binding_;
+	Binding<ArgsT> arg_binding_;
 };
 
 
@@ -295,7 +295,7 @@ public:
 	{
 		if (!this->semantics_) {
 			this->semantics_ = f.make_semantics(*this);
-			this->params_to_args().attach_semantics(f);
+			this->binding().attach_semantics(f);
 			for (auto &arg : this->args())
 				arg->attach_semantics(f);
 		}

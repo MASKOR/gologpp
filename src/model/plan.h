@@ -66,7 +66,7 @@ public:
 	Plan(std::initializer_list<unique_ptr<Instruction>> &&step);
 	Plan(const Plan &sub);
 
-	Value max_reward(const Binding &binding, const Reference<Function> &reward_func);
+	Value max_reward(const ABinding &binding, const Reference<Function> &reward_func);
 
 	void append(TimedInstruction &&);
 	void append(Plan &&);

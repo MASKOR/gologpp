@@ -161,7 +161,7 @@ void ExecutionContext::run(Block &&program)
 		program.attach_semantics(semantics_factory());
 		compile(program);
 
-		TBinding<Value> empty_binding;
+		Binding<Value> empty_binding;
 		empty_binding.attach_semantics(semantics_factory());
 
 		while (!program.abstract_semantics().final(empty_binding, history())) {

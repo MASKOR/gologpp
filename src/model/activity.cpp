@@ -95,7 +95,7 @@ Value Activity::mapped_arg_value(const string &name) const
 	return
 		dynamic_cast<AbstractSemantics<Expression> &>(
 			target()->mapping().mapped_expr(name).abstract_semantics()
-		).evaluate(this->params_to_args(), exec_context_.history());
+		).evaluate(this->binding(), exec_context_.history());
 }
 
 
@@ -108,7 +108,7 @@ string Activity::to_string(const string &pfx) const
 void Activity::attach_semantics(SemanticsFactory &implementor)
 {
 	if (!semantics_) {
-		params_to_args().attach_semantics(implementor);
+		binding().attach_semantics(implementor);
 		semantics_ = implementor.make_semantics(*this);
 		for (unique_ptr<Value> &c : args())
 			c->attach_semantics(implementor);
