@@ -25,15 +25,15 @@ namespace gologpp {
 string ModelElement::str() const
 { return to_string(""); }
 
-void ModelElement::set_semantics(std::unique_ptr<AbstractSemantics<ModelElement>> &&impl)
+void ModelElement::set_semantics(std::unique_ptr<GeneralSemantics<ModelElement>> &&impl)
 { semantics_ = std::move(impl); }
 
 
 
-/*AbstractSemantics<ModelElement>::AbstractSemantics()
+/*GeneralSemantics<ModelElement>::GeneralSemantics()
 {}*/
 
-AbstractSemantics<ModelElement>::~AbstractSemantics()
+GeneralSemantics<ModelElement>::~GeneralSemantics()
 {}
 
 

@@ -72,7 +72,7 @@ public:
 	{
 		if (other.semantics_) {
 			binding().set_semantics(
-				std::unique_ptr<AbstractSemantics<ModelElement>>(
+				std::unique_ptr<GeneralSemantics<ModelElement>>(
 					other.binding().template abstract_semantics<Binding<Value>>().copy(binding())
 				)
 			);

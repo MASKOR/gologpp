@@ -53,12 +53,12 @@ string to_string(Transition::Hook);
 
 
 template<>
-class AbstractSemantics<Transition>
-: public virtual AbstractSemantics<Instruction>
+class GeneralSemantics<Transition>
+: public virtual GeneralSemantics<Instruction>
 {
 public:
-	AbstractSemantics(const Transition &elem, ExecutionContext &context);
-	AbstractSemantics(const AbstractSemantics<Transition> &other);
+	GeneralSemantics(const Transition &elem, ExecutionContext &context);
+	GeneralSemantics(const GeneralSemantics<Transition> &other);
 
 	virtual unique_ptr<Plan> trans(const ABinding &, History &) override;
 
@@ -67,7 +67,7 @@ public:
 	virtual const Instruction &instruction() const override;
 
 	void update_element(const Transition *new_element);
-	virtual AbstractSemantics<Transition> *copy(const Transition &target_element) const = 0;
+	virtual GeneralSemantics<Transition> *copy(const Transition &target_element) const = 0;
 
 	virtual ExecutionContext &context() const override;
 

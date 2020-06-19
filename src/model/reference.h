@@ -97,19 +97,19 @@ private:
 
 
 template<>
-class AbstractSemantics<Binding<Value>>
-: public virtual AbstractSemantics<ModelElement>
+class GeneralSemantics<Binding<Value>>
+: public virtual GeneralSemantics<ModelElement>
 {
 public:
-	AbstractSemantics(const Binding<Value> &elem, ExecutionContext &context);
+	GeneralSemantics(const Binding<Value> &elem, ExecutionContext &context);
 
-	virtual ~AbstractSemantics<Binding<Value>>() = default;
+	virtual ~GeneralSemantics<Binding<Value>>() = default;
 
 	const Binding<Value> &element() const;
 	void update_element(const Binding<Value> *new_element);
 	virtual ExecutionContext &context() const override;
 
-	virtual AbstractSemantics<Binding<Value>> *copy(const Binding<Value> &target_element) const = 0;
+	virtual GeneralSemantics<Binding<Value>> *copy(const Binding<Value> &target_element) const = 0;
 
 private:
 	const Binding<Value> *element_;

@@ -35,9 +35,9 @@ class ReadylogContext;
 
 template<>
 class Semantics<ModelElement>
-: public virtual AbstractSemantics<ModelElement> {
+: public virtual GeneralSemantics<ModelElement> {
 public:
-	using AbstractSemantics<ModelElement>::AbstractSemantics;
+	using GeneralSemantics<ModelElement>::GeneralSemantics;
 	virtual ~Semantics<ModelElement>() override = default;
 
 	ReadylogContext &rl_context() const;
@@ -49,7 +49,7 @@ public:
 
 template<>
 class Semantics<Expression>
-: public AbstractSemantics<Expression>
+: public GeneralSemantics<Expression>
 , public virtual Semantics<ModelElement>
 {
 public:
@@ -61,7 +61,7 @@ public:
 
 template<>
 class Semantics<Instruction>
-: public virtual AbstractSemantics<Instruction>
+: public virtual GeneralSemantics<Instruction>
 , public virtual Semantics<ModelElement>
 {
 public:
@@ -80,7 +80,7 @@ protected:
 
 template<>
 class Semantics<Type>
-: public virtual AbstractSemantics<ModelElement>
+: public virtual GeneralSemantics<ModelElement>
 , public Semantics<ModelElement>
 {
 };
@@ -89,19 +89,19 @@ class Semantics<Type>
 template<class GologT>
 class Semantics
 : public Semantics<typename GologT::ElementType>
-, public AbstractSemantics<GologT>
+, public GeneralSemantics<GologT>
 {
 public:
-	using AbstractSemantics<GologT>::AbstractSemantics;
+	using GeneralSemantics<GologT>::GeneralSemantics;
 	virtual EC_word plterm() override;
 
 	virtual const GologT &model_element() const override
-	{ return AbstractSemantics<GologT>::element(); }
+	{ return GeneralSemantics<GologT>::element(); }
 };
 
 
 #define GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE(_r, _data, GologT) \
-	virtual unique_ptr<AbstractSemantics<ModelElement>> make_semantics(GologT &) override;
+	virtual unique_ptr<GeneralSemantics<ModelElement>> make_semantics(GologT &) override;
 
 
 class ReadylogSemanticsFactory : public SemanticsFactory {

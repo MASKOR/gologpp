@@ -23,7 +23,7 @@ namespace gologpp {
 
 
 Semantics<ArithmeticOperation>::Semantics(const ArithmeticOperation &op, ReadylogContext &context)
-: AbstractSemantics<ArithmeticOperation>(op, context)
+: GeneralSemantics<ArithmeticOperation>(op, context)
 {
 	switch (element().op()) {
 	case ArithmeticOperation::ADDITION:

@@ -179,8 +179,8 @@ ReadylogSemanticsFactory::ReadylogSemanticsFactory(ReadylogContext &context)
 {}
 
 #define GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL(_r, _data, GologT) \
-unique_ptr<AbstractSemantics<ModelElement>> ReadylogSemanticsFactory::make_semantics(GologT &obj) \
-{ return unique_ptr<AbstractSemantics<ModelElement>>(new Semantics<GologT>(obj, context_)); }
+unique_ptr<GeneralSemantics<ModelElement>> ReadylogSemanticsFactory::make_semantics(GologT &obj) \
+{ return unique_ptr<GeneralSemantics<ModelElement>>(new Semantics<GologT>(obj, context_)); }
 
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL, (), GOLOGPP_SEMANTIC_TYPES)
 

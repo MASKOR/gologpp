@@ -93,7 +93,7 @@ void Activity::update(Transition::Hook hook, boost::optional<Value> &&sensing_re
 Value Activity::mapped_arg_value(const string &name) const
 {
 	return
-		dynamic_cast<AbstractSemantics<Expression> &>(
+		dynamic_cast<GeneralSemantics<Expression> &>(
 			target()->mapping().mapped_expr(name).abstract_semantics()
 		).evaluate(this->binding(), exec_context_.history());
 }

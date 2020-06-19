@@ -31,16 +31,16 @@ namespace gologpp {
 
 
 template<class GologT>
-class AbstractSemantics
-: public virtual AbstractSemantics<ModelElement>
+class GeneralSemantics
+: public virtual GeneralSemantics<ModelElement>
 {
 public:
-	AbstractSemantics(const GologT &elem, ExecutionContext &context)
+	GeneralSemantics(const GologT &elem, ExecutionContext &context)
 	: element_(&elem)
 	, context_(context)
 	{}
 
-	virtual ~AbstractSemantics<GologT>() = default;
+	virtual ~GeneralSemantics<GologT>() = default;
 
 
 	template<class = GologT>
@@ -64,7 +64,7 @@ private:
 
 
 #define GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS(r, data, T) \
-	virtual unique_ptr<AbstractSemantics<ModelElement>> make_semantics(T &) = 0;
+	virtual unique_ptr<GeneralSemantics<ModelElement>> make_semantics(T &) = 0;
 
 class SemanticsFactory {
 public:

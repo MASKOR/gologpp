@@ -34,7 +34,7 @@ namespace gologpp {
 template<>
 class Semantics<Variable>
 : public Semantics<Expression>
-, public AbstractSemantics<Variable>
+, public GeneralSemantics<Variable>
 {
 public:
 	Semantics(const Variable &var, ReadylogContext &context);

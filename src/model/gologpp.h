@@ -135,7 +135,7 @@ class ListExpression;
 class History;
 
 template<class> class Semantics;
-template<class> class AbstractSemantics;
+template<class> class GeneralSemantics;
 
 class SemanticsFactory;
 

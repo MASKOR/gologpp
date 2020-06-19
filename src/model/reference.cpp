@@ -83,18 +83,18 @@ const Expression &Reference<Variable>::arg_for_param(shared_ptr<const Variable>)
 
 
 
-AbstractSemantics<Binding<Value> >::AbstractSemantics(const Binding<Value> &elem, ExecutionContext &context)
+GeneralSemantics<Binding<Value> >::GeneralSemantics(const Binding<Value> &elem, ExecutionContext &context)
 : element_(&elem)
 , context_(context)
 {}
 
-const Binding<Value> &AbstractSemantics<Binding<Value> >::element() const
+const Binding<Value> &GeneralSemantics<Binding<Value> >::element() const
 { return *element_; }
 
-void AbstractSemantics<Binding<Value> >::update_element(const Binding<Value> *new_element)
+void GeneralSemantics<Binding<Value> >::update_element(const Binding<Value> *new_element)
 { element_ = new_element; }
 
-ExecutionContext &AbstractSemantics<Binding<Value> >::context() const
+ExecutionContext &GeneralSemantics<Binding<Value> >::context() const
 { return context_; }
 
 

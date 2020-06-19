@@ -26,7 +26,7 @@ namespace gologpp {
 
 template<>
 class Semantics<Transition>
-: public AbstractSemantics<Transition>
+: public GeneralSemantics<Transition>
 , public Semantics<Instruction>
 {
 public:

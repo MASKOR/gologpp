@@ -43,10 +43,10 @@ namespace gologpp {
 template<>
 class Semantics<Function>
 : public virtual Semantics<ModelElement>
-, public AbstractSemantics<Function>
+, public GeneralSemantics<Function>
 {
 public:
-	using AbstractSemantics<Function>::AbstractSemantics;
+	using GeneralSemantics<Function>::GeneralSemantics;
 	virtual EC_word plterm() override;
 	virtual EC_word definition();
 	EC_word return_var();
@@ -60,10 +60,10 @@ private:
 template<>
 class Semantics<Procedure>
 : public virtual Semantics<ModelElement>
-, public AbstractSemantics<Procedure>
+, public GeneralSemantics<Procedure>
 {
 public:
-	using AbstractSemantics<Procedure>::AbstractSemantics;
+	using GeneralSemantics<Procedure>::GeneralSemantics;
 	virtual EC_word plterm() override;
 	virtual EC_word definition();
 };
@@ -73,11 +73,11 @@ public:
 template<class LhsT>
 class Semantics<Assignment<LhsT>>
 : public Semantics<Instruction>
-, public AbstractSemantics<Assignment<LhsT>>
+, public GeneralSemantics<Assignment<LhsT>>
 {
 public:
 	Semantics(const Assignment<LhsT> &ass, ReadylogContext &context)
-	: AbstractSemantics<Assignment<LhsT>>(ass, context)
+	: GeneralSemantics<Assignment<LhsT>>(ass, context)
 	{
 		throw std::runtime_error(string("Assignment to ") + typeid(LhsT).name() + " is not implemented");
 	}
@@ -91,7 +91,7 @@ public:
 template<>
 class Semantics<Pick>
 : public Semantics<Instruction>
-, public AbstractSemantics<Pick>
+, public GeneralSemantics<Pick>
 {
 public:
 	Semantics(const Pick &, ReadylogContext &context);
@@ -103,10 +103,10 @@ public:
 template<>
 class Semantics<Test>
 : public Semantics<Instruction>
-, public AbstractSemantics<Test>
+, public GeneralSemantics<Test>
 {
 public:
-	using AbstractSemantics<Test>::AbstractSemantics;
+	using GeneralSemantics<Test>::GeneralSemantics;
 	virtual EC_word plterm() override;
 
 	void make_plan_marker(EC_word cond);
@@ -124,10 +124,10 @@ traverse_mixed_field_access(const FieldAccess *fa, const ListAccess *la);
 template<>
 class Semantics<FieldAccess>
 : public Semantics<Expression>
-, public AbstractSemantics<FieldAccess>
+, public GeneralSemantics<FieldAccess>
 {
 public:
-	using AbstractSemantics<FieldAccess>::AbstractSemantics;
+	using GeneralSemantics<FieldAccess>::GeneralSemantics;
 
 	virtual EC_word plterm() override;
 	EC_word field_assign(const Expression &value);
@@ -139,10 +139,10 @@ public:
 template<>
 class Semantics<ListAccess>
 : public Semantics<Expression>
-, public AbstractSemantics<ListAccess>
+, public GeneralSemantics<ListAccess>
 {
 public:
-	using AbstractSemantics<ListAccess>::AbstractSemantics;
+	using GeneralSemantics<ListAccess>::GeneralSemantics;
 
 	virtual EC_word plterm() override;
 	EC_word pl_index();

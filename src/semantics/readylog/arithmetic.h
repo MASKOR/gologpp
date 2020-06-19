@@ -28,7 +28,7 @@ namespace gologpp {
 template<>
 class Semantics<ArithmeticOperation>
 : public Semantics<Expression>
-, public AbstractSemantics<ArithmeticOperation>
+, public GeneralSemantics<ArithmeticOperation>
 {
 public:
 	Semantics(const ArithmeticOperation &, ReadylogContext &context);

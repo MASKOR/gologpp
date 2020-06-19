@@ -50,7 +50,7 @@ public:
 	virtual bool operator <= (const Type &type) const;
 
 	template<class GologT = Expression>
-	AbstractSemantics<GologT> &abstract_semantics() const
+	GeneralSemantics<GologT> &abstract_semantics() const
 	{ return ModelElement::abstract_semantics<GologT>(); }
 
 	template<class GologT = Expression>
@@ -64,11 +64,11 @@ protected:
 
 
 template<>
-class AbstractSemantics<Expression>
-: public virtual AbstractSemantics<ModelElement>
+class GeneralSemantics<Expression>
+: public virtual GeneralSemantics<ModelElement>
 {
 public:
-	AbstractSemantics() = default;
+	GeneralSemantics() = default;
 	virtual Value evaluate(const ABinding &b, const History &h) = 0;
 
 	virtual const Expression &expression() const = 0;
@@ -95,7 +95,7 @@ public:
 	void set_parent(AbstractLanguageElement *parent);
 
 	template<class GologT = Instruction>
-	AbstractSemantics<GologT> &abstract_semantics() const
+	GeneralSemantics<GologT> &abstract_semantics() const
 	{ return ModelElement::abstract_semantics<GologT>(); }
 
 	template<class GologT = Instruction>
@@ -109,11 +109,11 @@ protected:
 
 
 template<>
-class AbstractSemantics<Instruction>
-: public virtual AbstractSemantics<ModelElement>
+class GeneralSemantics<Instruction>
+: public virtual GeneralSemantics<ModelElement>
 {
 public:
-	AbstractSemantics() = default;
+	GeneralSemantics() = default;
 	virtual bool final(const ABinding &b, const History &h) = 0;
 
 	/**

@@ -25,10 +25,10 @@ namespace gologpp {
 template<>
 class Semantics<Activity>
 : public Semantics<ModelElement>
-, public AbstractSemantics<Activity>
+, public GeneralSemantics<Activity>
 {
 public:
-	using AbstractSemantics<Activity>::AbstractSemantics;
+	using GeneralSemantics<Activity>::GeneralSemantics;
 	virtual ~Semantics() override = default;
 
 	const Activity &activity();

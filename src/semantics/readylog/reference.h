@@ -50,10 +50,10 @@ public:
 template<class ArgsT>
 class Semantics<Binding<ArgsT>>
 : public Semantics<ABinding>
-, public AbstractSemantics<Binding<ArgsT>>
+, public GeneralSemantics<Binding<ArgsT>>
 {
 public:
-	using AbstractSemantics<Binding<ArgsT>>::AbstractSemantics;
+	using GeneralSemantics<Binding<ArgsT>>::GeneralSemantics;
 
 	virtual EC_word plterm() override
 	{
@@ -86,10 +86,10 @@ public:
 template<>
 class Semantics<Binding<Value>>
 : public Semantics<ABinding>
-, public AbstractSemantics<Binding<Value>>
+, public GeneralSemantics<Binding<Value>>
 {
 public:
-	using AbstractSemantics<Binding<Value>>::AbstractSemantics;
+	using GeneralSemantics<Binding<Value>>::GeneralSemantics;
 
 	virtual EC_word plterm() override
 	{
@@ -132,11 +132,11 @@ EC_word reference_term(const Reference<Variable> &ref);
 
 template<class TargetT>
 class Semantics<Reference<TargetT>>
-: public AbstractSemantics<Reference<TargetT>>
+: public GeneralSemantics<Reference<TargetT>>
 , public Semantics<typename Reference<TargetT>::ElementType>
 {
 public:
-	using AbstractSemantics<Reference<TargetT>>::AbstractSemantics;
+	using GeneralSemantics<Reference<TargetT>>::GeneralSemantics;
 
 	virtual EC_word plterm() override
 	{ return reference_term(this->element()); }

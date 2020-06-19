@@ -32,10 +32,10 @@ namespace gologpp {
 template<>
 class Semantics<Action>
 : public Semantics<ModelElement>
-, public AbstractSemantics<Action>
+, public GeneralSemantics<Action>
 {
 public:
-	using AbstractSemantics<Action>::AbstractSemantics;
+	using GeneralSemantics<Action>::GeneralSemantics;
 	virtual ~Semantics() override = default;
 
 	EC_word durative_action();
@@ -50,10 +50,10 @@ public:
 template<>
 class Semantics<ExogAction>
 : public Semantics<ModelElement>
-, public AbstractSemantics<ExogAction>
+, public GeneralSemantics<ExogAction>
 {
 public:
-	using AbstractSemantics<ExogAction>::AbstractSemantics;
+	using GeneralSemantics<ExogAction>::GeneralSemantics;
 	virtual ~Semantics() override = default;
 
 	EC_word exog_action();

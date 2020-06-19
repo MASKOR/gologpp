@@ -30,7 +30,7 @@ namespace gologpp {
 
 template<>
 class Semantics<Scope>
-: public AbstractSemantics<Scope>
+: public GeneralSemantics<Scope>
 , public Semantics<ModelElement>
 {
 public:

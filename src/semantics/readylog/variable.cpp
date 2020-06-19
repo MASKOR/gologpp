@@ -25,7 +25,7 @@ namespace gologpp {
 
 
 Semantics<Variable>::Semantics(const Variable &var, ReadylogContext &context)
-: AbstractSemantics<Variable>(var, context)
+: GeneralSemantics<Variable>(var, context)
 , as_golog_var_(false)
 {
 	const ModelElement *parent = dynamic_cast<const Expression &>(element()).parent();

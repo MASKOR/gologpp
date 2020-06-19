@@ -28,7 +28,7 @@ namespace gologpp {
 
 template<>
 class Semantics<History>
-: public AbstractSemantics<History>
+: public GeneralSemantics<History>
 , public Semantics<ModelElement>
 {
 public:

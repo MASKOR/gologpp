@@ -21,12 +21,12 @@ namespace gologpp {
 
 
 
-AbstractSemantics<History>::AbstractSemantics(History &h, ExecutionContext &context)
+GeneralSemantics<History>::GeneralSemantics(History &h, ExecutionContext &context)
 : history_(h)
 , context_(context)
 {}
 
-AbstractSemantics<History>::~AbstractSemantics<History>()
+GeneralSemantics<History>::~GeneralSemantics<History>()
 {}
 
 
@@ -45,16 +45,16 @@ const Scope &History::parent_scope() const
 string History::to_string(const string &pfx) const
 { return pfx + linesep + "history: no representation" + linesep; }
 
-const History &gologpp::AbstractSemantics<History>::element() const
+const History &gologpp::GeneralSemantics<History>::element() const
 { return history_; }
 
-ExecutionContext &AbstractSemantics<History>::context() const
+ExecutionContext &GeneralSemantics<History>::context() const
 { return context_; }
 
-const ModelElement &AbstractSemantics<History>::model_element() const
+const ModelElement &GeneralSemantics<History>::model_element() const
 { return history_; }
 
-void AbstractSemantics<History>::append(shared_ptr<Grounding<AbstractAction>> a)
+void GeneralSemantics<History>::append(shared_ptr<Grounding<AbstractAction>> a)
 { append(*a); }
 
 

@@ -32,7 +32,7 @@ namespace gologpp {
 
 
 Semantics<History>::Semantics(History &history, ReadylogContext &context)
-: AbstractSemantics<History>(history, context)
+: GeneralSemantics<History>(history, context)
 , has_changed_(false)
 { readylog_history_ = ::list(EC_atom("s0"), ::nil()); }
 

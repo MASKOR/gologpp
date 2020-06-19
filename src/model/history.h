@@ -41,10 +41,10 @@ public:
 
 
 template<>
-class AbstractSemantics<History> : public virtual AbstractSemantics<ModelElement> {
+class GeneralSemantics<History> : public virtual GeneralSemantics<ModelElement> {
 public:
-	AbstractSemantics<History>(History &history, ExecutionContext &context);
-	virtual ~AbstractSemantics<History>() override;
+	GeneralSemantics<History>(History &history, ExecutionContext &context);
+	virtual ~GeneralSemantics<History>() override;
 
 	virtual shared_ptr<Transition> get_last_transition() = 0;
 	virtual void append(const Grounding<AbstractAction> &) = 0;

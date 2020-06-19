@@ -77,23 +77,23 @@ string to_string(Transition::Hook h)
 
 
 
-AbstractSemantics<Transition>::AbstractSemantics(const Transition &elem, ExecutionContext &context)
+GeneralSemantics<Transition>::GeneralSemantics(const Transition &elem, ExecutionContext &context)
 : element_(&elem)
 , context_(context)
 , final_(false)
 {}
 
-const Transition &AbstractSemantics<Transition>::element() const
+const Transition &GeneralSemantics<Transition>::element() const
 { return *element_; }
 
-void AbstractSemantics<Transition>::update_element(const Transition *new_element)
+void GeneralSemantics<Transition>::update_element(const Transition *new_element)
 { element_ = new_element; }
 
-ExecutionContext &AbstractSemantics<Transition>::context() const
+ExecutionContext &GeneralSemantics<Transition>::context() const
 { return context_; }
 
 
-unique_ptr<Plan> AbstractSemantics<Transition>::trans(const ABinding &, History &history)
+unique_ptr<Plan> GeneralSemantics<Transition>::trans(const ABinding &, History &history)
 {
 	switch(element().hook())
 	{
@@ -153,10 +153,10 @@ unique_ptr<Plan> AbstractSemantics<Transition>::trans(const ABinding &, History 
 	return unique_ptr<Plan>(new Plan());
 }
 
-const ModelElement &AbstractSemantics<Transition>::model_element() const
+const ModelElement &GeneralSemantics<Transition>::model_element() const
 { return element(); }
 
-const Instruction &AbstractSemantics<Transition>::instruction() const
+const Instruction &GeneralSemantics<Transition>::instruction() const
 { return element(); }
 
 

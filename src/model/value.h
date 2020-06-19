@@ -180,17 +180,17 @@ vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v);
 
 
 template<>
-class AbstractSemantics<Value>
-: public AbstractSemantics<Expression> {
+class GeneralSemantics<Value>
+: public GeneralSemantics<Expression> {
 public:
-	AbstractSemantics(const Value &elem, ExecutionContext &context);
+	GeneralSemantics(const Value &elem, ExecutionContext &context);
 
-	virtual ~AbstractSemantics<Value>() = default;
+	virtual ~GeneralSemantics<Value>() = default;
 
 	virtual ExecutionContext &context() const override;
 
 	virtual Value evaluate(const ABinding &, const History &) override;
-	virtual AbstractSemantics<Value> *copy(const Value &target_element) const = 0;
+	virtual GeneralSemantics<Value> *copy(const Value &target_element) const = 0;
 
 	virtual const Expression &expression() const override;
 	virtual const ModelElement &model_element() const override;

@@ -33,12 +33,12 @@ namespace gologpp {
 template<>
 class Semantics<Value>
 : public Semantics<Expression>
-, public AbstractSemantics<Value>
+, public GeneralSemantics<Value>
 {
 public:
 	Semantics(const Value &value, ReadylogContext &context);
 
-	using AbstractSemantics<Value>::evaluate;
+	using GeneralSemantics<Value>::evaluate;
 	using Semantics<Expression>::expression;
 
 	virtual ~Semantics() override = default;

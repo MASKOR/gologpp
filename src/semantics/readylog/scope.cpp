@@ -22,7 +22,7 @@
 namespace gologpp {
 
 Semantics<Scope>::Semantics(const Scope &s, ReadylogContext &context)
-: AbstractSemantics<Scope>(s, context)
+: GeneralSemantics<Scope>(s, context)
 {}
 
 

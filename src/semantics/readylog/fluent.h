@@ -31,10 +31,10 @@ namespace gologpp {
 template<>
 class Semantics<Fluent>
 : public Semantics<ModelElement>
-, public AbstractSemantics<Fluent>
+, public GeneralSemantics<Fluent>
 {
 public:
-	using AbstractSemantics<Fluent>::AbstractSemantics;
+	using GeneralSemantics<Fluent>::GeneralSemantics;
 	virtual ~Semantics() override = default;
 
 	virtual EC_word plterm() override;

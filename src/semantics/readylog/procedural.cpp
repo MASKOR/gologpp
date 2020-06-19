@@ -166,7 +166,7 @@ EC_word Semantics<Concurrent>::plterm()
 
 template<>
 Semantics<Assignment<Reference<Fluent>>>::Semantics(const Assignment<Reference<Fluent>> &ass, ReadylogContext &context)
-: AbstractSemantics<Assignment<Reference<Fluent>>>(ass, context)
+: GeneralSemantics<Assignment<Reference<Fluent>>>(ass, context)
 {}
 
 
@@ -251,7 +251,7 @@ EC_word Semantics<Assignment<ListAccess>>::plterm()
 }
 
 Semantics<Pick>::Semantics(const Pick &pick, ReadylogContext &context)
-: AbstractSemantics<Pick>(pick, context)
+: GeneralSemantics<Pick>(pick, context)
 {
 	if (element().domain().empty())
 		throw std::runtime_error("ReadyLog requires a domain for pick()!");

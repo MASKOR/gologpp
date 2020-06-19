@@ -306,27 +306,27 @@ vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v)
 
 
 
-AbstractSemantics<Value>::AbstractSemantics(const Value &elem, ExecutionContext &context)
+GeneralSemantics<Value>::GeneralSemantics(const Value &elem, ExecutionContext &context)
 : expression_(&elem)
 , context_(context)
 {}
 
-const Expression &AbstractSemantics<Value>::expression() const
+const Expression &GeneralSemantics<Value>::expression() const
 { return *expression_; }
 
-ExecutionContext &AbstractSemantics<Value>::context() const
+ExecutionContext &GeneralSemantics<Value>::context() const
 { return context_; }
 
-Value AbstractSemantics<Value>::evaluate(const ABinding &, const History &)
+Value GeneralSemantics<Value>::evaluate(const ABinding &, const History &)
 { return *expression_; }
 
-const ModelElement &AbstractSemantics<Value>::model_element() const
+const ModelElement &GeneralSemantics<Value>::model_element() const
 { return *expression_; }
 
-const Value &AbstractSemantics<Value>::element() const
+const Value &GeneralSemantics<Value>::element() const
 { return *expression_; }
 
-void AbstractSemantics<Value>::update_element(const Value *elem)
+void GeneralSemantics<Value>::update_element(const Value *elem)
 { expression_ = elem; }
 
 

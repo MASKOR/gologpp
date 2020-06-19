@@ -26,7 +26,7 @@ namespace gologpp {
 
 
 Semantics<Transition>::Semantics(const Transition &elem, ExecutionContext &context)
-: AbstractSemantics<Transition>(elem, context)
+: GeneralSemantics<Transition>(elem, context)
 {}
 
 
@@ -76,10 +76,10 @@ Semantics<Transition> *Semantics<Transition>::copy(const Transition &target_elem
 { return new Semantics<Transition>(target_element, rl_context()); }
 
 unique_ptr<Plan> Semantics<Transition>::trans(const ABinding &b, History &h)
-{ return AbstractSemantics<Transition>::trans(b, h); }
+{ return GeneralSemantics<Transition>::trans(b, h); }
 
 const Instruction &Semantics<Transition>::instruction() const
-{ return AbstractSemantics<Transition>::instruction(); }
+{ return GeneralSemantics<Transition>::instruction(); }
 
 
 

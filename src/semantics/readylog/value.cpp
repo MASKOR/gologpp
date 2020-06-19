@@ -22,7 +22,7 @@
 namespace gologpp {
 
 Semantics<Value>::Semantics(const Value &value, ReadylogContext &context)
-: AbstractSemantics<Value>(value, context)
+: GeneralSemantics<Value>(value, context)
 {}
 
 EC_word Semantics<Value>::plterm()
