@@ -15,6 +15,8 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
+#pragma once
+
 #include <memory>
 
 
