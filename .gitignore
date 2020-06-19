@@ -1,0 +1,9 @@
+UML/*.pdf
+UML/*.PDF
+UML/*.png
+UML/*.PNG
+UML/*.svg
+UML/*.SVG
+build*
+CMakeLists.txt.user
+
