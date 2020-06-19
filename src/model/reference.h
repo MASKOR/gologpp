@@ -132,7 +132,7 @@ public:
 		while (idx < this->args().size() && idx < this->target()->params().size()) {
 			ArgsT &arg = *this->args()[idx];
 			shared_ptr<Variable> param = this->target()->params()[idx];
-			arg_binding_.bind(param, arg);
+			binding_.bind(param, arg);
 			dynamic_cast<Expression &>(arg).set_parent(this);
 			++idx;
 		}
@@ -148,7 +148,7 @@ public:
 			int pos_in_target = std::distance(this->target()->params().begin(), target_it);
 			args_[pos_in_target] = std::move(it->second);
 			std::reference_wrapper<ArgsT> var = std::ref((*args_[pos_in_target]));
-			arg_binding_.bind(it->first.target(), var);
+			binding_.bind(it->first.target(), var);
 		}
 		ensure_consistent();
 	}
@@ -219,7 +219,7 @@ public:
 	{ return args_; }
 
 	virtual const ArgsT &arg_for_param(shared_ptr<const Variable> param) const override
-	{ return arg_binding_.get(param); }
+	{ return binding_.get(param); }
 
 
 	virtual bool consistent() const override
@@ -267,16 +267,15 @@ public:
 	}
 
 	virtual Binding<ArgsT> &binding()
-	{ return arg_binding_; }
+	{ return binding_; }
 
 	virtual const Binding<ArgsT> &binding() const
-	{ return arg_binding_; }
+	{ return binding_; }
 
-private:
+protected:
 	vector<unique_ptr<ArgsT>> args_;
 	weak_ptr<TargetT> target_;
-
-	Binding<ArgsT> arg_binding_;
+	Binding<ArgsT> binding_;
 };
 
 

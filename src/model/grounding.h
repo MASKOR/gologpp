@@ -93,6 +93,8 @@ public:
 	virtual AbstractAction *operator -> () override
 	{ return this->target().get(); }
 
+	Grounding<TargetT> &operator = (const Grounding<TargetT> &other) = delete;
+
 	virtual Scope &parent_scope() override
 	{ return global_scope(); }
 
@@ -114,6 +116,8 @@ public:
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 };
+
+
 
 } // namespace gologpp
 
