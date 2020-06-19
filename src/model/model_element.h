@@ -41,7 +41,7 @@ public:
 	virtual ~ModelElement() = default;
 
 	template<class GologT = ModelElement>
-	GeneralSemantics<GologT> &abstract_semantics() const
+	GeneralSemantics<GologT> &general_semantics() const
 	{ return dynamic_cast<GeneralSemantics<GologT> &>(*semantics_); }
 
 	template<class GologT = ModelElement>

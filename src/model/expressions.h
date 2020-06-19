@@ -50,8 +50,8 @@ public:
 	virtual bool operator <= (const Type &type) const;
 
 	template<class GologT = Expression>
-	GeneralSemantics<GologT> &abstract_semantics() const
-	{ return ModelElement::abstract_semantics<GologT>(); }
+	GeneralSemantics<GologT> &general_semantics() const
+	{ return ModelElement::general_semantics<GologT>(); }
 
 	template<class GologT = Expression>
 	Semantics<GologT> &elem_semantics() const
@@ -95,8 +95,8 @@ public:
 	void set_parent(AbstractLanguageElement *parent);
 
 	template<class GologT = Instruction>
-	GeneralSemantics<GologT> &abstract_semantics() const
-	{ return ModelElement::abstract_semantics<GologT>(); }
+	GeneralSemantics<GologT> &general_semantics() const
+	{ return ModelElement::general_semantics<GologT>(); }
 
 	template<class GologT = Instruction>
 	Semantics<GologT> &elem_semantics() const

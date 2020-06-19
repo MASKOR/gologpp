@@ -38,7 +38,7 @@ Transition::Transition(const Transition &other)
 , hook_(other.hook())
 {
 	if (other.semantics_) {
-		semantics_.reset(other.abstract_semantics<Transition>().copy(*this));
+		semantics_.reset(other.general_semantics<Transition>().copy(*this));
 	}
 }
 
@@ -108,7 +108,7 @@ unique_ptr<Plan> GeneralSemantics<Transition>::trans(const ABinding &, History &
 			context().backend().current_state(element()) != Activity::State::RUNNING
 			&& static_cast<bool>(
 				element().target()->precondition()
-					.abstract_semantics().evaluate(
+					.general_semantics().evaluate(
 						element().binding(), history
 					)
 			)
@@ -122,7 +122,7 @@ unique_ptr<Plan> GeneralSemantics<Transition>::trans(const ABinding &, History &
 			shared_ptr<Activity> a = context().backend().end_activity(element());
 
 			if (element().target()->senses())
-				history.abstract_semantics<History>().append_sensing_result(a);
+				history.general_semantics<History>().append_sensing_result(a);
 		}
 		else
 			return nullptr;
@@ -148,7 +148,7 @@ unique_ptr<Plan> GeneralSemantics<Transition>::trans(const ABinding &, History &
 		context().set_silent(false);
 	}
 
-	history.abstract_semantics<History>().append(element());
+	history.general_semantics<History>().append(element());
 
 	return unique_ptr<Plan>(new Plan());
 }

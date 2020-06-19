@@ -207,14 +207,14 @@ Value::Value(Value &&c)
 	semantics_ = std::move(c.semantics_);
 
 	if (c.semantics_)
-		semantics_.reset(c.abstract_semantics<Value>().copy(*this));
+		semantics_.reset(c.general_semantics<Value>().copy(*this));
 }
 
 
 Value::Value(const Value &c)
 {
 	if (c.semantics_)
-		semantics_.reset(c.abstract_semantics<Value>().copy(*this));
+		semantics_.reset(c.general_semantics<Value>().copy(*this));
 
 	this->representation_ = c.representation_;
 	set_type(c.type());
@@ -224,7 +224,7 @@ Value::Value(const Value &c)
 Value &Value::operator = (const Value &c)
 {
 	if (c.semantics_)
-		semantics_.reset(c.abstract_semantics<Value>().copy(*this));
+		semantics_.reset(c.general_semantics<Value>().copy(*this));
 
 	this->representation_ = c.representation_;
 	set_type(c.type());
@@ -239,7 +239,7 @@ Value &Value::operator = (Value &&c)
 	set_type(c.type());
 
 	if (c.semantics_)
-		semantics_.reset(c.abstract_semantics<Value>().copy(*this));
+		semantics_.reset(c.general_semantics<Value>().copy(*this));
 
 	return *this;
 }

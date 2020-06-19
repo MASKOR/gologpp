@@ -112,7 +112,7 @@ void AExecutionContext::drain_exog_queue()
 			silent_ = false;
 		}
 		exog->attach_semantics(semantics_factory());
-		history().abstract_semantics<History>().append(exog);
+		history().general_semantics<History>().append(exog);
 	}
 }
 
@@ -128,7 +128,7 @@ void AExecutionContext::drain_exog_queue_blocking()
 			silent_ = false;
 		}
 		exog->attach_semantics(semantics_factory());
-		history().abstract_semantics<History>().append(exog);
+		history().general_semantics<History>().append(exog);
 		drain_exog_queue();
 	}
 }
@@ -164,11 +164,13 @@ void ExecutionContext::run(Block &&program)
 		Binding<Value> empty_binding;
 		empty_binding.attach_semantics(semantics_factory());
 
-		while (!program.abstract_semantics().final(empty_binding, history())) {
+		while (!program.general_semantics().final(empty_binding, history())) {
 			//set_silent(true);
 			context_time_ = backend().time();
 
-			unique_ptr<Plan> plan(program.abstract_semantics().trans(empty_binding, history()));
+			unique_ptr<Plan> plan {
+				program.general_semantics().trans(empty_binding, history())
+			};
 
 			if (plan) {
 				auto plan_it = plan->elements().begin();
@@ -180,7 +182,7 @@ void ExecutionContext::run(Block &&program)
 
 					// Plan elements are expected to not return plans again (nullptr or empty Plan).
 					unique_ptr<Plan> empty_plan {
-						plan_it->instruction().abstract_semantics().trans(empty_binding, history())
+						plan_it->instruction().general_semantics().trans(empty_binding, history())
 					};
 					if (empty_plan) {
 						// Empty plan: successfully executed
@@ -193,9 +195,9 @@ void ExecutionContext::run(Block &&program)
 						drain_exog_queue_blocking();
 					}
 
-					if (history().abstract_semantics<History>().should_progress()) {
+					if (history().general_semantics<History>().should_progress()) {
 						std::cout << "=== Progressing history." << std::endl;
-						history().abstract_semantics<History>().progress();
+						history().general_semantics<History>().progress();
 					}
 				}
 			}
