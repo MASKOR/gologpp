@@ -94,17 +94,21 @@ public:
 
 	virtual EC_word plterm() override
 	{
-		vector<EC_word> pl_binds;
-		for (const auto &pval : this->element().map()) {
-			pl_binds.push_back(
-				::term(EC_functor("=", 2),
-					pval.first->semantics().plterm(),
-					pval.second.get().semantics().plterm()
-				)
-			);
-		}
+		if (this->element().map().empty())
+			return EC_atom("true");
+		else {
+			vector<EC_word> pl_binds;
+			for (const auto &pval : this->element().map()) {
+				pl_binds.push_back(
+					::term(EC_functor("=", 2),
+						pval.first->semantics().plterm(),
+						pval.second.get().semantics().plterm()
+					)
+				);
+			}
 
-		return to_ec_term(",", pl_binds);
+			return to_ec_term(",", pl_binds);
+		}
 	}
 
 	virtual Semantics<Binding<Value>> *copy(const Binding<Value> &target_element) const override;
