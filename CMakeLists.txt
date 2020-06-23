@@ -51,7 +51,6 @@ if (${USE_LIBASAN})
 	add_compile_options(-fsanitize=address)
 endif()
 
-
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Options are: Debug Release RelWithDebInfo MinSizeRel."
 	FORCE)
@@ -345,4 +344,33 @@ if (${BUILD_TOOLS})
 
 	install(TARGETS readylog-test RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
+
+
+
+######################################################################################
+# Testing (requires parser & readylog semantics)
+######################################################################################
+
+if (BUILD_PARSER AND BUILD_READYLOG_IMPL)
+	include(CTest)
+	if (BUILD_TESTING)
+		add_executable(golog++test src/tests/golog++test.cpp)
+		if (USE_LIBASAN)
+			set(TEST_LIBS asan)
+		endif()
+
+		set(TEST_LIBS ${TEST_LIBS} parsegolog++ readylog++)
+		target_link_libraries(golog++test ${TEST_LIBS})
+
+		set(GPP_TESTS arithmetic.gpp)
+		foreach(TI IN LISTS ${GPP_TESTS})
+			add_test(
+				NAME "golog++test ${TI}"
+				COMMAND golog++test ${TI}
+				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/tests
+			)
+		endforeach()
+	endif()
+endif()
+
 
