@@ -69,7 +69,7 @@ class GeneralSemantics<ModelElement> {
 public:
 	GeneralSemantics() = default;
 
-	virtual ~GeneralSemantics<ModelElement>();
+	virtual ~GeneralSemantics();
 
 	virtual ExecutionContext &context() const = 0;
 	virtual const ModelElement &model_element() const = 0;
