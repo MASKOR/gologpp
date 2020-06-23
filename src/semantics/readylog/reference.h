@@ -29,6 +29,7 @@
 #include "semantics.h"
 #include "utilities.h"
 #include "variable.h"
+#include "value.h"
 
 #include <eclipseclass.h>
 

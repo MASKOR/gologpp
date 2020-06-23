@@ -181,7 +181,7 @@ vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v);
 
 template<>
 class GeneralSemantics<Value>
-: public GeneralSemantics<Expression> {
+: public virtual GeneralSemantics<Expression> {
 public:
 	GeneralSemantics(const Value &elem, ExecutionContext &context);
 

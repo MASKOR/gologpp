@@ -42,6 +42,10 @@ public:
 	using Semantics<Expression>::expression;
 
 	virtual ~Semantics() override = default;
+
+	virtual const Expression &expression() const override;
+	virtual Value evaluate(const ABinding &b, const History &h) override;
+
 	virtual EC_word plterm() override;
 	virtual Semantics<Value> *copy(const Value &target_elem) const override;
 };

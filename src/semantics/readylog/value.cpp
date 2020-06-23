@@ -199,6 +199,12 @@ Value pl_term_to_value(EC_word term) {
 Semantics<Value> *Semantics<Value>::copy(const Value &target_elem) const
 { return new Semantics<Value>(target_elem, rl_context()); }
 
+Value Semantics<Value>::evaluate(const ABinding &b, const History &h)
+{ return GeneralSemantics<Value>::evaluate(b, h); }
+
+const Expression &Semantics<Value>::expression() const
+{ return GeneralSemantics<Value>::expression(); }
+
 
 
 } // namespace gologpp

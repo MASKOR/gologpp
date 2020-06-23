@@ -49,7 +49,7 @@ public:
 
 template<>
 class Semantics<Expression>
-: public GeneralSemantics<Expression>
+: public virtual GeneralSemantics<Expression>
 , public virtual Semantics<ModelElement>
 {
 public:
