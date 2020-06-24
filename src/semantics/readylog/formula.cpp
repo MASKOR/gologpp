@@ -33,11 +33,11 @@ EC_word Semantics<Negation>::plterm()
 
 
 
-string cmp_functor(const Comparison &cmp)
+string num_cmp_functor(const Comparison &cmp)
 {
 	switch(cmp.op()) {
 	case ComparisonOperator::EQ:
-		return "=";
+		return "=:=";
 	case ComparisonOperator::GE:
 		return ">=";
 	case ComparisonOperator::GT:
@@ -47,7 +47,7 @@ string cmp_functor(const Comparison &cmp)
 	case ComparisonOperator::LT:
 		return "<";
 	case ComparisonOperator::NEQ:
-		return "\\=";
+		return "=\\=";
 	}
 	throw Bug("Unkown comparison operator " + std::to_string(cmp.op()));
 }
@@ -58,7 +58,7 @@ template<>
 EC_word Semantics<Comparison>::plterm()
 {
 	if (element().lhs().type().is<NumberType>())
-		return ::term(EC_functor(cmp_functor(element()).c_str(), 2),
+		return ::term(EC_functor(num_cmp_functor(element()).c_str(), 2),
 			element().lhs().semantics().plterm(),
 			element().rhs().semantics().plterm()
 		);
@@ -92,7 +92,7 @@ EC_word Semantics<Comparison>::plterm()
 
 
 
-string log_functor(const BooleanOperation &c)
+string bool_op_functor(const BooleanOperation &c)
 {
 	switch(c.op()) {
 	case BooleanOperator::AND:
@@ -112,7 +112,7 @@ string log_functor(const BooleanOperation &c)
 template<>
 EC_word Semantics<BooleanOperation>::plterm()
 {
-	return ::term(EC_functor(log_functor(element()).c_str(), 2),
+	return ::term(EC_functor(bool_op_functor(element()).c_str(), 2),
 		element().lhs().semantics().plterm(),
 		element().rhs().semantics().plterm()
 	);
