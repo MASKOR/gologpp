@@ -29,8 +29,12 @@
 
 #include <parser/parser.h>
 
+#include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
+
 
 using namespace gologpp;
+namespace po = boost::program_options;
 
 int test_file(const string &filename)
 {
@@ -60,28 +64,39 @@ int test_file(const string &filename)
 	);
 
 	if (success) {
-		log(LogLevel::INF) << "... " << filename << " OK";
+		log(LogLevel::INF) << filename << " OK";
 		return 0;
 	}
 	else {
-		log(LogLevel::ERR) << "... " << filename << " FAIL";
+		log(LogLevel::ERR) << filename << " FAIL";
 		return 1;
 	}
 }
 
 
 int main(int argc, char **argv) {
-	string filename;
-	if (argc != 2) {
-		log(LogLevel::ERR) << "Usage: golog++test FILENAME" << flush;
-		return -1;
-	}
-		filename = argv[1];
+	boost::filesystem::path binary_path(argv[0]);
+	po::options_description desc("Usage: " + binary_path.filename().string() + "[options...] [-f|--file] FILENAME");
+	desc.add_options()
+		("help,h", "This help message")
+		("file,f", po::value<string>(), "golog++ test program to process")
+		("trace,t", "Trace calls to eclipse-clp")
+		("guitrace,g", "Wait for graphical eclipse-clp tracer to attach")
+	;
+	po::positional_options_description p;
+	p.add("file", -1);
+	po::variables_map vm;
+	po::store(
+		po::command_line_parser(argc, argv).options(desc).positional(p).run(),
+		vm
+	);
+
+	string filename = vm["file"].as<string>();
 
 	eclipse_opts options;
-	options.trace = true;
+	options.trace = !vm["trace"].empty();
 	options.toplevel = false;
-	options.guitrace = true;
+	options.guitrace = !vm["guitrace"].empty();
 
 	ReadylogContext::init(options);
 

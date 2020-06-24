@@ -24,7 +24,7 @@ include(GNUInstallDirs)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 find_package(PkgConfig)
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS filesystem program_options)
 find_package(EclipseClp)
 find_package(Threads)
 
@@ -359,7 +359,7 @@ if (BUILD_PARSER AND BUILD_READYLOG_IMPL)
 			set(TEST_LIBS asan)
 		endif()
 
-		set(TEST_LIBS ${TEST_LIBS} parsegolog++ readylog++)
+		set(TEST_LIBS ${TEST_LIBS} boost_filesystem boost_program_options parsegolog++ readylog++)
 		target_link_libraries(golog++test ${TEST_LIBS})
 
 		set(GPP_TESTS arithmetic.gpp)
