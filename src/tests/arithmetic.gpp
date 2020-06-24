@@ -7,13 +7,13 @@ number fluent sub(number x, number y) {
 number fluent mult(number x, number y) {
 	initially: (x, y) = null;
 }
-number fluent div(number x, number y) {
+number fluent fdiv(number x, number y) {
 	initially: (x, y) = null;
 }
 number fluent pow(number x, number y) {
 	initially: (x, y) = null;
 }
-number fluent mod(number x, number y) {
+number fluent fmod(number x, number y) {
 	initially: (x, y) = null;
 }
 
@@ -23,15 +23,16 @@ effect:
     sub(x, y) = x - y;
     mult(x, y) = x * y;
     if (y != 0)
-        div(x, y) = x / y;
+        fdiv(x, y) = x / y;
     pow(x, y) = x ** y;
-    mod(x, y) = x % y;
+    if (y != 0)
+	fmod(x, y) = x % y;
 }
 
 
 bool function postcond() =
     add(4,2) == 6 & sub(4,2) == 2 & mult(4,2) == 8
-    & div(4,2) == 2 & pow(4,2) == 16 & mod(4,2) == 0
+    & fdiv(4,2) == 2 & pow(4,2) == 16 & fmod(4,2) == 0
 
 
 {
