@@ -36,6 +36,11 @@ public:
     bool operator != (const Name &other) const;
     virtual size_t hash() const;
     const string &name() const;
+	string mangled_name() const;
+	static string demangle(const string &s);
+
+private:
+	static string mangle_pfx_;
 
 protected:
     string name_;

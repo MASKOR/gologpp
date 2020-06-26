@@ -71,11 +71,11 @@ EC_word Semantics<InitialValue>::plterm()
 	EC_word fluent_inst;
 	if (element().fluent().arity() > 0)
 		fluent_inst = ::term(
-			EC_functor(element().fluent().name().c_str(), element().fluent().arity()),
+			EC_functor(element().fluent().mangled_name().c_str(), element().fluent().arity()),
 			to_ec_words(element().args()).data()
 		);
 	else
-		fluent_inst = EC_atom(element().fluent().name().c_str());
+		fluent_inst = EC_atom(element().fluent().mangled_name().c_str());
 
 	return ::term(EC_functor("initial_val", 2),
 		fluent_inst,
@@ -89,11 +89,11 @@ EC_word Semantics<Fluent>::plterm()
 {
 	if (element().arity() > 0)
 		return ::term(
-			EC_functor(element().name().c_str(), element().arity()),
+			EC_functor(element().mangled_name().c_str(), element().arity()),
 			to_ec_words(element().params()).data()
 		);
 	else
-		return EC_atom(element().name().c_str());
+		return EC_atom(element().mangled_name().c_str());
 }
 
 

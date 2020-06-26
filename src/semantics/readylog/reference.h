@@ -123,11 +123,11 @@ template<class GologT, class ExprT>
 EC_word reference_term(const ReferenceBase<GologT, ExprT> &ref)
 {
 	if (ref.arity() > 0)
-		return ::term(EC_functor(ref.name().c_str(), ref.arity()),
+		return ::term(EC_functor(ref.mangled_name().c_str(), ref.arity()),
 			to_ec_words(ref.args()).data()
 		);
 	else
-		return EC_atom(ref.name().c_str());
+		return EC_atom(ref.mangled_name().c_str());
 }
 
 
@@ -157,7 +157,7 @@ public:
 	EC_word plterm_free_args()
 	{
 		if (this->element().arity() == 0)
-			return EC_atom(this->element().name().c_str());
+			return EC_atom(this->element().mangled_name().c_str());
 		else {
 			vector<EC_word> args;
 			arity_t i = 0;
@@ -169,7 +169,7 @@ public:
 				++i;
 			}
 
-			return ::term(EC_functor(this->element().name().c_str(), this->element().arity()),
+			return ::term(EC_functor(this->element().mangled_name().c_str(), this->element().arity()),
 				args.data()
 			);
 		}

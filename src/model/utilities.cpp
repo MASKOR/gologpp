@@ -16,8 +16,11 @@
 **************************************************************************/
 
 #include "utilities.h"
+#include "logger.h"
 
 namespace gologpp {
+
+string Name::mangle_pfx_ = "gpp~";
 
 Name::Name(const string &name)
 : name_(name)
@@ -37,6 +40,19 @@ size_t Name::hash() const
 
 const string &Name::name() const
 { return name_; }
+
+string Name::mangled_name() const
+{ return mangle_pfx_ + name_; }
+
+string Name::demangle(const string &s)
+{
+	if (s.substr(0, mangle_pfx_.length()) != mangle_pfx_) {
+		log(LogLevel::ERR) << __func__ << ": name is not mangled: " + s << flush;
+		return s;
+	}
+	else
+		return s.substr(mangle_pfx_.length());
+}
 
 
 

@@ -63,7 +63,7 @@ shared_ptr<Transition> gologpp::Semantics<Transition>::transition_from_plterm(EC
 	headname = functor_name(t);
 
 	vector<unique_ptr<Value>> args = plterm_args(t);
-	shared_ptr<Action> action = global_scope().lookup_global<Action>(headname);
+	shared_ptr<Action> action = global_scope().lookup_global<Action>(Name::demangle(headname));
 
 	shared_ptr<Transition> rv { new Transition { action, std::move(args), state_it->second} };
 	rv->attach_semantics(ReadylogContext::instance().semantics_factory());

@@ -57,11 +57,11 @@ EC_word Semantics<Action>::plterm()
 {
 	if (element().arity() > 0)
 		return ::term(
-			EC_functor(element().name().c_str(), element().arity()),
+			EC_functor(element().mangled_name().c_str(), element().arity()),
 			to_ec_words(element().params()).data()
 		);
 	else
-		return EC_atom(element().name().c_str());
+		return EC_atom(element().mangled_name().c_str());
 }
 
 
@@ -106,11 +106,11 @@ EC_word Semantics<ExogAction>::plterm()
 {
 	if (element().arity() > 0)
 		return ::term(
-			EC_functor(element().name().c_str(), element().arity()),
+			EC_functor(element().mangled_name().c_str(), element().arity()),
 			to_ec_words(element().params()).data()
 		);
 	else
-		return EC_atom(element().name().c_str());
+		return EC_atom(element().mangled_name().c_str());
 }
 
 

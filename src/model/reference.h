@@ -206,6 +206,9 @@ public:
 	const string &name() const
 	{ return target_.lock()->name(); }
 
+	string mangled_name() const
+	{ return target_.lock()->mangled_name(); }
+
 	arity_t arity() const
 	{ return target_.lock()->arity(); }
 
