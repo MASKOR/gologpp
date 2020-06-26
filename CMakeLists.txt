@@ -354,19 +354,19 @@ endif()
 if (BUILD_PARSER AND BUILD_READYLOG_IMPL)
 	include(CTest)
 	if (BUILD_TESTING)
-		add_executable(golog++test src/tests/golog++test.cpp)
+		add_executable(gpptest src/tests/golog++test.cpp)
 		if (USE_LIBASAN)
 			set(TEST_LIBS asan)
 		endif()
 
 		set(TEST_LIBS ${TEST_LIBS} boost_filesystem boost_program_options parsegolog++ readylog++)
-		target_link_libraries(golog++test ${TEST_LIBS})
+		target_link_libraries(gpptest ${TEST_LIBS})
 
 		set(GPP_TESTS arithmetic.gpp)
-		foreach(TI IN LISTS ${GPP_TESTS})
+		foreach(TI ${GPP_TESTS})
 			add_test(
-				NAME "golog++test ${TI}"
-				COMMAND golog++test ${TI}
+				NAME "gpptest"
+				COMMAND gpptest "${TI}"
 				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/tests
 			)
 		endforeach()
