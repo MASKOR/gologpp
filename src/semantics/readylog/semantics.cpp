@@ -44,6 +44,11 @@ ReadylogContext &Semantics<ModelElement>::rl_context() const
 { return dynamic_cast<ReadylogContext &>(context()); }
 
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 Value Semantics<Expression>::evaluate(const ABinding &b, const History &h)
 {
 	b.semantics<ABinding>().init_vars();
@@ -83,6 +88,11 @@ Value Semantics<Expression>::evaluate(const ABinding &b, const History &h)
 const Expression &Semantics<Expression>::expression() const
 { return dynamic_cast<const Expression &>(model_element()); }
 
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 unique_ptr<Plan> Semantics<Instruction>::trans(const ABinding &, History &history)
 {
@@ -174,6 +184,10 @@ const Instruction &Semantics<Instruction>::instruction() const
 
 
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 ReadylogSemanticsFactory::ReadylogSemanticsFactory(ReadylogContext &context)
 : context_(context)
 {}
@@ -183,6 +197,7 @@ unique_ptr<GeneralSemantics<ModelElement>> ReadylogSemanticsFactory::make_semant
 { return unique_ptr<GeneralSemantics<ModelElement>>(new Semantics<GologT>(obj, context_)); }
 
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL, (), GOLOGPP_SEMANTIC_TYPES)
+
 
 
 

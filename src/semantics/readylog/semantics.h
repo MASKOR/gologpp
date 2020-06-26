@@ -59,6 +59,7 @@ public:
 };
 
 
+
 template<>
 class Semantics<Instruction>
 : public virtual GeneralSemantics<Instruction>
@@ -78,12 +79,14 @@ protected:
 };
 
 
+
 template<>
 class Semantics<Type>
 : public virtual GeneralSemantics<ModelElement>
 , public Semantics<ModelElement>
 {
 };
+
 
 
 template<class GologT>
