@@ -56,7 +56,7 @@ void TypeNameParser<BaseT>::init()
 	type_name = list_type_name(_r1) | non_list_type_name(_r1);
 	type_name.name("type_name");
 
-	list_type_name = (lit("list") > "[" > type_name(_r1) > "]") [
+	list_type_name = (lit("list") > "[" > any_type_name(_r1) > "]") [
 		_val = phoenix::bind(&Scope::lookup_list_type, _r1, *_1),
 		_pass = !!_val
 	];
@@ -91,6 +91,11 @@ template<>
 TypeNameParser<CompoundType>::TypeNameParser()
 : TypeNameParser::base_type(non_list_type_name, "compound_type_name")
 { init(); }
+
+
+rule<shared_ptr<const Type>(Scope &)> any_type_name {
+	type_identifier<Type>()(_r1)
+};
 
 
 

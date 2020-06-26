@@ -67,6 +67,7 @@ rule<shared_ptr<const BaseT>(Scope &)> &type_identifier() {
 	return rv;
 }
 
+extern rule<shared_ptr<const Type>(Scope &)> any_type_name;
 
 
 
