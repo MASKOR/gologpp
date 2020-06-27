@@ -165,12 +165,6 @@ EC_word Semantics<Concurrent>::plterm()
 
 
 template<>
-Semantics<Assignment<Reference<Fluent>>>::Semantics(const Assignment<Reference<Fluent>> &ass, ReadylogContext &context)
-: GeneralSemantics<Assignment<Reference<Fluent>>>(ass, context)
-{}
-
-
-template<>
 EC_word Semantics<Assignment<Reference<Fluent>>>::plterm()
 {
 	return ::term(EC_functor("set", 2),

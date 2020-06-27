@@ -156,7 +156,6 @@ class PlatformBackend;
 
 #define GOLOGPP_INSTRUCTIONS \
 	(Assignment<Reference<Fluent>>) \
-	(Assignment<Reference<Variable>>) \
 	(Assignment<FieldAccess>) \
 	(Assignment<ListAccess>) \
 	(Pick) \

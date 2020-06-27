@@ -70,24 +70,6 @@ public:
 
 
 
-template<class LhsT>
-class Semantics<Assignment<LhsT>>
-: public Semantics<Instruction>
-, public GeneralSemantics<Assignment<LhsT>>
-{
-public:
-	Semantics(const Assignment<LhsT> &ass, ReadylogContext &context)
-	: GeneralSemantics<Assignment<LhsT>>(ass, context)
-	{
-		throw std::runtime_error(string("Assignment to ") + typeid(LhsT).name() + " is not implemented");
-	}
-
-	virtual EC_word plterm() override
-	{ throw std::runtime_error(string("Assignment to ") + typeid(LhsT).name() + " is not implemented"); }
-};
-
-
-
 template<>
 class Semantics<Pick>
 : public Semantics<Instruction>
