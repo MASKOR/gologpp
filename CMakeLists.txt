@@ -369,8 +369,7 @@ if (BUILD_PARSER AND BUILD_READYLOG_IMPL)
 		foreach(TI ${GPP_TESTS})
 			add_test(
 				NAME "gpptest_${TI}"
-				COMMAND gpptest "${TI}"
-				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/tests
+				COMMAND gpptest "${CMAKE_CURRENT_SOURCE_DIR}/src/tests/${TI}"
 			)
 		endforeach()
 	endif()
