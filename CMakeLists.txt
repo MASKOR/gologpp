@@ -362,10 +362,13 @@ if (BUILD_PARSER AND BUILD_READYLOG_IMPL)
 		set(TEST_LIBS ${TEST_LIBS} boost_filesystem boost_program_options parsegolog++ readylog++)
 		target_link_libraries(gpptest ${TEST_LIBS})
 
-		set(GPP_TESTS arithmetic.gpp)
+		set(GPP_TESTS
+			arithmetic.gpp
+			blocksworld.gpp
+		)
 		foreach(TI ${GPP_TESTS})
 			add_test(
-				NAME "gpptest"
+				NAME "gpptest_${TI}"
 				COMMAND gpptest "${TI}"
 				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/tests
 			)
