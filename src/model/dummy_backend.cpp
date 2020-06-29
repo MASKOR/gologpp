@@ -52,10 +52,12 @@ DummyBackend::DummyBackend()
 			exogs_.push_back(exog);
 	}
 
-	rnd_exog_index_ = std::uniform_int_distribution<>(0, static_cast<int>(exogs_.size()-1));
+	if (exogs_.size()) {
+		rnd_exog_index_ = std::uniform_int_distribution<>(0, static_cast<int>(exogs_.size()-1));
 
-	exog_generator_ = std::thread(rnd_exog_generator());
-	exog_generator_.detach();
+		exog_generator_ = std::thread(rnd_exog_generator());
+		exog_generator_.detach();
+	}
 }
 
 
