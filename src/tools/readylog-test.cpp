@@ -55,6 +55,7 @@ void test_parser(const string &filename)
 		{ mainproc }
 	));
 
+	ctx.terminate();
 	ReadylogContext::shutdown();
 }
 

@@ -101,6 +101,7 @@ set(INTERFACE_SRC
 	src/model/transformation.cpp
 	src/model/plan.cpp
 	src/model/logger.cpp
+	src/model/dummy_backend.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -144,6 +145,7 @@ install(FILES
 	src/model/transformation.h
 	src/model/plan.h
 	src/model/logger.h
+	src/model/dummy_backend.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model
 )
