@@ -40,8 +40,18 @@ namespace gologpp {
 unique_ptr<ReadylogContext> ReadylogContext::instance_;
 
 
-void ReadylogContext::init(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend)
-{ instance_ = unique_ptr<ReadylogContext>(new ReadylogContext(options, std::move(exec_backend))); }
+void ReadylogContext::init(
+	const eclipse_opts &options,
+	unique_ptr<PlatformBackend> &&exec_backend,
+	unique_ptr<PlanTransformation> &&transformation
+)
+{
+	instance_ = unique_ptr<ReadylogContext>(new ReadylogContext(
+		options,
+		std::move(exec_backend),
+		std::move(transformation)
+	) );
+}
 
 void ReadylogContext::shutdown()
 {
@@ -50,8 +60,16 @@ void ReadylogContext::shutdown()
 }
 
 
-ReadylogContext::ReadylogContext(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend)
-: ExecutionContext(std::make_unique<ReadylogSemanticsFactory>(*this), std::move(exec_backend))
+ReadylogContext::ReadylogContext(
+	const eclipse_opts &options,
+	unique_ptr<PlatformBackend> &&exec_backend,
+	unique_ptr<PlanTransformation> &&transformation
+)
+: ExecutionContext(
+  	std::make_unique<ReadylogSemanticsFactory>(*this),
+  	std::move(exec_backend),
+  	std::move(transformation)
+  )
 , options_(options)
 {
 	ec_set_option_ptr(EC_OPTION_ECLIPSEDIR, const_cast<void *>(static_cast<const void *>(ECLIPSE_DIR)));

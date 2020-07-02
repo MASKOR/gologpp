@@ -143,9 +143,17 @@ void AExecutionContext::set_silent(bool silent)
 
 
 
-ExecutionContext::ExecutionContext(unique_ptr<SemanticsFactory> &&semantics, unique_ptr<PlatformBackend> &&exec_backend)
+ExecutionContext::ExecutionContext(
+	unique_ptr<SemanticsFactory> &&semantics,
+	unique_ptr<PlatformBackend> &&exec_backend,
+	unique_ptr<PlanTransformation> &&plan_transformation
+)
 : AExecutionContext(std::move(semantics), std::move(exec_backend))
-{}
+, plan_transformation_(std::move(plan_transformation))
+{
+	if (!plan_transformation_)
+		plan_transformation_.reset(new DummyPlanTransformation());
+}
 
 ExecutionContext::~ExecutionContext()
 {}
@@ -167,7 +175,7 @@ void ExecutionContext::run(Block &&program)
 		empty_binding.attach_semantics(semantics_factory());
 
 		while (!program.general_semantics().final(empty_binding, history())) {
-			//set_silent(true);
+			set_silent(true);
 			context_time_ = backend().time();
 
 			unique_ptr<Plan> plan {
@@ -175,26 +183,34 @@ void ExecutionContext::run(Block &&program)
 			};
 
 			if (plan) {
-				auto plan_it = plan->elements().begin();
-				while (plan_it != plan->elements().end()) {
+				plan = plan_transformation_->transform(std::move(*plan));
+
+				while (!plan->elements().empty()) {
 					if (terminated)
 						throw Terminate();
 
-					drain_exog_queue();
+					if (!exog_empty()) {
+						drain_exog_queue();
+						plan = plan_transformation_->transform(std::move(*plan));
+					}
 
 					// Plan elements are expected to not return plans again (nullptr or empty Plan).
 					unique_ptr<Plan> empty_plan {
-						plan_it->instruction().general_semantics().trans(empty_binding, history())
+						plan->elements().front().instruction().general_semantics().trans(empty_binding, history())
 					};
 					if (empty_plan) {
 						// Empty plan: successfully executed
 						if (!empty_plan->elements().empty())
-							throw Bug("Plan instruction returned a plan: " + plan_it->instruction().str());
-						++plan_it;
+							throw Bug(
+								"Plan instruction returned a plan: "
+								+ plan->elements().front().instruction().str()
+							);
+						plan->elements().erase(plan->elements().begin());
 					}
 					else {
 						// Current Plan element not executable
 						drain_exog_queue_blocking();
+						plan = plan_transformation_->transform(std::move(*plan));
 					}
 
 					if (history().general_semantics<History>().should_progress()) {

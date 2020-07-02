@@ -22,6 +22,7 @@
 #include "gologpp.h"
 #include "platform_backend.h"
 #include "history.h"
+#include "transformation.h"
 
 #include <memory>
 #include <vector>
@@ -99,7 +100,11 @@ protected:
 
 class ExecutionContext : public AExecutionContext {
 public:
-	ExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<PlatformBackend> &&exec_backend);
+	ExecutionContext(
+		unique_ptr<SemanticsFactory> &&implementor,
+		unique_ptr<PlatformBackend> &&exec_backend,
+		unique_ptr<PlanTransformation> &&plan_transformation
+	);
 
 	virtual ~ExecutionContext() override;
 
@@ -109,6 +114,7 @@ public:
 
 private:
 	Clock::time_point context_time_;
+	unique_ptr<PlanTransformation> plan_transformation_;
 };
 
 

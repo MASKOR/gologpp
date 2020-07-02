@@ -31,6 +31,12 @@ TimedInstruction::TimedInstruction(Instruction *i)
 : TimedInstruction(unique_ptr<Instruction>(i))
 {}
 
+TimedInstruction::TimedInstruction(TimedInstruction &&i)
+: instruction_(std::move(i.instruction_))
+, earliest_(std::move(i.earliest_))
+, latest_(std::move(i.latest_))
+{}
+
 const Instruction &TimedInstruction::instruction() const
 { return *instruction_; }
 
@@ -50,15 +56,35 @@ void TimedInstruction::set_latest(TimePoint t)
 { latest_ = t; }
 
 
+TimedInstruction &TimedInstruction::operator =(TimedInstruction &&i)
+{
+	instruction_ = std::move(i.instruction_);
+	earliest_ = std::move(i.earliest_);
+	latest_ = std::move(i.latest_);
+	return *this;
+}
+
+
+
+Plan::Plan(Plan &&sub)
+: elements_(std::move(sub.elements_))
+{}
 
 void Plan::append(TimedInstruction &&i)
 { elements_.push_back(std::forward<TimedInstruction>(i)); }
+
+Plan &Plan::operator =(Plan &&other)
+{
+	elements_ = std::move(other.elements_);
+	return *this;
+}
 
 vector<TimedInstruction> &Plan::elements()
 { return elements_; }
 
 const vector<TimedInstruction> &Plan::elements() const
 { return elements_; }
+
 
 /*void Plan::attach_semantics(SemanticsFactory &f)
 {

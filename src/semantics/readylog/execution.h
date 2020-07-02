@@ -36,7 +36,11 @@ struct eclipse_opts {
 class ReadylogContext : public ExecutionContext {
 public:
 	virtual ~ReadylogContext() override;
-	static void init(const eclipse_opts &options = {false, false}, unique_ptr<PlatformBackend> &&backend = nullptr);
+	static void init(
+		const eclipse_opts &options = {false, false, false},
+		unique_ptr<PlatformBackend> &&backend = nullptr,
+		unique_ptr<PlanTransformation> &&transformation = nullptr
+	);
 	static void shutdown();
 	static ReadylogContext &instance();
 
@@ -56,7 +60,11 @@ public:
 	const eclipse_opts &options() const;
 
 private:
-    ReadylogContext(const eclipse_opts &options, unique_ptr<PlatformBackend> &&exec_backend);
+    ReadylogContext(
+		const eclipse_opts &options,
+		unique_ptr<PlatformBackend> &&exec_backend,
+		unique_ptr<PlanTransformation> &&transformation
+	);
 
     virtual void compile_term(const EC_word &term);
     std::string find_readylog();

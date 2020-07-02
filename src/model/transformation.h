@@ -33,9 +33,18 @@ class PlanTransformation {
 public:
 	virtual ~PlanTransformation();
 
-	virtual unique_ptr<Plan> transform(const Plan &) = 0;
+	virtual unique_ptr<Plan> transform(Plan &&) = 0;
 };
 
+
+/**
+ * @class DummyPlanTransformation
+ * Does nothing (the identity transformation)
+ */
+class DummyPlanTransformation : public PlanTransformation {
+public:
+	virtual unique_ptr<Plan> transform(Plan &&) override;
+};
 
 
 }

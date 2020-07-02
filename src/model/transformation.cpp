@@ -16,6 +16,7 @@
 **************************************************************************/
 
 #include "transformation.h"
+#include "plan.h"
 
 namespace gologpp {
 
@@ -23,6 +24,10 @@ namespace gologpp {
 PlanTransformation::~PlanTransformation()
 {}
 
+
+
+unique_ptr<Plan> DummyPlanTransformation::transform(Plan &&p)
+{ return unique_ptr<Plan>(new Plan(std::move(p))); }
 
 
 }

@@ -35,12 +35,13 @@ using TimePoint = std::chrono::steady_clock::time_point;
 class TimedInstruction {
 public:
 	/**
-		* Constructor. Takes ownership of the given @ref Instruction and initializes the
-		* earliest and latest timepoints with the smallest and largest possible values, respectively
-		* (thus representing a temporally unconstrained TimedInstruction)
-		*/
+	 * Constructor. Takes ownership of the given @ref Instruction and initializes the
+	 * earliest and latest timepoints with the smallest and largest possible values, respectively
+	 * (thus representing a temporally unconstrained TimedInstruction)
+	 */
 	TimedInstruction(unique_ptr<Instruction> &&);
 	TimedInstruction(Instruction *);
+	TimedInstruction(TimedInstruction &&);
 
 	const Instruction &instruction() const;
 	Instruction &instruction();
@@ -49,6 +50,8 @@ public:
 
 	void set_earliest(TimePoint);
 	void set_latest(TimePoint);
+
+	TimedInstruction &operator = (TimedInstruction &&);
 
 private:
 	unique_ptr<Instruction> instruction_;
@@ -63,13 +66,14 @@ class Plan
 {
 public:
 	Plan() = default;
-	Plan(std::initializer_list<unique_ptr<Instruction>> &&step);
-	Plan(const Plan &sub);
+	Plan(Plan &&sub);
 
 	Value max_reward(const ABinding &binding, const Reference<Function> &reward_func);
 
 	void append(TimedInstruction &&);
 	void append(Plan &&);
+
+	Plan &operator = (Plan &&);
 
 	vector<TimedInstruction> &elements();
 	const vector<TimedInstruction> &elements() const;
