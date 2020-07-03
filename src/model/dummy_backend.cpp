@@ -65,9 +65,8 @@ std::function<void()> DummyBackend::rnd_exog_generator()
 {
 	return [&] () {
 		wait_until_ready();
-		std::mutex sleep_mutex;
 		while (!terminated_) {
-			std::unique_lock<std::mutex> sleep_lock(sleep_mutex);
+			std::unique_lock<std::mutex> sleep_lock(terminate_mutex_);
 			terminate_condition_.wait_for(sleep_lock, std::chrono::duration<double>(rnd_exog_delay_(prng_)));
 			if (terminated_)
 				break;
@@ -143,6 +142,23 @@ void DummyBackend::terminate()
 	terminate_condition_.notify_all();
 	for (auto &entry : activity_threads_)
 		entry.second->cancel();
+}
+
+
+void DummyBackend::schedule_timer_event(Clock::time_point when)
+{
+	timer_evt_thread_ = std::thread([&] () {
+		wait_until_ready();
+
+		std::unique_lock<std::mutex> sleep_lock(terminate_mutex_);
+		terminate_condition_.wait_until(sleep_lock, when, [&] () {
+			return terminated_.load();
+		} );
+
+		if (!terminated_)
+			exec_context()->exog_timer_wakeup();
+	});
+	timer_evt_thread_.detach();
 }
 
 

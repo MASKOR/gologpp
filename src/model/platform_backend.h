@@ -23,9 +23,9 @@
 #include "reference.h"
 #include "transition.h"
 #include "activity.h"
+#include "clock.h"
 
 #include <random>
-#include <chrono>
 #include <unordered_set>
 #include <mutex>
 #include <thread>
@@ -36,20 +36,6 @@
 namespace gologpp {
 
 
-struct Clock {
-	using rep = double;
-	using duration = std::chrono::duration<rep, std::nano>;
-	using period = duration::period;
-	using time_point = std::chrono::time_point<Clock, Clock::duration>;
-	static constexpr bool is_steady = true;
-
-	static PlatformBackend *clock_source;
-
-	static time_point now() noexcept;
-};
-
-
-
 class PlatformBackend {
 public:
 	using ActivityMap = std::unordered_map <
@@ -57,6 +43,8 @@ public:
 		shared_ptr<Grounding<Action>>
 	>;
 	using Lock = std::unique_lock<std::recursive_mutex>;
+
+	PlatformBackend();
 
 	virtual ~PlatformBackend();
 
@@ -72,6 +60,7 @@ public:
 	Activity::State current_state(const Grounding<Action> &);
 
 	virtual void terminate() = 0;
+	virtual void schedule_timer_event(Clock::time_point when) = 0;
 
 protected:
 	void wait_until_ready();

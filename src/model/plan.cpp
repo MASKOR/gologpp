@@ -23,8 +23,8 @@ namespace gologpp {
 
 TimedInstruction::TimedInstruction(unique_ptr<Instruction> &&i)
 : instruction_(std::forward<unique_ptr<Instruction>>(i))
-, earliest_(TimePoint::min())
-, latest_(TimePoint::max())
+, earliest_(Clock::time_point::min())
+, latest_(Clock::time_point::max())
 {}
 
 TimedInstruction::TimedInstruction(Instruction *i)
@@ -43,16 +43,16 @@ const Instruction &TimedInstruction::instruction() const
 Instruction &TimedInstruction::instruction()
 { return *instruction_; }
 
-TimePoint TimedInstruction::earliest_timepoint() const
+Clock::time_point TimedInstruction::earliest_timepoint() const
 { return earliest_; }
 
-TimePoint TimedInstruction::latest_timepoint() const
+Clock::time_point TimedInstruction::latest_timepoint() const
 { return latest_; }
 
-void TimedInstruction::set_earliest(TimePoint t)
+void TimedInstruction::set_earliest(Clock::time_point t)
 { earliest_ = t; }
 
-void TimedInstruction::set_latest(TimePoint t)
+void TimedInstruction::set_latest(Clock::time_point t)
 { latest_ = t; }
 
 

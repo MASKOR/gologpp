@@ -21,15 +21,17 @@
 
 namespace gologpp {
 
-PlatformBackend *Clock::clock_source = nullptr;
-
-Clock::time_point Clock::now() noexcept
-{ return clock_source->time(); }
-
-
+PlatformBackend::PlatformBackend()
+{
+	if (Clock::clock_source)
+		throw Bug("Cannot have multiple instances of the PlatformBackend because there must be a unique clock source");
+	Clock::clock_source = this;
+}
 
 PlatformBackend::~PlatformBackend()
-{}
+{
+	Clock::clock_source = nullptr;
+}
 
 shared_ptr<Activity> PlatformBackend::start_activity(const Transition &trans)
 {

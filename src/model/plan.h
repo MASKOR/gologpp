@@ -23,13 +23,11 @@
 
 #include "gologpp.h"
 #include "expressions.h"
+#include "clock.h"
 
 
 
 namespace gologpp {
-
-
-using TimePoint = std::chrono::steady_clock::time_point;
 
 
 class TimedInstruction {
@@ -45,18 +43,18 @@ public:
 
 	const Instruction &instruction() const;
 	Instruction &instruction();
-	TimePoint earliest_timepoint() const;
-	TimePoint latest_timepoint() const;
+	Clock::time_point earliest_timepoint() const;
+	Clock::time_point latest_timepoint() const;
 
-	void set_earliest(TimePoint);
-	void set_latest(TimePoint);
+	void set_earliest(Clock::time_point);
+	void set_latest(Clock::time_point);
 
 	TimedInstruction &operator = (TimedInstruction &&);
 
 private:
 	unique_ptr<Instruction> instruction_;
-	TimePoint earliest_;
-	TimePoint latest_;
+	Clock::time_point earliest_;
+	Clock::time_point latest_;
 };
 
 

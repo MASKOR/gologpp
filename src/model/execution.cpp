@@ -43,6 +43,7 @@ AExecutionContext::AExecutionContext(unique_ptr<SemanticsFactory> &&semantics, u
 		platform_backend_ = std::make_unique<DummyBackend>();
 	platform_backend_->set_context(this);
 	Clock::clock_source = platform_backend_.get();
+	context_time_ = Clock::now();
 }
 
 
@@ -57,13 +58,18 @@ shared_ptr<Grounding<AbstractAction>> AExecutionContext::exog_queue_pop()
 
 shared_ptr<Grounding<AbstractAction>> AExecutionContext::exog_queue_poll()
 {
+	Clock::time_point prev_time = context_time();
 	std::unique_lock<std::mutex> queue_empty_lock { queue_empty_mutex_ };
 	{
 		std::lock_guard<std::mutex> l1{ wait_mutex_ };
-		queue_empty_condition_.wait(queue_empty_lock, [&] { return !exog_queue_.empty() || terminated; });
+		queue_empty_condition_.wait(queue_empty_lock, [&] {
+			return !exog_queue_.empty() || terminated || context_time() > prev_time;
+		});
 	}
 
 	if (terminated)
+		throw Terminate();
+	else if (context_time() > prev_time)
 		return nullptr;
 	else
 		return exog_queue_pop();
@@ -89,6 +95,15 @@ void AExecutionContext::exog_queue_push(shared_ptr<Grounding<AbstractAction>> ex
 		queue_empty_condition_.notify_one();
 	}
 }
+
+
+void AExecutionContext::exog_timer_wakeup()
+{
+	context_time_ = backend().time();
+	queue_empty_condition_.notify_all();
+	std::lock_guard<std::mutex> l2 { wait_mutex_ };
+}
+
 
 bool AExecutionContext::exog_empty()
 {
@@ -141,6 +156,9 @@ bool AExecutionContext::silent() const
 void AExecutionContext::set_silent(bool silent)
 { silent_ = silent; }
 
+Clock::time_point AExecutionContext::context_time() const
+{ return context_time_; }
+
 
 
 ExecutionContext::ExecutionContext(
@@ -158,9 +176,6 @@ ExecutionContext::ExecutionContext(
 ExecutionContext::~ExecutionContext()
 {}
 
-Clock::time_point ExecutionContext::context_time() const
-{ return context_time_; }
-
 
 void ExecutionContext::run(Block &&program)
 {
@@ -176,7 +191,6 @@ void ExecutionContext::run(Block &&program)
 
 		while (!program.general_semantics().final(empty_binding, history())) {
 			set_silent(true);
-			context_time_ = backend().time();
 
 			unique_ptr<Plan> plan {
 				program.general_semantics().trans(empty_binding, history())
@@ -194,10 +208,20 @@ void ExecutionContext::run(Block &&program)
 						plan = plan_transformation_->transform(std::move(*plan));
 					}
 
-					// Plan elements are expected to not return plans again (nullptr or empty Plan).
-					unique_ptr<Plan> empty_plan {
-						plan->elements().front().instruction().general_semantics().trans(empty_binding, history())
-					};
+					unique_ptr<Plan> empty_plan;
+
+					if (plan->elements().front().earliest_timepoint() > context_time()) {
+						backend().schedule_timer_event(
+							plan->elements().front().earliest_timepoint()
+						);
+					}
+					else {
+						// Plan elements are expected to not return plans again (nullptr or empty Plan).
+						empty_plan = plan->elements().front().instruction()
+							.general_semantics().trans(empty_binding, history())
+						;
+					}
+
 					if (empty_plan) {
 						// Empty plan: successfully executed
 						if (!empty_plan->elements().empty())

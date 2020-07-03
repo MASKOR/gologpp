@@ -33,6 +33,7 @@ public:
 	virtual void preempt_activity(shared_ptr<Activity>) override;
 	virtual Clock::time_point time() const noexcept override;
 	virtual void terminate() override;
+	virtual void schedule_timer_event(Clock::time_point when) override;
 
 private:
 	virtual void execute_activity(shared_ptr<Activity> a) override;
@@ -61,6 +62,8 @@ private:
 	std::mutex terminate_mutex_;
 	std::condition_variable terminate_condition_;
 	std::atomic_bool terminated_;
+
+	std::thread timer_evt_thread_;
 
 	class ActivityThread {
 	public:

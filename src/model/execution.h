@@ -24,14 +24,9 @@
 #include "history.h"
 #include "transformation.h"
 
-#include <memory>
-#include <vector>
-#include <unordered_map>
-#include <tuple>
 #include <mutex>
 #include <queue>
 #include <condition_variable>
-#include <chrono>
 #include <atomic>
 
 namespace gologpp {
@@ -49,24 +44,31 @@ public:
 	AExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<PlatformBackend> &&platform_backend);
 	virtual ~AExecutionContext() = default;
 
-	/**
-	 * @brief compile called once for the toplevel @param program.
-	 */
 	virtual void precompile() = 0;
+
+	/// Called once for the toplevel @param program.
 	virtual void compile(const Block &program) = 0;
 	virtual void compile(const Fluent &fluent) = 0;
 	virtual void compile(const AbstractAction &action) = 0;
 	virtual void compile(const Function &function) = 0;
 	virtual void compile(const Procedure &function) = 0;
+
 	virtual void postcompile() = 0;
 
 	virtual void run(Block &&program) = 0;
 
+	/// \return Head popped from the exog_queue or nullptr if it is empty.
 	shared_ptr<Grounding<AbstractAction>> exog_queue_pop();
+
+	/// Block until the exog_queue is non-empty or exog_timer_wakeup() is called.
+	/// \return Head popped from the exog_queue or nullptr if exog_timer_wakeup() was called.
 	shared_ptr<Grounding<AbstractAction>> exog_queue_poll();
-	void wait_for_exog();
+
 	bool exog_empty();
 	void exog_queue_push(shared_ptr<Grounding<AbstractAction>> exog);
+
+	/// Update context_time and unblock exog_queue.
+	void exog_timer_wakeup();
 
 	void terminate();
 
@@ -79,6 +81,10 @@ public:
 
 	void set_silent(bool silent);
 	bool silent() const;
+
+	/// \return The time the ExecutionContext is currently working with.
+	/// Updated intermittently by exogenous timer events.
+	Clock::time_point context_time() const;
 
 private:
 	std::mutex exog_mutex_;
@@ -94,6 +100,7 @@ private:
 
 protected:
 	std::atomic_bool terminated;
+	std::atomic<Clock::time_point> context_time_;
 };
 
 
@@ -110,10 +117,7 @@ public:
 
 	virtual void run(Block &&program) override;
 
-	Clock::time_point context_time() const;
-
 private:
-	Clock::time_point context_time_;
 	unique_ptr<PlanTransformation> plan_transformation_;
 };
 
