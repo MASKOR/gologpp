@@ -38,6 +38,7 @@ AExecutionContext::AExecutionContext(unique_ptr<SemanticsFactory> &&semantics, u
 , semantics_(std::move(semantics))
 , silent_(false)
 , terminated(false)
+, context_time_(Clock::time_point::min())
 {
 	if (!platform_backend_)
 		platform_backend_ = std::make_unique<DummyBackend>();
