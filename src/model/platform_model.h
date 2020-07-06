@@ -18,7 +18,7 @@
 #ifndef GOLOGPP_PLATFORM_MODEL_H_
 #define GOLOGPP_PLATFORM_MODEL_H_
 
-#include "gologpp.h"
+#include <model/gologpp.h>
 
 #include <vector>
 #include <string>

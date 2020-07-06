@@ -16,7 +16,7 @@
 **************************************************************************/
 
 #include "platform_backend.h"
-#include "execution.h"
+#include "context.h"
 #include "activity.h"
 
 namespace gologpp {

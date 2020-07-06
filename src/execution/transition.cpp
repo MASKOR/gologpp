@@ -15,11 +15,12 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
+#include <model/value.h>
+#include <model/action.h>
+#include <model/logger.h>
+
+#include "context.h"
 #include "transition.h"
-#include "value.h"
-#include "action.h"
-#include "execution.h"
-#include "logger.h"
 #include "history.h"
 
 #include <iostream>

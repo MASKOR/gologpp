@@ -18,8 +18,9 @@
 #ifndef GOLOGPP_EXECUTION_H_
 #define GOLOGPP_EXECUTION_H_
 
-#include "utilities.h"
-#include "gologpp.h"
+#include <model/utilities.h>
+#include <model/gologpp.h>
+
 #include "platform_backend.h"
 #include "history.h"
 #include "transformation.h"

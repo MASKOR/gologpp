@@ -20,7 +20,7 @@
 
 #include <iostream>
 
-#include <model/execution.h>
+#include <execution/context.h>
 #include <eclipseclass.h>
 
 namespace gologpp {

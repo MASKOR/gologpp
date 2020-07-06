@@ -20,7 +20,7 @@
 #include "reference.h"
 #include "execution.h"
 
-#include <model/activity.h>
+#include <execution/activity.h>
 
 namespace gologpp {
 

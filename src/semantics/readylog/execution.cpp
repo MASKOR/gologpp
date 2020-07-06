@@ -15,12 +15,11 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "value.h"
-#include "execution.h"
-
 #include <eclipseclass.h>
 #include <experimental/filesystem>
 
+#include "value.h"
+#include "execution.h"
 #include "action.h"
 #include "procedural.h"
 #include "fluent.h"
@@ -28,8 +27,9 @@
 #include "history.h"
 #include "transition.h"
 
-#include <model/plan.h>
-#include <model/transformation.h>
+#include <execution/plan.h>
+#include <execution/transformation.h>
+
 #include <model/action.h>
 
 namespace filesystem = std::experimental::filesystem;

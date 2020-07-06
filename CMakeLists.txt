@@ -71,7 +71,6 @@ set(INTERFACE_SRC
 	src/model/model_element.cpp
 	src/model/abstract_reference.cpp
 	src/model/action.cpp
-	src/model/activity.cpp
 	src/model/variable.cpp
 	src/model/value.cpp
 	src/model/effect_axiom.cpp
@@ -83,26 +82,28 @@ set(INTERFACE_SRC
 	src/model/utilities.cpp
 	src/model/arithmetic.cpp
 	src/model/error.cpp
-	src/model/execution.cpp
 	src/model/reference.cpp
 	src/model/global.cpp
 	src/model/domain.cpp
 	src/model/string.cpp
-	src/model/history.cpp
 	src/model/mapping.cpp
-	src/model/platform_backend.cpp
-	src/model/transition.cpp
 	src/model/language.cpp
 	src/model/types.cpp
 	src/model/compound_expression.cpp
 	src/model/list_expression.cpp
 	src/model/semantics.cpp
-	src/model/grounding.cpp
-	src/model/transformation.cpp
-	src/model/plan.cpp
 	src/model/logger.cpp
-	src/model/dummy_backend.cpp
-	src/model/clock.cpp
+
+	src/execution/grounding.cpp
+	src/execution/transition.cpp
+	src/execution/history.cpp
+	src/execution/activity.cpp
+	src/execution/clock.cpp
+	src/execution/dummy_backend.cpp
+	src/execution/context.cpp
+	src/execution/plan.cpp
+	src/execution/platform_backend.cpp
+	src/execution/transformation.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -114,7 +115,6 @@ install(TARGETS golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES
 	src/model/model_element.h
 	src/model/abstract_reference.h
-	src/model/activity.h
 	src/model/semantics.h
 	src/model/formula.h
 	src/model/effect_axiom.h
@@ -126,7 +126,6 @@ install(FILES
 	src/model/scope.h
 	src/model/fluent.h
 	src/model/action.h
-	src/model/execution.h
 	src/model/utilities.h
 	src/model/language.h
 	src/model/global.h
@@ -135,23 +134,30 @@ install(FILES
 	src/model/gologpp.h
 	src/model/domain.h
 	src/model/string.h
-	src/model/history.h
 	src/model/mapping.h
-	src/model/platform_backend.h
-	src/model/platform_model.h
-	src/model/platform_constraints.h
-	src/model/transition.h
 	src/model/types.h
 	src/model/compound_expression.h
 	src/model/list_expression.h
-	src/model/grounding.h
-	src/model/transformation.h
-	src/model/plan.h
 	src/model/logger.h
-	src/model/dummy_backend.h
-	src/model/clock.h
+	src/model/platform_model.h
+	src/model/platform_constraints.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model
+)
+
+install(FILES
+	src/execution/grounding.h
+	src/execution/transition.h
+	src/execution/history.h
+	src/execution/activity.h
+	src/execution/clock.h
+	src/execution/dummy_backend.h
+	src/execution/context.h
+	src/execution/plan.h
+	src/execution/platform_backend.h
+	src/execution/transformation.h
+
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/execution
 )
 
 get_target_property(GOLOGPP_CXXFLAGS_L golog++ INTERFACE_COMPILE_OPTIONS)

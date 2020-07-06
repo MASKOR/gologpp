@@ -15,10 +15,12 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "execution.h"
-#include "fluent.h"
-#include "action.h"
-#include "procedural.h"
+#include <model/fluent.h>
+#include <model/action.h>
+#include <model/procedural.h>
+
+#include "plan.h"
+#include "context.h"
 #include "history.h"
 #include "platform_backend.h"
 #include "dummy_backend.h"
@@ -27,7 +29,6 @@
 
 #include <iostream>
 
-#include <model/plan.h>
 
 
 namespace gologpp {

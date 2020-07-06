@@ -21,8 +21,9 @@
 #include <tuple>
 #include <initializer_list>
 
-#include "gologpp.h"
-#include "expressions.h"
+#include <model/gologpp.h>
+#include <model/expressions.h>
+
 #include "clock.h"
 
 

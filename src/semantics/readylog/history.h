@@ -20,7 +20,8 @@
 
 #include "semantics.h"
 #include "utilities.h"
-#include <model/history.h>
+
+#include <execution/history.h>
 
 
 namespace gologpp {

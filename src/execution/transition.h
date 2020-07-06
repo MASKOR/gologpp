@@ -18,12 +18,13 @@
 #ifndef GOLOGPP_TRANSITION_H_
 #define GOLOGPP_TRANSITION_H_
 
-#include "gologpp.h"
-#include "reference.h"
-#include "action.h"
-#include "grounding.h"
-#include "expressions.h"
+#include <model/gologpp.h>
+#include <model/reference.h>
+#include <model/action.h>
+#include <model/expressions.h>
+#include <model/procedural.h>
 
+#include "grounding.h"
 
 namespace gologpp {
 
@@ -34,7 +35,7 @@ class Transition
 , public std::enable_shared_from_this<Transition>
 {
 public:
-	enum Hook { START, CANCEL, FINISH, FAIL, END };
+	using Hook = DurativeCall::Hook;
 
 	Transition(const shared_ptr<Action> &action, vector<unique_ptr<Value>> &&args, Hook hook);
 	Transition(const Transition &);

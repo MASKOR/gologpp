@@ -24,7 +24,6 @@
 #include "variable.h"
 
 #include <model/fluent.h>
-#include <model/platform_backend.h>
 
 #include <iostream>
 

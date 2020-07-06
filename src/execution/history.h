@@ -18,10 +18,10 @@
 #ifndef GOLOGPP_HISTORY_H_
 #define GOLOGPP_HISTORY_H_
 
-#include "language.h"
-#include "scope.h"
-#include "gologpp.h"
-#include "semantics.h"
+#include <model/language.h>
+#include <model/scope.h>
+#include <model/gologpp.h>
+#include <model/semantics.h>
 
 namespace gologpp {
 

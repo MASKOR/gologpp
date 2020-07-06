@@ -21,7 +21,9 @@
 #include "model_element.h"
 #include "gologpp.h"
 #include "expressions.h"
-#include "plan.h"
+
+#include <execution/plan.h>
+
 #include <memory>
 
 #include <boost/preprocessor/seq/for_each.hpp>

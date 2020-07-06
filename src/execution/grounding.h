@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include "reference.h"
-#include "action.h"
+#include <model/reference.h>
+#include <model/action.h>
 #include "plan.h"
 
 

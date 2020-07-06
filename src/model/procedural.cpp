@@ -20,9 +20,10 @@
 
 #include "procedural.h"
 #include "formula.h"
-#include "execution.h"
 #include "reference.h"
 #include "expressions.h"
+
+#include <execution/context.h>
 
 #include "error.h"
 

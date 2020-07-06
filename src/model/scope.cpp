@@ -23,7 +23,8 @@
 #include "domain.h"
 #include "error.h"
 #include "value.h"
-#include "execution.h"
+
+#include <execution/context.h>
 
 
 namespace gologpp {

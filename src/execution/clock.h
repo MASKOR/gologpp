@@ -17,34 +17,25 @@
 
 #pragma once
 
-#include "gologpp.h"
+#include <model/gologpp.h>
+
+#include <chrono>
 
 namespace gologpp {
 
 
-class Plan;
+struct Clock {
+	using rep = double;
+	using duration = std::chrono::duration<rep, std::nano>;
+	using period = duration::period;
+	using time_point = std::chrono::time_point<Clock, Clock::duration>;
+	static constexpr bool is_steady = true;
 
+	static PlatformBackend *clock_source;
 
-/**
- * @class PlanTransformation
- * Keep this abstract so we can have multiple implementations.
- */
-class PlanTransformation {
-public:
-	virtual ~PlanTransformation();
-
-	virtual unique_ptr<Plan> transform(Plan &&) = 0;
+	static time_point now() noexcept;
 };
 
 
-/**
- * @class DummyPlanTransformation
- * Does nothing (the identity transformation)
- */
-class DummyPlanTransformation : public PlanTransformation {
-public:
-	virtual unique_ptr<Plan> transform(Plan &&) override;
-};
 
-
-}
+} // namespace gologpp

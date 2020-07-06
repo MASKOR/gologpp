@@ -15,7 +15,7 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include <model/transition.h>
+#include <execution/transition.h>
 #include <model/procedural.h>
 
 #include "plan.h"

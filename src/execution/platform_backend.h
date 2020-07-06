@@ -18,9 +18,10 @@
 #ifndef GOLOGPP_PLATFORM_BACKEND_H_
 #define GOLOGPP_PLATFORM_BACKEND_H_
 
-#include "gologpp.h"
-#include "action.h"
-#include "reference.h"
+#include <model/gologpp.h>
+#include <model/action.h>
+#include <model/reference.h>
+
 #include "transition.h"
 #include "activity.h"
 #include "clock.h"

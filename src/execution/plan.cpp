@@ -16,7 +16,7 @@
 **************************************************************************/
 
 #include "plan.h"
-#include "semantics.h"
+#include <model/semantics.h>
 
 namespace gologpp {
 

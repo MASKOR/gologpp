@@ -18,9 +18,9 @@
 #ifndef GOLOGPP_ACTIVITY_H_
 #define GOLOGPP_ACTIVITY_H_
 
-#include "gologpp.h"
-#include "reference.h"
-#include "action.h"
+#include <model/gologpp.h>
+#include <model/reference.h>
+#include <model/action.h>
 #include "transition.h"
 
 #include <boost/optional.hpp>

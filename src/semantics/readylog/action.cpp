@@ -15,8 +15,6 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include <model/activity.h>
-
 #include "value.h"
 #include "action.h"
 #include "effect_axiom.h"

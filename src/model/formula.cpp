@@ -146,7 +146,7 @@ unsigned int precedence(BooleanOperation::Operator op)
 	case BooleanOperator::AND:
 		return 2;
 	}
-	throw Bug("Undefined boolean operator: " + std::to_string(op));
+	throw Bug("Undefined boolean operator: " + to_string(op));
 };
 
 

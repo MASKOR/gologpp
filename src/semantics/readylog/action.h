@@ -22,7 +22,6 @@
 #include "reference.h"
 
 #include <model/action.h>
-#include <model/activity.h>
 
 #include <eclipseclass.h>
 

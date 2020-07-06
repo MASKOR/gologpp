@@ -19,7 +19,6 @@
 #define GOLOGPP_DUMMY_BACKEND_H_
 
 #include "platform_backend.h"
-#include <future>
 #include <functional>
 
 namespace gologpp {

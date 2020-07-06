@@ -36,7 +36,6 @@
 #include "action.h"
 #include "reference.h"
 #include "fluent.h"
-#include "transition.h"
 
 namespace gologpp {
 
@@ -390,7 +389,7 @@ class DurativeCall
 , public LanguageElement<DurativeCall, VoidType>
 {
 public:
-	using Hook = Transition::Hook;
+	enum class Hook { START, CANCEL, FINISH, FAIL, END };
 
 	DurativeCall(Hook hook, Reference<Action> *action);
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*action_)
