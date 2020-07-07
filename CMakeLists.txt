@@ -350,17 +350,6 @@ if (${ECLIPSE_FOUND})
 endif()
 
 if (${BUILD_TOOLS})
-	set(READYLOG_TEST_SRC
-		src/tools/readylog-test.cpp)
-	add_executable(readylog-test ${READYLOG_TEST_SRC})
-	if (USE_LIBASAN)
-		target_link_libraries(readylog-test asan)
-	endif()
-	target_link_libraries(readylog-test readylog++ parsegolog++)
-	set_property(TARGET readylog-test PROPERTY CXX_STANDARD 14)
-
-	install(TARGETS readylog-test RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 	set(PLAN_TRANSFORMATION_TEST_SRC
 		src/tools/plan-transformation-test.cpp)
 	add_executable(plan-transformation-test ${PLAN_TRANSFORMATION_TEST_SRC})
@@ -374,26 +363,28 @@ endif()
 # Testing (requires parser & readylog semantics)
 ######################################################################################
 
+set(GPP_TESTS
+	arithmetic.gpp
+	blocksworld.gpp
+	some_exog.gpp
+)
+
 if (BUILD_PARSER AND BUILD_READYLOG_IMPL)
 	include(CTest)
+
+	add_executable(gologpp-test src/tests/gologpp-test.cpp)
+	if (USE_LIBASAN)
+		set(TEST_LIBS asan)
+	endif()
+
+	set(TEST_LIBS ${TEST_LIBS} boost_filesystem boost_program_options parsegolog++ readylog++)
+	target_link_libraries(gologpp-test ${TEST_LIBS})
+
 	if (BUILD_TESTING)
-		add_executable(gpptest src/tests/golog++test.cpp)
-		if (USE_LIBASAN)
-			set(TEST_LIBS asan)
-		endif()
-
-		set(TEST_LIBS ${TEST_LIBS} boost_filesystem boost_program_options parsegolog++ readylog++)
-		target_link_libraries(gpptest ${TEST_LIBS})
-
-		set(GPP_TESTS
-			arithmetic.gpp
-			blocksworld.gpp
-			some_exog.gpp
-		)
 		foreach(TI ${GPP_TESTS})
 			add_test(
-				NAME "gpptest_${TI}"
-				COMMAND gpptest "${CMAKE_CURRENT_SOURCE_DIR}/src/tests/${TI}"
+				NAME "gologpp-test_${TI}"
+				COMMAND gologpp-test "${CMAKE_CURRENT_SOURCE_DIR}/src/tests/${TI}"
 			)
 		endforeach()
 	endif()
