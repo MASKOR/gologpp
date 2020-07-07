@@ -55,6 +55,7 @@ void ReadylogContext::init(
 
 void ReadylogContext::shutdown()
 {
+	instance_->terminate();
 	instance_.reset();
 	ec_cleanup();
 }
