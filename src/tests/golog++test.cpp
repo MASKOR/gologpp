@@ -36,11 +36,10 @@
 using namespace gologpp;
 namespace po = boost::program_options;
 
-int test_file(const string &filename)
-{
-	log(LogLevel::INF) << "Testing " << filename << "..." << flush;
-	unique_ptr<Instruction> mainproc = parser::parse_file(filename);
+string filename;
 
+int test_file(unique_ptr<Instruction> &&mainproc)
+{
 	shared_ptr<Function> f_postcond = global_scope().lookup_global<Function>("postcond");
 	if (!f_postcond) {
 		log(LogLevel::ERR) << "No bool function postcond() in " << filename << flush;
@@ -63,11 +62,11 @@ int test_file(const string &filename)
 	);
 
 	if (success) {
-		log(LogLevel::INF) << filename << " OK";
+		log(LogLevel::INF) << filename << " OK" << flush;
 		return 0;
 	}
 	else {
-		log(LogLevel::ERR) << filename << " FAIL";
+		log(LogLevel::ERR) << filename << " FAIL" << flush;
 		return 1;
 	}
 }
@@ -90,7 +89,10 @@ int main(int argc, char **argv) {
 		vm
 	);
 
-	string filename = vm["file"].as<string>();
+	filename = vm["file"].as<string>();
+
+	log(LogLevel::INF) << "Testing " << filename << "..." << flush;
+	unique_ptr<Instruction> mainproc = parser::parse_file(filename);
 
 	eclipse_opts options;
 	options.trace = !vm["trace"].empty();
@@ -99,7 +101,7 @@ int main(int argc, char **argv) {
 
 	ReadylogContext::init(options);
 
-	int rv = test_file(filename);
+	int rv = test_file(std::move(mainproc));
 
 	ReadylogContext::shutdown();
 
