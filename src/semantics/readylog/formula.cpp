@@ -49,7 +49,7 @@ string num_cmp_functor(const Comparison &cmp)
 	case ComparisonOperator::NEQ:
 		return "=\\=";
 	}
-	throw Bug("Unkown comparison operator " + std::to_string(cmp.op()));
+	throw Bug("Unkown comparison operator " + gologpp::to_string(cmp.op()));
 }
 
 
@@ -106,6 +106,7 @@ string bool_op_functor(const BooleanOperation &c)
 	case BooleanOperator::XOR:
 		return "\\=";
 	}
+	throw Bug("Unkown BooleanOperator");
 }
 
 

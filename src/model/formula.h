@@ -48,7 +48,7 @@ protected:
 
 class Comparison : public Expression, public NoScopeOwner, public LanguageElement<Comparison, BoolType> {
 public:
-	enum Operator {
+	enum class Operator {
 		EQ = 1, NEQ, GE, GT, LE, LT
 	};
 
@@ -82,7 +82,7 @@ string to_string(Comparison::Operator op);
 
 class BooleanOperation : public Expression, public NoScopeOwner, public LanguageElement<BooleanOperation, BoolType> {
 public:
-	enum Operator {
+	enum class Operator {
 		IMPLIES, OR, AND, XOR, IFF
 	};
 
@@ -119,7 +119,7 @@ unsigned int precedence(BooleanOperation::Operator op);
 
 class Quantification : public Expression, public ScopeOwner, public LanguageElement<Quantification, BoolType> {
 public:
-	enum Operator {
+	enum class Operator {
 		EXISTS = 1, FORALL
 	};
 
