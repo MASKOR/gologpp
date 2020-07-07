@@ -41,15 +41,14 @@ int test_file(const string &filename)
 	log(LogLevel::INF) << "Testing " << filename << "..." << flush;
 	unique_ptr<Instruction> mainproc = parser::parse_file(filename);
 
-	unique_ptr<Reference<Function>> postcond {
-		global_scope().lookup_global<Function>("postcond")->make_ref({})
-	};
-	postcond->attach_semantics(ReadylogContext::instance().semantics_factory());
-
-	if (!postcond) {
+	shared_ptr<Function> f_postcond = global_scope().lookup_global<Function>("postcond");
+	if (!f_postcond) {
 		log(LogLevel::ERR) << "No bool function postcond() in " << filename << flush;
 		return -2;
 	}
+
+	unique_ptr<Reference<Function>> postcond { f_postcond->make_ref({})	};
+	postcond->attach_semantics(ReadylogContext::instance().semantics_factory());
 
 	ReadylogContext::instance().run(Block(
 		new Scope(global_scope()),
