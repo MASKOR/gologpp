@@ -390,6 +390,7 @@ if (BUILD_PARSER AND BUILD_READYLOG_IMPL)
 		set(GPP_TESTS
 			arithmetic.gpp
 			blocksworld.gpp
+			some_exog.gpp
 		)
 		foreach(TI ${GPP_TESTS})
 			add_test(
