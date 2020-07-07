@@ -19,6 +19,8 @@
 #include "activity.h"
 #include "context.h"
 
+#include <model/logger.h>
+
 #include <thread>
 #include <iostream>
 #include <tuple>
@@ -45,7 +47,6 @@ DummyBackend::DummyBackend()
 , rnd_number_value_(-1000, 1000)
 , rnd_bool_value_(0, 1)
 {
-	std::cout << poss_chars_ << std::endl;
 	for (shared_ptr<Global> &g : global_scope().globals()) {
 		shared_ptr<ExogAction> exog = std::dynamic_pointer_cast<ExogAction>(g);
 		if (exog)
@@ -81,7 +82,7 @@ std::function<void()> DummyBackend::rnd_exog_generator()
 
 			exec_context()->exog_queue_push(event);
 		}
-		std::cout << "exog generator TERMINATED";
+		log(LogLevel::INF) << "exog generator TERMINATED" << flush;
 	};
 }
 
