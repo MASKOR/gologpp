@@ -71,7 +71,7 @@ public:
 	/// Update context_time and unblock exog_queue.
 	void exog_timer_wakeup();
 
-	void terminate();
+	virtual void terminate();
 
 	SemanticsFactory &semantics_factory();
 	PlatformBackend &backend();
