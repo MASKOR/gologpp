@@ -37,6 +37,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -fno-omit-frame-point
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O2")
 
+set_property(GLOBAL PROPERTY CXX_STANDARD 14)
+
 add_definitions(-DSOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\")
 
 set(EXTRA_COMPILER_MACROS "" CACHE STRING "Extra macro definitions to pass to the compiler with the -D option")
@@ -108,7 +110,6 @@ set(INTERFACE_SRC
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
 target_link_libraries (golog++ ${CMAKE_THREAD_LIBS_INIT})
-set_property(TARGET golog++ PROPERTY CXX_STANDARD 14)
 set_property(TARGET golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
 install(TARGETS golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
@@ -209,7 +210,6 @@ if (${BUILD_PARSER})
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
-	set_property(TARGET parsegolog++ PROPERTY CXX_STANDARD 14)
 	set_property(TARGET parsegolog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
 	target_compile_options(parsegolog++ PRIVATE -Wno-undefined-func-template -O${OPTIMIZE_PARSER})
 	if (${DEBUG_PARSER})
@@ -299,7 +299,6 @@ if (${BUILD_READYLOG_IMPL})
 	)
 	target_include_directories(readylog++ PUBLIC ${ECLIPSE_INCLUDE_DIRS})
 	target_link_libraries(readylog++ golog++ ${ECLIPSE_LIBRARIES} stdc++fs)
-	set_property(TARGET readylog++ PROPERTY CXX_STANDARD 14)
 	set_property(TARGET readylog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
 	install(TARGETS readylog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
 	install(FILES
@@ -366,7 +365,6 @@ if (${BUILD_TOOLS})
 		src/tools/plan-transformation-test.cpp)
 	add_executable(plan-transformation-test ${PLAN_TRANSFORMATION_TEST_SRC})
 	target_link_libraries(plan-transformation-test parsegolog++)
-	set_property(TARGET plan-transformation-test PROPERTY CXX_STANDARD 14)
 	install(TARGETS plan-transformation-test RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
