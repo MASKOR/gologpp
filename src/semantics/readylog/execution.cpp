@@ -32,6 +32,8 @@
 
 #include <model/action.h>
 
+#include <model/platform/semantics.h>
+
 namespace filesystem = std::experimental::filesystem;
 
 namespace gologpp {
@@ -39,19 +41,6 @@ namespace gologpp {
 
 unique_ptr<ReadylogContext> ReadylogContext::instance_;
 
-
-void ReadylogContext::init(
-	const eclipse_opts &options,
-	unique_ptr<PlatformBackend> &&exec_backend,
-	unique_ptr<PlanTransformation> &&transformation
-)
-{
-	instance_ = unique_ptr<ReadylogContext>(new ReadylogContext(
-		options,
-		std::move(exec_backend),
-		std::move(transformation)
-	) );
-}
 
 void ReadylogContext::shutdown()
 {
@@ -64,10 +53,11 @@ void ReadylogContext::shutdown()
 ReadylogContext::ReadylogContext(
 	const eclipse_opts &options,
 	unique_ptr<PlatformBackend> &&exec_backend,
-	unique_ptr<PlanTransformation> &&transformation
+	unique_ptr<PlanTransformation> &&transformation,
+	unique_ptr<platform::SemanticsFactory> &&psf
 )
 : ExecutionContext(
-  	std::make_unique<ReadylogSemanticsFactory>(*this),
+  	std::make_unique<ReadylogSemanticsFactory>(*this, std::move(psf)),
   	std::move(exec_backend),
   	std::move(transformation)
   )

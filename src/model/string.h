@@ -21,6 +21,7 @@
 #include "expressions.h"
 #include "language.h"
 #include "scope.h"
+#include "semantics.h"
 
 
 namespace gologpp {

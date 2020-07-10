@@ -306,35 +306,33 @@ public:
 
 
 
-template<>
-class Reference<Variable>
+template<class TargetT>
+class ZeroArityReference
 : public Expression
 , public AbstractReference
 , public NoScopeOwner
-, public LanguageElement<Reference<Variable>>
+, public LanguageElement<Reference<TargetT>>
 {
 public:
-	Reference(const shared_ptr<Variable> &target);
+	ZeroArityReference(const shared_ptr<TargetT> &target);
 
-	Reference(Reference<Variable> &&other);
+	ZeroArityReference(ZeroArityReference<TargetT> &&other);
 
-	virtual ~Reference() override = default;
+	virtual ~ZeroArityReference() override = default;
 
-	const Variable &operator * () const;
-	Variable &operator * ();
-	const Variable *operator -> () const;
-	Variable *operator -> ();
+	const TargetT &operator * () const;
+	TargetT &operator * ();
+	const TargetT *operator -> () const;
+	TargetT *operator -> ();
 
-	bool operator == (const Reference<Variable> &other) const;
-	bool operator != (const Reference<Variable> &other) const;
+	bool operator == (const ZeroArityReference<TargetT> &other) const;
+	bool operator != (const ZeroArityReference<TargetT> &other) const;
 
 	const string &name() const;
 	virtual bool bound() const override;
-	shared_ptr<Variable> target();
-	shared_ptr<const Variable> target() const;
+	shared_ptr<TargetT> target();
+	shared_ptr<const TargetT> target() const;
 	virtual bool consistent() const override;
-
-	virtual void attach_semantics(SemanticsFactory &implementor) override;
 
 	virtual string to_string(const string &pfx) const override;
 	virtual const Type &type() const override;
@@ -343,8 +341,92 @@ public:
 	virtual const Expression &arg_for_param(shared_ptr<const Variable> param) const override;
 
 private:
-	shared_ptr<Variable> target_;
+	shared_ptr<TargetT> target_;
 };
+
+
+
+template<>
+class Reference<Variable>
+: public ZeroArityReference<Variable>
+{
+public:
+	using ZeroArityReference<Variable>::ZeroArityReference;
+
+	virtual void attach_semantics(SemanticsFactory &implementor) override;
+};
+
+
+
+template<class TargetT>
+ZeroArityReference<TargetT>::ZeroArityReference(const shared_ptr<TargetT> &target)
+: target_(target)
+{}
+
+template<class TargetT>
+ZeroArityReference<TargetT>::ZeroArityReference(ZeroArityReference<TargetT> &&other)
+: target_(std::move(other.target_))
+{}
+
+template<class TargetT>
+TargetT *ZeroArityReference<TargetT>::operator ->()
+{ return target().get(); }
+
+template<class TargetT>
+const TargetT &ZeroArityReference<TargetT>::operator *() const
+{ return *target(); }
+
+template<class TargetT>
+TargetT &ZeroArityReference<TargetT>::operator *()
+{ return *target(); }
+
+template<class TargetT>
+const TargetT *ZeroArityReference<TargetT>::operator ->() const
+{ return target().get(); }
+
+template<class TargetT>
+const string &ZeroArityReference<TargetT>::name() const
+{ return target()->name(); }
+
+template<class TargetT>
+bool ZeroArityReference<TargetT>::bound() const
+{ return target_.get(); }
+
+template<class TargetT>
+shared_ptr<TargetT> ZeroArityReference<TargetT>::target()
+{ return target_; }
+
+template<class TargetT>
+shared_ptr<const TargetT> ZeroArityReference<TargetT>::target() const
+{ return std::dynamic_pointer_cast<const TargetT>(target_); }
+
+template<class TargetT>
+bool ZeroArityReference<TargetT>::operator ==(const ZeroArityReference<TargetT> &other) const
+{ return *target() == *other.target(); }
+
+template<class TargetT>
+bool ZeroArityReference<TargetT>::operator !=(const ZeroArityReference<TargetT> &other) const
+{ return !(*this == other); }
+
+template<class TargetT>
+bool ZeroArityReference<TargetT>::consistent() const
+{ return bound(); }
+
+template<class TargetT>
+string ZeroArityReference<TargetT>::to_string(const string &pfx) const
+{ return target()->to_string(pfx); }
+
+template<class TargetT>
+const Type &ZeroArityReference<TargetT>::type() const
+{ return target()->type(); }
+
+template<class TargetT>
+size_t ZeroArityReference<TargetT>::hash() const
+{ return target()->hash(); }
+
+template<class TargetT>
+const Expression &ZeroArityReference<TargetT>::arg_for_param(shared_ptr<const Variable>) const
+{ throw Bug("This method is undefined and should not have been called"); }
 
 
 

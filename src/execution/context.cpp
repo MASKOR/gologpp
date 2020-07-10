@@ -19,6 +19,8 @@
 #include <model/action.h>
 #include <model/procedural.h>
 
+#include <model/platform/semantics.h>
+
 #include "plan.h"
 #include "context.h"
 #include "history.h"
@@ -26,6 +28,7 @@
 #include "dummy_backend.h"
 #include "activity.h"
 #include "grounding.h"
+
 
 #include <iostream>
 

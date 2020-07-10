@@ -21,68 +21,6 @@
 namespace gologpp {
 
 
-Reference<Variable>::Reference(const shared_ptr<Variable> &target)
-: target_(target)
-{}
-
-Reference<Variable>::Reference(Reference<Variable> &&other)
-: target_(std::move(other.target_))
-{}
-
-Variable *Reference<Variable>::operator ->()
-{ return target().get(); }
-
-const Variable &Reference<Variable>::operator *() const
-{ return *target(); }
-
-Variable &Reference<Variable>::operator *()
-{ return *target(); }
-
-const Variable *Reference<Variable>::operator ->() const
-{ return target().get(); }
-
-const string &Reference<Variable>::name() const
-{ return target()->name(); }
-
-bool Reference<Variable>::bound() const
-{ return target_.get(); }
-
-shared_ptr<Variable> Reference<Variable>::target()
-{ return target_; }
-
-shared_ptr<const Variable> Reference<Variable>::target() const
-{ return std::dynamic_pointer_cast<const Variable>(target_); }
-
-bool Reference<Variable>::operator ==(const Reference<Variable> &other) const
-{ return *target() == *other.target(); }
-
-bool Reference<Variable>::operator !=(const Reference<Variable> &other) const
-{ return !(*this == other); }
-
-void Reference<Variable>::attach_semantics(SemanticsFactory &implementor)
-{
-	if (semantics_)
-		return;
-	semantics_ = implementor.make_semantics(*this);
-}
-
-bool Reference<Variable>::consistent() const
-{ return bound(); }
-
-string Reference<Variable>::to_string(const string &pfx) const
-{ return target()->to_string(pfx); }
-
-const Type &Reference<Variable>::type() const
-{ return target()->type(); }
-
-size_t Reference<Variable>::hash() const
-{ return target()->hash(); }
-
-const Expression &Reference<Variable>::arg_for_param(shared_ptr<const Variable>) const
-{ throw Bug("This method is undefined and should not have been called"); }
-
-
-
 GeneralSemantics<Binding<Value> >::GeneralSemantics(const Binding<Value> &elem, ExecutionContext &context)
 : element_(&elem)
 , context_(context)
@@ -96,6 +34,15 @@ void GeneralSemantics<Binding<Value> >::update_element(const Binding<Value> *new
 
 ExecutionContext &GeneralSemantics<Binding<Value> >::context() const
 { return context_; }
+
+
+
+void Reference<Variable>::attach_semantics(SemanticsFactory &implementor)
+{
+	if (semantics_)
+		return;
+	semantics_ = implementor.make_semantics(*this);
+}
 
 
 

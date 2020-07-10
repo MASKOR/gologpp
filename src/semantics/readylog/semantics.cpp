@@ -37,6 +37,8 @@
 #include "execution.h"
 #include "plan.h"
 
+#include <model/platform/semantics.h>
+
 namespace gologpp {
 
 
@@ -188,8 +190,12 @@ const Instruction &Semantics<Instruction>::instruction() const
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-ReadylogSemanticsFactory::ReadylogSemanticsFactory(ReadylogContext &context)
-: context_(context)
+ReadylogSemanticsFactory::ReadylogSemanticsFactory(
+	ReadylogContext &context,
+	unique_ptr<platform::SemanticsFactory> &&psf
+)
+: SemanticsFactory(std::move(psf))
+, context_(context)
 {}
 
 #define GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL(_r, _data, GologT) \

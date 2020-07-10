@@ -68,12 +68,43 @@ private:
 #define GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS(r, data, T) \
 	virtual unique_ptr<GeneralSemantics<ModelElement>> make_semantics(T &) = 0;
 
+#define GOLOGPP_DECLARE_MAKE_PLATFORM_SEMANTICS(_r, _data, T) \
+	virtual unique_ptr<GeneralSemantics<ModelElement>> make_semantics(T &);
+
+#define GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE(_r, _data, GologT) \
+	virtual unique_ptr<GeneralSemantics<ModelElement>> make_semantics(GologT &) override;
+
+
 class SemanticsFactory {
 public:
+	SemanticsFactory(unique_ptr<platform::SemanticsFactory> &&psf);
+
 	virtual ~SemanticsFactory() = default;
 
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS, (), GOLOGPP_SEMANTIC_TYPES)
+	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECLARE_MAKE_PLATFORM_SEMANTICS, (), GOLOGPP_PLATFORM_ELEMENTS)
+
+private:
+	unique_ptr<platform::SemanticsFactory> platform_semantics_factory_;
 };
+
+
+
+#define DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(...) \
+	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override { \
+		if (!semantics_) { \
+			semantics_ = f.make_semantics(*this); \
+			boost::fusion::for_each(std::tie(__VA_ARGS__), [&] (auto &e) { \
+				e.attach_semantics(f); \
+			} ); \
+		} \
+	}
+
+#define DEFINE_ATTACH_SEMANTICS \
+	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override { \
+		if (!semantics_) \
+			semantics_ = f.make_semantics(*this); \
+	}
 
 
 

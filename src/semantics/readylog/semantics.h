@@ -103,13 +103,10 @@ public:
 };
 
 
-#define GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE(_r, _data, GologT) \
-	virtual unique_ptr<GeneralSemantics<ModelElement>> make_semantics(GologT &) override;
-
 
 class ReadylogSemanticsFactory : public SemanticsFactory {
 public:
-	ReadylogSemanticsFactory(ReadylogContext &context);
+	ReadylogSemanticsFactory(ReadylogContext &context, unique_ptr<platform::SemanticsFactory> &&);
 	virtual ~ReadylogSemanticsFactory() override = default;
 
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE, (), GOLOGPP_SEMANTIC_TYPES)

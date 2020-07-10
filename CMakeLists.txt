@@ -106,6 +106,11 @@ set(INTERFACE_SRC
 	src/execution/plan.cpp
 	src/execution/platform_backend.cpp
 	src/execution/transformation.cpp
+
+	src/model/platform/component.cpp
+	src/model/platform/constraint.cpp
+	src/model/platform/clock_formula.cpp
+	src/model/platform/semantics.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -159,6 +164,15 @@ install(FILES
 	src/execution/transformation.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/execution
+)
+
+install(FILES
+	src/model/platform/component.h
+	src/model/platform/constraint.h
+	src/model/platform/clock_formula.h
+	src/model/platform/semantics.h
+
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model/platform
 )
 
 get_target_property(GOLOGPP_CXXFLAGS_L golog++ INTERFACE_COMPILE_OPTIONS)

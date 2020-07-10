@@ -16,6 +16,7 @@
 **************************************************************************/
 
 #include "list_expression.h"
+#include "semantics.h"
 
 namespace gologpp {
 

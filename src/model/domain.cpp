@@ -16,6 +16,7 @@
 **************************************************************************/
 
 #include "domain.h"
+#include "semantics.h"
 
 namespace gologpp {
 

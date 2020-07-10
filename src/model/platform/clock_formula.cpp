@@ -15,15 +15,13 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "semantics.h"
-#include "platform/semantics.h"
+#include "clock_formula.h"
 
 
 namespace gologpp {
-
-SemanticsFactory::SemanticsFactory(unique_ptr<platform::SemanticsFactory> &&psf)
-: platform_semantics_factory_(std::move(psf))
-{}
+namespace platform {
 
 
-} // namespace gologpp
+
+}
+}

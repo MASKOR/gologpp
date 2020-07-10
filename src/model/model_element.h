@@ -82,24 +82,5 @@ private:
 
 
 
-#define DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(...) \
-	virtual void attach_semantics(SemanticsFactory &f) override { \
-		if (!semantics_) { \
-			semantics_ = f.make_semantics(*this); \
-			boost::fusion::for_each(std::tie(__VA_ARGS__), [&] (auto &e) { \
-				e.attach_semantics(f); \
-			} ); \
-		} \
-	}
-
-#define DEFINE_ATTACH_SEMANTICS \
-	virtual void attach_semantics(SemanticsFactory &f) override { \
-		if (!semantics_) \
-			semantics_ = f.make_semantics(*this); \
-	}
-
-
-
-
 
 } // namespace gologpp

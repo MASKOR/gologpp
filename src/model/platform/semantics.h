@@ -15,15 +15,29 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "semantics.h"
-#include "platform/semantics.h"
+#pragma once
+
+#include <model/gologpp.h>
+#include <model/semantics.h>
 
 
 namespace gologpp {
-
-SemanticsFactory::SemanticsFactory(unique_ptr<platform::SemanticsFactory> &&psf)
-: platform_semantics_factory_(std::move(psf))
-{}
+namespace platform {
 
 
+class SemanticsFactory {
+public:
+	virtual ~SemanticsFactory() = default;
+
+	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS, (), GOLOGPP_PLATFORM_ELEMENTS)
+};
+
+
+class DummySemanticsFactory : public SemanticsFactory {
+public:
+	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE, (), GOLOGPP_PLATFORM_ELEMENTS)
+};
+
+
+} // namespace platform
 } // namespace gologpp

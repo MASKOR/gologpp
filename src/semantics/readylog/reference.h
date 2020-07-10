@@ -114,7 +114,7 @@ public:
 	virtual Semantics<Binding<Value>> *copy(const Binding<Value> &target_element) const override;
 
 	virtual const Binding<Value> &model_element() const override;
-	void init_vars();
+	virtual void init_vars() override;
 };
 
 

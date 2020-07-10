@@ -16,14 +16,33 @@
 **************************************************************************/
 
 #include "semantics.h"
-#include "platform/semantics.h"
-
+#include "component.h"
+#include "constraint.h"
+#include "clock_formula.h"
 
 namespace gologpp {
 
-SemanticsFactory::SemanticsFactory(unique_ptr<platform::SemanticsFactory> &&psf)
-: platform_semantics_factory_(std::move(psf))
-{}
+
+#define GOLOGPP_DEFINE_MAKE_PLATFORM_SEMANTICS(_r, _data, T) \
+unique_ptr<GeneralSemantics<ModelElement>> SemanticsFactory::make_semantics(T &element) { \
+	return platform_semantics_factory_->make_semantics(element); \
+}
+
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_PLATFORM_SEMANTICS, (), GOLOGPP_PLATFORM_ELEMENTS)
+
+
+namespace platform {
+
+#define GOLOGPP_DEFINE_DUMMY_MAKE_PLATFORM_SEMANTICS(_r, _data, T) \
+unique_ptr<GeneralSemantics<ModelElement>> DummySemanticsFactory::make_semantics(T &) { \
+	return nullptr; \
+}
+
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_DUMMY_MAKE_PLATFORM_SEMANTICS, (), GOLOGPP_PLATFORM_ELEMENTS)
+
+} // namespace platform
 
 
 } // namespace gologpp
+
+

@@ -16,6 +16,8 @@
 **************************************************************************/
 
 #include "compound_expression.h"
+#include "semantics.h"
+
 #include <boost/fusion/include/at_c.hpp>
 
 namespace gologpp {

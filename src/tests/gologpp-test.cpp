@@ -32,6 +32,8 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 
+#include <model/platform/semantics.h>
+
 
 using namespace gologpp;
 namespace po = boost::program_options;
@@ -99,7 +101,7 @@ int main(int argc, char **argv) {
 	options.toplevel = false;
 	options.guitrace = !vm["guitrace"].empty();
 
-	ReadylogContext::init(options);
+	ReadylogContext::init<platform::DummySemanticsFactory>(options);
 
 	int rv = test_file(std::move(mainproc));
 

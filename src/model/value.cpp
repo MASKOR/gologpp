@@ -16,6 +16,7 @@
 **************************************************************************/
 
 #include "value.h"
+#include "semantics.h"
 
 #include <boost/functional/hash.hpp>
 #include <boost/fusion/include/at_c.hpp>

@@ -36,11 +36,14 @@ struct eclipse_opts {
 class ReadylogContext : public ExecutionContext {
 public:
 	virtual ~ReadylogContext() override;
+
+	template<class TPlatformSemanticsFactory>
 	static void init(
 		const eclipse_opts &options = {false, false, false},
 		unique_ptr<PlatformBackend> &&backend = nullptr,
 		unique_ptr<PlanTransformation> &&transformation = nullptr
 	);
+
 	static void shutdown();
 	static ReadylogContext &instance();
 
@@ -63,7 +66,8 @@ private:
     ReadylogContext(
 		const eclipse_opts &options,
 		unique_ptr<PlatformBackend> &&exec_backend,
-		unique_ptr<PlanTransformation> &&transformation
+		unique_ptr<PlanTransformation> &&transformation,
+		unique_ptr<platform::SemanticsFactory> &&platform_semantics_factory
 	);
 
     virtual void compile_term(const EC_word &term);
@@ -80,6 +84,23 @@ private:
 class EclipseError : public std::runtime_error {
 	using std::runtime_error::runtime_error;
 };
+
+
+
+template<class TPlatformSemanticsFactory>
+void ReadylogContext::init(
+	const eclipse_opts &options,
+	unique_ptr<PlatformBackend> &&exec_backend,
+	unique_ptr<PlanTransformation> &&transformation
+)
+{
+	instance_ = unique_ptr<ReadylogContext>(new ReadylogContext(
+		options,
+		std::move(exec_backend),
+		std::move(transformation),
+		unique_ptr<TPlatformSemanticsFactory>(new TPlatformSemanticsFactory())
+	) );
+}
 
 
 } // namespace gologpp
