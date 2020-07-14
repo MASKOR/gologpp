@@ -68,7 +68,7 @@ Scope::Scope(AbstractLanguageElement &owner, const vector<shared_ptr<Variable>> 
 , types_(owner.scope().types_)
 {
 	for (const shared_ptr<Variable> &v : variables)
-		variables_.emplace(v->name(), v);
+		identifiers_.emplace(v->name(), v);
 }
 
 
@@ -84,19 +84,15 @@ Scope::~Scope()
 {}
 
 bool Scope::has_var(const string &name) const
-{ return variables_.find(name) != variables_.end(); }
+{ return lookup_identifier<Variable>(name).get(); }
 
 
 shared_ptr<Variable> Scope::get_var(VarDefinitionMode var_def_mode, const Type &type, const string &name)
 {
-	shared_ptr<Variable> rv;
+	shared_ptr<Variable> rv = lookup_identifier<Variable>(name);
 
-	auto it = variables_.find(name);
-	if (it != variables_.end()) {
-		rv = it->second;
-		if (!(rv->type() <= type))
-			return nullptr;
-	}
+	if (rv && !(rv->type() <= type))
+		return nullptr;
 
 	if (!rv && var_def_mode != VarDefinitionMode::FORCE && &parent_scope() != this)
 		rv = std::dynamic_pointer_cast<Variable>(
@@ -105,7 +101,7 @@ shared_ptr<Variable> Scope::get_var(VarDefinitionMode var_def_mode, const Type &
 
 	if (!rv && var_def_mode != VarDefinitionMode::DENY) {
 		rv.reset(new Variable(type, name));
-		variables_[name] = rv;
+		identifiers_[name] = rv;
 	}
 
 	return rv;
@@ -113,17 +109,7 @@ shared_ptr<Variable> Scope::get_var(VarDefinitionMode var_def_mode, const Type &
 
 
 shared_ptr<Variable> Scope::lookup_var(const string &name) const
-{
-	auto it = variables_.find(name);
-	shared_ptr<Variable> rv;
-	if (it != variables_.end())
-		rv = it->second;
-	else if (&parent_scope() != this) {
-		// This is not the root scope, so search upwards recursively
-		rv = parent_scope().lookup_var(name);
-	}
-	return rv;
-}
+{ return lookup_identifier<Variable>(name); }
 
 
 vector<shared_ptr<Variable>> Scope::lookup_vars(const vector<string> &names)
@@ -146,19 +132,14 @@ shared_ptr<Domain> Scope::lookup_domain(const string &name, const Type &type)
 
 
 vector<shared_ptr<Variable>> Scope::vars() const
-{
-	vector<shared_ptr<Variable>> rv;
-	for (auto &entry : variables_)
-		rv.push_back(entry.second);
-	return rv;
-}
+{ return local_identifiers<Variable>(); }
 
 
 void Scope::attach_semantics(SemanticsFactory &implementor)
 {
 	if (!semantics_) {
 		semantics_ = implementor.make_semantics(*this);
-		for (auto &entry : variables_)
+		for (auto &entry : identifiers_)
 			entry.second->attach_semantics(implementor);
 	}
 }
@@ -183,8 +164,8 @@ const AbstractLanguageElement *Scope::owner() const
 AbstractLanguageElement *Scope::owner()
 { return owner_; }
 
-const Scope::VariablesMap &Scope::var_map() const
-{ return variables_; }
+const Scope::IdentifierMap &Scope::identifier_map() const
+{ return identifiers_; }
 
 
 void Scope::implement_globals(SemanticsFactory &implementor, AExecutionContext &ctx)
@@ -204,7 +185,7 @@ void Scope::implement_globals(SemanticsFactory &implementor, AExecutionContext &
 
 void Scope::clear()
 {
-	variables_.clear();
+	identifiers_.clear();
 	if (this == &global_scope()) {
 		globals_->clear();
 		domains_->clear();

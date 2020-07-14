@@ -17,27 +17,30 @@
 
 #pragma once
 
-#include <model/gologpp.h>
-
-#include <chrono>
+#include "gologpp.h"
 
 namespace gologpp {
 
 
-struct Clock {
-	using rep = double;
-	using duration = std::chrono::duration<rep, std::nano>;
-	using period = duration::period;
-	using time_point = std::chrono::time_point<Clock, Clock::duration>;
-	static constexpr bool is_steady = true;
+class Name {
+public:
+    Name(const string &name);
+    virtual ~Name() = default;
 
-	static PlatformBackend *clock_source;
+    operator string () const;
+    virtual bool operator == (const Name &other) const;
+    bool operator != (const Name &other) const;
+    virtual size_t hash() const;
+    const string &name() const;
+	string mangled_name() const;
+	static string demangle(const string &s);
 
-	static time_point now() noexcept;
+private:
+	static string mangle_pfx_;
+
+protected:
+    string name_;
 };
 
 
-string to_string(Clock::time_point tp);
-
-
-} // namespace gologpp
+}

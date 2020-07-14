@@ -20,44 +20,10 @@
 
 namespace gologpp {
 
-string Name::mangle_pfx_ = "gpp~";
-
-Name::Name(const string &name)
-: name_(name)
-{}
-
-Name::operator string () const
-{ return name_; }
-
-bool Name::operator == (const Name &other) const
-{ return name() == other.name(); }
-
-bool Name::operator != (const Name &other) const
-{ return !(*this == other); }
-
-size_t Name::hash() const
-{ return std::hash<string>{}(name()); }
-
-const string &Name::name() const
-{ return name_; }
-
-string Name::mangled_name() const
-{ return mangle_pfx_ + name_; }
-
-string Name::demangle(const string &s)
-{
-	if (s.substr(0, mangle_pfx_.length()) != mangle_pfx_) {
-		log(LogLevel::ERR) << __func__ << ": name is not mangled: " + s << flush;
-		return s;
-	}
-	else
-		return s.substr(mangle_pfx_.length());
-}
-
-
 
 Identifier::Identifier(const string &name, arity_t arity)
-: Name(name), arity_(arity)
+: Name(name)
+, arity_(arity)
 {}
 
 Identifier::Identifier(Identifier &&other)

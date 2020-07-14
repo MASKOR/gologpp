@@ -191,7 +191,7 @@ Pick::Pick(
 			c->set_parent(this);
 			domain_.emplace_back(c);
 		}
-	dynamic_cast<Expression *>(variable_.get())->set_parent(this);
+	variable_->set_parent(this);
 	statement_->set_parent(this);
 }
 
@@ -435,6 +435,24 @@ const Reference<Action> &DurativeCall::action() const
 
 string DurativeCall::to_string(const string &pfx) const
 { return linesep + pfx + gologpp::to_string(hook()) + "(" + action().str() + ");"; }
+
+
+string to_string(DurativeCall::Hook h)
+{
+	switch (h) {
+	case Transition::Hook::START:
+		return "start";
+	case Transition::Hook::CANCEL:
+		return "cancel";
+	case Transition::Hook::FINISH:
+		return "finish";
+	case Transition::Hook::FAIL:
+		return "fail";
+	case Transition::Hook::END:
+		return "end";
+	}
+	throw Bug(string("Unhandled ") + typeid(h).name());
+}
 
 
 

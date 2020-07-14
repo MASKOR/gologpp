@@ -95,6 +95,7 @@ set(INTERFACE_SRC
 	src/model/list_expression.cpp
 	src/model/semantics.cpp
 	src/model/logger.cpp
+	src/model/name.cpp
 
 	src/execution/grounding.cpp
 	src/execution/transition.cpp
@@ -147,6 +148,7 @@ install(FILES
 	src/model/logger.h
 	src/model/platform_model.h
 	src/model/platform_constraints.h
+	src/model/name.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model
 )

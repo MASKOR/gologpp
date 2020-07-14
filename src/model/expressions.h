@@ -30,7 +30,8 @@ namespace gologpp {
 
 
 
-class Expression : public virtual AbstractLanguageElement {
+class Expression
+: public ChildElement {
 protected:
 	Expression();
 	Expression(const Expression &) = delete;
@@ -44,9 +45,6 @@ public:
 
 	virtual Scope &parent_scope() override;
 	virtual const Scope &parent_scope() const override;
-	ModelElement *parent();
-	const ModelElement *parent() const;
-	void set_parent(AbstractLanguageElement *parent);
 	virtual bool operator <= (const Type &type) const;
 
 	template<class GologT = Expression>
@@ -56,9 +54,6 @@ public:
 	template<class GologT = Expression>
 	Semantics<GologT> &elem_semantics() const
 	{ return ModelElement::semantics<GologT>(); }
-
-protected:
-	AbstractLanguageElement *parent_;
 };
 
 
@@ -76,7 +71,8 @@ public:
 
 
 
-class Instruction : public virtual AbstractLanguageElement {
+class Instruction
+: public ChildElement {
 protected:
 	Instruction();
 	Instruction(const Instruction &) = delete;
@@ -90,9 +86,6 @@ public:
 
 	virtual Scope &parent_scope() override;
 	virtual const Scope &parent_scope() const override;
-	ModelElement *parent();
-	const ModelElement *parent() const;
-	void set_parent(AbstractLanguageElement *parent);
 
 	template<class GologT = Instruction>
 	GeneralSemantics<GologT> &general_semantics() const
@@ -101,9 +94,6 @@ public:
 	template<class GologT = Instruction>
 	Semantics<GologT> &elem_semantics() const
 	{ return ModelElement::semantics<GologT>(); }
-
-protected:
-	AbstractLanguageElement *parent_;
 };
 
 

@@ -49,9 +49,6 @@ private:
 };
 
 
-string to_string(Transition::Hook);
-
-
 
 template<>
 class GeneralSemantics<Transition>

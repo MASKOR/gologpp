@@ -18,14 +18,14 @@
 #pragma once
 
 
-#include "model_element.h"
+#include "language.h"
 
 
 namespace gologpp {
 
 
 class AbstractReference
-: public virtual ModelElement
+: public virtual AbstractLanguageElement
 {
 public:
 	AbstractReference();

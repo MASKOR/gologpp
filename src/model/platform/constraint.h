@@ -59,111 +59,42 @@ public:
 
 namespace platform {
 
-
-
-class ActionSpec
-: public virtual AbstractLanguageElement
-, public NoScopeOwner
-{
-protected:
-	ActionSpec();
-	ActionSpec(const ActionSpec &) = delete;
-	ActionSpec(ActionSpec &&) = delete;
-	ActionSpec &operator = (const ActionSpec &) = delete;
-	ActionSpec &operator = (ActionSpec &&) = delete;
-
-public:
-	using ElementType = ActionSpec;
-
-	virtual ~ActionSpec() override = default;
-
-	virtual Scope &parent_scope() override;
-	virtual const Scope &parent_scope() const override;
-	ModelElement *parent();
-	const ModelElement *parent() const;
-	void set_parent(AbstractLanguageElement *parent);
-	virtual bool operator <= (const Type &type) const;
-
-	template<class GologT = ActionSpec>
-	GeneralSemantics<GologT> &general_semantics() const
-	{ return ModelElement::general_semantics<GologT>(); }
-
-	template<class GologT = ActionSpec>
-	Semantics<GologT> &elem_semantics() const
-	{ return ModelElement::semantics<GologT>(); }
-
-protected:
-	AbstractLanguageElement *parent_;
-};
-
-
-
-class StateSpec
-: public virtual AbstractLanguageElement
-, public NoScopeOwner
-{
-protected:
-	StateSpec();
-	StateSpec(const StateSpec &) = delete;
-	StateSpec(StateSpec &&) = delete;
-	StateSpec &operator = (const StateSpec &) = delete;
-	StateSpec &operator = (StateSpec &&) = delete;
-
-public:
-	using ElementType = StateSpec;
-
-	virtual ~StateSpec() override = default;
-
-	virtual Scope &parent_scope() override;
-	virtual const Scope &parent_scope() const override;
-	ModelElement *parent();
-	const ModelElement *parent() const;
-	void set_parent(AbstractLanguageElement *parent);
-	virtual bool operator <= (const Type &type) const;
-
-	template<class GologT = StateSpec>
-	GeneralSemantics<GologT> &general_semantics() const
-	{ return ModelElement::general_semantics<GologT>(); }
-
-	template<class GologT = StateSpec>
-	Semantics<GologT> &elem_semantics() const
-	{ return ModelElement::semantics<GologT>(); }
-
-protected:
-	AbstractLanguageElement *parent_;
-};
-
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Constraint
 : public NoScopeOwner
 , public LanguageElement<Constraint, BoolType>
 {
 public:
-	Constraint(ActionSpec *lhs, StateSpec *rhs);
+	Constraint(Expression *lhs, Expression *rhs);
 
-	const ActionSpec &lhs() const;
-	const StateSpec &rhs() const;
+	const Expression &lhs() const;
+	const Expression &rhs() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*lhs_, *rhs_)
 
 private:
-	unique_ptr<ActionSpec> lhs_;
-	unique_ptr<StateSpec> rhs_;
+	unique_ptr<Expression> lhs_;
+	unique_ptr<Expression> rhs_;
 };
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class ActionHook
-: public ActionSpec
+: public Expression
 , public LanguageElement<ActionHook, BoolType>
 {
 public:
 	using Hook = DurativeCall::Hook;
 
 	ActionHook(Hook hook, Reference<Action> *action);
+	Hook hook() const;
 	const Reference<Action> &action() const;
 
 	virtual string to_string(const string &pfx) const override;
@@ -175,10 +106,12 @@ private:
 	const unique_ptr<Reference<Action>> action_;
 };
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class During
-: public ActionSpec
+: public Expression
 , public LanguageElement<During, BoolType>
 {
 public:
@@ -193,10 +126,12 @@ private:
 	const unique_ptr<Reference<Action>> action_;
 };
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class StateAssertion
-: public StateSpec
+: public Expression
 , public LanguageElement<StateAssertion, BoolType>
 {
 public:
@@ -213,23 +148,23 @@ private:
 	const unique_ptr<Reference<State>> state_;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-template<class OperandT>
 class BooleanConstraintOperation
-: public OperandT::ElementType
-, public virtual AbstractLanguageElement
-, public LanguageElement<BooleanConstraintOperation<OperandT>, BoolType>
+: public Expression
+, public LanguageElement<BooleanConstraintOperation, BoolType>
 {
 public:
 	enum class Operator {
 		OR, AND
 	};
 
-	BooleanConstraintOperation(OperandT *lhs, Operator op, OperandT *rhs);
+	BooleanConstraintOperation(Expression *lhs, Operator op, Expression *rhs);
 
-	const OperandT &lhs() const;
-	const OperandT &rhs() const;
+	const Expression &lhs() const;
+	const Expression &rhs() const;
 	Operator op() const;
 
 	virtual string to_string(const string &pfx) const override;
@@ -237,17 +172,19 @@ public:
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*lhs_, *rhs_)
 
 private:
-	unique_ptr<OperandT> lhs_, rhs_;
+	unique_ptr<Expression> lhs_, rhs_;
 	Operator op_;
 };
 
+string to_string(typename BooleanConstraintOperation::Operator op);
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class OperandT>
 class TemporalUnaryOperation
-: public OperandT::ElementType
-, public virtual AbstractLanguageElement
-, public LanguageElement<TemporalUnaryOperation<OperandT>, BoolType>
+: public Expression
+, public LanguageElement<TemporalUnaryOperation, BoolType>
 {
 public:
 	enum class Operator {
@@ -255,13 +192,13 @@ public:
 	};
 
 	TemporalUnaryOperation(
-		OperandT *subject,
+		Expression *subject,
 		Operator op,
 		gologpp::Clock::time_point lower_bound = gologpp::Clock::time_point::min(),
 		gologpp::Clock::time_point upper_bound = gologpp::Clock::time_point::max()
 	);
 
-	const OperandT &subject() const;
+	const Expression &subject() const;
 	Operator op() const;
 	gologpp::Clock::time_point lower_bound() const;
 	gologpp::Clock::time_point upper_bound() const;
@@ -271,18 +208,21 @@ public:
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*subject_);
 
 private:
-	unique_ptr<OperandT> subject_;
+	unique_ptr<Expression> subject_;
 	Operator op_;
 	gologpp::Clock::time_point lower_bound_, upper_bound_;
 };
 
+string to_string(typename TemporalUnaryOperation::Operator op);
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class OperandT>
 class TemporalBinaryOperation
-: public OperandT::ElementType
+: public Expression
 , public virtual AbstractLanguageElement
-, public LanguageElement<TemporalBinaryOperation<OperandT>, BoolType>
+, public LanguageElement<TemporalBinaryOperation, BoolType>
 {
 public:
 	enum class Operator {
@@ -290,15 +230,15 @@ public:
 	};
 
 	TemporalBinaryOperation(
-		OperandT *lhs,
-		OperandT *rhs,
+		Expression *lhs,
+		Expression *rhs,
 		Operator op,
 		gologpp::Clock::time_point lower_bound = gologpp::Clock::time_point::min(),
 		gologpp::Clock::time_point upper_bound = gologpp::Clock::time_point::max()
 	);
 
-	const OperandT &lhs() const;
-	const OperandT &rhs() const;
+	const Expression &lhs() const;
+	const Expression &rhs() const;
 	Operator op() const;
 
 	gologpp::Clock::time_point lower_bound() const;
@@ -309,11 +249,15 @@ public:
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*lhs_, *rhs_);
 
 private:
-	unique_ptr<OperandT> lhs_, rhs_;
+	unique_ptr<Expression> lhs_, rhs_;
 	Operator op_;
 	gologpp::Clock::time_point lower_bound_, upper_bound_;
 };
 
+string to_string(typename TemporalBinaryOperation::Operator op);
+
+
 
 } // namespace platform
+
 } // namespace gologpp

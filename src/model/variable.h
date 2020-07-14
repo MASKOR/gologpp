@@ -34,14 +34,15 @@ namespace gologpp {
 class Variable
 : public LanguageElement<Variable>
 , public Identifier
-, public Expression
+, public ChildElement
 , public NoScopeOwner
-, public std::enable_shared_from_this<Variable>
 {
 protected:
 	Variable(const Type &type, const string &name);
 
 public:
+	using ElementType = Expression;
+
 	virtual ~Variable() override = default;
 
 	friend Scope;

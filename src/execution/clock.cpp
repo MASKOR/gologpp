@@ -28,4 +28,8 @@ Clock::time_point Clock::now() noexcept
 { return clock_source->time(); }
 
 
+string to_string(Clock::time_point tp)
+{ return std::to_string(tp.time_since_epoch().count()); }
+
+
 } // namespace gologpp

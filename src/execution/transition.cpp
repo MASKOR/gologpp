@@ -59,23 +59,6 @@ void Transition::attach_semantics(SemanticsFactory &implementor)
 string Transition::to_string(const string &pfx) const
 { return pfx + gologpp::to_string(hook()) + "(" + Grounding<Action>::to_string(pfx) + ")"; }
 
-string to_string(Transition::Hook h)
-{
-	switch (h) {
-	case Transition::Hook::START:
-		return "start";
-	case Transition::Hook::CANCEL:
-		return "cancel";
-	case Transition::Hook::FINISH:
-		return "finish";
-	case Transition::Hook::FAIL:
-		return "fail";
-	case Transition::Hook::END:
-		return "end";
-	}
-	throw Bug(string("Unhandled ") + typeid(h).name());
-}
-
 
 
 GeneralSemantics<Transition>::GeneralSemantics(const Transition &elem, ExecutionContext &context)

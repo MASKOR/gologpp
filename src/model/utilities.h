@@ -19,6 +19,8 @@
 #define GOLOGPP_UTILITIES_H_
 
 #include "gologpp.h"
+#include "name.h"
+#include "language.h"
 #include <string>
 #include <type_traits>
 
@@ -26,29 +28,11 @@
 namespace gologpp {
 
 
-class Name {
-public:
-    Name(const string &name);
-    virtual ~Name() = default;
-    
-    operator string () const;
-    virtual bool operator == (const Name &other) const;
-    bool operator != (const Name &other) const;
-    virtual size_t hash() const;
-    const string &name() const;
-	string mangled_name() const;
-	static string demangle(const string &s);
-
-private:
-	static string mangle_pfx_;
-
-protected:
-    string name_;
-};
-
-
-
-class Identifier : public Name {
+class Identifier
+: public Name
+, public virtual AbstractLanguageElement
+, public std::enable_shared_from_this<Identifier>
+{
 public:
     Identifier(const string &name, arity_t arity);
     Identifier(Identifier &&other);

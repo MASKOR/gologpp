@@ -308,7 +308,7 @@ public:
 
 template<class TargetT>
 class ZeroArityReference
-: public Expression
+: public virtual TargetT::ElementType
 , public AbstractReference
 , public NoScopeOwner
 , public LanguageElement<Reference<TargetT>>
@@ -355,6 +355,7 @@ public:
 
 	virtual void attach_semantics(SemanticsFactory &implementor) override;
 };
+
 
 
 

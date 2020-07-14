@@ -48,7 +48,7 @@ void Global::set_params(const vector<shared_ptr<Variable>> &args)
 
 	for (const shared_ptr<Variable> &var : args) {
 		params_.push_back(var);
-		dynamic_cast<Expression *>(var.get())->set_parent(this);
+		var->set_parent(this);
 	}
 	set_arity(static_cast<arity_t>(args.size()));
 }

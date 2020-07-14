@@ -20,7 +20,7 @@
 
 #include "gologpp.h"
 #include "error.h"
-#include "utilities.h"
+#include "name.h"
 
 #include <unordered_map>
 #include <unordered_set>

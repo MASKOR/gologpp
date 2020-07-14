@@ -71,6 +71,27 @@ private:
 
 
 
+class ChildElement
+: public virtual AbstractLanguageElement
+{
+public:
+	ChildElement() = default;
+	ChildElement(ChildElement &&) = default;
+
+	AbstractLanguageElement *parent();
+	const AbstractLanguageElement *parent() const;
+
+	void set_parent(AbstractLanguageElement *parent);
+
+	virtual Scope &parent_scope() override;
+	virtual const Scope &parent_scope() const override;
+
+private:
+	AbstractLanguageElement *parent_ = nullptr;
+};
+
+
+
 template<class GologT, class TypeT = UndefinedType>
 class LanguageElement : public virtual AbstractLanguageElement {
 public:

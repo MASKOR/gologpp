@@ -28,7 +28,6 @@ namespace gologpp {
 
 class Global
 : public Identifier
-, public std::enable_shared_from_this<Global>
 , public virtual AbstractLanguageElement
 {
 protected:

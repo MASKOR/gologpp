@@ -22,23 +22,13 @@
 namespace gologpp {
 
 Expression::Expression()
-: parent_(nullptr)
 {}
 
 Scope &Expression::parent_scope()
-{ return parent_->scope(); }
+{ return parent()->scope(); }
 
 const Scope &Expression::parent_scope() const
-{ return parent_->scope(); }
-
-ModelElement *Expression::parent()
-{ return parent_; }
-
-const ModelElement *Expression::parent() const
-{ return parent_; }
-
-void Expression::set_parent(AbstractLanguageElement *parent)
-{ parent_ = parent; }
+{ return parent()->scope(); }
 
 bool Expression::operator <= (const Type &t) const
 { return t >= *this; }
@@ -46,23 +36,13 @@ bool Expression::operator <= (const Type &t) const
 
 
 Instruction::Instruction()
-: parent_(nullptr)
 {}
 
 Scope &Instruction::parent_scope()
-{ return parent_->scope(); }
+{ return parent()->scope(); }
 
 const Scope &Instruction::parent_scope() const
-{ return parent_->scope(); }
-
-ModelElement *Instruction::parent()
-{ return parent_; }
-
-const ModelElement *Instruction::parent() const
-{ return parent_; }
-
-void Instruction::set_parent(AbstractLanguageElement *parent)
-{ parent_ = parent; }
+{ return parent()->scope(); }
 
 
 

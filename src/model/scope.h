@@ -83,7 +83,7 @@ private:
 	void init_types();
 
 public:
-	using VariablesMap = unordered_map<string, shared_ptr<Variable>>;
+	using IdentifierMap = unordered_map<string, shared_ptr<Identifier>>;
 	using GlobalsMap = unordered_map<Name, shared_ptr<Global>>;
 	using DomainsMap = unordered_map<Name, shared_ptr<Domain>>;
 	using TypesMap = unordered_map<Name, shared_ptr<const Type>>;
@@ -125,7 +125,45 @@ public:
 	}
 
 
-	const VariablesMap &var_map() const;
+	template<class GologT = Identifier>
+	shared_ptr<GologT> lookup_identifier(const string &name) const
+	{
+		auto it = identifiers_.find(name);
+		shared_ptr<GologT> rv;
+		if (it != identifiers_.end())
+			rv = std::dynamic_pointer_cast<GologT>(it->second);
+		else if (&parent_scope() != this) {
+			// This is not the root scope, so search upwards recursively
+			rv = parent_scope().lookup_identifier<GologT>(name);
+		}
+		return rv;
+	};
+
+
+	template<class GologT = Identifier>
+	void add_identifier(shared_ptr<GologT> i)
+	{
+		if (lookup_identifier<GologT>(i->name()))
+			throw RedefinitionError("Identifier \"" + i->name() + "\" already defined");
+
+		identifiers_[i->name()] = std::dynamic_pointer_cast<Identifier>(i);
+	}
+
+
+	template<class GologT = Identifier>
+	vector<shared_ptr<GologT>> local_identifiers() const
+	{
+		vector<shared_ptr<GologT>> rv;
+		for (auto &entry : identifier_map()) {
+			shared_ptr<GologT> s = std::dynamic_pointer_cast<GologT>(entry.second);
+			if (s)
+				rv.push_back(s);
+		}
+		return rv;
+	}
+
+
+	const IdentifierMap &identifier_map() const;
 	void implement_globals(SemanticsFactory &implementor, AExecutionContext &ctx);
 	void clear();
 
@@ -251,7 +289,7 @@ private:
 	static Scope global_scope_;
 	Scope &parent_scope_;
 	AbstractLanguageElement *owner_;
-	VariablesMap variables_;
+	IdentifierMap identifiers_;
 
 	shared_ptr<GlobalsMap> globals_;
 	shared_ptr<DomainsMap> domains_;

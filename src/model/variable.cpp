@@ -38,7 +38,7 @@ Variable::Variable(const Type &t, const string &name)
 Reference<Variable> *Variable::ref()
 {
 	return new Reference<Variable>(
-		this->shared_from_this()
+		std::dynamic_pointer_cast<Variable>(this->shared_from_this())
 	);
 }
 

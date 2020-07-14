@@ -153,19 +153,16 @@ class Transition;
 class Clock;
 class State;
 
-class ClockFormula;
 class ClockBound;
 class BooleanClockOperation;
 
 class Constraint;
-class ActionSpec;
-class StateSpec;
 class StateAssertion;
 class ActionHook;
 class During;
-template<class> class BooleanConstraintOperation;
-template<class> class TemporalUnaryOperation;
-template<class> class TemporalBinaryOperation;
+class BooleanConstraintOperation;
+class TemporalUnaryOperation;
+class TemporalBinaryOperation;
 
 class SemanticsFactory;
 
@@ -250,12 +247,9 @@ class SemanticsFactory;
 	(platform::StateAssertion) \
 	(platform::ActionHook) \
 	(platform::During) \
-	(platform::BooleanConstraintOperation<platform::ActionSpec>) \
-	(platform::BooleanConstraintOperation<platform::StateSpec>) \
-	(platform::TemporalUnaryOperation<platform::ActionSpec>) \
-	(platform::TemporalUnaryOperation<platform::StateSpec>) \
-	(platform::TemporalBinaryOperation<platform::ActionSpec>) \
-	(platform::TemporalBinaryOperation<platform::StateSpec>) \
+	(platform::BooleanConstraintOperation) \
+	(platform::TemporalUnaryOperation) \
+	(platform::TemporalBinaryOperation) \
 
 #define GOLOGPP_SEMANTIC_TYPES \
 	GOLOGPP_INSTRUCTIONS \

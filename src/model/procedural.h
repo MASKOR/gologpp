@@ -405,6 +405,10 @@ private:
 
 
 
+string to_string(DurativeCall::Hook);
+
+
+
 class FieldAccess
 : public Expression
 , public NoScopeOwner

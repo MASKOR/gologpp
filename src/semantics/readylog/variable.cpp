@@ -28,10 +28,10 @@ Semantics<Variable>::Semantics(const Variable &var, ReadylogContext &context)
 : GeneralSemantics<Variable>(var, context)
 , as_golog_var_(false)
 {
-	const ModelElement *parent = dynamic_cast<const Expression &>(element()).parent();
+	const ModelElement *parent = element().parent();
 	size_t level = 1;
-	while (parent && parent != &element() && dynamic_cast<const Expression *>(parent)) {
-		parent = dynamic_cast<const Expression *>(parent)->parent();
+	while (parent && parent != &element() && dynamic_cast<const ChildElement *>(parent)) {
+		parent = dynamic_cast<const ChildElement *>(parent)->parent();
 		++level;
 	}
 	golog_var_ = EC_atom(

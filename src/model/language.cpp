@@ -113,6 +113,21 @@ BOOST_PP_SEQ_FOR_EACH(GOLOGPP_INSTANTIATE_T_SET_TYPE_UNCHECKED, (), GOLOGPP_PRED
 
 
 
+AbstractLanguageElement *ChildElement::parent()
+{ return parent_; }
+
+const AbstractLanguageElement *ChildElement::parent() const
+{ return parent_; }
+
+void ChildElement::set_parent(AbstractLanguageElement *parent)
+{ parent_ = parent; }
+
+Scope &ChildElement::parent_scope()
+{ return parent_->scope(); }
+
+const Scope &ChildElement::parent_scope() const
+{ return parent_->scope(); }
+
 
 
 } // namespace gologpp

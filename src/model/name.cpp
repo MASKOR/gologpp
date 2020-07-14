@@ -15,29 +15,46 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#pragma once
-
-#include <model/gologpp.h>
-
-#include <chrono>
+#include "name.h"
+#include "logger.h"
 
 namespace gologpp {
 
+string Name::mangle_pfx_ = "gpp~";
 
-struct Clock {
-	using rep = double;
-	using duration = std::chrono::duration<rep, std::nano>;
-	using period = duration::period;
-	using time_point = std::chrono::time_point<Clock, Clock::duration>;
-	static constexpr bool is_steady = true;
+Name::Name(const string &name)
+: name_(name)
+{}
 
-	static PlatformBackend *clock_source;
+Name::operator string () const
+{ return name_; }
 
-	static time_point now() noexcept;
-};
+bool Name::operator == (const Name &other) const
+{ return name() == other.name(); }
+
+bool Name::operator != (const Name &other) const
+{ return !(*this == other); }
+
+size_t Name::hash() const
+{ return std::hash<string>{}(name()); }
+
+const string &Name::name() const
+{ return name_; }
+
+string Name::mangled_name() const
+{ return mangle_pfx_ + name_; }
+
+string Name::demangle(const string &s)
+{
+	if (s.substr(0, mangle_pfx_.length()) != mangle_pfx_) {
+		log(LogLevel::ERR) << __func__ << ": name is not mangled: " + s << flush;
+		return s;
+	}
+	else
+		return s.substr(mangle_pfx_.length());
+}
 
 
-string to_string(Clock::time_point tp);
 
 
-} // namespace gologpp
+}
