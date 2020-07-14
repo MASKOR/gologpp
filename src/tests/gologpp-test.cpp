@@ -76,7 +76,7 @@ int test_file(unique_ptr<Instruction> &&mainproc)
 
 int main(int argc, char **argv) {
 	boost::filesystem::path binary_path(argv[0]);
-	po::options_description desc("Usage: " + binary_path.filename().string() + "[options...] [-f|--file] FILENAME");
+	po::options_description desc("Usage: " + binary_path.filename().string() + " [options...] [-f|--file] FILENAME\n\nOptions");
 	desc.add_options()
 		("help,h", "This help message")
 		("file,f", po::value<string>(), "golog++ test program to process")
@@ -86,26 +86,31 @@ int main(int argc, char **argv) {
 	po::positional_options_description p;
 	p.add("file", -1);
 	po::variables_map vm;
-	po::store(
-		po::command_line_parser(argc, argv).options(desc).positional(p).run(),
-		vm
-	);
+	try {
+		po::store(
+			po::command_line_parser(argc, argv).options(desc).positional(p).run(),
+			vm
+		);
 
-	filename = vm["file"].as<string>();
+		filename = vm["file"].as<string>();
 
-	log(LogLevel::INF) << "Testing " << filename << "..." << flush;
-	unique_ptr<Instruction> mainproc = parser::parse_file(filename);
+		log(LogLevel::INF) << "Testing " << filename << "..." << flush;
+		unique_ptr<Instruction> mainproc = parser::parse_file(filename);
 
-	eclipse_opts options;
-	options.trace = !vm["trace"].empty();
-	options.toplevel = false;
-	options.guitrace = !vm["guitrace"].empty();
+		eclipse_opts options;
+		options.trace = !vm["trace"].empty();
+		options.toplevel = false;
+		options.guitrace = !vm["guitrace"].empty();
 
-	ReadylogContext::init<platform::DummySemanticsFactory>(options);
+		ReadylogContext::init<platform::DummySemanticsFactory>(options);
 
-	int rv = test_file(std::move(mainproc));
+		int rv = test_file(std::move(mainproc));
 
-	ReadylogContext::shutdown();
+		ReadylogContext::shutdown();
 
-	return rv;
+		return rv;
+	} catch (boost::bad_any_cast &e) {
+		desc.print(std::cerr);
+		return -1;
+	}
 }
