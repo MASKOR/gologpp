@@ -21,6 +21,7 @@
 #include <model/utilities.h>
 #include <model/global.h>
 #include <model/scope.h>
+#include <model/reference.h>
 
 #include <execution/clock.h>
 
@@ -29,112 +30,172 @@
 namespace gologpp {
 namespace platform {
 
-
 class Clock
 : public LanguageElement<Clock, VoidType>
 , public Identifier
+, public ChildElement
 , public NoScopeOwner
 , public std::enable_shared_from_this<Clock>
 {
 public:
-	Clock(const string &name);
+	using ElementType = ModelElement;
+
+	Clock(const string &name, Component &parent);
 
 	DEFINE_ATTACH_SEMANTICS
 
 	virtual string to_string(const string &pfx) const override;
 };
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class State
 : public Identifier
+, public ChildElement
 , public NoScopeOwner
 , public LanguageElement<State, VoidType>
 {
 public:
-	State(const string &name, const Component &parent, ClockFormula *clock_formula);
+	using ElementType = ModelElement;
 
-	const unique_ptr<ClockFormula> &clock_formula();
+	State(const string &name, Component &parent, Expression *clock_formula = nullptr);
 
-	virtual void attach_semantics(gologpp::SemanticsFactory &f) override;
+	const Expression *clock_formula() const;
+
+	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override;
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	unique_ptr<ClockFormula> clock_formula_;
-	const Component &parent;
+	unique_ptr<Expression> clock_formula_;
 };
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Transition
 : public NoScopeOwner
 , public LanguageElement<Transition, VoidType>
+, public ChildElement
 {
-public:
+private:
 	Transition(
-		const State &from,
-		const State &to,
-		ClockFormula *clock_formula,
-		vector<Reference<Clock> *> resets,
-		const Component &parent
+		Reference<State> *from,
+		Reference<State> *to,
+		Expression *clock_formula = nullptr,
+		vector<Reference<Clock> *> resets = {}
 	);
 
-	const State &from() const;
-	const State &to() const;
-	const vector<unique_ptr<Reference<Clock>>> &resets() const;
-	const unique_ptr<ClockFormula> &clock_formula() const;
+	friend Component;
 
-	virtual void attach_semantics(gologpp::SemanticsFactory &f) override;
+public:
+	const Reference<State> &from() const;
+	const Reference<State> &to() const;
+	const vector<unique_ptr<Reference<Clock>>> &resets() const;
+	const Expression *clock_formula() const;
+
+	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override;
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	const State &from_;
-	const State &to_;
-	unique_ptr<ClockFormula> clock_formula_;
+	unique_ptr<Reference<State>> from_;
+	unique_ptr<Reference<State>> to_;
+	unique_ptr<Expression> clock_formula_;
 	vector<unique_ptr<Reference<Clock>>> resets_;
-
-	const Component &parent_;
 };
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Component
 : public Global
 , public ScopeOwner
+, public virtual AbstractLanguageElement
 , public LanguageElement<Component, VoidType>
 {
 public:
-	Component(const string &name);
+	using ElementType = ModelElement;
+
+	Component(const string &name, Scope *own_scope);
 
 	const State &current_state() const;
-	const vector<State> &states() const;
-	const vector<Transition> &transitions() const;
-	const vector<Clock> &clocks() const;
+	vector<shared_ptr<State>> states() const;
+	const vector<unique_ptr<Transition>> &transitions() const;
+	const vector<unique_ptr<Transition>> &exog_transitions() const;
+	vector<shared_ptr<Clock>> clocks() const;
 
 	void set_exec_context(AExecutionContext &);
 
 	void define(
-		vector<State *> states,
-		vector<Transition *> transitions,
-		vector<Transition *> exog_transitions,
-		vector<Clock *> clocks
+		vector<string> states,
+		vector<string> clocks,
+		vector<fusion_wtf_vector<string, string>> transitions,
+		vector<fusion_wtf_vector<string, string>> exog_transitions
 	);
 
-	virtual void attach_semantics(gologpp::SemanticsFactory &f) override;
+	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override;
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	const State &current_state_;
+	shared_ptr<State> current_state_;
 
-	vector<unique_ptr<State>> states_;
 	vector<unique_ptr<Transition>> transitions_;
 	vector<unique_ptr<Transition>> exog_transitions_;
-	vector<shared_ptr<Clock>> clocks_;
 
 	AExecutionContext *exec_context_;
 };
 
 
-
 } // namespace platform
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+class Reference<platform::Component>
+: public ZeroArityReference<platform::Component>
+, public ChildElement
+{
+public:
+	using ZeroArityReference<platform::Component>::ZeroArityReference;
+
+	DEFINE_ATTACH_SEMANTICS
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+class Reference<platform::State>
+: public ZeroArityReference<platform::State>
+, public ChildElement
+{
+public:
+	using ZeroArityReference<platform::State>::ZeroArityReference;
+
+	DEFINE_ATTACH_SEMANTICS
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+class Reference<platform::Clock>
+: public ZeroArityReference<platform::Clock>
+, public ChildElement
+{
+public:
+	using ZeroArityReference<platform::Clock>::ZeroArityReference;
+
+	DEFINE_ATTACH_SEMANTICS
+};
+
+
 } // namespace gologpp

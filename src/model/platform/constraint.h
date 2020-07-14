@@ -31,32 +31,6 @@
 
 namespace gologpp {
 
-
-
-template<>
-class Reference<platform::Component>
-: public ZeroArityReference<platform::Component>
-{
-public:
-	using ZeroArityReference<platform::Component>::ZeroArityReference;
-
-	virtual void attach_semantics(gologpp::SemanticsFactory &f) override;
-};
-
-
-
-template<>
-class Reference<platform::State>
-: public ZeroArityReference<platform::State>
-{
-public:
-	using ZeroArityReference<platform::State>::ZeroArityReference;
-
-	virtual void attach_semantics(gologpp::SemanticsFactory &f) override;
-};
-
-
-
 namespace platform {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

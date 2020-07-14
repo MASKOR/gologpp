@@ -29,62 +29,12 @@
 
 
 namespace gologpp {
-
-
-template<>
-class Reference<platform::Clock>
-: public ZeroArityReference<platform::Clock>
-{
-public:
-	using ZeroArityReference<platform::Clock>::ZeroArityReference;
-};
-
-
-
 namespace platform {
 
 
-
-class ClockFormula
-: public virtual AbstractLanguageElement
-, public NoScopeOwner
-{
-protected:
-	ClockFormula();
-	ClockFormula(const ClockFormula &) = delete;
-	ClockFormula(ClockFormula &&) = delete;
-	ClockFormula &operator = (const ClockFormula &) = delete;
-	ClockFormula &operator = (ClockFormula &&) = delete;
-
-public:
-	using ElementType = ClockFormula;
-
-	virtual ~ClockFormula() override = default;
-
-	virtual Scope &parent_scope() override;
-	virtual const Scope &parent_scope() const override;
-	ModelElement *parent();
-	const ModelElement *parent() const;
-	void set_parent(AbstractLanguageElement *parent);
-	virtual bool operator <= (const Type &type) const;
-
-	template<class GologT = ClockFormula>
-	GeneralSemantics<GologT> &general_semantics() const
-	{ return ModelElement::general_semantics<GologT>(); }
-
-	template<class GologT = ClockFormula>
-	Semantics<GologT> &elem_semantics() const
-	{ return ModelElement::semantics<GologT>(); }
-
-protected:
-	AbstractLanguageElement *parent_;
-};
-
-
-
-
 class ClockBound
-: public ClockFormula
+: public Expression
+, public NoScopeOwner
 , public LanguageElement<ClockBound, BoolType>
 {
 public:
@@ -100,16 +50,23 @@ public:
 
 	virtual string to_string(const string &pfx) const override;
 
-	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*clock_, bound_)
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*clock_, *bound_)
 
 private:
 	unique_ptr<Reference<Clock>> clock_;
-	Value bound_;
+	Operator op_;
+	unique_ptr<Value> bound_;
 };
 
+string to_string(ClockBound::Operator op);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class BooleanClockOperation
-: public ClockFormula
+: public Expression
+, public NoScopeOwner
 , public LanguageElement<BooleanOperation, BoolType>
 {
 public:
@@ -117,37 +74,23 @@ public:
 		AND, OR
 	};
 
-	BooleanClockOperation(ClockFormula *lhs, Operator op, ClockFormula *rhs);
+	BooleanClockOperation(Expression *lhs, Operator op, Expression *rhs);
 
 	Operator op() const;
-	const ClockFormula &lhs() const;
-	const ClockFormula &rhs() const;
+	const Expression &lhs() const;
+	const Expression &rhs() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*lhs_, *rhs_)
 
 private:
-	unique_ptr<ClockFormula> lhs_, rhs_;
+	unique_ptr<Expression> lhs_, rhs_;
 	Operator op_;
 };
 
-
+string to_string(BooleanClockOperation::Operator op);
 
 } // namespace platform
-
-
-
-template<>
-class GeneralSemantics<platform::ClockFormula>
-: public virtual GeneralSemantics<ModelElement>
-{
-public:
-	GeneralSemantics() = default;
-
-	virtual const platform::ClockFormula &clock_formula() const = 0;
-};
-
-
 
 } // namespace gologpp

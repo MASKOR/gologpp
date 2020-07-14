@@ -243,6 +243,7 @@ class SemanticsFactory;
 	(platform::BooleanClockOperation) \
 	(Reference<platform::Clock>) \
 	(Reference<platform::Component>) \
+	(Reference<platform::State>) \
 	(platform::Constraint) \
 	(platform::StateAssertion) \
 	(platform::ActionHook) \
