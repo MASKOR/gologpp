@@ -60,7 +60,7 @@ class State
 public:
 	using ElementType = ModelElement;
 
-	State(const string &name, Component &parent, Expression *clock_formula = nullptr);
+	State(const string &name, Component &parent, boost::optional<Expression *> clock_formula);
 
 	const Expression *clock_formula() const;
 
@@ -75,35 +75,56 @@ private:
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Transition
+class AbstractTransition
 : public NoScopeOwner
-, public LanguageElement<Transition, VoidType>
 , public ChildElement
 {
-private:
-	Transition(
+public:
+	AbstractTransition(
 		Reference<State> *from,
 		Reference<State> *to,
-		Expression *clock_formula = nullptr,
-		vector<Reference<Clock> *> resets = {}
+		boost::optional<Expression *> clock_formula,
+		boost::optional<vector<Reference<Clock> *>> resets
 	);
 
-	friend Component;
-
-public:
 	const Reference<State> &from() const;
 	const Reference<State> &to() const;
 	const vector<unique_ptr<Reference<Clock>>> &resets() const;
 	const Expression *clock_formula() const;
 
-	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override;
 	virtual string to_string(const string &pfx) const override;
 
-private:
+protected:
 	unique_ptr<Reference<State>> from_;
 	unique_ptr<Reference<State>> to_;
 	unique_ptr<Expression> clock_formula_;
 	vector<unique_ptr<Reference<Clock>>> resets_;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+class Transition
+: public AbstractTransition
+, public LanguageElement<Transition, VoidType>
+{
+public:
+	using AbstractTransition::AbstractTransition;
+	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+class ExogTransition
+: public AbstractTransition
+, public LanguageElement<ExogTransition, VoidType>
+{
+public:
+	using AbstractTransition::AbstractTransition;
+	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -119,31 +140,32 @@ class Component
 public:
 	using ElementType = ModelElement;
 
-	Component(const string &name, Scope *own_scope);
+	Component(Scope *own_scope, const string &name);
 
 	const State &current_state() const;
 	vector<shared_ptr<State>> states() const;
 	const vector<unique_ptr<Transition>> &transitions() const;
-	const vector<unique_ptr<Transition>> &exog_transitions() const;
+	const vector<unique_ptr<ExogTransition>> &exog_transitions() const;
 	vector<shared_ptr<Clock>> clocks() const;
 
 	void set_exec_context(AExecutionContext &);
 
-	void define(
-		vector<string> states,
-		vector<string> clocks,
-		vector<fusion_wtf_vector<string, string>> transitions,
-		vector<fusion_wtf_vector<string, string>> exog_transitions
-	);
+	void add_state(State *);
+	void add_clock(Clock *);
+	void add_transition(Transition *);
+	void add_exog_transition(ExogTransition *);
 
 	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override;
 	virtual string to_string(const string &pfx) const override;
+
+	virtual void compile(gologpp::AExecutionContext &) override;
+	virtual ModelElement *ref(const vector<Expression *> &args = {}) override;
 
 private:
 	shared_ptr<State> current_state_;
 
 	vector<unique_ptr<Transition>> transitions_;
-	vector<unique_ptr<Transition>> exog_transitions_;
+	vector<unique_ptr<ExogTransition>> exog_transitions_;
 
 	AExecutionContext *exec_context_;
 };

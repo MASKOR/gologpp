@@ -48,12 +48,8 @@ string to_string(ClockBound::Operator op)
 	switch (op) {
 	case ClockBound::Operator::GE:
 		return " >= ";
-	case ClockBound::Operator::GT:
-		return " > ";
 	case ClockBound::Operator::LE:
 		return " <= ";
-	case ClockBound::Operator::LT:
-		return " < ";
 	}
 }
 
@@ -91,7 +87,36 @@ string to_string(BooleanClockOperation::Operator op)
 	case BooleanClockOperation::Operator::AND:
 		return " & ";
 	}
+	throw Bug("Unhandled BooleanClockOperation::Operator");
 }
 
+
+unsigned int precedence(BooleanClockOperation::Operator op)
+{
+	switch(op) {
+	case BooleanClockOperation::Operator::OR:
+		return 1;
+	case BooleanClockOperation::Operator::AND:
+		return 2;
+	}
+	throw Bug("Unhandled BooleanClockOperation::Operator");
 }
-}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+ClockNegation::ClockNegation(Expression *subject)
+: subject_(subject)
+{ subject_->set_parent(this); }
+
+const Expression &ClockNegation::subject() const
+{ return *subject_; }
+
+string ClockNegation::to_string(const string &pfx) const
+{ return pfx + "! " + subject().str(); }
+
+
+
+} // namespace platform
+} // namespace gologpp

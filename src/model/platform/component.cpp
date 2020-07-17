@@ -18,6 +18,8 @@
 #include "component.h"
 #include "clock_formula.h"
 
+#include <execution/context.h>
+
 namespace gologpp {
 
 namespace platform {
@@ -34,9 +36,9 @@ string Clock::to_string(const string &pfx) const
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-State::State(const string &name, Component &parent, Expression *clock_formula)
+State::State(const string &name, Component &parent, boost::optional<Expression *> clock_formula)
 : Identifier(name, 0)
-, clock_formula_(clock_formula)
+, clock_formula_(clock_formula.get_value_or(nullptr))
 {
 	set_parent(&parent);
 	if (clock_formula_)
@@ -67,46 +69,34 @@ string State::to_string(const string &pfx) const
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-Transition::Transition(
+AbstractTransition::AbstractTransition(
 	Reference<State> *from,
 	Reference<State> *to,
-	Expression *clock_formula,
-	vector<Reference<Clock> *> resets
+	boost::optional<Expression *> clock_formula,
+	boost::optional<vector<Reference<Clock> *>> resets
 )
 : from_(from)
 , to_(to)
-, clock_formula_(clock_formula)
-, resets_(resets.begin(), resets.end())
-{}
+, clock_formula_(clock_formula.get_value_or(nullptr))
+{
+	if (resets)
+		resets_ = vector<unique_ptr<Reference<Clock>>>{ resets->begin(), resets->end() };
+}
 
-const Reference<State> &Transition::from() const
+const Reference<State> &AbstractTransition::from() const
 { return *from_; }
 
-const Reference<State> &Transition::to() const
+const Reference<State> &AbstractTransition::to() const
 { return *to_; }
 
-const vector<unique_ptr<Reference<Clock>>> &Transition::resets() const
+const vector<unique_ptr<Reference<Clock>>> &AbstractTransition::resets() const
 { return resets_; }
 
-const Expression *Transition::clock_formula() const
+const Expression *AbstractTransition::clock_formula() const
 { return clock_formula_.get(); }
 
 
-void Transition::attach_semantics(::gologpp::SemanticsFactory &f)
-{
-	if (semantics_)
-		return;
-	set_semantics(f.make_semantics(*this));
-	from_->attach_semantics(f);
-	to_->attach_semantics(f);
-	if (clock_formula_)
-		clock_formula_->attach_semantics(f);
-	for (unique_ptr<Reference<Clock>> &c : resets_)
-		c->attach_semantics(f);
-}
-
-
-string Transition::to_string(const string &pfx) const
+string AbstractTransition::to_string(const string &pfx) const
 {
 	string rv = pfx + from()->str() + " ->";
 	if (clock_formula_)
@@ -125,12 +115,49 @@ string Transition::to_string(const string &pfx) const
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-Component::Component(const string &name, Scope *own_scope)
+void Transition::attach_semantics(::gologpp::SemanticsFactory &f)
+{
+	if (semantics_)
+		return;
+	set_semantics(f.make_semantics(*this));
+	from_->attach_semantics(f);
+	to_->attach_semantics(f);
+	if (clock_formula_)
+		clock_formula_->attach_semantics(f);
+	for (unique_ptr<Reference<Clock>> &c : resets_)
+		c->attach_semantics(f);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ExogTransition::attach_semantics(::gologpp::SemanticsFactory &f)
+{
+	if (semantics_)
+		return;
+	set_semantics(f.make_semantics(*this));
+	from_->attach_semantics(f);
+	to_->attach_semantics(f);
+	if (clock_formula_)
+		clock_formula_->attach_semantics(f);
+	for (unique_ptr<Reference<Clock>> &c : resets_)
+		c->attach_semantics(f);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+Component::Component(
+	Scope *own_scope,
+	const string &name
+)
 : Global(name, {})
 , ScopeOwner(own_scope)
-, current_state_ { new State("error", *this) }
+, current_state_ { new State("error", *this, boost::none) }
 {
-	scope().add_identifier(current_state_);
+	scope().register_identifier(current_state_.get());
 }
 
 const State &Component::current_state() const
@@ -143,7 +170,7 @@ vector<shared_ptr<State>> Component::states() const
 const vector<unique_ptr<Transition>> &Component::transitions() const
 { return transitions_; }
 
-const vector<unique_ptr<Transition> > &Component::exog_transitions() const
+const vector<unique_ptr<ExogTransition> > &Component::exog_transitions() const
 { return exog_transitions_; }
 
 vector<shared_ptr<Clock>> Component::clocks() const
@@ -152,29 +179,17 @@ vector<shared_ptr<Clock>> Component::clocks() const
 void Component::set_exec_context(AExecutionContext &context)
 { exec_context_ = &context; }
 
+void Component::add_state(State *s)
+{ scope().register_identifier(s); }
 
-void Component::define(
-	vector<string> states,
-	vector<string> clocks,
-	vector<fusion_wtf_vector<string, string>> transitions,
-	vector<fusion_wtf_vector<string, string>> exog_transitions
-)
-{
-	for (const string &s : states)
-		scope().add_identifier(shared_ptr<State>(new State(s, *this)));
-	for (const string &c : clocks)
-		scope().add_identifier(shared_ptr<Clock>(new Clock(c, *this)));
-	for (auto &pair : transitions)
-		transitions_.emplace_back(new Transition(
-			new Reference<State>(scope().lookup_identifier<State>(boost::fusion::at_c<0>(pair))),
-			new Reference<State>(scope().lookup_identifier<State>(boost::fusion::at_c<1>(pair)))
-		));
-	for (auto &pair : exog_transitions)
-		exog_transitions_.emplace_back(new Transition(
-			new Reference<State>(scope().lookup_identifier<State>(boost::fusion::at_c<0>(pair))),
-			new Reference<State>(scope().lookup_identifier<State>(boost::fusion::at_c<1>(pair)))
-		));
-}
+void Component::add_clock(Clock *c)
+{ scope().register_identifier(c); }
+
+void Component::add_transition(Transition *t)
+{ transitions_.emplace_back(t); }
+
+void Component::add_exog_transition(ExogTransition *et)
+{ exog_transitions_.emplace_back(et); }
 
 
 void Component::attach_semantics(::gologpp::SemanticsFactory &f)
@@ -189,7 +204,7 @@ void Component::attach_semantics(::gologpp::SemanticsFactory &f)
 		c->attach_semantics(f);
 	for (unique_ptr<Transition> &t : transitions_)
 		t->attach_semantics(f);
-	for (unique_ptr<Transition> &et : exog_transitions_)
+	for (unique_ptr<ExogTransition> &et : exog_transitions_)
 		et->attach_semantics(f);
 }
 
@@ -217,6 +232,12 @@ string Component::to_string(const string &pfx) const
 
 	return rv;
 }
+
+void Component::compile(AExecutionContext &ctx)
+{ ctx.compile(*this); }
+
+ModelElement *Component::ref(const vector<Expression *> &/*args*/)
+{ return new Reference<Component>(std::dynamic_pointer_cast<Component>(shared_from_this())); }
 
 
 } // namespace platform

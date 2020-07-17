@@ -39,7 +39,7 @@ class ClockBound
 {
 public:
 	enum class Operator {
-		GE, GT, LE, LT
+		GE, LE
 	};
 
 	ClockBound(Reference<Clock> *clock, Operator op, Value *bound);
@@ -90,6 +90,31 @@ private:
 };
 
 string to_string(BooleanClockOperation::Operator op);
+
+unsigned int precedence(BooleanClockOperation::Operator op);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+class ClockNegation
+: public Expression
+, public NoScopeOwner
+, public LanguageElement<ClockNegation, BoolType>
+{
+public:
+	ClockNegation(Expression *subject);
+
+	const Expression &subject() const;
+
+	virtual string to_string(const string &pfx) const override;
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*subject_)
+
+private:
+	unique_ptr<Expression> subject_;
+};
+
 
 } // namespace platform
 

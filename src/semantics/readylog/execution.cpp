@@ -166,6 +166,9 @@ void ReadylogContext::compile(const Function &function)
 void ReadylogContext::compile(const Procedure &proc)
 { compile_term(proc.semantics().definition()); }
 
+void ReadylogContext::compile(const platform::Component &)
+{}
+
 
 void ReadylogContext::compile_term(const EC_word &term)
 {

@@ -53,6 +53,7 @@ public:
 	virtual void compile(const AbstractAction &action) = 0;
 	virtual void compile(const Function &function) = 0;
 	virtual void compile(const Procedure &function) = 0;
+	virtual void compile(const platform::Component &component) = 0;
 
 	virtual void postcompile() = 0;
 

@@ -150,11 +150,13 @@ namespace platform {
 
 class Component;
 class Transition;
+class ExogTransition;
 class Clock;
 class State;
 
 class ClockBound;
 class BooleanClockOperation;
+class ClockNegation;
 
 class Constraint;
 class StateAssertion;
@@ -237,9 +239,11 @@ class SemanticsFactory;
 #define GOLOGPP_PLATFORM_ELEMENTS \
 	(platform::Component) \
 	(platform::Transition) \
+	(platform::ExogTransition) \
 	(platform::Clock) \
 	(platform::State) \
 	(platform::ClockBound) \
+	(platform::ClockNegation) \
 	(platform::BooleanClockOperation) \
 	(Reference<platform::Clock>) \
 	(Reference<platform::Component>) \

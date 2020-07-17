@@ -141,12 +141,12 @@ public:
 
 
 	template<class GologT = Identifier>
-	void add_identifier(shared_ptr<GologT> i)
+	void register_identifier(GologT *i)
 	{
 		if (lookup_identifier<GologT>(i->name()))
 			throw RedefinitionError("Identifier \"" + i->name() + "\" already defined");
 
-		identifiers_[i->name()] = std::dynamic_pointer_cast<Identifier>(i);
+		identifiers_[i->name()].reset(i);
 	}
 
 
