@@ -52,6 +52,7 @@ string to_string(ClockBound::Operator op)
 	case ClockBound::Operator::LE:
 		return " <= ";
 	}
+	throw Bug("Unhandled ClockBound::Operator");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

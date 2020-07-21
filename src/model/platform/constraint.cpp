@@ -139,6 +139,7 @@ string to_string(typename BooleanConstraintOperation::Operator op)
 	case BooleanConstraintOperation::Operator::AND:
 		return "&";
 	}
+	throw Bug("Unhandled BooleanConstraintOperation::Operator");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -202,6 +203,7 @@ string to_string(typename TemporalUnaryOperation::Operator op)
 	case TemporalUnaryOperation::Operator::PAST:
 		return "past";
 	}
+	throw Bug("Unhandled TemporalUnaryOperation::Operator");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -266,6 +268,7 @@ string to_string(typename TemporalBinaryOperation::Operator op)
 	case TemporalBinaryOperation::Operator::SINCE:
 		return "since";
 	}
+	throw Bug("Unhandled TemporalBinaryOperation::Operator");
 }
 
 
