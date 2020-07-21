@@ -38,6 +38,8 @@ public:
 			AND, OR, UNTIL, SINCE
 		};
 
+		Operator() = default;
+
 		Operator(
 			OpType type,
 			boost::optional < fusion_wtf_vector <
@@ -65,6 +67,8 @@ public:
 	virtual Scope &scope() override;
 	virtual const Scope &scope() const override;
 
+	Expression *convert();
+
 private:
 	Expression *lhs_, *rhs_;
 	Operator op_;
@@ -76,42 +80,23 @@ unsigned int precedence(const BinaryOpIntermediate::Operator &op);
 
 
 
-struct PlatformConstraintParser : public grammar<platform::Constraint *(Scope &)> {
-	PlatformConstraintParser();
-
-	rule<platform::Constraint *(Scope &)> constraint;
-	rule<Expression *(Scope &)> action_spec;
-	rule<Expression *(Scope &)> state_spec;
-
-
-
-	rule<Expression *(Scope &)> binary_state_spec;
-	rule<Expression *(Scope &)> unary_state_spec;
-	rule<Expression *(Scope &)> braced_state_spec;
-	rule<Expression *(Scope &)> state_assertion;
-	rule<Expression *(Scope &)> temporal_unary;
-};
-
-
-
-
 template<class RefT>
 struct ConstraintSpecParser : public grammar<Expression *(Scope &)> {
 	ConstraintSpecParser();
 	void init();
 
 	rule<Expression *(Scope &)> constraint_spec;
-	rule<Expression *(Scope &)> binary_sequence;
+	rule<helper::BinaryOpIntermediate *(Scope &)> binary_sequence;
 	rule<Expression *(Scope &)> braced_expr;
 	rule<platform::TemporalUnaryOperation *(Scope &)> temporal_unary;
 	rule<platform::TemporalUnaryOperation::Operator()> temporal_unary_op;
 	rule<helper::BinaryOpIntermediate::Operator()> binary_op;
 	rule<helper::BinaryOpIntermediate::Operator()> temporal_binary_op;
 	rule <
-		boost::optional < fusion_wtf_vector <
+		fusion_wtf_vector <
 			boost::optional<Value *>,
 			boost::optional<Value *>
-		> >()
+		> ()
 	> bound;
 
 	rule<Expression *(Scope &)> unary_expr;
@@ -125,6 +110,17 @@ struct ConstraintSpecParser : public grammar<Expression *(Scope &)> {
 		platform::StateAssertion *(Scope &),
 		locals<platform::Reference<platform::Component> *>
 	> state_assertion;
+};
+
+
+
+struct ConstraintSectionParser : public grammar<vector<platform::Constraint *>(Scope &)> {
+	ConstraintSectionParser();
+
+	rule<vector<platform::Constraint *>(Scope &)> constraint_section;
+	rule<platform::Constraint *(Scope &)> constraint;
+	ConstraintSpecParser<Action> action_spec;
+	ConstraintSpecParser<platform::State> state_spec;
 };
 
 

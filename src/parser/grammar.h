@@ -11,6 +11,9 @@
 #include "expressions.h"
 #include "value.h"
 
+#include <parser/platform/component.h>
+#include <parser/platform/constraint.h>
+
 #include <boost/spirit/include/qi_plus.hpp>
 #include <boost/spirit/include/qi_omit.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>
@@ -37,6 +40,8 @@ struct BatParser : grammar<void(Scope &)> {
 			| procedure(_r1)
 			| domain_decl()(_r1)
 			| type_definition(_r1)
+			| component(_r1)
+			| constraint_section(_r1)
 		);
 
 		// The rules that parse all the different expression types have to be defined
@@ -49,6 +54,8 @@ struct BatParser : grammar<void(Scope &)> {
 	}
 
 	rule<void(Scope &)> program;
+	ComponentParser component;
+	ConstraintSectionParser constraint_section;
 	ActionParser<Action> action;
 	ActionParser<ExogAction> exog_action;
 	FunctionParser function;

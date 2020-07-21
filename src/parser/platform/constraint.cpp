@@ -36,6 +36,7 @@
 #include <boost/spirit/include/qi_real.hpp>
 
 #include <boost/phoenix/object/new.hpp>
+#include <boost/phoenix/object/construct.hpp>
 #include <boost/phoenix/operator/self.hpp>
 #include <boost/phoenix/statement/if.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
@@ -58,8 +59,8 @@ BinaryOpIntermediate::Operator::Operator(
 )
 : type_(type)
 {
-	double tmin = Clock::time_point::min().time_since_epoch().count();
-	double tmax = Clock::time_point::max().time_since_epoch().count();
+	double tmin = Clock::duration::min().count();
+	double tmax = Clock::duration::max().count();
 	if (bound) {
 		if (at_c<0>(bound.get()))
 			lower_bound_ = at_c<0>(bound.get()).get();
@@ -113,6 +114,59 @@ Scope &BinaryOpIntermediate::scope()
 const Scope &BinaryOpIntermediate::scope() const
 { throw Bug(string(__func__) + ": Not implemented"); }
 
+Expression *BinaryOpIntermediate::convert()
+{
+	BinaryOpIntermediate *lhs_inter = dynamic_cast<BinaryOpIntermediate *>(lhs_);
+	BinaryOpIntermediate *rhs_inter = dynamic_cast<BinaryOpIntermediate *>(rhs_);
+
+	Expression *lhs_final = nullptr, *rhs_final = nullptr;
+
+	if (lhs_inter) {
+		lhs_final = lhs_inter->convert();
+		delete lhs_;
+	}
+	else
+		lhs_final = lhs_;
+
+	if (rhs_inter) {
+		rhs_final = rhs_inter->convert();
+		delete rhs_;
+	}
+	else
+		rhs_final = rhs_;
+
+	if (op().type() == Operator::OpType::OR)
+		return new platform::BooleanConstraintOperation(
+			lhs_final,
+			platform::BooleanConstraintOperation::Operator::OR,
+			rhs_final
+		);
+	else if (op().type() == Operator::OpType::AND)
+		return new platform::BooleanConstraintOperation(
+			lhs_final,
+			platform::BooleanConstraintOperation::Operator::AND,
+			rhs_final
+		);
+	else if (op().type() == Operator::OpType::SINCE)
+		return new platform::TemporalBinaryOperation(
+			lhs_final,
+			rhs_final,
+			platform::TemporalBinaryOperation::Operator::SINCE,
+			op().lower_bound(),
+			op().upper_bound()
+		);
+	else if (op().type() == Operator::OpType::UNTIL)
+		return new platform::TemporalBinaryOperation(
+			lhs_final,
+			rhs_final,
+			platform::TemporalBinaryOperation::Operator::UNTIL,
+			op().lower_bound(),
+			op().upper_bound()
+		);
+
+	throw Bug("Unhandled BinaryOpIntermediate::Operator::OpType");
+}
+
 
 unsigned int precedence(const BinaryOpIntermediate::Operator &op)
 {
@@ -136,7 +190,8 @@ template<class RefT>
 ConstraintSpecParser<RefT>::ConstraintSpecParser()
 : ConstraintSpecParser::base_type(constraint_spec, debug_name<RefT>() + "_spec")
 {
-	constraint_spec = binary_sequence(_r1) | unary_expr(_r1);
+	constraint_spec = binary_sequence(_r1) [ _val = phoenix::bind(&helper::BinaryOpIntermediate::convert, _1) ]
+		| unary_expr(_r1) [ _val = _1 ];
 	constraint_spec.name(debug_name<RefT>() + "_spec");
 
 	binary_sequence = (
@@ -148,25 +203,25 @@ ConstraintSpecParser<RefT>::ConstraintSpecParser()
 
 	binary_op =
 		lit('&') [
-			_val = new_<helper::BinaryOpIntermediate::Operator>(
+			_val = construct<helper::BinaryOpIntermediate::Operator>(
 				helper::BinaryOpIntermediate::Operator::OpType::AND,
 				boost::none
 			)
 		]
 		| lit('|') [
-			_val = new_<helper::BinaryOpIntermediate::Operator>(
+			_val = construct<helper::BinaryOpIntermediate::Operator>(
 				helper::BinaryOpIntermediate::Operator::OpType::OR,
 				boost::none
 			)
 		]
 		| (lit("until") > -bound) [
-			_val = new_<helper::BinaryOpIntermediate::Operator>(
+			_val = construct<helper::BinaryOpIntermediate::Operator>(
 				helper::BinaryOpIntermediate::Operator::OpType::UNTIL,
 				_1
 			)
 		]
 		| (lit("since") > -bound) [
-			_val = new_<helper::BinaryOpIntermediate::Operator>(
+			_val = construct<helper::BinaryOpIntermediate::Operator>(
 				helper::BinaryOpIntermediate::Operator::OpType::SINCE,
 				_1
 			)
@@ -180,7 +235,7 @@ ConstraintSpecParser<RefT>::ConstraintSpecParser()
 	temporal_unary = (
 		temporal_unary_op > -bound > unary_expr(_r1)
 	) [
-		_val = new_<platform::TemporalUnaryOperation>(_1, _2, _3)
+		_val = new_<platform::TemporalUnaryOperation>(_3, _1, _2)
 	];
 	temporal_unary.name("temporal_unary_expr");
 
@@ -246,6 +301,20 @@ void ConstraintSpecParser<platform::State>::init()
 	) [
 		_val = new_<platform::StateAssertion>(_1, _2)
 	];
+	state_assertion.name("state_assertion");
+}
+
+
+ConstraintSectionParser::ConstraintSectionParser()
+: ConstraintSectionParser::base_type(constraint_section, "constraint_section")
+{
+	constraint_section = lit("constraints") > '{' > +constraint(_r1) > '}';
+	constraint_section.name("constraint_section");
+
+	constraint = (action_spec(_r1) > ':' > state_spec(_r1)) [
+		_val = new_<platform::Constraint>(_1, _2)
+	];
+	constraint.name("platform_constraint");
 }
 
 
