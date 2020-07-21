@@ -147,8 +147,6 @@ install(FILES
 	src/model/compound_expression.h
 	src/model/list_expression.h
 	src/model/logger.h
-	src/model/platform_model.h
-	src/model/platform_constraints.h
 	src/model/name.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model
@@ -222,9 +220,6 @@ if (${BUILD_PARSER})
 		src/parser/mapping.cpp
 		src/parser/list_expression.cpp
 		src/parser/value.cpp
-		src/parser/platform_parser.cpp
-		src/parser/platform_model.cpp
-		src/parser/platform_constraints.cpp
 
 		src/parser/platform/clock_formula.cpp
 		src/parser/platform/component.cpp
@@ -263,8 +258,6 @@ if (${BUILD_PARSER})
 		src/parser/list_expression.h
 		src/parser/value.h
 		src/parser/platform_model.h
-		src/parser/platform_parser.h
-		src/parser/platform_constraints.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)
 
@@ -374,20 +367,6 @@ if (${BUILD_READYLOG_IMPL})
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/readylog++.pc.in ${CMAKE_CURRENT_BINARY_DIR}/readylog++.pc @ONLY)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/readylog++.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
-
-
-if (${ECLIPSE_FOUND})
-	option(BUILD_TOOLS "Build commandline tools" ON)
-endif()
-
-if (${BUILD_TOOLS})
-	set(PLAN_TRANSFORMATION_TEST_SRC
-		src/tools/plan-transformation-test.cpp)
-	add_executable(plan-transformation-test ${PLAN_TRANSFORMATION_TEST_SRC})
-	target_link_libraries(plan-transformation-test parsegolog++)
-	install(TARGETS plan-transformation-test RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif()
-
 
 
 ######################################################################################
