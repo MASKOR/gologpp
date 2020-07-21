@@ -225,6 +225,11 @@ if (${BUILD_PARSER})
 		src/parser/platform_parser.cpp
 		src/parser/platform_model.cpp
 		src/parser/platform_constraints.cpp
+
+		src/parser/platform/clock_formula.cpp
+		src/parser/platform/component.cpp
+		src/parser/platform/constraint.cpp
+		src/parser/platform/reference.cpp
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
@@ -261,6 +266,14 @@ if (${BUILD_PARSER})
 		src/parser/platform_parser.h
 		src/parser/platform_constraints.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
+	)
+
+	install(FILES
+		src/parser/platform/clock_formula.h
+		src/parser/platform/constraint.h
+		src/parser/platform/component.h
+		src/parser/platform/reference.h
+		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser/platform
 	)
 
 	get_target_property(PARSEGOLOGPP_CXXFLAGS_L parsegolog++ INTERFACE_COMPILE_OPTIONS)
