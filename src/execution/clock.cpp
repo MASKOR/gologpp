@@ -29,7 +29,9 @@ Clock::time_point Clock::now() noexcept
 
 
 string to_string(Clock::time_point tp)
-{ return std::to_string(tp.time_since_epoch().count()); }
+{ return to_string(tp.time_since_epoch()); }
 
+string to_string(Clock::duration d)
+{ return std::to_string(d.count()); }
 
 } // namespace gologpp

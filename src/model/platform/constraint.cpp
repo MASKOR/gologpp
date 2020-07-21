@@ -44,6 +44,12 @@ const Expression &Constraint::rhs() const
 string Constraint::to_string(const string &pfx) const
 { return pfx + lhs().str() + ": " + rhs().str(); }
 
+Scope &Constraint::parent_scope()
+{ return global_scope(); }
+
+const Scope &Constraint::parent_scope() const
+{ return global_scope(); }
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
@@ -150,23 +156,33 @@ TemporalUnaryOperation::TemporalUnaryOperation(
 	Expression *subject,
 	TemporalUnaryOperation::Operator op,
 	boost::optional<fusion_wtf_vector <
-		boost::optional<gologpp::Clock::time_point>,
-		boost::optional<gologpp::Clock::time_point>
+		boost::optional<Value *>,
+		boost::optional<Value *>
 	> > bound
 )
 : subject_(subject)
 , op_(op)
 {
+	using namespace boost::fusion;
+
 	subject_->set_parent(this);
-	if (!bound) {
-		lower_bound_ = gologpp::Clock::time_point::min();
-		upper_bound_ = gologpp::Clock::time_point::max();
+
+	gologpp::Clock::duration tmin = gologpp::Clock::duration::min();
+	gologpp::Clock::duration tmax = gologpp::Clock::duration::max();
+	if (bound) {
+		if (at_c<0>(bound.get()))
+			lower_bound_ = gologpp::Clock::duration { static_cast<double>(*at_c<0>(bound.get()).get()) };
+		else
+			lower_bound_ = tmin;
+
+		if (at_c<1>(bound.get()))
+			upper_bound_ = gologpp::Clock::duration { static_cast<double>(*at_c<1>(bound.get()).get()) };
+		else
+			upper_bound_ = tmax;
 	}
 	else {
-		lower_bound_ = boost::fusion::at_c<0>(bound.get())
-			.get_value_or(gologpp::Clock::time_point::min());
-		upper_bound_ = boost::fusion::at_c<1>(bound.get())
-			.get_value_or(gologpp::Clock::time_point::max());
+		lower_bound_ = tmin;
+		upper_bound_ = tmax;
 	}
 }
 
@@ -176,10 +192,10 @@ const Expression &TemporalUnaryOperation::subject() const
 typename TemporalUnaryOperation::Operator TemporalUnaryOperation::op() const
 { return op_; }
 
-gologpp::Clock::time_point TemporalUnaryOperation::lower_bound() const
+gologpp::Clock::duration TemporalUnaryOperation::lower_bound() const
 { return lower_bound_; }
 
-gologpp::Clock::time_point TemporalUnaryOperation::upper_bound() const
+gologpp::Clock::duration TemporalUnaryOperation::upper_bound() const
 { return upper_bound_; }
 
 
@@ -214,10 +230,8 @@ TemporalBinaryOperation::TemporalBinaryOperation(
 	Expression *lhs,
 	Expression *rhs,
 	TemporalBinaryOperation::Operator op,
-	boost::optional<fusion_wtf_vector <
-		boost::optional<gologpp::Clock::time_point>,
-		boost::optional<gologpp::Clock::time_point>
-	> > bound
+	Value *lower_bound,
+	Value *upper_bound
 )
 : lhs_(lhs)
 , rhs_(rhs)
@@ -225,16 +239,11 @@ TemporalBinaryOperation::TemporalBinaryOperation(
 {
 	lhs_->set_parent(this);
 	rhs_->set_parent(this);
-	if (!bound) {
-		lower_bound_ = gologpp::Clock::time_point::min();
-		upper_bound_ = gologpp::Clock::time_point::max();
-	}
-	else {
-		lower_bound_ = boost::fusion::at_c<0>(bound.get())
-			.get_value_or(gologpp::Clock::time_point::min());
-		upper_bound_ = boost::fusion::at_c<1>(bound.get())
-			.get_value_or(gologpp::Clock::time_point::max());
-	}
+
+	lower_bound_ = gologpp::Clock::duration { static_cast<double>(*lower_bound) };
+	upper_bound_ = gologpp::Clock::duration { static_cast<double>(*upper_bound) };
+	delete lower_bound;
+	delete upper_bound;
 }
 
 const Expression &TemporalBinaryOperation::lhs() const
@@ -246,10 +255,10 @@ const Expression &TemporalBinaryOperation::rhs() const
 typename TemporalBinaryOperation::Operator TemporalBinaryOperation::op() const
 { return op_; }
 
-gologpp::Clock::time_point TemporalBinaryOperation::lower_bound() const
+gologpp::Clock::duration TemporalBinaryOperation::lower_bound() const
 { return lower_bound_; }
 
-gologpp::Clock::time_point TemporalBinaryOperation::upper_bound() const
+gologpp::Clock::duration TemporalBinaryOperation::upper_bound() const
 { return upper_bound_; }
 
 

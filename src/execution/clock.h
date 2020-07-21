@@ -39,5 +39,6 @@ struct Clock {
 
 string to_string(Clock::time_point tp);
 
+string to_string(Clock::duration d);
 
 } // namespace gologpp

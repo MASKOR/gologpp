@@ -51,6 +51,9 @@ public:
 
 	virtual string to_string(const string &pfx) const override;
 
+	virtual Scope &parent_scope() override;
+	virtual const Scope &parent_scope() const override;
+
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*lhs_, *rhs_)
 
 private:
@@ -176,15 +179,15 @@ public:
 		Expression *subject,
 		Operator op,
 		boost::optional<fusion_wtf_vector <
-			boost::optional<gologpp::Clock::time_point>,
-			boost::optional<gologpp::Clock::time_point>
+			boost::optional<Value *>,
+			boost::optional<Value *>
 		> > bound
 	);
 
 	const Expression &subject() const;
 	Operator op() const;
-	gologpp::Clock::time_point lower_bound() const;
-	gologpp::Clock::time_point upper_bound() const;
+	gologpp::Clock::duration lower_bound() const;
+	gologpp::Clock::duration upper_bound() const;
 
 	virtual string to_string(const string &pfx) const override;
 
@@ -193,7 +196,7 @@ public:
 private:
 	unique_ptr<Expression> subject_;
 	Operator op_;
-	gologpp::Clock::time_point lower_bound_, upper_bound_;
+	gologpp::Clock::duration lower_bound_, upper_bound_;
 };
 
 string to_string(typename TemporalUnaryOperation::Operator op);
@@ -216,18 +219,16 @@ public:
 		Expression *lhs,
 		Expression *rhs,
 		Operator op,
-		boost::optional<fusion_wtf_vector <
-			boost::optional<gologpp::Clock::time_point>,
-			boost::optional<gologpp::Clock::time_point>
-		> > bound
+		Value *lower_bound,
+		Value *upper_bound
 	);
 
 	const Expression &lhs() const;
 	const Expression &rhs() const;
 	Operator op() const;
 
-	gologpp::Clock::time_point lower_bound() const;
-	gologpp::Clock::time_point upper_bound() const;
+	gologpp::Clock::duration lower_bound() const;
+	gologpp::Clock::duration upper_bound() const;
 
 	virtual string to_string(const string &pfx) const override;
 
@@ -236,7 +237,7 @@ public:
 private:
 	unique_ptr<Expression> lhs_, rhs_;
 	Operator op_;
-	gologpp::Clock::time_point lower_bound_, upper_bound_;
+	gologpp::Clock::duration lower_bound_, upper_bound_;
 };
 
 string to_string(typename TemporalBinaryOperation::Operator op);
