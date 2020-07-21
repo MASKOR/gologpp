@@ -286,7 +286,7 @@ static rule<Value *()> &get_value_parser(const Type &type, bool allow_symbol_def
 
 
 
-rule<Value *(const Type &, bool)> &value() {
+rule<Value *(const Type &, bool /*allow_symbol_def*/)> &value() {
 	static rule<Value *(const Type &, bool)> rv {
 		lazy(phoenix::bind(&get_value_parser, _r1, _r2))
 	};

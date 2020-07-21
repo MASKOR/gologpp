@@ -119,6 +119,17 @@ OperationT *parse_op_precedence(
 );
 
 
+template<class PlatformT>
+string debug_name();
+
+
+rule<void()> conditional_comma(const TypeList &tl);
+
+
+extern std::function<const Type &(TypeList &)> pop_front;
+
+
+
 
 #ifdef GOLOGPP_DEBUG_PARSER
 #define GOLOGPP_DEBUG_NODE(n) debug(n);

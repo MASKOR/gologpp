@@ -23,7 +23,6 @@
 #include <model/procedural.h>
 #include <model/fluent.h>
 
-#include <boost/spirit/home/qi/nonterminal/error_handler.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_optional.hpp>
@@ -47,7 +46,6 @@
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
 #include <boost/phoenix/bind/bind_function_object.hpp>
-#include <boost/phoenix/scope/local_variable.hpp>
 
 #include <model/reference.h>
 
@@ -69,23 +67,6 @@ Reference<GologT> *get_ref(
 	else
 		return nullptr;
 }
-
-
-rule<void()> conditional_comma(const TypeList &tl)
-{
-	static rule<void()> comma { ',' };
-	static rule<void()> nothing { eps };
-	return tl.empty() ? nothing : comma;
-}
-
-
-static std::function<const Type &(TypeList &)> pop_front {
-	[] (TypeList &tl) -> const Type & {
-		const Type &rv = tl.front();
-		tl.pop_front();
-		return rv;
-	}
-};
 
 
 template<class GologT>
@@ -123,13 +104,12 @@ ReferenceParser<GologT>::ReferenceParser()
 	GOLOGPP_DEBUG_NODE(pred_ref)
 }
 
-
-
 template struct ReferenceParser<Action>;
 template struct ReferenceParser<ExogAction>;
 template struct ReferenceParser<Function>;
 template struct ReferenceParser<Procedure>;
 template struct ReferenceParser<Fluent>;
+
 
 
 

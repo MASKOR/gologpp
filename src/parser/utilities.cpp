@@ -26,7 +26,7 @@
 #include <boost/spirit/include/qi_lexeme.hpp>
 #include <boost/spirit/include/qi_char_class.hpp>
 #include <boost/spirit/include/qi_as_string.hpp>
-
+#include <boost/spirit/include/qi_eps.hpp>
 #include <boost/spirit/include/qi_eol.hpp>
 #include <boost/spirit/include/qi_omit.hpp>
 #include <boost/spirit/include/qi_lit.hpp>
@@ -38,6 +38,8 @@
 
 #include <model/formula.h>
 #include <model/arithmetic.h>
+#include <model/platform/clock_formula.h>
+#include <parser/platform/constraint.h>
 
 #include <iostream>
 
@@ -199,6 +201,54 @@ ArithmeticOperation *parse_op_precedence(
 	vector<fusion_wtf_vector<Expression *, ArithmeticOperation::Operator>> vec,
 	Expression *rhs
 );
+
+template
+platform::BooleanClockOperation *parse_op_precedence(
+	vector<fusion_wtf_vector<Expression *, platform::BooleanClockOperation::Operator>> vec,
+	Expression *rhs
+);
+
+
+template
+helper::BinaryOpIntermediate *parse_op_precedence(
+	vector<fusion_wtf_vector<Expression *, helper::BinaryOpIntermediate::Operator>> vec,
+	Expression *rhs
+);
+
+
+
+template<>
+string debug_name<platform::State>()
+{ return "state"; }
+
+template<>
+string debug_name<platform::Clock>()
+{ return "clock"; }
+
+template<>
+string debug_name<platform::Component>()
+{ return "component"; }
+
+template<>
+string debug_name<Action>()
+{ return "action"; }
+
+
+rule<void ()> conditional_comma(const TypeList &tl)
+{
+	static rule<void()> comma { ',' };
+	static rule<void()> nothing { eps };
+	return tl.empty() ? nothing : comma;
+}
+
+
+std::function<const Type &(TypeList &)> pop_front {
+	[] (TypeList &tl) -> const Type & {
+		const Type &rv = tl.front();
+		tl.pop_front();
+		return rv;
+	}
+};
 
 
 
