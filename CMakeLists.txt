@@ -112,6 +112,7 @@ set(INTERFACE_SRC
 	src/model/platform/constraint.cpp
 	src/model/platform/clock_formula.cpp
 	src/model/platform/semantics.cpp
+	src/model/platform/reference.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -173,6 +174,7 @@ install(FILES
 	src/model/platform/constraint.h
 	src/model/platform/clock_formula.h
 	src/model/platform/semantics.h
+	src/model/platform/reference.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model/platform
 )

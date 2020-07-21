@@ -16,7 +16,8 @@
 **************************************************************************/
 
 #include "component.h"
-#include "clock_formula.h"
+#include <model/platform/clock_formula.h>
+#include <model/platform/reference.h>
 
 #include <execution/context.h>
 

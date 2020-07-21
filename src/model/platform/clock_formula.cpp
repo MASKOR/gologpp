@@ -16,6 +16,7 @@
 **************************************************************************/
 
 #include "clock_formula.h"
+#include <model/platform/reference.h>
 
 
 namespace gologpp {

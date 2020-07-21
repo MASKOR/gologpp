@@ -166,6 +166,8 @@ class BooleanConstraintOperation;
 class TemporalUnaryOperation;
 class TemporalBinaryOperation;
 
+template<class> class Reference;
+
 class SemanticsFactory;
 
 } // namespace platform
@@ -245,9 +247,10 @@ class SemanticsFactory;
 	(platform::ClockBound) \
 	(platform::ClockNegation) \
 	(platform::BooleanClockOperation) \
-	(Reference<platform::Clock>) \
-	(Reference<platform::Component>) \
-	(Reference<platform::State>) \
+	(platform::Reference<platform::Clock>) \
+	(platform::Reference<platform::Component>) \
+	(platform::Reference<platform::State>) \
+	(platform::Reference<Action>) \
 	(platform::Constraint) \
 	(platform::StateAssertion) \
 	(platform::ActionHook) \

@@ -16,9 +16,15 @@
 **************************************************************************/
 
 #include "constraint.h"
+#include <boost/fusion/include/at_c.hpp>
 
 namespace gologpp {
 namespace platform {
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 Constraint::Constraint(Expression *lhs, Expression *rhs)
@@ -142,14 +148,26 @@ string to_string(typename BooleanConstraintOperation::Operator op)
 TemporalUnaryOperation::TemporalUnaryOperation(
 	Expression *subject,
 	TemporalUnaryOperation::Operator op,
-	gologpp::Clock::time_point lower_bound,
-	gologpp::Clock::time_point upper_bound
+	boost::optional<fusion_wtf_vector <
+		boost::optional<gologpp::Clock::time_point>,
+		boost::optional<gologpp::Clock::time_point>
+	> > bound
 )
 : subject_(subject)
 , op_(op)
-, lower_bound_(lower_bound)
-, upper_bound_(upper_bound)
-{ subject_->set_parent(this); }
+{
+	subject_->set_parent(this);
+	if (!bound) {
+		lower_bound_ = gologpp::Clock::time_point::min();
+		upper_bound_ = gologpp::Clock::time_point::max();
+	}
+	else {
+		lower_bound_ = boost::fusion::at_c<0>(bound.get())
+			.get_value_or(gologpp::Clock::time_point::min());
+		upper_bound_ = boost::fusion::at_c<1>(bound.get())
+			.get_value_or(gologpp::Clock::time_point::max());
+	}
+}
 
 const Expression &TemporalUnaryOperation::subject() const
 { return *subject_; }
@@ -194,17 +212,27 @@ TemporalBinaryOperation::TemporalBinaryOperation(
 	Expression *lhs,
 	Expression *rhs,
 	TemporalBinaryOperation::Operator op,
-	gologpp::Clock::time_point lower_bound,
-	gologpp::Clock::time_point upper_bound
+	boost::optional<fusion_wtf_vector <
+		boost::optional<gologpp::Clock::time_point>,
+		boost::optional<gologpp::Clock::time_point>
+	> > bound
 )
 : lhs_(lhs)
 , rhs_(rhs)
 , op_(op)
-, lower_bound_(lower_bound)
-, upper_bound_(upper_bound)
 {
 	lhs_->set_parent(this);
 	rhs_->set_parent(this);
+	if (!bound) {
+		lower_bound_ = gologpp::Clock::time_point::min();
+		upper_bound_ = gologpp::Clock::time_point::max();
+	}
+	else {
+		lower_bound_ = boost::fusion::at_c<0>(bound.get())
+			.get_value_or(gologpp::Clock::time_point::min());
+		upper_bound_ = boost::fusion::at_c<1>(bound.get())
+			.get_value_or(gologpp::Clock::time_point::max());
+	}
 }
 
 const Expression &TemporalBinaryOperation::lhs() const

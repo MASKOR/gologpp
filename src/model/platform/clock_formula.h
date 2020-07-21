@@ -24,8 +24,9 @@
 #include <model/types.h>
 #include <model/reference.h>
 
-#include "component.h"
-#include "semantics.h"
+#include <model/platform/component.h>
+#include <model/platform/semantics.h>
+#include <model/platform/reference.h>
 
 
 namespace gologpp {

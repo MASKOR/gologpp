@@ -25,7 +25,7 @@
 
 #include <execution/clock.h>
 
-#include "semantics.h"
+#include <model/platform/semantics.h>
 
 namespace gologpp {
 namespace platform {
@@ -155,6 +155,9 @@ public:
 	void add_transition(Transition *);
 	void add_exog_transition(ExogTransition *);
 
+	template<class GologT>
+	Reference<GologT> *get_ref(const string &name);
+
 	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override;
 	virtual string to_string(const string &pfx) const override;
 
@@ -171,53 +174,12 @@ private:
 };
 
 
+template<class GologT>
+Reference<GologT> *Component::get_ref(const string &name)
+{ return new Reference<GologT>(scope().lookup_identifier<GologT>(name)); }
+
+
+
 } // namespace platform
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<>
-class Reference<platform::Component>
-: public ZeroArityReference<platform::Component>
-, public ChildElement
-{
-public:
-	using ZeroArityReference<platform::Component>::ZeroArityReference;
-
-	DEFINE_ATTACH_SEMANTICS
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<>
-class Reference<platform::State>
-: public ZeroArityReference<platform::State>
-, public ChildElement
-{
-public:
-	using ZeroArityReference<platform::State>::ZeroArityReference;
-
-	DEFINE_ATTACH_SEMANTICS
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<>
-class Reference<platform::Clock>
-: public ZeroArityReference<platform::Clock>
-, public ChildElement
-{
-public:
-	using ZeroArityReference<platform::Clock>::ZeroArityReference;
-
-	DEFINE_ATTACH_SEMANTICS
-};
-
 
 } // namespace gologpp

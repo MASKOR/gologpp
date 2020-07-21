@@ -22,9 +22,11 @@
 #include <model/scope.h>
 #include <model/reference.h>
 #include <model/procedural.h>
+#include <model/semantics.h>
 #include <execution/clock.h>
 
-#include "component.h"
+#include <model/platform/component.h>
+#include <model/platform/reference.h>
 
 #include <tuple>
 
@@ -62,6 +64,7 @@ private:
 
 class ActionHook
 : public Expression
+, public NoScopeOwner
 , public LanguageElement<ActionHook, BoolType>
 {
 public:
@@ -86,6 +89,7 @@ private:
 
 class During
 : public Expression
+, public NoScopeOwner
 , public LanguageElement<During, BoolType>
 {
 public:
@@ -106,6 +110,7 @@ private:
 
 class StateAssertion
 : public Expression
+, public NoScopeOwner
 , public LanguageElement<StateAssertion, BoolType>
 {
 public:
@@ -128,6 +133,7 @@ private:
 
 class BooleanConstraintOperation
 : public Expression
+, public NoScopeOwner
 , public LanguageElement<BooleanConstraintOperation, BoolType>
 {
 public:
@@ -158,6 +164,7 @@ string to_string(typename BooleanConstraintOperation::Operator op);
 
 class TemporalUnaryOperation
 : public Expression
+, public NoScopeOwner
 , public LanguageElement<TemporalUnaryOperation, BoolType>
 {
 public:
@@ -168,8 +175,10 @@ public:
 	TemporalUnaryOperation(
 		Expression *subject,
 		Operator op,
-		gologpp::Clock::time_point lower_bound = gologpp::Clock::time_point::min(),
-		gologpp::Clock::time_point upper_bound = gologpp::Clock::time_point::max()
+		boost::optional<fusion_wtf_vector <
+			boost::optional<gologpp::Clock::time_point>,
+			boost::optional<gologpp::Clock::time_point>
+		> > bound
 	);
 
 	const Expression &subject() const;
@@ -195,7 +204,7 @@ string to_string(typename TemporalUnaryOperation::Operator op);
 
 class TemporalBinaryOperation
 : public Expression
-, public virtual AbstractLanguageElement
+, public NoScopeOwner
 , public LanguageElement<TemporalBinaryOperation, BoolType>
 {
 public:
@@ -207,8 +216,10 @@ public:
 		Expression *lhs,
 		Expression *rhs,
 		Operator op,
-		gologpp::Clock::time_point lower_bound = gologpp::Clock::time_point::min(),
-		gologpp::Clock::time_point upper_bound = gologpp::Clock::time_point::max()
+		boost::optional<fusion_wtf_vector <
+			boost::optional<gologpp::Clock::time_point>,
+			boost::optional<gologpp::Clock::time_point>
+		> > bound
 	);
 
 	const Expression &lhs() const;
