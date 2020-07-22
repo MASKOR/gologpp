@@ -80,6 +80,16 @@ ClockFormulaParser::ClockFormulaParser()
 		_val = new_<platform::ClockNegation>(_1)
 	];
 	clock_negation.name("clock_negation");
+
+	GOLOGPP_DEBUG_NODES(
+		(clock_formula)
+		(clock_unary)
+		(clock_negation)
+		(clock_bound)
+		(clock_operation_seq)
+		(clock_braced)
+		(clock_bound)
+	)
 }
 
 

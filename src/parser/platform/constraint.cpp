@@ -251,6 +251,13 @@ ConstraintSpecParser<RefT>::ConstraintSpecParser()
 	bound.name("t_bound");
 
 	init();
+
+	GOLOGPP_DEBUG_NODES(
+		(constraint_spec)
+		(binary_sequence)
+		(temporal_unary)
+		(bound)
+	)
 }
 
 
@@ -281,6 +288,11 @@ void ConstraintSpecParser<Action>::init()
 		_val = new_<platform::During>(_1)
 	];
 	during.name("during_action");
+
+	GOLOGPP_DEBUG_NODES(
+		(action_hook)
+		(during)
+	)
 }
 
 
@@ -304,6 +316,13 @@ void ConstraintSpecParser<platform::State>::init()
 		_val = new_<platform::StateAssertion>(_1, _2)
 	];
 	state_assertion.name("state_assertion");
+
+	GOLOGPP_DEBUG_NODES(
+		(unary_expr)
+		(braced_expr)
+		(temporal_unary)
+		(state_assertion)
+	)
 }
 
 
@@ -317,6 +336,11 @@ ConstraintSectionParser::ConstraintSectionParser()
 		_val = new_<platform::Constraint>(_1, _2)
 	];
 	constraint.name("platform_constraint");
+
+	GOLOGPP_DEBUG_NODES(
+		(constraint_section)
+		(constraint)
+	)
 }
 
 
