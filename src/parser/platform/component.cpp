@@ -102,8 +102,8 @@ ComponentParser::ComponentParser()
 	transition_list = transition(_r1) % ',';
 	transition_list.name("transition_list");
 
-	exog_transition_arrow = lit("->") [ _val = false ]
-		| lit("=>") [ _val = true ];
+	exog_transition_arrow = lit("->") [ _val = true ]
+		| lit("=>") [ _val = false ];
 }
 
 
