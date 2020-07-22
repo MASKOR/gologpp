@@ -1,0 +1,91 @@
+/*************************************************************************
+ * This file is part of golog++.
+ *
+ * golog++ is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * golog++ is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
+**************************************************************************/
+
+symbol domain block = {a, b, c}
+symbol domain location = block | {table}
+
+location fluent loc(block x) {
+initially:
+	(a) = c;
+	(b) = table;
+	(c) = b;
+// 	(d) = a; //*/
+}
+
+action stack(block x, location y) {
+precondition:
+	  x != y // Can't stack x on x
+	& x != table // Can't stack table
+	& loc(x) != y // Can't stack the same thing twice
+	& (!exists(block z) loc(z) == x) // Nothing is on x
+	& (
+		y == table // either y is the table...
+		| !exists(block z) loc(z) == y // or nothing is on y
+	)
+
+effect:
+	loc(x) = y;
+}
+
+
+
+bool function goal() =
+	loc(a) == table & loc(b) == a & loc(c) == b
+
+
+bool function postcond() = goal()
+
+
+number function reward() =
+	if (goal())
+		100
+	else
+		-1
+
+
+action scan(block b) {
+senses:
+	loc(b)
+}
+
+component realsense {
+clocks:
+	bcl
+states:
+	off, boot(bcl <= 4), on
+transitions:
+	off => boot resets(bcl),
+	boot ->(bcl >= 2) on,
+	on => off,
+	error => off
+}
+
+constraints {
+	start(scan(*)): state(realsense) = on;
+	during(scan(*)): state(realsense) = on;
+	end(scan(*)): state(realsense) = off;
+}
+
+
+{
+	solve(8, reward())
+		while (!goal())
+			pick (block x in {a, b, c})
+				pick(location y in {table, a, b, c})
+					stack(x, y);
+}
+

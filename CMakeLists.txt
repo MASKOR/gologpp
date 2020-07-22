@@ -377,6 +377,7 @@ set(GPP_TESTS
 	arithmetic.gpp
 	blocksworld.gpp
 	some_exog.gpp
+	blocksworld_platform.gpp
 )
 
 if (BUILD_PARSER AND BUILD_READYLOG_IMPL)
