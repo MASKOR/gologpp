@@ -48,10 +48,6 @@ public:
     arity_t arity() const;
     void set_arity(arity_t);
 
-    virtual bool operator == (const Identifier &other) const;
-    bool operator != (const Identifier &other) const;
-    virtual size_t hash() const override;
-
 	string signature_str() const;
 
 private:
