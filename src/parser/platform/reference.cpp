@@ -53,7 +53,7 @@ namespace gologpp {
 namespace parser {
 
 template<class PlatformT>
-platform::Reference<PlatformT> *get_ref(const Scope &scope, const string &name)
+platform::Reference<PlatformT> *get_platform_ref(const Scope &scope, const string &name)
 {
 	shared_ptr<PlatformT> tgt = scope.lookup_identifier<PlatformT>(name);
 	if (tgt)
@@ -67,7 +67,7 @@ template<class PlatformT>
 rule<platform::Reference<PlatformT> *(Scope &)> &platform_ref() {
 	static rule<platform::Reference<PlatformT> *(Scope &)> rv {
 		r_name() [
-			_val = phoenix::bind(&get_ref<PlatformT>, _r1, _1),
+			_val = phoenix::bind(&get_platform_ref<PlatformT>, _r1, _1),
 			_pass = !!_val
 		]
 	};
@@ -86,7 +86,7 @@ rule<platform::Reference<platform::Component> *(Scope &)> &platform_ref();
 
 
 template<class GologT>
-platform::Reference<GologT> *get_platform_ref(
+platform::Reference<GologT> *get_platform_global_ref(
 	const Type &type,
 	const string &name,
 	const boost::optional<vector<Value *>> &args
@@ -116,7 +116,7 @@ PlatformRefParser<GologT>::PlatformRefParser()
 		> ref_args(_r1, _a)
 		> ")"
 	) [
-		_val = phoenix::bind(&get_platform_ref<GologT>, _r2, _1, _2),
+		_val = phoenix::bind(&get_platform_global_ref<GologT>, _r2, _1, _2),
 		if_(!_val || !phoenix::bind(&ReferenceBase<GologT, Value>::consistent, *_val)) [
 			_pass = false,
 			delete_(_val)
