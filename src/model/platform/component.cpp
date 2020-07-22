@@ -156,9 +156,9 @@ Component::Component(
 )
 : Global(name, {})
 , ScopeOwner(own_scope)
-, current_state_ { new State("error", *this, boost::none) }
 {
-	scope().register_identifier(current_state_.get());
+	scope().register_identifier(new State("error", *this, boost::none));
+	current_state_ = scope().lookup_identifier<State>("error");
 }
 
 const State &Component::current_state() const
