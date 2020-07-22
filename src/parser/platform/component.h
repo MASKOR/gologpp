@@ -36,9 +36,10 @@ struct ComponentParser
 
 	ClockFormulaParser clock_formula;
 	rule<platform::Component *(Scope &)> component;
-	rule<void(platform::Component &)> clocks;
-	rule<void(platform::Component &)> states;
-	rule<vector<platform::AbstractTransition *>(platform::Component &)> transitions;
+	rule<void(platform::Component &)> clock_list;
+	rule<void(platform::Component &)> state_list;
+	rule<void(platform::Component &)> transition_list;
+	rule<void(platform::Component &)> transition;
 	rule<bool()> exog_transition_arrow;
 };
 

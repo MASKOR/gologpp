@@ -50,33 +50,33 @@ ComponentParser::ComponentParser()
 		(lit("component") > r_name() > '{') [
 			_val = new_<platform::Component>(new_<Scope>(_r1), _1)
 		] > (
-			( "states:" > states(*_val) )
-			^ ( "clocks:" > clocks(*_val) )
-			^ ( "transitions:" > transitions(*_val) )
+			( "states:" > state_list(*_val) )
+			^ ( "clocks:" > clock_list(*_val) )
+			^ ( "transitions:" > transition_list(*_val) )
 		) > '}'
 	) [
 		phoenix::bind(&Scope::register_global, _r1, _val)
 	];
 	component.name("component_definition");
-	on_error<fail>(component, delete_(_val));
+	on_error<rethrow>(component, delete_(_val));
 
 
-	clocks = r_name() [
+	clock_list = r_name() [
 		phoenix::bind(&platform::Component::add_clock, _r1, new_<platform::Clock>(_1, _r1))
 	] % ',';
-	clocks.name("clocks_definition");
+	clock_list.name("clocks_definition");
 
 
-	states = (r_name() > -('(' > clock_formula(_r1) > ')')) [
+	state_list = (r_name() > -('(' > clock_formula(_r1) > ')')) [
 		phoenix::bind(
 			&platform::Component::add_state, _r1,
 			new_<platform::State>(_1, _r1, _2)
 		)
 	] % ',';
-	states.name("state_definition");
+	state_list.name("state_definition");
 
 
-	transitions = (
+	transition = (
 		platform_ref<platform::State>()(phoenix::bind(&platform::Component::m_scope, _r1))
 		> exog_transition_arrow /* true if exog */
 		> -('(' > clock_formula(_r1) > ')')
@@ -97,7 +97,10 @@ ComponentParser::ComponentParser()
 			)
 		]
 	];
-	transitions.name("transitions");
+	transition.name("transition");
+
+	transition_list = transition(_r1) % ',';
+	transition_list.name("transition_list");
 
 	exog_transition_arrow = lit("->") [ _val = false ]
 		| lit("=>") [ _val = true ];
