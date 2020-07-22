@@ -233,6 +233,7 @@ void Scope::register_global(Global *g)
 	if (exists_global(g->name()))
 		throw RedefinitionError(g->name(), g->arity());
 	(*globals_)[*g].reset(g);
+	global_scope().identifiers_[*g] = (*globals_)[*g];
 }
 
 

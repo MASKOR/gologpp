@@ -199,8 +199,7 @@ public:
 				delete own_scope;
 		}
 		else
-			(*globals_) [name]
-				.reset(new GologT(own_scope, type, name, args.get_value_or({})));
+			register_global(new GologT(own_scope, type, name, args.get_value_or({})));
 
 		return lookup_global<GologT>(name).get();
 	}
