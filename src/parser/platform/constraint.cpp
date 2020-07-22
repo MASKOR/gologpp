@@ -249,6 +249,8 @@ ConstraintSpecParser<RefT>::ConstraintSpecParser()
 
 	bound = lit('[') > -numeric_value() > ',' > -numeric_value() > ']';
 	bound.name("t_bound");
+
+	init();
 }
 
 
@@ -297,7 +299,7 @@ void ConstraintSpecParser<platform::State>::init()
 			_a = _1
 		]
 		> ')'
-		> "==" > platform_ref<platform::State>()(phoenix::bind(&platform::Component::m_scope, **_a))
+		> '=' > platform_ref<platform::State>()(phoenix::bind(&platform::Component::m_scope, **_a))
 	) [
 		_val = new_<platform::StateAssertion>(_1, _2)
 	];
@@ -308,7 +310,7 @@ void ConstraintSpecParser<platform::State>::init()
 ConstraintSectionParser::ConstraintSectionParser()
 : ConstraintSectionParser::base_type(constraint_section, "constraint_section")
 {
-	constraint_section = lit("constraints") > '{' > +constraint(_r1) > '}';
+	constraint_section = lit("constraints") > '{' > +(constraint(_r1) > ';') > '}';
 	constraint_section.name("constraint_section");
 
 	constraint = (action_spec(_r1) > ':' > state_spec(_r1)) [
