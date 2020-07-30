@@ -369,6 +369,48 @@ if (${BUILD_READYLOG_IMPL})
 endif()
 
 
+option(BUILD_TAPTENC_SEMANTICS "Build the taptenc platform model semantics" OFF)
+if (BUILD_TAPTENC_SEMANTICS)
+	set(TAPTENC_SRC
+		external/taptenc/src/constraints/constraints.cpp
+		external/taptenc/src/encoder/direct_encoder.cpp
+		external/taptenc/src/encoder/enc_interconnection_info.cpp
+		external/taptenc/src/encoder/encoder_utils.cpp
+		external/taptenc/src/encoder/filter.cpp
+		external/taptenc/src/encoder/modular_encoder.cpp
+		external/taptenc/src/encoder/plan_ordered_tls.cpp
+		external/taptenc/src/parser/utap_trace_parser.cpp
+		external/taptenc/src/printer/xml_printer.cpp
+		external/taptenc/src/printer/xta_printer.cpp
+		external/taptenc/src/timed-automata/timed_automata.cpp
+		external/taptenc/src/timed-automata/vis_info.cpp
+		external/taptenc/src/platform_model_generator.cpp
+		external/taptenc/src/transformation.cpp
+		external/taptenc/src/uppaal_calls.cpp
+		external/taptenc/src/utils.cpp
+	)
+
+	set(TAPTENC_SEMANTICS_SRC
+		src/semantics/platform/taptenc/semantics.cpp
+	)
+
+	add_library(taptenc-golog++ SHARED ${TAPTENC_SRC} ${TAPTENC_SEMANTICS_SRC})
+	target_include_directories(taptenc-golog++ PUBLIC
+		external/taptenc/src/constraints
+		external/taptenc/src/encoder
+		external/taptenc/src/parser
+		external/taptenc/src/printer
+		external/taptenc/src/timed-automata
+		external/taptenc/src
+	)
+	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+	target_link_libraries(taptenc-golog++ parsegolog++)
+
+	add_executable(taptenc_rcll_perception external/taptenc/src/rcll_perception.cpp)
+	target_link_libraries(taptenc_rcll_perception taptenc-golog++)
+endif()
+
+
 ######################################################################################
 # Testing (requires parser & readylog semantics)
 ######################################################################################
