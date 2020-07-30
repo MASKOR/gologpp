@@ -1,0 +1,3 @@
+[submodule "external/taptenc"]
+	path = external/taptenc
+	url = git@github.com:TarikViehmann/taptenc.git
