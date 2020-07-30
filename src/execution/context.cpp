@@ -49,6 +49,8 @@ AExecutionContext::AExecutionContext(unique_ptr<SemanticsFactory> &&semantics, u
 	platform_backend_->set_context(this);
 	Clock::clock_source = platform_backend_.get();
 	context_time_ = Clock::now();
+
+	semantics_->set_context(*this);
 }
 
 

@@ -37,7 +37,7 @@ class GeneralSemantics
 : public virtual GeneralSemantics<ModelElement>
 {
 public:
-	GeneralSemantics(const GologT &elem, ExecutionContext &context)
+	GeneralSemantics(const GologT &elem, AExecutionContext &context)
 	: element_(&elem)
 	, context_(context)
 	{}
@@ -49,7 +49,7 @@ public:
 	const GologT &element() const
 	{ return *element_; }
 
-	virtual ExecutionContext &context() const override
+	virtual AExecutionContext &context() const override
 	{ return context_; }
 
 	void update_element(const GologT *new_element)
@@ -60,7 +60,7 @@ public:
 
 private:
 	const GologT *element_;
-	ExecutionContext &context_;
+	AExecutionContext &context_;
 };
 
 
@@ -68,11 +68,15 @@ private:
 #define GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS(r, data, T) \
 	virtual unique_ptr<GeneralSemantics<ModelElement>> make_semantics(T &) = 0;
 
-#define GOLOGPP_DECLARE_MAKE_PLATFORM_SEMANTICS(_r, _data, T) \
+#define GOLOGPP_DECLARE_MAKE_SEMANTICS(_r, _data, T) \
 	virtual unique_ptr<GeneralSemantics<ModelElement>> make_semantics(T &);
 
 #define GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE(_r, _data, GologT) \
 	virtual unique_ptr<GeneralSemantics<ModelElement>> make_semantics(GologT &) override;
+
+#define GOLOGPP_DEFINE_MAKE_SEMANTICS(_r, FactoryClass, GologT) \
+	unique_ptr<GeneralSemantics<ModelElement>> FactoryClass::make_semantics(GologT &obj) \
+	{ return unique_ptr<GeneralSemantics<ModelElement>>(new Semantics<GologT>(obj, context())); }
 
 
 class SemanticsFactory {
@@ -81,11 +85,15 @@ public:
 
 	virtual ~SemanticsFactory() = default;
 
+	virtual AExecutionContext &context();
+	void set_context(AExecutionContext &);
+
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS, (), GOLOGPP_SEMANTIC_TYPES)
-	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECLARE_MAKE_PLATFORM_SEMANTICS, (), GOLOGPP_PLATFORM_ELEMENTS)
+	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECLARE_MAKE_SEMANTICS, (), GOLOGPP_PLATFORM_ELEMENTS)
 
 private:
 	unique_ptr<platform::SemanticsFactory> platform_semantics_factory_;
+	AExecutionContext *context_;
 };
 
 

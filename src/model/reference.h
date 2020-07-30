@@ -101,19 +101,19 @@ class GeneralSemantics<Binding<Value>>
 : public virtual GeneralSemantics<ModelElement>
 {
 public:
-	GeneralSemantics(const Binding<Value> &elem, ExecutionContext &context);
+	GeneralSemantics(const Binding<Value> &elem, AExecutionContext &context);
 
 	virtual ~GeneralSemantics<Binding<Value>>() = default;
 
 	const Binding<Value> &element() const;
 	void update_element(const Binding<Value> *new_element);
-	virtual ExecutionContext &context() const override;
+	virtual AExecutionContext &context() const override;
 
 	virtual GeneralSemantics<Binding<Value>> *copy(const Binding<Value> &target_element) const = 0;
 
 private:
 	const Binding<Value> *element_;
-	ExecutionContext &context_;
+	AExecutionContext &context_;
 };
 
 

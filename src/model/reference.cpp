@@ -21,7 +21,7 @@
 namespace gologpp {
 
 
-GeneralSemantics<Binding<Value> >::GeneralSemantics(const Binding<Value> &elem, ExecutionContext &context)
+GeneralSemantics<Binding<Value> >::GeneralSemantics(const Binding<Value> &elem, AExecutionContext &context)
 : element_(&elem)
 , context_(context)
 {}
@@ -32,7 +32,7 @@ const Binding<Value> &GeneralSemantics<Binding<Value> >::element() const
 void GeneralSemantics<Binding<Value> >::update_element(const Binding<Value> *new_element)
 { element_ = new_element; }
 
-ExecutionContext &GeneralSemantics<Binding<Value> >::context() const
+AExecutionContext &GeneralSemantics<Binding<Value> >::context() const
 { return context_; }
 
 

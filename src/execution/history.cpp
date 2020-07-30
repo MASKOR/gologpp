@@ -21,7 +21,7 @@ namespace gologpp {
 
 
 
-GeneralSemantics<History>::GeneralSemantics(History &h, ExecutionContext &context)
+GeneralSemantics<History>::GeneralSemantics(History &h, AExecutionContext &context)
 : history_(h)
 , context_(context)
 {}
@@ -48,7 +48,7 @@ string History::to_string(const string &pfx) const
 const History &gologpp::GeneralSemantics<History>::element() const
 { return history_; }
 
-ExecutionContext &GeneralSemantics<History>::context() const
+AExecutionContext &GeneralSemantics<History>::context() const
 { return context_; }
 
 const ModelElement &GeneralSemantics<History>::model_element() const

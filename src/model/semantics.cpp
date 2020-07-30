@@ -21,9 +21,20 @@
 
 namespace gologpp {
 
+
 SemanticsFactory::SemanticsFactory(unique_ptr<platform::SemanticsFactory> &&psf)
 : platform_semantics_factory_(std::move(psf))
 {}
+
+AExecutionContext &SemanticsFactory::context()
+{ return *context_; }
+
+
+void SemanticsFactory::set_context(AExecutionContext &ctx)
+{
+	context_ = &ctx;
+	platform_semantics_factory_->set_context(ctx);
+}
 
 
 } // namespace gologpp

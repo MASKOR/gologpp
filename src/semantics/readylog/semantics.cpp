@@ -191,18 +191,16 @@ const Instruction &Semantics<Instruction>::instruction() const
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 ReadylogSemanticsFactory::ReadylogSemanticsFactory(
-	ReadylogContext &context,
 	unique_ptr<platform::SemanticsFactory> &&psf
 )
 : SemanticsFactory(std::move(psf))
-, context_(context)
 {}
 
-#define GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL(_r, _data, GologT) \
-unique_ptr<GeneralSemantics<ModelElement>> ReadylogSemanticsFactory::make_semantics(GologT &obj) \
-{ return unique_ptr<GeneralSemantics<ModelElement>>(new Semantics<GologT>(obj, context_)); }
 
-BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL, (), GOLOGPP_SEMANTIC_TYPES)
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_SEMANTICS, ReadylogSemanticsFactory, GOLOGPP_SEMANTIC_TYPES)
+
+ReadylogContext &ReadylogSemanticsFactory::context()
+{ return dynamic_cast<ReadylogContext &>(SemanticsFactory::context()); }
 
 
 

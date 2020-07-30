@@ -57,7 +57,7 @@ ReadylogContext::ReadylogContext(
 	unique_ptr<platform::SemanticsFactory> &&psf
 )
 : ExecutionContext(
-  	std::make_unique<ReadylogSemanticsFactory>(*this, std::move(psf)),
+  	std::make_unique<ReadylogSemanticsFactory>(std::move(psf)),
   	std::move(exec_backend),
   	std::move(transformation)
   )

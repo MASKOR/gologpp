@@ -106,13 +106,12 @@ public:
 
 class ReadylogSemanticsFactory : public SemanticsFactory {
 public:
-	ReadylogSemanticsFactory(ReadylogContext &context, unique_ptr<platform::SemanticsFactory> &&);
+	ReadylogSemanticsFactory(unique_ptr<platform::SemanticsFactory> &&);
 	virtual ~ReadylogSemanticsFactory() override = default;
 
-	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE, (), GOLOGPP_SEMANTIC_TYPES)
+	virtual ReadylogContext &context() override;
 
-private:
-	ReadylogContext &context_;
+	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE, (), GOLOGPP_SEMANTIC_TYPES)
 };
 
 

@@ -29,7 +29,13 @@ class SemanticsFactory {
 public:
 	virtual ~SemanticsFactory() = default;
 
+	virtual AExecutionContext &context();
+	void set_context(AExecutionContext &);
+
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS, (), GOLOGPP_PLATFORM_ELEMENTS)
+
+private:
+	AExecutionContext *context_;
 };
 
 

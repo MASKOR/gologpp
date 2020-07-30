@@ -43,7 +43,7 @@ public:
 template<>
 class GeneralSemantics<History> : public virtual GeneralSemantics<ModelElement> {
 public:
-	GeneralSemantics<History>(History &history, ExecutionContext &context);
+	GeneralSemantics<History>(History &history, AExecutionContext &context);
 	virtual ~GeneralSemantics<History>() override;
 
 	virtual shared_ptr<Transition> get_last_transition() = 0;
@@ -57,11 +57,11 @@ public:
 	const History &element() const;
 	virtual const ModelElement &model_element() const override;
 
-	virtual ExecutionContext &context() const override;
+	virtual AExecutionContext &context() const override;
 
 protected:
 	History &history_;
-	ExecutionContext &context_;
+	AExecutionContext &context_;
 };
 
 

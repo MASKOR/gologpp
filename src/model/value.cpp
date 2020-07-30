@@ -307,7 +307,7 @@ vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v)
 
 
 
-GeneralSemantics<Value>::GeneralSemantics(const Value &elem, ExecutionContext &context)
+GeneralSemantics<Value>::GeneralSemantics(const Value &elem, AExecutionContext &context)
 : expression_(&elem)
 , context_(context)
 {}
@@ -315,7 +315,7 @@ GeneralSemantics<Value>::GeneralSemantics(const Value &elem, ExecutionContext &c
 const Expression &GeneralSemantics<Value>::expression() const
 { return *expression_; }
 
-ExecutionContext &GeneralSemantics<Value>::context() const
+AExecutionContext &GeneralSemantics<Value>::context() const
 { return context_; }
 
 Value GeneralSemantics<Value>::evaluate(const ABinding &, const History &)
