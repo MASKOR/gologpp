@@ -392,6 +392,11 @@ if (BUILD_TAPTENC_SEMANTICS)
 
 	set(TAPTENC_SEMANTICS_SRC
 		src/semantics/platform/taptenc/semantics.cpp
+		src/semantics/platform/taptenc/clock_formula.cpp
+		src/semantics/platform/taptenc/component.cpp
+		src/semantics/platform/taptenc/constraint.cpp
+		src/semantics/platform/taptenc/reference.cpp
+		src/semantics/platform/taptenc/transformation.cpp
 	)
 
 	add_library(taptenc-golog++ SHARED ${TAPTENC_SRC} ${TAPTENC_SEMANTICS_SRC})

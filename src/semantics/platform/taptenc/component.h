@@ -17,35 +17,11 @@
 
 #pragma once
 
-#include <model/gologpp.h>
 
 namespace gologpp {
+namespace platform {
 
 
-class Plan;
 
-
-/**
- * @class PlanTransformation
- * Keep this abstract so we can have multiple implementations.
- */
-class PlanTransformation {
-public:
-	PlanTransformation() = default;
-	virtual ~PlanTransformation();
-
-	virtual unique_ptr<Plan> transform(Plan &&) = 0;
-};
-
-
-/**
- * @class DummyPlanTransformation
- * Does nothing (the identity transformation)
- */
-class DummyPlanTransformation : public PlanTransformation {
-public:
-	virtual unique_ptr<Plan> transform(Plan &&) override;
-};
-
-
-}
+} // namespace platform
+} // namespace gologpp
