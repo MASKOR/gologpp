@@ -236,7 +236,7 @@ string ReadylogContext::to_string(EC_word t)
 {
 	EC_word S = ::newvar();
 	EC_word q = ::term(EC_functor("sprintf", 3),
-		S, "%Qw", t
+		S, "%Qw", ::list(t, ::nil())
 	);
 	char *rv;
 	if(ec_query(q) && S.is_string(&rv) == EC_succeed)
