@@ -52,6 +52,7 @@ bool function postcond() =
     & fdiv(4,2) == 2 & pow(4,2) == 16 & fmod(4,2) == 0
 
 
+procedure main()
 {
     arith_action(4, 2);
 }

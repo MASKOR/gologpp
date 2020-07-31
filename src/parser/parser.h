@@ -21,13 +21,15 @@
 #include <model/gologpp.h>
 #include "utilities.h"
 
+#include <tuple>
+
 namespace gologpp {
 namespace parser {
 
 
-unique_ptr<Instruction> parse_string(rule<Instruction *(Scope &)> &parser, const std::string &code);
+void parse_string(const std::string &code);
 
-unique_ptr<Instruction> parse_file(const std::string &filename);
+void parse_file(const std::string &filename);
 
 
 } // namespace parser

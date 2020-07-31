@@ -38,6 +38,8 @@ effect:
 bool function postcond() =
 	exog_string() != null & nested(exog_string()) == exog_number()
 
+
+procedure main()
 {
 	test(exog_happened());
 }

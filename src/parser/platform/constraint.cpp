@@ -333,7 +333,7 @@ ConstraintSectionParser::ConstraintSectionParser()
 	constraint_section.name("constraint_section");
 
 	constraint = (action_spec(_r1) > ':' > state_spec(_r1)) [
-		_val = new_<platform::Constraint>(_1, _2)
+		phoenix::bind(&Scope::register_constraint, _r1, new_<platform::Constraint>(_1, _2))
 	];
 	constraint.name("platform_constraint");
 

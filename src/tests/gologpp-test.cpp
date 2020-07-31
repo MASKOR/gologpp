@@ -95,16 +95,22 @@ int main(int argc, char **argv) {
 		filename = vm["file"].as<string>();
 
 		log(LogLevel::INF) << "Testing " << filename << "..." << flush;
-		unique_ptr<Instruction> mainproc = parser::parse_file(filename);
+		parser::parse_file(filename);
+
+		shared_ptr<Procedure> mainproc = global_scope().lookup_global<Procedure>("main");
+		if (!mainproc) {
+			log(LogLevel::ERR) << "No procedure main() in " << filename << flush;
+			return -2;
+		}
 
 		eclipse_opts options;
-		options.trace = !vm["trace"].empty();
+		options.trace = !vm["trace"].empty() || !vm["guitrace"].empty();
 		options.toplevel = false;
 		options.guitrace = !vm["guitrace"].empty();
 
 		ReadylogContext::init<platform::DummySemanticsFactory>(options);
 
-		int rv = test_file(std::move(mainproc));
+		int rv = test_file(unique_ptr<Instruction>(mainproc->ref({})));
 
 		ReadylogContext::shutdown();
 

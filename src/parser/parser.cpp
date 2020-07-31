@@ -38,22 +38,19 @@ namespace parser {
 
 
 
-unique_ptr<Instruction> parse_string(rule<Instruction *(Scope &)> &parser, const std::string &code)
+void parse_string(const std::string &code)
 {
-	Instruction *rv = nullptr;
-
+	BatParser parser;
 	boost::spirit::qi::phrase_parse(
 		iterator(code.cbegin()),
 		iterator(code.cend()),
 		parser(boost::phoenix::ref(global_scope())),
-		gologpp_skipper(),
-		rv
+		gologpp_skipper()
 	);
-	return unique_ptr<Instruction>(rv);
 }
 
 
-unique_ptr<Instruction> parse_recursive(rule<Instruction *(Scope &)> &parser, const std::string &filename)
+void parse_recursive(const std::string &filename)
 {
 	std::ifstream file(filename);
 	if (!file.is_open())
@@ -74,39 +71,23 @@ unique_ptr<Instruction> parse_recursive(rule<Instruction *(Scope &)> &parser, co
 		++offs;
 		string cur_path = filename.substr(0, filename.find_last_of("/"));
 		string inc_filename = content.substr(offs, content.find_first_of("\"", offs) - offs);
-		BatParser any_definition;
-		rule<Instruction *(Scope &)> r_include { any_definition(_r1) > eoi };
-		on_error<rethrow>(r_include, phoenix::bind(&handle_error, _1, _3, _2, _4));
-		parse_recursive(r_include, cur_path + '/' + inc_filename);
+		parse_recursive(cur_path + '/' + inc_filename);
 	}
 	std::cout << "Parsing " << filename << "..." << std::endl;
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 
-	unique_ptr<Instruction> rv = parse_string(parser, content);
+	parse_string(content);
 	std::chrono::duration<double> td = std::chrono::high_resolution_clock::now() - t1;
 
 	std::cout << "... done. Parsing took " << td.count() << " s." << std::endl;
-
-	return rv;
 }
 
 
-unique_ptr<Instruction> parse_file(const std::string &filename) {
-	BatParser any_definition;
-	StatementParser statement;
-	rule<Instruction *(Scope &)> r_main {
-		omit [any_definition(_r1)]
-		> statement(_r1)[ _val = _1 ]
-		> eoi
-	};
-
-	on_error<rethrow>(r_main,
-		phoenix::bind(&handle_error, _1, _3, _2, _4)
-	);
-
-	return parse_recursive(r_main, filename);
+void parse_file(const std::string &filename) {
+	parse_recursive(filename);
 }
+
 
 }
 }

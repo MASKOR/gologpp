@@ -114,10 +114,10 @@ struct ConstraintSpecParser : public grammar<Expression *(Scope &)> {
 
 
 
-struct ConstraintSectionParser : public grammar<vector<platform::Constraint *>(Scope &)> {
+struct ConstraintSectionParser : public grammar<void(Scope &)> {
 	ConstraintSectionParser();
 
-	rule<vector<platform::Constraint *>(Scope &)> constraint_section;
+	rule<void(Scope &)> constraint_section;
 	rule<platform::Constraint *(Scope &)> constraint;
 	ConstraintSpecParser<Action> action_spec;
 	ConstraintSpecParser<platform::State> state_spec;

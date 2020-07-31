@@ -23,6 +23,7 @@
 #include "domain.h"
 #include "error.h"
 #include "value.h"
+#include "platform/constraint.h"
 
 #include <execution/context.h>
 
@@ -55,6 +56,7 @@ Scope::Scope()
 , globals_(new GlobalsMap())
 , domains_(new DomainsMap())
 , types_(new TypesMap())
+, constraints_(new vector<unique_ptr<platform::Constraint>>())
 {
 	init_types();
 }
@@ -66,6 +68,7 @@ Scope::Scope(AbstractLanguageElement &owner, const vector<shared_ptr<Variable>> 
 , globals_(owner.scope().globals_)
 , domains_(owner.scope().domains_)
 , types_(owner.scope().types_)
+, constraints_(owner.scope().constraints_)
 {
 	for (const shared_ptr<Variable> &v : variables)
 		identifiers_.emplace(v->name(), v);
@@ -78,6 +81,7 @@ Scope::Scope(Scope &parent_scope)
 , globals_(parent_scope.globals_)
 , domains_(parent_scope.domains_)
 , types_(parent_scope.types_)
+, constraints_(parent_scope.constraints_)
 {}
 
 Scope::~Scope()
@@ -235,6 +239,9 @@ void Scope::register_global(Global *g)
 	(*globals_)[*g].reset(g);
 	global_scope().identifiers_[*g] = (*globals_)[*g];
 }
+
+void Scope::register_constraint(platform::Constraint *c)
+{ constraints_->emplace_back(c); }
 
 
 void Scope::register_domain_raw(Domain *d)

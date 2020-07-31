@@ -57,6 +57,7 @@ number function reward() =
 		-1
 
 
+procedure main()
 {
 	solve(8, reward())
 		while (!goal())

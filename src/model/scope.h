@@ -262,8 +262,8 @@ public:
 
 	void register_type_raw(Type *t);
 	void register_type(shared_ptr<Type> t);
-
 	void register_global(Global *g);
+	void register_constraint(platform::Constraint *c);
 
 	bool exists_domain(const string &name) const;
 	shared_ptr<Domain> lookup_domain(const string &name, const Type &t);
@@ -293,6 +293,7 @@ private:
 	shared_ptr<GlobalsMap> globals_;
 	shared_ptr<DomainsMap> domains_;
 	shared_ptr<TypesMap> types_;
+	shared_ptr<vector<unique_ptr<platform::Constraint>>> constraints_;
 };
 
 

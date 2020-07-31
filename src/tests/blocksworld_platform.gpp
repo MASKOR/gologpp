@@ -81,11 +81,10 @@ constraints {
 }
 
 
-{
+procedure main()
 	solve(8, reward())
 		while (!goal())
 			pick (block x in {a, b, c})
 				pick(location y in {table, a, b, c})
 					stack(x, y);
-}
 
