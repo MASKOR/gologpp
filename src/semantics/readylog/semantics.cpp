@@ -136,13 +136,14 @@ unique_ptr<Plan> Semantics<Instruction>::trans(const ABinding &, History &histor
 
 			EC_word head, tail;
 
-			if (EC_word(prog).is_list(head, tail) != EC_succeed)
+			if (EC_word(prog).is_list(head, tail) != EC_succeed && EC_word(prog).is_nil() != EC_succeed)
 				throw EclipseError("Output program ist not a list: " + rl_context().to_string(prog));
 
 			unique_ptr<Plan> rv;
 
-			if (functor_name(head) == "applyPolicy") {
+			if (EC_word(prog).is_nil() != EC_succeed && functor_name(head) == "applyPolicy") {
 				// program executed a solve operator: a policy was produced
+				next_readylog_term_ = tail;
 				rv = plan_from_ec_word(head);
 			}
 			else {
@@ -151,9 +152,9 @@ unique_ptr<Plan> Semantics<Instruction>::trans(const ABinding &, History &histor
 				shared_ptr<Transition> trans = history.semantics().get_last_transition();
 				if (trans)
 					rv->append(new Transition(*trans));
+				next_readylog_term_ = prog;
 			}
 
-			next_readylog_term_ = e1;
 
 			return rv;
 		}
