@@ -39,8 +39,8 @@ const string DummyBackend::poss_chars_ =
 
 DummyBackend::DummyBackend()
 : prng_(1)
-, rnd_activity_duration_(0.1, 2.0)
-, rnd_exog_delay_(0., 10.)
+, rnd_activity_duration_(0.01, 0.5)
+, rnd_exog_delay_(0., 2.)
 , rnd_char_(0, static_cast<int>(poss_chars_.size()-1))
 , rnd_strlen_(0, 255)
 , rnd_list_len_(0, 16)
