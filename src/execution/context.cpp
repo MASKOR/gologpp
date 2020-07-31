@@ -193,6 +193,8 @@ void ExecutionContext::run(Block &&program)
 		program.attach_semantics(semantics_factory());
 		compile(program);
 
+		plan_transformation_->init(*this);
+
 		Binding<Value> empty_binding;
 		empty_binding.attach_semantics(semantics_factory());
 

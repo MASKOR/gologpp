@@ -279,6 +279,8 @@ public:
 
 	vector<shared_ptr<Global>> globals() const;
 
+	vector<unique_ptr<platform::Constraint>> &constraints();
+
 	template<class = Scope>
 	Semantics<Scope> &semantics() const
 	{ return ModelElement::semantics<Scope>(); }

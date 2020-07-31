@@ -34,7 +34,13 @@ public:
 	PlanTransformation() = default;
 	virtual ~PlanTransformation();
 
+	virtual void init(AExecutionContext &ctx);
+
 	virtual unique_ptr<Plan> transform(Plan &&) = 0;
+
+protected:
+	vector<shared_ptr<platform::Component>> components;
+	vector<std::reference_wrapper<const platform::Constraint>> constraints;
 };
 
 

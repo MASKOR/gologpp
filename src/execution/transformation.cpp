@@ -18,11 +18,29 @@
 #include "transformation.h"
 #include "plan.h"
 
+#include <model/scope.h>
+#include <model/platform/semantics.h>
+#include <model/platform/component.h>
+#include <model/platform/constraint.h>
+#include <execution/context.h>
+
 namespace gologpp {
 
 
 PlanTransformation::~PlanTransformation()
 {}
+
+void PlanTransformation::init(AExecutionContext &ctx)
+{
+	for (auto &c : global_scope().local_identifiers<platform::Component>()) {
+		c->attach_semantics(ctx.semantics_factory());
+		components.emplace_back(c);
+	}
+	for (auto &c : global_scope().constraints()) {
+		c->attach_semantics(ctx.semantics_factory());
+		constraints.emplace_back(*c);
+	}
+}
 
 
 

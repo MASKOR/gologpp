@@ -319,6 +319,9 @@ vector<shared_ptr<Global>> Scope::globals() const
 	return rv;
 }
 
+vector<unique_ptr<platform::Constraint> > &Scope::constraints()
+{ return *constraints_; }
+
 
 
 ScopeOwner::ScopeOwner(Scope *owned_scope)
