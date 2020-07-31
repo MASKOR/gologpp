@@ -36,5 +36,8 @@ void SemanticsFactory::set_context(AExecutionContext &ctx)
 	platform_semantics_factory_->set_context(ctx);
 }
 
+platform::SemanticsFactory &SemanticsFactory::platform_semantics_factory()
+{ return *platform_semantics_factory_; }
+
 
 } // namespace gologpp

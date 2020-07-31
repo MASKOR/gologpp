@@ -19,6 +19,7 @@
 #include "component.h"
 #include "constraint.h"
 #include "clock_formula.h"
+#include <execution/transformation.h>
 
 namespace gologpp {
 
@@ -49,6 +50,9 @@ unique_ptr<GeneralSemantics<ModelElement>> DummySemanticsFactory::make_semantics
 }
 
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_DUMMY_MAKE_PLATFORM_SEMANTICS, (), GOLOGPP_PLATFORM_ELEMENTS)
+
+PlanTransformation *DummySemanticsFactory::make_transformation()
+{ return new DummyPlanTransformation(); }
 
 
 } // namespace platform

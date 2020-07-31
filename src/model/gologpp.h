@@ -51,6 +51,8 @@ template<class T> using ParameterBinding = Binding<T>;
 
 class ModelElement;
 class Plan;
+class PlanTransformation;
+class DummyPlanTransformation;
 
 class AbstractLanguageElement;
 template<class, class> class LanguageElement;

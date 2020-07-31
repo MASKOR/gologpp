@@ -177,7 +177,7 @@ ExecutionContext::ExecutionContext(
 , plan_transformation_(std::move(plan_transformation))
 {
 	if (!plan_transformation_)
-		plan_transformation_.reset(new DummyPlanTransformation());
+		plan_transformation_.reset(semantics_factory().platform_semantics_factory().make_transformation());
 }
 
 ExecutionContext::~ExecutionContext()

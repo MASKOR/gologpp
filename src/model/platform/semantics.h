@@ -32,6 +32,8 @@ public:
 	virtual AExecutionContext &context();
 	void set_context(AExecutionContext &);
 
+	virtual PlanTransformation *make_transformation() = 0;
+
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS, (), GOLOGPP_PLATFORM_ELEMENTS)
 
 private:
@@ -41,6 +43,8 @@ private:
 
 class DummySemanticsFactory : public SemanticsFactory {
 public:
+	virtual PlanTransformation *make_transformation() override;
+
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE, (), GOLOGPP_PLATFORM_ELEMENTS)
 };
 

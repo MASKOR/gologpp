@@ -88,6 +88,8 @@ public:
 	virtual AExecutionContext &context();
 	void set_context(AExecutionContext &);
 
+	platform::SemanticsFactory &platform_semantics_factory();
+
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS, (), GOLOGPP_SEMANTIC_TYPES)
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECLARE_MAKE_SEMANTICS, (), GOLOGPP_PLATFORM_ELEMENTS)
 
