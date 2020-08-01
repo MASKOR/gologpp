@@ -114,7 +114,7 @@ public:
 	AbstractLanguageElement *owner();
 
 	template<class GologT = Global>
-	shared_ptr<GologT> lookup_global(const string &name)
+	shared_ptr<GologT> lookup_global(const string &name) const
 	{
 		if (exists_global(name))
 			return std::dynamic_pointer_cast<GologT>(

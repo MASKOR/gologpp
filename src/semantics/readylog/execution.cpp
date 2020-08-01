@@ -130,7 +130,7 @@ void ReadylogContext::compile(const Block &block)
 
 void ReadylogContext::compile(const AbstractAction &aa)
 {
-	try {
+	if (aa.is_a<Action>()) {
 		const Action &action = dynamic_cast<const Action &>(aa);
 		Semantics<Action> &action_impl = action.semantics();
 		compile_term(action_impl.durative_action());
@@ -141,7 +141,7 @@ void ReadylogContext::compile(const AbstractAction &aa)
 			compile_term(action_impl.senses());
 			// senses/2 declaration not really needed since golog++ appends
 			// the sensing result to the history, anyways
-	} catch (std::bad_cast &) {
+	} else if (aa.is_a<ExogAction>()) {
 		const ExogAction &action = dynamic_cast<const ExogAction &>(aa);
 		Semantics<ExogAction> &action_impl = action.semantics();
 		compile_term(action_impl.exog_action());
@@ -149,6 +149,7 @@ void ReadylogContext::compile(const AbstractAction &aa)
 		for (EC_word &causes_val : action_impl.causes_vals())
 			compile_term(causes_val);
 	}
+	// Silently ignore other action types
 }
 
 

@@ -87,7 +87,7 @@ ComponentParser::ComponentParser()
 	) [
 		if_(_2 /*is exog*/) [
 			phoenix::bind(
-				&platform::Component::add_exog_transition, _r1,
+				&platform::Component::add_transition, _r1,
 				new_<platform::ExogTransition>(_1, _4, _3, _5)
 			)
 		].else_[

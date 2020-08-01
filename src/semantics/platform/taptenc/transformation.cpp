@@ -17,3 +17,15 @@
 
 #include "transformation.h"
 
+#include <execution/plan.h>
+
+namespace gologpp {
+
+unique_ptr<Plan> TaptencTransformation::transform(Plan &&p)
+{
+	// TODO: stub
+	return unique_ptr<Plan>(new Plan(std::move(p)));
+}
+
+
+}

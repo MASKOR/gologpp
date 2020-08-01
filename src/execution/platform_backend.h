@@ -60,8 +60,12 @@ public:
 
 	Activity::State current_state(const Grounding<Action> &);
 
+	void terminate_components();
 	virtual void terminate() = 0;
 	virtual void schedule_timer_event(Clock::time_point when) = 0;
+
+	void register_component_backend(const string &component_name, platform::ComponentBackend *b);
+	virtual platform::ComponentBackend *get_component_backend(const string &component_name);
 
 protected:
 	void wait_until_ready();
@@ -76,6 +80,8 @@ private:
 
 	std::mutex ready_mutex_;
 	std::condition_variable ready_condition_;
+
+	std::unordered_map<string, unique_ptr<platform::ComponentBackend>> component_backends_;
 };
 
 

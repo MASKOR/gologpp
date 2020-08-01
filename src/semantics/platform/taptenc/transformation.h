@@ -25,8 +25,6 @@ namespace gologpp {
 
 class TaptencTransformation : public PlanTransformation {
 public:
-	TaptencTransformation();
-
 	virtual unique_ptr<Plan> transform(Plan &&) override;
 };
 

@@ -86,11 +86,11 @@ InvalidIdentifier::InvalidIdentifier(const std::string &name)
 
 
 RedefinitionError::RedefinitionError(const string &name)
-: UserError("Symbol already defined: " + name)
+: UserError("Identifier already exists: " + name)
 {}
 
 RedefinitionError::RedefinitionError(const string &name, arity_t arity)
-: UserError("Symbol already defined: " + name + "/" + std::to_string(arity))
+: UserError("Identifier already exists: " + name + "/" + std::to_string(arity))
 {}
 
 RedefinitionError::RedefinitionError(const Global &existing, const string &new_name, const std::type_info &new_type)

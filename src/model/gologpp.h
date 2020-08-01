@@ -151,10 +151,13 @@ class PlatformBackend;
 namespace platform {
 
 class Component;
+class ComponentBackend;
 class Transition;
 class ExogTransition;
 class Clock;
 class State;
+
+class SwitchStateAction;
 
 class ClockBound;
 class BooleanClockOperation;
@@ -209,6 +212,7 @@ class SemanticsFactory;
 	(Reference<Fluent>) \
 	(Reference<Variable>) \
 	(Reference<Function>) \
+	(Reference<platform::SwitchStateAction>) \
 	(FieldAccess) \
 	(ListAccess) \
 	(ListLength) \
@@ -246,6 +250,7 @@ class SemanticsFactory;
 	(platform::ExogTransition) \
 	(platform::Clock) \
 	(platform::State) \
+	(platform::SwitchStateAction) \
 	(platform::ClockBound) \
 	(platform::ClockNegation) \
 	(platform::BooleanClockOperation) \

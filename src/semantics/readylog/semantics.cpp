@@ -38,6 +38,7 @@
 #include "plan.h"
 
 #include <model/platform/semantics.h>
+#include <model/platform/switch_state_action.h>
 
 namespace gologpp {
 

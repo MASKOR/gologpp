@@ -19,8 +19,10 @@
 #include <model/platform/component.h>
 #include <model/platform/reference.h>
 #include <model/platform/constraint.h>
+#include <model/platform/switch_state_action.h>
 
 #include "semantics.h"
+#include "transformation.h"
 
 
 namespace gologpp {
@@ -28,6 +30,9 @@ namespace platform {
 
 
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_SEMANTICS, TaptencSemanticsFactory, GOLOGPP_PLATFORM_ELEMENTS)
+
+PlanTransformation *TaptencSemanticsFactory::make_transformation()
+{ return new TaptencTransformation(); }
 
 
 } // namespace platform

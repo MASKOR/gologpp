@@ -184,10 +184,10 @@ public:
 	{ return target(); }
 
 	const TargetT *operator -> () const
-	{ return &target(); }
+	{ return target().get(); }
 
 	TargetT *operator -> ()
-	{ return &target(); }
+	{ return target().get(); }
 
 	bool operator == (const ReferenceBase<TargetT, ArgsT> &other) const
 	{

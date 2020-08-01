@@ -19,6 +19,9 @@
 #include "context.h"
 #include "activity.h"
 
+#include <model/logger.h>
+#include <model/platform/component.h>
+
 namespace gologpp {
 
 PlatformBackend::PlatformBackend()
@@ -113,6 +116,32 @@ Activity::State PlatformBackend::current_state(const Grounding<Action> &a)
 	else {
 		return it->second->cast<Activity>().state();
 	}
+}
+
+
+void PlatformBackend::terminate_components()
+{
+	for (auto &pair : component_backends_)
+		pair.second->terminate();
+}
+
+
+void PlatformBackend::register_component_backend(const string &component_name, platform::ComponentBackend *b)
+{
+	if (component_backends_.find(component_name) != component_backends_.end())
+		throw RedefinitionError(component_name);
+	component_backends_.emplace(component_name, b);
+}
+
+
+platform::ComponentBackend *PlatformBackend::get_component_backend(const string &component_name)
+{
+	auto it = component_backends_.find(component_name);
+	if (it == component_backends_.end()) {
+		log(LogLevel::WRN) << "Using dummy backend for component " << component_name << flush;
+		std::tie(it, std::ignore) = component_backends_.emplace(component_name, new platform::DummyComponentBackend());
+	}
+	return it->second.get();
 }
 
 

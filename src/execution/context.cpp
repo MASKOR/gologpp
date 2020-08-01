@@ -18,8 +18,10 @@
 #include <model/fluent.h>
 #include <model/action.h>
 #include <model/procedural.h>
+#include <model/effect_axiom.h>
 
 #include <model/platform/semantics.h>
+#include <model/platform/switch_state_action.h>
 
 #include "plan.h"
 #include "context.h"
@@ -44,6 +46,24 @@ AExecutionContext::AExecutionContext(unique_ptr<SemanticsFactory> &&semantics, u
 , terminated(false)
 , context_time_(Clock::time_point::min())
 {
+	Scope *action_scope = new Scope(global_scope());
+	global_scope().register_global(new platform::SwitchStateAction(action_scope));
+
+	action_scope = new Scope(global_scope());
+	global_scope().define_global<ExogAction>(
+		action_scope,
+		get_type<VoidType>(),
+		"exog_state_change",
+		vector<shared_ptr<Variable>> {
+			action_scope->get_var(VarDefinitionMode::FORCE, get_type<StringType>(), "component"),
+			action_scope->get_var(VarDefinitionMode::FORCE, get_type<StringType>(), "from_state"),
+			action_scope->get_var(VarDefinitionMode::FORCE, get_type<StringType>(), "to_state"),
+		},
+		boost::none, /* precondition */
+		boost::none, /* effects */
+		boost::none  /* mapping */
+	);
+
 	if (!platform_backend_)
 		platform_backend_ = std::make_unique<DummyBackend>();
 	platform_backend_->set_context(this);

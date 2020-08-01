@@ -16,10 +16,12 @@
 **************************************************************************/
 
 #include "component.h"
+#include <model/logger.h>
 #include <model/platform/clock_formula.h>
 #include <model/platform/reference.h>
 
 #include <execution/context.h>
+#include <execution/grounding.h>
 
 namespace gologpp {
 
@@ -150,35 +152,84 @@ void ExogTransition::attach_semantics(::gologpp::SemanticsFactory &f)
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+void ComponentBackend::set_model(Component &model)
+{ model_ = &model; }
+
+Component &ComponentBackend::model()
+{ return *model_; }
+
+void ComponentBackend::set_context(AExecutionContext &context)
+{ exec_context_ = &context; }
+
+AExecutionContext &ComponentBackend::context()
+{ return *exec_context_; }
+
+void ComponentBackend::exog_state_change(const string &state_name)
+{
+	shared_ptr<State> tgt = model_->scope().lookup_identifier<State>(state_name);
+	if (!tgt)
+		throw ComponentError(string(__func__) + ": Invalid target state: " + state_name);
+
+	model_->find_transition<ExogTransition>(model_->current_state(), *tgt);
+
+	shared_ptr<ExogAction> exog_state_change = global_scope().lookup_global<ExogAction>("exog_state_change");
+	if (!exog_state_change)
+		throw Bug("exog_action exog_state_change is not defined");
+
+	shared_ptr<ExogEvent> evt { new ExogEvent {
+		exog_state_change,
+		{
+			new Value(get_type<StringType>(), model_->name()),
+			new Value(get_type<StringType>(), model_->current_state().name()),
+			new Value(get_type<StringType>(), state_name)
+		}
+	} };
+
+	context().exog_queue_push(evt);
+
+	model_->set_current_state(tgt);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 Component::Component(
 	Scope *own_scope,
 	const string &name
 )
 : Global(name, {})
 , ScopeOwner(own_scope)
+, backend_(nullptr)
 {
 	scope().register_identifier(new State("error", *this, boost::none));
 	current_state_ = scope().lookup_identifier<State>("error");
 }
 
+void Component::set_current_state(shared_ptr<State> &state)
+{
+	Lock l(lock());
+	current_state_ = state;
+}
+
 const State &Component::current_state() const
 { return *current_state_; }
-
 
 vector<shared_ptr<State>> Component::states() const
 { return scope().local_identifiers<State>(); }
 
-const vector<unique_ptr<Transition>> &Component::transitions() const
+const vector<unique_ptr<AbstractTransition>> &Component::transitions() const
 { return transitions_; }
-
-const vector<unique_ptr<ExogTransition> > &Component::exog_transitions() const
-{ return exog_transitions_; }
 
 vector<shared_ptr<Clock>> Component::clocks() const
 { return scope().local_identifiers<Clock>(); }
 
-void Component::set_exec_context(AExecutionContext &context)
-{ exec_context_ = &context; }
+void Component::initialize(AExecutionContext &context)
+{
+	backend_ = context.backend().get_component_backend(this->name());
+	backend_->set_model(*this);
+	backend_->set_context(context);
+}
 
 void Component::add_state(State *s)
 { scope().register_identifier(s); }
@@ -186,11 +237,8 @@ void Component::add_state(State *s)
 void Component::add_clock(Clock *c)
 { scope().register_identifier(c); }
 
-void Component::add_transition(Transition *t)
+void Component::add_transition(AbstractTransition *t)
 { transitions_.emplace_back(t); }
-
-void Component::add_exog_transition(ExogTransition *et)
-{ exog_transitions_.emplace_back(et); }
 
 
 void Component::attach_semantics(::gologpp::SemanticsFactory &f)
@@ -203,10 +251,8 @@ void Component::attach_semantics(::gologpp::SemanticsFactory &f)
 		s->attach_semantics(f);
 	for (shared_ptr<Clock> &c : clocks())
 		c->attach_semantics(f);
-	for (unique_ptr<Transition> &t : transitions_)
+	for (unique_ptr<AbstractTransition> &t : transitions_)
 		t->attach_semantics(f);
-	for (unique_ptr<ExogTransition> &et : exog_transitions_)
-		et->attach_semantics(f);
 }
 
 
@@ -226,9 +272,6 @@ string Component::to_string(const string &pfx) const
 	rv += pfx + "transitions: " linesep;
 	for (auto &t : transitions())
 		rv += t->to_string(pfx + indent) + linesep;
-	rv += pfx + "exog_transitions: " linesep;
-	for (auto &et : exog_transitions())
-		rv += et->to_string(pfx + indent) + linesep;
 	rv += pfx + "}";
 
 	return rv;
@@ -239,6 +282,69 @@ void Component::compile(AExecutionContext &ctx)
 
 ModelElement *Component::ref(const vector<Expression *> &/*args*/)
 { return new Reference<Component>(std::dynamic_pointer_cast<Component>(shared_from_this())); }
+
+
+void Component::switch_state(const string &state_name)
+{
+	shared_ptr<State> tgt = scope().lookup_identifier<State>(state_name);
+	if (!tgt)
+		throw Bug(string(__func__) + ": Invalid target state: " + state_name);
+
+	find_transition<Transition>(current_state(), *tgt);
+
+	backend_->switch_state(state_name);
+	set_current_state(tgt);
+}
+
+ComponentBackend &Component::backend()
+{ return *backend_; }
+
+Component::Lock Component::lock()
+{ return Lock(mutex_); }
+
+
+template<class TransitionT>
+const TransitionT &Component::find_transition(const State &from, const State &to) const
+{
+	auto it = std::find_if(
+		transitions().begin(),
+		transitions().end(),
+		[&] (const unique_ptr<AbstractTransition> &t) {
+			try {
+				TransitionT &tt = dynamic_cast<TransitionT &>(*t);
+				return *tt.from().target() == from && *tt.to().target() == to;
+			} catch (std::bad_cast &) {
+				return false;
+			}
+		}
+	);
+	if (it == transitions().end())
+		throw ComponentError(
+			"No transition from " + from.str()
+			+ " to " + to.str() + " in component " + name()
+		);
+	return dynamic_cast<const TransitionT &>(**it);
+}
+
+template
+const Transition &Component::find_transition(const State &from, const State &to) const;
+
+template
+const ExogTransition &Component::find_transition(const State &from, const State &to) const;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+void DummyComponentBackend::switch_state(const string &state_name)
+{ log(LogLevel::INF) << "Dummy component " << model().name() << " switches to state " << state_name << flush; }
+
+void DummyComponentBackend::init()
+{ log(LogLevel::INF) << "Dummy component " << model().name() << " init" << flush; }
+
+void DummyComponentBackend::terminate()
+{ log(LogLevel::INF) << "Dummy component " << model().name() << " terminate" << flush; }
+
 
 
 } // namespace platform
