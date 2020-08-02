@@ -72,6 +72,8 @@ struct identifier_equals {
 };
 
 
+vector<unique_ptr<Expression>> copy(const vector<unique_ptr<Expression>> &v);
+
 
 template<class CharT, class TraitsT, class GologT>
 typename std::enable_if<

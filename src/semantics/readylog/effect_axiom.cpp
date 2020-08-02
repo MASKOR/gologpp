@@ -54,7 +54,7 @@ EC_word Semantics<EffectAxiom<Reference<Fluent>>>::plterm()
 
 	return ::term(EC_functor(cv_functor(element()).c_str(), 4),
 		element().action().semantics().plterm(),
-		element().lhs().semantics().plterm_free_args(),
+		element().lhs().semantics<Reference<Fluent>>().plterm_free_args(),
 		element().value().semantics().plterm(),
 		condition_term
 	);

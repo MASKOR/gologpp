@@ -175,9 +175,6 @@ template<>
 Value::Value(const Type &type, const char *repr);
 
 
-vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v);
-
-
 
 template<>
 class GeneralSemantics<Value>
@@ -189,7 +186,7 @@ public:
 
 	virtual AExecutionContext &context() const override;
 
-	virtual Value evaluate(const ABinding &, const History &) override;
+	virtual Value evaluate(const Binding &, const History &) override;
 	virtual GeneralSemantics<Value> *copy(const Value &target_element) const = 0;
 
 	virtual const Expression &expression() const override;

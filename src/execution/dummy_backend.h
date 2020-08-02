@@ -82,7 +82,7 @@ private:
 	};
 
 	std::unordered_map<
-		shared_ptr<Grounding<Action>>, shared_ptr<ActivityThread>
+		shared_ptr<Activity>, shared_ptr<ActivityThread>
 	> activity_threads_;
 };
 

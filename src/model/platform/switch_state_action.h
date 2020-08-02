@@ -57,8 +57,8 @@ class GeneralSemantics<Reference<platform::SwitchStateAction>>
 public:
 	GeneralSemantics(const Reference<platform::SwitchStateAction> &elem, AExecutionContext &context);
 
-	virtual bool final(const ABinding &b, const History &h);
-	virtual unique_ptr<Plan> trans(const ABinding &, History &);
+	virtual bool final(const Binding &b, const History &h);
+	virtual unique_ptr<Plan> trans(const Binding &, History &);
 
 	const Reference<platform::SwitchStateAction> &element() const;
 	virtual const ModelElement &model_element() const override;

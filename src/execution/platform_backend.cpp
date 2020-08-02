@@ -106,7 +106,7 @@ void PlatformBackend::set_context(AExecutionContext *ctx)
 }
 
 
-Activity::State PlatformBackend::current_state(const Grounding<Action> &a)
+Activity::State PlatformBackend::current_state(const ReferenceBase<Action> &a)
 {
 	Lock l(lock());
 

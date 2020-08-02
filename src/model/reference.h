@@ -37,100 +37,71 @@
 namespace gologpp {
 
 
-class ABinding : public ModelElement {
-public:
-	virtual Expression &get(shared_ptr<const Variable> param) const = 0;
-};
-
-
-template<class ExprT>
-class Binding : public ABinding {
+class Binding : public ModelElement {
 public:
 	using MapT = std::unordered_map <
 		shared_ptr<const Variable>,
-		std::reference_wrapper<ExprT>
+		std::reference_wrapper<Expression>
 	>;
 
-	Binding(const Binding<ExprT> &) = default;
+	Binding(const Binding &);
+	Binding(Binding &&);
 	Binding() = default;
 
 	virtual ~Binding() = default;
 
-	void bind(shared_ptr<const Variable> var, ExprT &expr)
-	{ var_bindings_.insert(std::make_pair(var, std::ref(expr))); }
+	void bind(shared_ptr<const Variable> var, Expression &expr);
+	virtual Expression &get(shared_ptr<const Variable> param) const;
+	const MapT &map() const;
 
-	virtual ExprT &get(shared_ptr<const Variable> param) const override
-	{
-		auto it = var_bindings_.find(param);
-		if (it == var_bindings_.end())
-			throw Bug("No parameter by the name " + param->str());
-
-		return it->second;
-	}
-
-	virtual void attach_semantics(SemanticsFactory &f) override
-	{
-		if (!semantics_) {
-			set_semantics(f.make_semantics(*this));
-			for (auto &entry : var_bindings_)
-				entry.second.get().attach_semantics(f);
-		}
-	}
-
-	const MapT &map() const
-	{ return var_bindings_; }
-
-	virtual string to_string(const string &pfx) const override
-	{
-		string rv;
-		for (auto &entry : var_bindings_)
-			rv += entry.first->to_string(pfx) + "=" + entry.second.get().to_string(pfx) + ", ";
-		if (!rv.empty())
-			rv = rv.substr(0, rv.length() - 2);
-		return rv;
-	}
+	virtual void attach_semantics(SemanticsFactory &f) override;
+	virtual string to_string(const string &pfx) const override;
 
 private:
 	MapT var_bindings_;
 };
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<>
-class GeneralSemantics<Binding<Value>>
+class GeneralSemantics<Binding>
 : public virtual GeneralSemantics<ModelElement>
 {
 public:
-	GeneralSemantics(const Binding<Value> &elem, AExecutionContext &context);
+	GeneralSemantics(const Binding &elem, AExecutionContext &context);
 
-	virtual ~GeneralSemantics<Binding<Value>>() = default;
+	virtual ~GeneralSemantics<Binding>() = default;
 
-	const Binding<Value> &element() const;
-	void update_element(const Binding<Value> *new_element);
+	const Binding &element() const;
+	void update_element(const Binding *new_element);
 	virtual AExecutionContext &context() const override;
 
-	virtual GeneralSemantics<Binding<Value>> *copy(const Binding<Value> &target_element) const = 0;
+	virtual GeneralSemantics<Binding> *copy(const Binding &target_element) const = 0;
 
 private:
-	const Binding<Value> *element_;
+	const Binding *element_;
 	AExecutionContext &context_;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-template<class TargetT, class ArgsT>
+template<class TargetT>
 class ReferenceBase
 : public virtual AbstractReference
 , public NoScopeOwner
 {
 public:
-	ReferenceBase(const shared_ptr<TargetT> &target, vector<unique_ptr<ArgsT>> &&args)
+	ReferenceBase(const shared_ptr<TargetT> &target, vector<unique_ptr<Expression>> &&args)
 	: args_(std::move(args))
 	, target_(target)
 	{
 		size_t idx = 0;
 		while (idx < this->args().size() && idx < this->target()->params().size()) {
-			ArgsT &arg = *this->args()[idx];
+			Expression &arg = *this->args()[idx];
 			shared_ptr<Variable> param = this->target()->params()[idx];
 			binding_.bind(param, arg);
 			dynamic_cast<Expression &>(arg).set_parent(this);
@@ -139,57 +110,52 @@ public:
 		ensure_consistent();
 	}
 
-	ReferenceBase(const shared_ptr<TargetT> &target, std::unordered_map< Reference<Variable>, unique_ptr<ArgsT> > params_to_args)
-	: target_(target)
-	{
-		args_.resize(params_to_args.size());
-		for (auto it = params_to_args.begin(); it != params_to_args.end(); it++) {
-			auto target_it = std::find(this->target()->params().begin(), this->target()->params().end(), it->first.target());
-			int pos_in_target = std::distance(this->target()->params().begin(), target_it);
-			args_[pos_in_target] = std::move(it->second);
-			std::reference_wrapper<ArgsT> var = std::ref((*args_[pos_in_target]));
-			binding_.bind(it->first.target(), var);
-		}
-		ensure_consistent();
-	}
-
-	ReferenceBase(const shared_ptr<TargetT> &target, const vector<ArgsT *> &args)
-	: ReferenceBase(target, vector<unique_ptr<ArgsT>>(args.begin(), args.end()))
+	ReferenceBase(const shared_ptr<TargetT> &target, const vector<Expression *> &args)
+	: ReferenceBase(target, vector<unique_ptr<Expression>>(args.begin(), args.end()))
 	{}
 
 
-	ReferenceBase(const string &target_name, const vector<ArgsT *> &args)
+	ReferenceBase(const string &target_name, const vector<Expression *> &args)
 	: ReferenceBase(
 		global_scope().lookup_global<TargetT>(target_name),
 		args
 	)
 	{}
 
-	ReferenceBase(const string &target_name, const boost::optional<vector<ArgsT *>> &args)
+	ReferenceBase(const string &target_name, const boost::optional<vector<Expression *>> &args)
 	: ReferenceBase(target_name, args.get_value_or({}))
 	{}
 
-	ReferenceBase(ReferenceBase<TargetT, ArgsT> &&other)
+	ReferenceBase(ReferenceBase<TargetT> &&other)
 	: args_(std::move(other.args_))
 	, target_(std::move(other.target_))
+	, binding_(std::move(other.binding_))
+	{ ensure_consistent(); }
+
+
+	ReferenceBase(const ReferenceBase<TargetT> &other)
+	: args_(copy(other.args_))
+	, target_(other.target_)
+	, binding_(other.binding_)
 	{ ensure_consistent(); }
 
 
 	virtual ~ReferenceBase() override = default;
 
-	const TargetT &operator * () const
-	{ return target(); }
+	virtual const TargetT &operator * () const
+	{ return *this->target(); }
 
-	TargetT &operator * ()
-	{ return target(); }
+	virtual TargetT &operator * ()
+	{ return *this->target(); }
 
-	const TargetT *operator -> () const
-	{ return target().get(); }
+	virtual const TargetT *operator -> () const
+	{ return this->target().get(); }
 
-	TargetT *operator -> ()
-	{ return target().get(); }
+	virtual TargetT *operator -> ()
+	{ return this->target().get(); }
 
-	bool operator == (const ReferenceBase<TargetT, ArgsT> &other) const
+
+	bool operator == (const ReferenceBase<TargetT> &other) const
 	{
 		if (this->target() != other.target())
 			return false;
@@ -200,7 +166,7 @@ public:
 		return true;
 	}
 
-	bool operator != (const ReferenceBase<TargetT, ArgsT> &other) const
+	bool operator != (const ReferenceBase<TargetT> &other) const
 	{ return !(*this == other); }
 
 	const string &name() const
@@ -215,13 +181,13 @@ public:
 	virtual bool bound() const override
 	{ return !target_.expired(); }
 
-	const vector<unique_ptr<ArgsT>> &args() const
+	const vector<unique_ptr<Expression>> &args() const
 	{ return args_; }
 
-	vector<unique_ptr<ArgsT>> &args()
+	vector<unique_ptr<Expression>> &args()
 	{ return args_; }
 
-	virtual const ArgsT &arg_for_param(shared_ptr<const Variable> param) const override
+	virtual const Expression &arg_for_param(shared_ptr<const Variable> param) const override
 	{ return binding_.get(param); }
 
 
@@ -263,35 +229,71 @@ public:
 	size_t hash() const
 	{
 		size_t rv = this->target()->hash();
-		for (const unique_ptr<ArgsT> &c : this->args())
-			boost::hash_combine(rv, c->hash());
+		for (const unique_ptr<Expression> &c : this->args())
+			boost::hash_combine(rv, dynamic_cast<Value &>(*c).hash());
 
 		return rv;
 	}
 
-	virtual Binding<ArgsT> &binding()
+	virtual Binding &binding()
 	{ return binding_; }
 
-	virtual const Binding<ArgsT> &binding() const
+	virtual const Binding &binding() const
 	{ return binding_; }
 
 protected:
-	vector<unique_ptr<ArgsT>> args_;
+	vector<unique_ptr<Expression>> args_;
 	weak_ptr<TargetT> target_;
-	Binding<ArgsT> binding_;
+	Binding binding_;
 };
 
 
+template<>
+class Reference<AbstractAction>
+: public virtual AbstractReference
+{
+public:
+	virtual const AbstractAction &operator * () const = 0;
+	virtual AbstractAction &operator * () = 0;
+	virtual const AbstractAction *operator -> () const = 0;
+	virtual AbstractAction *operator -> () = 0;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class TargetT>
 class Reference
-: public ReferenceBase<TargetT, Expression>
+: public ReferenceBase<TargetT>
 , public LanguageElement<Reference<TargetT>>
 , public TargetT::SignifierT
+, public virtual std::conditional <
+	std::is_base_of<AbstractAction, TargetT>::value,
+	Reference<AbstractAction>,
+	AbstractReference
+  >::type
 {
 public:
-	using ReferenceBase<TargetT, Expression>::ReferenceBase;
+	using ReferenceBase<TargetT>::ReferenceBase;
+
+	Reference(const Reference<TargetT> &other)
+	: ReferenceBase<TargetT>(other)
+	{}
+
 	virtual ~Reference() override = default;
+
+	virtual const TargetT &operator * () const
+	{ return *this->target(); }
+
+	virtual TargetT &operator * ()
+	{ return *this->target(); }
+
+	virtual const TargetT *operator -> () const
+	{ return this->target().get(); }
+
+	virtual TargetT *operator -> ()
+	{ return this->target().get(); }
 
 	virtual void attach_semantics(SemanticsFactory &f) override
 	{
@@ -304,7 +306,9 @@ public:
 	}
 };
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class TargetT>
 class ZeroArityReference
@@ -344,7 +348,9 @@ private:
 	shared_ptr<TargetT> target_;
 };
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<>
 class Reference<Variable>
@@ -356,8 +362,9 @@ public:
 	virtual void attach_semantics(SemanticsFactory &implementor) override;
 };
 
-
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class TargetT>
 ZeroArityReference<TargetT>::ZeroArityReference(const shared_ptr<TargetT> &target)
@@ -437,6 +444,9 @@ const Expression &ZeroArityReference<TargetT>::arg_for_param(shared_ptr<const Va
 
 namespace std {
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class TargetT>
 struct hash<gologpp::Reference<TargetT>> {

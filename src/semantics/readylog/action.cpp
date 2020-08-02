@@ -134,7 +134,7 @@ EC_word Semantics<ExogAction>::poss()
 
 
 template<>
-EC_word Semantics<ExogEvent>::plterm()
+EC_word Semantics<Reference<ExogAction>>::plterm()
 { return reference_term(element()); }
 
 

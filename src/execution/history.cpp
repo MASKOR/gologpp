@@ -54,7 +54,7 @@ AExecutionContext &GeneralSemantics<History>::context() const
 const ModelElement &GeneralSemantics<History>::model_element() const
 { return history_; }
 
-void GeneralSemantics<History>::append(shared_ptr<Grounding<AbstractAction>> a)
+void GeneralSemantics<History>::append(shared_ptr<Reference<AbstractAction>> a)
 { append(*a); }
 
 

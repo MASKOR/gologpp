@@ -89,7 +89,7 @@ template<class GologT>
 platform::Reference<GologT> *get_platform_global_ref(
 	const Type &type,
 	const string &name,
-	const boost::optional<vector<Value *>> &args
+	const boost::optional<vector<Expression *>> &args
 ) {
 	shared_ptr<GologT> g = global_scope().lookup_global<GologT>(name);
 
@@ -117,7 +117,7 @@ PlatformRefParser<GologT>::PlatformRefParser()
 		> ")"
 	) [
 		_val = phoenix::bind(&get_platform_global_ref<GologT>, _r2, _1, _2),
-		if_(!_val || !phoenix::bind(&ReferenceBase<GologT, Value>::consistent, *_val)) [
+		if_(!_val || !phoenix::bind(&ReferenceBase<GologT>::consistent, *_val)) [
 			_pass = false,
 			delete_(_val)
 		]

@@ -86,7 +86,7 @@ ReferenceParser<GologT>::ReferenceParser()
 		> ")"
 	) [
 		_val = phoenix::bind(&get_ref<GologT>, _r2, _1, _2),
-		if_(!_val || !phoenix::bind(&ReferenceBase<GologT, Expression>::consistent, *_val)) [
+		if_(!_val || !phoenix::bind(&ReferenceBase<GologT>::consistent, *_val)) [
 			_pass = false,
 			delete_(_val)
 		]

@@ -73,11 +73,11 @@ std::function<void()> DummyBackend::rnd_exog_generator()
 				break;
 			shared_ptr<ExogAction> exog = exogs_[static_cast<size_t>(rnd_exog_index_(prng_))];
 
-			vector<unique_ptr<Value>> args;
+			vector<unique_ptr<Expression>> args;
 			for (shared_ptr<Variable> p : exog->params())
 				args.push_back(rnd_value(p->type()));
 
-			shared_ptr<ExogEvent> event(new ExogEvent(exog, std::move(args)));
+			shared_ptr<Reference<AbstractAction>> event(new Reference<ExogAction>(exog, std::move(args)));
 			event->attach_semantics(exec_context()->semantics_factory());
 
 			exec_context()->exog_queue_push(event);

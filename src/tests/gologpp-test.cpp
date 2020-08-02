@@ -56,7 +56,7 @@ int test_file(unique_ptr<Instruction> &&mainproc)
 		{ mainproc.release() }
 	));
 
-	Binding<Value> empty_binding;
+	Binding empty_binding;
 	empty_binding.attach_semantics(ReadylogContext::instance().semantics_factory());
 
 	bool success = static_cast<bool>(

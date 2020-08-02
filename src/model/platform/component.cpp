@@ -19,9 +19,9 @@
 #include <model/logger.h>
 #include <model/platform/clock_formula.h>
 #include <model/platform/reference.h>
+#include <model/platform/switch_state_action.h>
 
 #include <execution/context.h>
-#include <execution/grounding.h>
 
 namespace gologpp {
 
@@ -172,11 +172,11 @@ void ComponentBackend::exog_state_change(const string &state_name)
 
 	model_->find_transition<ExogTransition>(model_->current_state(), *tgt);
 
-	shared_ptr<ExogAction> exog_state_change = global_scope().lookup_global<ExogAction>("exog_state_change");
+	shared_ptr<SwitchStateAction> exog_state_change = global_scope().lookup_global<SwitchStateAction>("exog_state_change");
 	if (!exog_state_change)
 		throw Bug("exog_action exog_state_change is not defined");
 
-	shared_ptr<ExogEvent> evt { new ExogEvent {
+	shared_ptr<gologpp::Reference<AbstractAction>> evt { new gologpp::Reference<platform::SwitchStateAction> {
 		exog_state_change,
 		{
 			new Value(get_type<StringType>(), model_->name()),

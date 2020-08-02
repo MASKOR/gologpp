@@ -38,7 +38,7 @@ public:
 
 	virtual shared_ptr<Transition> get_last_transition() override;
 	virtual void append(const Transition &exog) override;
-	virtual void append(const Grounding<AbstractAction> &exog) override;
+	virtual void append(const Reference<AbstractAction> &exog) override;
 	virtual void append_sensing_result(shared_ptr<Activity>) override;
 	virtual bool should_progress() const override;
 	virtual void progress() override;

@@ -54,7 +54,7 @@ class Semantics<Expression>
 {
 public:
 	virtual ~Semantics<Expression>() override = default;
-	virtual Value evaluate(const ABinding &b, const History &h) override;
+	virtual Value evaluate(const Binding &b, const History &h) override;
 	virtual const Expression &expression() const override;
 };
 
@@ -67,8 +67,8 @@ class Semantics<Instruction>
 {
 public:
 	virtual ~Semantics<Instruction>() override = default;
-	virtual unique_ptr<Plan> trans(const ABinding &b, History &h) override;
-	virtual bool final(const ABinding &b, const History &h) override;
+	virtual unique_ptr<Plan> trans(const Binding &b, History &h) override;
+	virtual bool final(const Binding &b, const History &h) override;
 
 	using Semantics<ModelElement>::rl_context;
 	EC_word next_readylog_term();

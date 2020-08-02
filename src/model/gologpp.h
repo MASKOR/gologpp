@@ -45,9 +45,7 @@ class Expression;
 class Instruction;
 
 // TODO: clean up this mess
-class ABinding;
-template<class> class Binding;
-template<class T> using ParameterBinding = Binding<T>;
+class Binding;
 
 class ModelElement;
 class Plan;
@@ -60,7 +58,6 @@ template<class, class> class LanguageElement;
 class AbstractAction;
 class Action;
 class ExogAction;
-class ExogEvent;
 class Activity;
 class Transition;
 
@@ -128,8 +125,6 @@ class Procedure;
 
 class AbstractReference;
 template<class> class Reference;
-class AGrounding;
-template<class> class Grounding;
 
 class CompoundExpression;
 class ListExpression;
@@ -189,7 +184,6 @@ class SemanticsFactory;
 	(Assignment<FieldAccess>) \
 	(Assignment<ListAccess>) \
 	(Pick) \
-	(ExogEvent) \
 	(Concurrent) \
 	(Block) \
 	(Choose) \
@@ -232,8 +226,7 @@ class SemanticsFactory;
 	(EffectAxiom<FieldAccess>) \
 	(EffectAxiom<ListAccess>) \
 	(InitialValue)(Fluent) \
-	(Binding<Expression>) \
-	(Binding<Value>) \
+	(Binding) \
 	(Domain) \
 	(Function) \
 	(Procedure) \
@@ -280,7 +273,6 @@ boost::mpl::pair<Assignment<FieldAccess>, Instruction>,
 boost::mpl::pair<Assignment<ListAccess>, Instruction>,
 boost::mpl::pair<Pick, Instruction>,
 boost::mpl::pair<Plan, Instruction>,
-boost::mpl::pair<ExogEvent, Instruction>,
 boost::mpl::pair<Concurrent, Instruction>,
 boost::mpl::pair<Block, Instruction>,
 boost::mpl::pair<Choose, Instruction>,

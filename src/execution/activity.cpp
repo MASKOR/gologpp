@@ -23,20 +23,32 @@ namespace gologpp {
 
 
 
-Activity::Activity(const shared_ptr<Action> &action, vector<unique_ptr<Value>> &&args, AExecutionContext &ctx, State state)
-: Grounding<Action>(action, std::move(args))
+Activity::Activity(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, AExecutionContext &ctx, State state)
+: ReferenceBase<Action>(action, std::move(args))
 , state_(state)
 , exec_context_(ctx)
 {}
 
 Activity::Activity(const Transition &trans, AExecutionContext &ctx)
-: Grounding<Action>(trans.target(), copy(trans.args()))
+: ReferenceBase<Action>(trans.target(), copy(trans.args()))
 , state_(State::IDLE)
 , exec_context_(ctx)
 {
 	if (trans.hook() != Transition::Hook::START)
 		throw Bug("Activity must be constructed from a START Transition");
 }
+
+const Action &Activity::operator *() const
+{ return *this->target(); }
+
+Action &Activity::operator *()
+{ return *this->target(); }
+
+const Action *Activity::operator ->() const
+{ return this->target().get(); }
+
+Action *Activity::operator ->()
+{ return this->target().get(); }
 
 void Activity::set_state(Activity::State state)
 { state_ = state; }
@@ -70,12 +82,12 @@ void Activity::update(Transition::Hook hook, boost::optional<Value> &&sensing_re
 	if (hook == Transition::Hook::FINISH) {
 		if (target()->senses() && !sensing_result)
 			throw Bug("PlatformBackend implementation tried to finish the sensing action "
-				+ static_cast<const Grounding<Action> &>(*this).str()
+				+ static_cast<const ReferenceBase<Action> &>(*this).str()
 				+ " without providing a sensing result"
 			);
 		else if (!target()->senses() && sensing_result)
 			throw Bug("PlatformBackend implementation gave a sensing result to the action "
-				+ static_cast<const Grounding<Action> &>(*this).str()
+				+ static_cast<const ReferenceBase<Action> &>(*this).str()
 				+ ", but it is not a sensing action"
 			);
 		else if (sensing_result) {
@@ -103,14 +115,14 @@ const std::string &Activity::mapped_name() const
 { return target()->mapping().backend_name(); }
 
 string Activity::to_string(const string &pfx) const
-{ return pfx + "state(" + Grounding<Action>::to_string("") + ") = " + gologpp::to_string(state()); }
+{ return pfx + "state(" + ReferenceBase<Action>::to_string("") + ") = " + gologpp::to_string(state()); }
 
 void Activity::attach_semantics(SemanticsFactory &implementor)
 {
 	if (!semantics_) {
 		binding().attach_semantics(implementor);
 		semantics_ = implementor.make_semantics(*this);
-		for (unique_ptr<Value> &c : args())
+		for (unique_ptr<Expression> &c : args())
 			c->attach_semantics(implementor);
 	}
 }

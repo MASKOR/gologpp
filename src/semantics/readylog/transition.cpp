@@ -62,7 +62,7 @@ shared_ptr<Transition> gologpp::Semantics<Transition>::transition_from_plterm(EC
 	t.arg(1, t);
 	headname = functor_name(t);
 
-	vector<unique_ptr<Value>> args = plterm_args(t);
+	vector<unique_ptr<Expression>> args = plterm_args(t);
 	shared_ptr<Action> action = global_scope().lookup_global<Action>(Name::demangle(headname));
 
 	shared_ptr<Transition> rv { new Transition { action, std::move(args), state_it->second} };
@@ -75,7 +75,7 @@ shared_ptr<Transition> gologpp::Semantics<Transition>::transition_from_plterm(EC
 Semantics<Transition> *Semantics<Transition>::copy(const Transition &target_element) const
 { return new Semantics<Transition>(target_element, rl_context()); }
 
-unique_ptr<Plan> Semantics<Transition>::trans(const ABinding &b, History &h)
+unique_ptr<Plan> Semantics<Transition>::trans(const Binding &b, History &h)
 { return GeneralSemantics<Transition>::trans(b, h); }
 
 const Instruction &Semantics<Transition>::instruction() const

@@ -24,21 +24,26 @@
 #include <model/expressions.h>
 #include <model/procedural.h>
 
-#include "grounding.h"
-
 namespace gologpp {
 
 
 class Transition
-: public Grounding<Action>
-, public LanguageElement<Transition>
+: public ReferenceBase<Action>
+, public Reference<AbstractAction>
+, public Instruction
+, public LanguageElement<Transition, VoidType>
 , public std::enable_shared_from_this<Transition>
 {
 public:
 	using Hook = DurativeCall::Hook;
 
-	Transition(const shared_ptr<Action> &action, vector<unique_ptr<Value>> &&args, Hook hook);
+	Transition(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, Hook hook);
 	Transition(const Transition &);
+
+	virtual const Action &operator * () const override;
+	virtual Action &operator * () override;
+	virtual const Action *operator -> () const override;
+	virtual Action *operator -> () override;
 
 	Hook hook() const;
 	virtual string to_string(const string &pfx) const override;
@@ -58,7 +63,7 @@ public:
 	GeneralSemantics(const Transition &elem, AExecutionContext &context);
 	GeneralSemantics(const GeneralSemantics<Transition> &other);
 
-	virtual unique_ptr<Plan> trans(const ABinding &, History &) override;
+	virtual unique_ptr<Plan> trans(const Binding &, History &) override;
 
 	const Transition &element() const;
 	virtual const ModelElement &model_element() const override;

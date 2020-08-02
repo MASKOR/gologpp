@@ -41,7 +41,7 @@ class PlatformBackend {
 public:
 	using ActivityMap = std::unordered_map <
 		size_t,
-		shared_ptr<Grounding<Action>>
+		shared_ptr<Activity>
 	>;
 	using Lock = std::unique_lock<std::recursive_mutex>;
 
@@ -58,7 +58,7 @@ public:
 	void set_context(AExecutionContext *ctx);
 	AExecutionContext *exec_context();
 
-	Activity::State current_state(const Grounding<Action> &);
+	Activity::State current_state(const ReferenceBase<Action> &);
 
 	void terminate_components();
 	virtual void terminate() = 0;

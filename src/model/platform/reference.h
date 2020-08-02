@@ -19,7 +19,7 @@
 
 #include <model/action.h>
 #include <model/platform/component.h>
-#include <execution/grounding.h>
+#include <model/reference.h>
 
 namespace gologpp {
 
@@ -28,12 +28,12 @@ namespace platform {
 
 template<>
 class Reference<Action>
-: public Grounding<Action>
-, public virtual AbstractLanguageElement
+: public ReferenceBase<Action>
+, public ChildElement
 , public LanguageElement<platform::Reference<Action>, VoidType>
 {
 public:
-	using Grounding<Action>::Grounding;
+	using ReferenceBase<Action>::ReferenceBase;
 
 	virtual void attach_semantics(gologpp::SemanticsFactory &f) override;
 };

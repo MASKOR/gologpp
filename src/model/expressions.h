@@ -64,7 +64,7 @@ class GeneralSemantics<Expression>
 {
 public:
 	GeneralSemantics() = default;
-	virtual Value evaluate(const ABinding &b, const History &h) = 0;
+	virtual Value evaluate(const Binding &b, const History &h) = 0;
 
 	virtual const Expression &expression() const = 0;
 };
@@ -104,14 +104,14 @@ class GeneralSemantics<Instruction>
 {
 public:
 	GeneralSemantics() = default;
-	virtual bool final(const ABinding &b, const History &h) = 0;
+	virtual bool final(const Binding &b, const History &h) = 0;
 
 	/**
 	 * @param b Binding that gives a value to all child variables that aren't bound by a pick statement
 	 * @param h Current history (i.e. the current situation)
 	 * @return Protocol: nullptr = not possible. Empty Plan = final. Non-empty plan = Execute plan and re-execute trans if not final.
 	 */
-	virtual unique_ptr<Plan> trans(const ABinding &b, History &h) = 0;
+	virtual unique_ptr<Plan> trans(const Binding &b, History &h) = 0;
 
 	virtual const Instruction &instruction() const = 0;
 };

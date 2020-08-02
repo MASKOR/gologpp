@@ -97,7 +97,6 @@ set(INTERFACE_SRC
 	src/model/logger.cpp
 	src/model/name.cpp
 
-	src/execution/grounding.cpp
 	src/execution/transition.cpp
 	src/execution/history.cpp
 	src/execution/activity.cpp
@@ -154,7 +153,6 @@ install(FILES
 )
 
 install(FILES
-	src/execution/grounding.h
 	src/execution/transition.h
 	src/execution/history.h
 	src/execution/activity.h

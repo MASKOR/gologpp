@@ -29,13 +29,13 @@
 namespace gologpp {
 
 
-Transition::Transition(const shared_ptr<Action> &action, vector<unique_ptr<Value>> &&args, Hook hook)
-: Grounding<Action>(action, std::move(args))
+Transition::Transition(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, Hook hook)
+: ReferenceBase<Action>(action, std::move(args))
 , hook_(hook)
 {}
 
 Transition::Transition(const Transition &other)
-: Grounding<Action>(other)
+: ReferenceBase<Action>(other)
 , hook_(other.hook())
 {
 	if (other.semantics_) {
@@ -43,21 +43,34 @@ Transition::Transition(const Transition &other)
 	}
 }
 
+const Action &Transition::operator *() const
+{ return *this->target(); }
+
+Action &Transition::operator *()
+{ return *this->target(); }
+
+const Action *Transition::operator ->() const
+{ return this->target().get(); }
+
+Action *Transition::operator ->()
+{ return this->target().get(); }
+
 Transition::Hook Transition::hook() const
 { return hook_; }
+
 
 void Transition::attach_semantics(SemanticsFactory &implementor)
 {
 	if (!semantics_) {
 		semantics_ = implementor.make_semantics(*this);
 		binding().attach_semantics(implementor);
-		for (unique_ptr<Value> &c : args())
+		for (unique_ptr<Expression> &c : args())
 			c->attach_semantics(implementor);
 	}
 }
 
 string Transition::to_string(const string &pfx) const
-{ return pfx + gologpp::to_string(hook()) + "(" + Grounding<Action>::to_string(pfx) + ")"; }
+{ return pfx + gologpp::to_string(hook()) + "(" + ReferenceBase<Action>::to_string(pfx) + ")"; }
 
 
 
@@ -77,7 +90,7 @@ AExecutionContext &GeneralSemantics<Transition>::context() const
 { return context_; }
 
 
-unique_ptr<Plan> GeneralSemantics<Transition>::trans(const ABinding &, History &history)
+unique_ptr<Plan> GeneralSemantics<Transition>::trans(const Binding &, History &history)
 {
 	switch(element().hook())
 	{

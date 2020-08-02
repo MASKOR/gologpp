@@ -21,18 +21,74 @@
 namespace gologpp {
 
 
-GeneralSemantics<Binding<Value> >::GeneralSemantics(const Binding<Value> &elem, AExecutionContext &context)
+Binding::Binding(const Binding &other)
+{
+	for (auto &pair : other.var_bindings_)
+		var_bindings_.emplace(pair.first, *dynamic_cast<const Value &>(pair.second.get()).copy());
+	if (other.semantics_)
+		set_semantics(unique_ptr<GeneralSemantics<ModelElement>>(
+			other.general_semantics<Binding>().copy(*this)
+		) );
+}
+
+Binding::Binding(Binding &&other)
+: var_bindings_(std::move(other.var_bindings_))
+{
+	if (other.semantics_)
+		throw Bug("Cannot move a Binding after semantics have been assigned");
+}
+
+void Binding::bind(shared_ptr<const Variable> var, Expression &expr)
+{ var_bindings_.insert(std::make_pair(var, std::ref(expr))); }
+
+Expression &Binding::get(shared_ptr<const Variable> param) const
+{
+	auto it = var_bindings_.find(param);
+	if (it == var_bindings_.end())
+		throw Bug("No parameter by the name " + param->str());
+	return it->second;
+}
+
+const Binding::MapT &Binding::map() const
+{ return var_bindings_; }
+
+
+void Binding::attach_semantics(SemanticsFactory &f)
+{
+	if (!semantics_) {
+		set_semantics(f.make_semantics(*this));
+		for (auto &entry : var_bindings_)
+			entry.second.get().attach_semantics(f);
+	}
+}
+
+
+string Binding::to_string(const string &pfx) const
+{
+	string rv;
+	for (auto &entry : var_bindings_)
+		rv += entry.first->to_string(pfx) + "=" + entry.second.get().to_string(pfx) + ", ";
+	if (!rv.empty())
+		rv = rv.substr(0, rv.length() - 2);
+	return rv;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+GeneralSemantics<Binding>::GeneralSemantics(const Binding &elem, AExecutionContext &context)
 : element_(&elem)
 , context_(context)
 {}
 
-const Binding<Value> &GeneralSemantics<Binding<Value> >::element() const
+const Binding &GeneralSemantics<Binding>::element() const
 { return *element_; }
 
-void GeneralSemantics<Binding<Value> >::update_element(const Binding<Value> *new_element)
+void GeneralSemantics<Binding>::update_element(const Binding *new_element)
 { element_ = new_element; }
 
-AExecutionContext &GeneralSemantics<Binding<Value> >::context() const
+AExecutionContext &GeneralSemantics<Binding>::context() const
 { return context_; }
 
 

@@ -17,6 +17,7 @@
 
 #include "utilities.h"
 #include "logger.h"
+#include "value.h"
 
 namespace gologpp {
 
@@ -39,6 +40,16 @@ void Identifier::set_arity(arity_t a)
 
 string Identifier::signature_str() const
 { return name() + "/" + std::to_string(arity()); }
+
+
+vector<unique_ptr<Expression>> copy(const vector<unique_ptr<Expression>> &v)
+{
+	vector<unique_ptr<Expression>> rv;
+	for (const unique_ptr<Expression> &e : v)
+		rv.emplace_back(dynamic_cast<const Value &>(*e).copy());
+	return rv;
+}
+
 
 
 #ifdef DEBUG_PARSER

@@ -297,15 +297,6 @@ Value Value::undefined()
 { return Value(); }
 
 
-vector<unique_ptr<Value>> copy(const vector<unique_ptr<Value>> &v)
-{
-	vector<unique_ptr<Value>> rv;
-	for (const unique_ptr<Value> &c : v)
-		rv.emplace_back(c->copy());
-	return rv;
-}
-
-
 
 GeneralSemantics<Value>::GeneralSemantics(const Value &elem, AExecutionContext &context)
 : expression_(&elem)
@@ -318,7 +309,7 @@ const Expression &GeneralSemantics<Value>::expression() const
 AExecutionContext &GeneralSemantics<Value>::context() const
 { return context_; }
 
-Value GeneralSemantics<Value>::evaluate(const ABinding &, const History &)
+Value GeneralSemantics<Value>::evaluate(const Binding &, const History &)
 { return *expression_; }
 
 const ModelElement &GeneralSemantics<Value>::model_element() const

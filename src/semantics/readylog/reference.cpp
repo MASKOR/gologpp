@@ -42,13 +42,32 @@ EC_word Semantics<Reference<Action>>::plterm()
 }
 
 
-Semantics<Binding<Value>> *Semantics<Binding<Value>>::copy(const Binding<Value> &target_element) const
-{ return new Semantics<Binding<Value>>(target_element, rl_context()); }
+EC_word gologpp::Semantics<Binding>::plterm()
+{
+	if (this->element().map().empty())
+		return EC_atom("true");
+	else {
+		vector<EC_word> pl_binds;
+		for (const auto &pval : this->element().map()) {
+			pl_binds.push_back(
+			::term(EC_functor("=", 2),
+			pval.first->semantics().plterm(),
+			pval.second.get().semantics().plterm()
+			)
+			);
+		}
 
-const Binding<Value> &Semantics<Binding<Value> >::model_element() const
+		return to_ec_term(",", pl_binds);
+	}
+}
+
+Semantics<Binding> *Semantics<Binding>::copy(const Binding &target_element) const
+{ return new Semantics<Binding>(target_element, rl_context()); }
+
+const Binding &Semantics<Binding >::model_element() const
 { return this->element(); }
 
-void Semantics<Binding<Value> >::init_vars()
+void Semantics<Binding >::init_vars()
 {
 	for (const auto &pval : this->element().map())
 		pval.first->semantics().init();

@@ -30,14 +30,21 @@ namespace gologpp {
 
 
 class Activity
-: public Grounding<Action>
-, public LanguageElement<Activity>
+: public ReferenceBase<Action>
+, public Reference<AbstractAction>
+, public Instruction
+, public LanguageElement<Activity, VoidType>
 , public std::enable_shared_from_this<Activity> {
 public:
 	enum State { IDLE, RUNNING, FINAL, CANCELLED, FAILED };
 
-	Activity(const shared_ptr<Action> &action, vector<unique_ptr<Value>> &&args, AExecutionContext &, State state = IDLE);
+	Activity(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, AExecutionContext &, State state = IDLE);
 	Activity(const Transition &, AExecutionContext &);
+
+	virtual const Action &operator * () const override;
+	virtual Action &operator * () override;
+	virtual const Action *operator -> () const override;
+	virtual Action *operator -> () override;
 
 	State state() const;
 	void set_state(State s);

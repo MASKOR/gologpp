@@ -34,8 +34,8 @@ struct PlatformRefParser : grammar<platform::Reference<GologT> *(Scope &, const 
 
 	rule<platform::Reference<GologT> *(Scope &, const Type &)> start;
 	rule<platform::Reference<GologT> *(Scope &, const Type &), locals<TypeList>> pred_ref;
-	rule<vector<Value *>(Scope &, TypeList), locals<TypeList>> ref_args;
-	rule<Value *(const Type &)> value_or_wildcard;
+	rule<vector<Expression *>(Scope &, TypeList), locals<TypeList>> ref_args;
+	rule<Expression *(const Type &)> value_or_wildcard;
 };
 
 

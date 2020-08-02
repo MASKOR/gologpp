@@ -29,7 +29,6 @@
 #include "platform_backend.h"
 #include "dummy_backend.h"
 #include "activity.h"
-#include "grounding.h"
 
 
 #include <iostream>
@@ -74,16 +73,16 @@ AExecutionContext::AExecutionContext(unique_ptr<SemanticsFactory> &&semantics, u
 }
 
 
-shared_ptr<Grounding<AbstractAction>> AExecutionContext::exog_queue_pop()
+shared_ptr<Reference<AbstractAction>> AExecutionContext::exog_queue_pop()
 {
 	std::lock_guard<std::mutex> locked{ exog_mutex_ };
-	shared_ptr<Grounding<AbstractAction>> rv = std::move(exog_queue_.front());
+	shared_ptr<Reference<AbstractAction>> rv = std::move(exog_queue_.front());
 	exog_queue_.pop();
 	return rv;
 }
 
 
-shared_ptr<Grounding<AbstractAction>> AExecutionContext::exog_queue_poll()
+shared_ptr<Reference<AbstractAction>> AExecutionContext::exog_queue_poll()
 {
 	Clock::time_point prev_time = context_time();
 	std::unique_lock<std::mutex> queue_empty_lock { queue_empty_mutex_ };
@@ -113,7 +112,7 @@ void AExecutionContext::terminate()
 }
 
 
-void AExecutionContext::exog_queue_push(shared_ptr<Grounding<AbstractAction>> exog)
+void AExecutionContext::exog_queue_push(shared_ptr<Reference<AbstractAction>> exog)
 {
 	std::lock_guard<std::mutex> { exog_mutex_ };
 	exog_queue_.push(std::move(exog));
@@ -150,8 +149,9 @@ History &AExecutionContext::history()
 void AExecutionContext::drain_exog_queue()
 {
 	while (!exog_empty()) {
-		shared_ptr<Grounding<AbstractAction>> exog = exog_queue_pop();
-		if (!(*exog)->silent()) {
+		shared_ptr<Reference<AbstractAction>> r = exog_queue_pop();
+		Reference<ExogAction> &exog = r->cast<Reference<ExogAction>>();
+		if (!exog->silent()) {
 			std::cout << ">>> Exogenous event: " << exog << std::endl;
 			silent_ = false;
 		}
@@ -165,7 +165,7 @@ void AExecutionContext::drain_exog_queue_blocking()
 	if (!silent_)
 		std::cout << "=== No transition possible: Waiting for exogenous events..." << std::endl;
 
-	shared_ptr<Grounding<AbstractAction>> exog = exog_queue_poll();
+	shared_ptr<Reference<AbstractAction>> exog = exog_queue_poll();
 	if (exog) {
 		if (!(*exog)->silent()) {
 			std::cout << ">>> Exogenous event: " << exog << std::endl;
@@ -215,7 +215,7 @@ void ExecutionContext::run(Block &&program)
 
 		plan_transformation_->init(*this);
 
-		Binding<Value> empty_binding;
+		Binding empty_binding;
 		empty_binding.attach_semantics(semantics_factory());
 
 		while (!program.general_semantics().final(empty_binding, history())) {

@@ -40,87 +40,25 @@ template<class GologT> class Reference;
 
 
 template<>
-class Semantics<ABinding>
-: public Semantics<ModelElement>
+class Semantics<Binding>
+: public GeneralSemantics<Binding>
+, public Semantics<ModelElement>
 {
 public:
-	virtual void init_vars() = 0;
-};
+	using GeneralSemantics<Binding>::GeneralSemantics;
 
+	virtual EC_word plterm() override;
 
-template<class ArgsT>
-class Semantics<Binding<ArgsT>>
-: public Semantics<ABinding>
-, public GeneralSemantics<Binding<ArgsT>>
-{
-public:
-	using GeneralSemantics<Binding<ArgsT>>::GeneralSemantics;
+	virtual Semantics<Binding> *copy(const Binding &target_element) const override;
 
-	virtual EC_word plterm() override
-	{
-		vector<EC_word> pl_binds;
-		for (const auto &pval : this->element().map()) {
-			pl_binds.push_back(
-				::term(EC_functor("=", 2),
-					pval.first->semantics().plterm(),
-					pval.second.get().semantics().plterm()
-				)
-			);
-		}
-
-		return to_ec_term(",", pl_binds);
-	}
-
-	virtual const Binding<ArgsT> &model_element() const override
-	{ return this->element(); }
-
-	virtual void init_vars() override
-	{
-		for (const auto &pval : this->element().map())
-			pval.first->semantics().init();
-	}
+	virtual const Binding &model_element() const override;
+	virtual void init_vars();
 };
 
 
 
-
-template<>
-class Semantics<Binding<Value>>
-: public Semantics<ABinding>
-, public GeneralSemantics<Binding<Value>>
-{
-public:
-	using GeneralSemantics<Binding<Value>>::GeneralSemantics;
-
-	virtual EC_word plterm() override
-	{
-		if (this->element().map().empty())
-			return EC_atom("true");
-		else {
-			vector<EC_word> pl_binds;
-			for (const auto &pval : this->element().map()) {
-				pl_binds.push_back(
-					::term(EC_functor("=", 2),
-						pval.first->semantics().plterm(),
-						pval.second.get().semantics().plterm()
-					)
-				);
-			}
-
-			return to_ec_term(",", pl_binds);
-		}
-	}
-
-	virtual Semantics<Binding<Value>> *copy(const Binding<Value> &target_element) const override;
-
-	virtual const Binding<Value> &model_element() const override;
-	virtual void init_vars() override;
-};
-
-
-
-template<class GologT, class ExprT>
-EC_word reference_term(const ReferenceBase<GologT, ExprT> &ref)
+template<class GologT>
+EC_word reference_term(const ReferenceBase<GologT> &ref)
 {
 	if (ref.arity() > 0)
 		return ::term(EC_functor(ref.mangled_name().c_str(), ref.arity()),

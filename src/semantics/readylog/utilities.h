@@ -113,7 +113,7 @@ EC_word copy_term(EC_word t);
 
 string functor_name(EC_word t);
 
-vector<unique_ptr<Value>> plterm_args(EC_word t);
+vector<unique_ptr<Expression>> plterm_args(EC_word t);
 
 
 class ManagedTerm {

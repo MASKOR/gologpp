@@ -82,11 +82,11 @@ GeneralSemantics<Reference<platform::SwitchStateAction>>::GeneralSemantics(
 , final_(false)
 {}
 
-bool GeneralSemantics<Reference<platform::SwitchStateAction> >::final(const ABinding &, const History &)
+bool GeneralSemantics<Reference<platform::SwitchStateAction> >::final(const Binding &, const History &)
 { return final_; }
 
 
-unique_ptr<Plan> GeneralSemantics<Reference<platform::SwitchStateAction> >::trans(const ABinding &, History &)
+unique_ptr<Plan> GeneralSemantics<Reference<platform::SwitchStateAction> >::trans(const Binding &, History &)
 {
 	string component_name = static_cast<string>(
 		dynamic_cast<const Value &>(element().arg_for_param(element()->param_component()))

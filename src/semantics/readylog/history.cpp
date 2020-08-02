@@ -66,7 +66,7 @@ shared_ptr<Transition> Semantics<History>::get_last_transition()
 void Semantics<History>::append(const Transition &trans)
 { extend_history(::list(trans.semantics<Transition>().plterm(), plterm())); }
 
-void Semantics<History>::append(const Grounding<AbstractAction> &trans)
+void Semantics<History>::append(const Reference<AbstractAction> &trans)
 { extend_history(::list(trans.semantics().plterm(), plterm())); }
 
 void Semantics<History>::append_sensing_result(shared_ptr<Activity> a)

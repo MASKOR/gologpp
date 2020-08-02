@@ -40,7 +40,7 @@ class Terminate {
 
 class AExecutionContext {
 public:
-	typedef std::queue<shared_ptr<Grounding<AbstractAction>>> ExogQueue;
+	typedef std::queue<shared_ptr<Reference<AbstractAction>>> ExogQueue;
 
 	AExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<PlatformBackend> &&platform_backend);
 	virtual ~AExecutionContext() = default;
@@ -60,14 +60,14 @@ public:
 	virtual void run(Block &&program) = 0;
 
 	/// \return Head popped from the exog_queue or nullptr if it is empty.
-	shared_ptr<Grounding<AbstractAction>> exog_queue_pop();
+	shared_ptr<Reference<AbstractAction>> exog_queue_pop();
 
 	/// Block until the exog_queue is non-empty or exog_timer_wakeup() is called.
 	/// \return Head popped from the exog_queue or nullptr if exog_timer_wakeup() was called.
-	shared_ptr<Grounding<AbstractAction>> exog_queue_poll();
+	shared_ptr<Reference<AbstractAction>> exog_queue_poll();
 
 	bool exog_empty();
-	void exog_queue_push(shared_ptr<Grounding<AbstractAction>> exog);
+	void exog_queue_push(shared_ptr<Reference<AbstractAction>> exog);
 
 	/// Update context_time and unblock exog_queue.
 	void exog_timer_wakeup();
