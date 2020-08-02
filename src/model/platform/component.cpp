@@ -201,12 +201,14 @@ Component::Component(
 : Global(name, {})
 , ScopeOwner(own_scope)
 , backend_(nullptr)
+, mutex_(new std::mutex())
 {
 	scope().register_identifier(new State("error", *this, boost::none));
-	current_state_ = scope().lookup_identifier<State>("error");
+	error_state_ = scope().lookup_identifier<State>("error");
+	current_state_ = error_state_;
 }
 
-void Component::set_current_state(shared_ptr<State> &state)
+void Component::set_current_state(const shared_ptr<State> &state)
 {
 	Lock l(lock());
 	current_state_ = state;
@@ -232,7 +234,12 @@ void Component::initialize(AExecutionContext &context)
 }
 
 void Component::add_state(State *s)
-{ scope().register_identifier(s); }
+{
+	scope().register_identifier(s);
+
+	if (states().size() == 2)
+		set_current_state(scope().lookup_identifier<State>(s->name()));
+}
 
 void Component::add_clock(Clock *c)
 { scope().register_identifier(c); }
@@ -299,8 +306,8 @@ void Component::switch_state(const string &state_name)
 ComponentBackend &Component::backend()
 { return *backend_; }
 
-Component::Lock Component::lock()
-{ return Lock(mutex_); }
+Component::Lock Component::lock() const
+{ return Lock(*mutex_); }
 
 
 template<class TransitionT>

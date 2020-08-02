@@ -175,7 +175,7 @@ public:
 
 	Component(Scope *own_scope, const string &name);
 
-	void set_current_state(shared_ptr<State> &);
+	void set_current_state(const shared_ptr<State> &);
 	const State &current_state() const;
 	vector<shared_ptr<State>> states() const;
 	const vector<unique_ptr<AbstractTransition>> &transitions() const;
@@ -203,14 +203,15 @@ public:
 
 	ComponentBackend &backend();
 
-	Lock lock();
+	Lock lock() const;
 
 private:
 	shared_ptr<State> current_state_;
+	shared_ptr<State> error_state_;
 	vector<unique_ptr<AbstractTransition>> transitions_;
 	ComponentBackend *backend_;
 
-	std::mutex mutex_;
+	unique_ptr<std::mutex> mutex_;
 };
 
 
