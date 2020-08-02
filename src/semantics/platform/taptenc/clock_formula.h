@@ -17,11 +17,23 @@
 
 #pragma once
 
+#include <semantics/platform/taptenc/semantics.h>
+#include <taptenc/src/constraints/constraints.h>
+
 
 namespace gologpp {
-namespace platform {
+
+class ClockFormulaSemantics {
+public:
+	virtual std::unique_ptr<taptenc::ClockConstraint> compile() = 0;
+};
+
+template<>
+class Semantics<platform::ClockBound>
+: public GeneralSemantics<platform::ClockBound>
+, public ClockFormulaSemantics
+{
+};
 
 
-
-} // namespace platform
 } // namespace gologpp

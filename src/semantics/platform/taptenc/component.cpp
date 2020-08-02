@@ -16,12 +16,92 @@
 **************************************************************************/
 
 #include "component.h"
+#include <model/platform/component.h>
+#include <model/platform/clock_formula.h>
+
+#include <semantics/platform/taptenc/clock_formula.h>
 
 
 namespace gologpp {
-namespace platform {
+
+
+std::shared_ptr<taptenc::Clock> Semantics<platform::Clock>::compile()
+{
+	if (!ttclock_)
+		ttclock_ = std::make_shared<taptenc::Clock>(element().name());
+	return ttclock_;
+}
 
 
 
-} // namespace platform
+taptenc::Transition Semantics<platform::Transition>::compile()
+{
+	std::unique_ptr<taptenc::ClockConstraint> clock_formula;
+	if (element().clock_formula())
+		clock_formula = dynamic_cast<ClockFormulaSemantics &>(element().clock_formula()->semantics()).compile();
+	else
+		clock_formula.reset(new taptenc::TrueCC());
+
+	taptenc::update_t resets;
+	for (auto &c : element().resets())
+		resets.insert((*c)->semantics().compile());
+
+	return taptenc::Transition {
+		element().from()->name(),
+		element().to()->name(),
+		dynamic_cast<const platform::Component &>(*element().parent()).mangled_name()
+			+ "~" + element().from()->name() + "~" + element().to()->name(),
+		*clock_formula,
+		std::move(resets),
+		"" /* TODO: unused? */
+	};
+}
+
+
+
+taptenc::State Semantics<platform::State>::compile()
+{
+	std::unique_ptr<taptenc::ClockConstraint> clock_formula;
+	if (element().clock_formula())
+		clock_formula = dynamic_cast<ClockFormulaSemantics &>(element().clock_formula()->semantics()).compile();
+	else
+		clock_formula.reset(new taptenc::TrueCC());
+
+	return taptenc::State { element().name(), *clock_formula };
+}
+
+
+
+std::unique_ptr<taptenc::automaton> Semantics<platform::Component>::compile()
+{
+	platform::Component::Lock l(element().lock());
+
+	std::vector<taptenc::State> states;
+	std::vector<taptenc::Transition> transitions;
+
+	for (auto &s : element().states()) {
+		taptenc::State ttstate = s->semantics().compile();
+		if (element().current_state() == *s)
+			ttstate.initial = true;
+		states.emplace_back(ttstate);
+	}
+
+	for (const unique_ptr<platform::AbstractTransition> &t : element().transitions())
+		if (t->is_a<platform::Transition>())
+			transitions.emplace_back(t->semantics<platform::Transition>().compile());
+
+	auto rv = std::make_unique<taptenc::automaton>(
+		std::move(states),
+		std::move(transitions),
+		element().name(),
+		false /* TODO: set_trap? Wot is det ??*/
+	);
+
+	for (const shared_ptr<platform::Clock> &c : element().clocks())
+		rv->clocks.emplace(c->semantics().compile());
+
+	return rv;
+}
+
+
 } // namespace gologpp

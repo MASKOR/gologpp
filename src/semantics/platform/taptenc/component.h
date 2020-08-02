@@ -17,11 +17,52 @@
 
 #pragma once
 
+#include <semantics/platform/taptenc/semantics.h>
+
+#include <taptenc/src/timed-automata/timed_automata.h>
 
 namespace gologpp {
-namespace platform {
 
 
+template<>
+class Semantics<platform::Clock>
+: public GeneralSemantics<platform::Clock>
+{
+public:
+	std::shared_ptr<taptenc::Clock> compile();
 
-} // namespace platform
+private:
+	std::shared_ptr<taptenc::Clock> ttclock_;
+};
+
+
+// Only endogenous transitions have TaptencSemantics.
+// Exogenous ones are disregarded in the plan transformation.
+template<>
+class Semantics<platform::Transition>
+: public GeneralSemantics<platform::Transition>
+{
+public:
+	taptenc::Transition compile();
+};
+
+
+template<>
+class Semantics<platform::State>
+: public GeneralSemantics<platform::State>
+{
+public:
+	taptenc::State compile();
+};
+
+
+template<>
+class Semantics<platform::Component>
+: public GeneralSemantics<platform::Component>
+{
+public:
+	std::unique_ptr<taptenc::automaton> compile();
+};
+
+
 } // namespace gologpp

@@ -26,7 +26,6 @@
 
 
 namespace gologpp {
-namespace platform {
 
 
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_SEMANTICS, TaptencSemanticsFactory, GOLOGPP_PLATFORM_ELEMENTS)
@@ -35,5 +34,4 @@ PlanTransformation *TaptencSemanticsFactory::make_transformation()
 { return new TaptencTransformation(); }
 
 
-} // namespace platform
 } // namespace gologpp

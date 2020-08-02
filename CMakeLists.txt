@@ -410,6 +410,7 @@ if (BUILD_TAPTENC_SEMANTICS)
 	)
 	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
 	target_link_libraries(taptenc-golog++ parsegolog++)
+	target_include_directories(taptenc-golog++ PRIVATE external)
 
 	add_executable(taptenc_rcll_perception external/taptenc/src/rcll_perception.cpp)
 	target_link_libraries(taptenc_rcll_perception taptenc-golog++)

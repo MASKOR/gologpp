@@ -17,11 +17,24 @@
 
 #pragma once
 
+#include <semantics/platform/taptenc/semantics.h>
+
+#include <taptenc/src/encoder/enc_interconnection_info.h>
+
 
 namespace gologpp {
-namespace platform {
 
 
+template<>
+class Semantics<platform::Constraint>
+: public GeneralSemantics<ModelElement>
+{
+public:
+	unique_ptr<taptenc::encICInfo> &representation();
 
-} // namespace platform
+private:
+	unique_ptr<taptenc::encICInfo> representation_;
+};
+
+
 } // namespace gologpp

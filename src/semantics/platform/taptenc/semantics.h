@@ -21,7 +21,6 @@
 
 
 namespace gologpp {
-namespace platform {
 
 
 template<class PlatformT>
@@ -31,7 +30,7 @@ public:
 };
 
 
-class TaptencSemanticsFactory : public SemanticsFactory {
+class TaptencSemanticsFactory : public platform::SemanticsFactory {
 public:
 	virtual PlanTransformation *make_transformation() override;
 
@@ -39,5 +38,4 @@ public:
 };
 
 
-} // namespace platform
 } // namespace gologpp
