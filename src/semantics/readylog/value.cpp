@@ -45,7 +45,7 @@ EC_word Semantics<Value>::plterm()
 		else if (element().representation().type() == boost::typeindex::type_id<unsigned long>())
 			return EC_word(static_cast<long long>(static_cast<unsigned long>(element())));
 		else
-			throw std::runtime_error("Unknown Constant type");
+			throw std::runtime_error("Unknown Value type");
 	}
 	else if (
 		element().type().is<SymbolType>()
