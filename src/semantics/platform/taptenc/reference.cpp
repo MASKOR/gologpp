@@ -16,12 +16,15 @@
 **************************************************************************/
 
 #include "reference.h"
+#include <model/platform/reference.h>
+#include "component.h"
 
 
 namespace gologpp {
-namespace platform {
 
 
+std::shared_ptr<taptenc::Clock> Semantics<platform::Reference<platform::Clock> >::compile()
+{ return element().target()->semantics().compile(); }
 
-} // namespace platform
+
 } // namespace gologpp

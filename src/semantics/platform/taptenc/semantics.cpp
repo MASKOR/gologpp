@@ -28,10 +28,25 @@
 namespace gologpp {
 
 
+string tolower(const string &s)
+{
+	string rv(s);
+	std::transform(
+		s.begin(), s.end(),
+		rv.begin(),
+		[] (const string::value_type &c) {
+			return std::tolower(c);
+		}
+	);
+	return s;
+}
+
+
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_SEMANTICS, TaptencSemanticsFactory, GOLOGPP_PLATFORM_ELEMENTS)
 
 PlanTransformation *TaptencSemanticsFactory::make_transformation()
 { return new TaptencTransformation(); }
+
 
 
 } // namespace gologpp

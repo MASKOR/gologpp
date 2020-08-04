@@ -19,8 +19,23 @@
 
 #include <model/platform/semantics.h>
 
+#include <taptenc/src/encoder/encoder_utils.h>
+
 
 namespace gologpp {
+
+
+string tolower(const string &s);
+
+
+template<class ElemT>
+string uppaal_qualified_name(const ElemT &e)
+{
+	return taptenc::encoderutils::addToBaseId(
+		tolower(dynamic_cast<const Identifier &>(*e.parent()).name()),
+		tolower(e.name())
+	);
+}
 
 
 template<class PlatformT>

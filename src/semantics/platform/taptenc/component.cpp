@@ -19,6 +19,7 @@
 #include <model/platform/component.h>
 #include <model/platform/clock_formula.h>
 
+#include <taptenc/src/constants.h>
 #include <semantics/platform/taptenc/clock_formula.h>
 
 
@@ -28,7 +29,7 @@ namespace gologpp {
 std::shared_ptr<taptenc::Clock> Semantics<platform::Clock>::compile()
 {
 	if (!ttclock_)
-		ttclock_ = std::make_shared<taptenc::Clock>(element().name());
+		ttclock_ = std::make_shared<taptenc::Clock>(uppaal_qualified_name(element()));
 	return ttclock_;
 }
 
@@ -49,8 +50,9 @@ taptenc::Transition Semantics<platform::Transition>::compile()
 	return taptenc::Transition {
 		element().from()->name(),
 		element().to()->name(),
-		dynamic_cast<const platform::Component &>(*element().parent()).mangled_name()
-			+ "~" + element().from()->name() + "~" + element().to()->name(),
+		tolower(dynamic_cast<const platform::Component &>(*element().parent()).name())
+			+ taptenc::constants::COMPONENT_SEP + tolower(element().from()->name())
+			+ "T" + tolower(element().to()->name()),
 		*clock_formula,
 		std::move(resets),
 		"" /* TODO: unused? */
@@ -67,7 +69,7 @@ taptenc::State Semantics<platform::State>::compile()
 	else
 		clock_formula.reset(new taptenc::TrueCC());
 
-	return taptenc::State { element().name(), *clock_formula };
+	return taptenc::State { uppaal_qualified_name(element()), *clock_formula };
 }
 
 

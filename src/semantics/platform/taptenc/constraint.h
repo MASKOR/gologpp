@@ -30,7 +30,7 @@ class Semantics<platform::Constraint>
 : public GeneralSemantics<ModelElement>
 {
 public:
-	unique_ptr<taptenc::encICInfo> &representation();
+	unique_ptr<taptenc::encICInfo> &compile();
 
 private:
 	unique_ptr<taptenc::encICInfo> representation_;

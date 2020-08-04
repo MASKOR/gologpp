@@ -23,16 +23,49 @@
 
 namespace gologpp {
 
+
 class ClockFormulaSemantics {
 public:
 	virtual std::unique_ptr<taptenc::ClockConstraint> compile() = 0;
 };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<>
 class Semantics<platform::ClockBound>
 : public GeneralSemantics<platform::ClockBound>
 , public ClockFormulaSemantics
 {
+public:
+	virtual std::unique_ptr<taptenc::ClockConstraint> compile() override;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+class Semantics<platform::BooleanClockOperation>
+: public GeneralSemantics<platform::BooleanClockOperation>
+, public ClockFormulaSemantics
+{
+public:
+	virtual std::unique_ptr<taptenc::ClockConstraint> compile() override;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+class Semantics<platform::ClockNegation>
+: public GeneralSemantics<platform::ClockNegation>
+, public ClockFormulaSemantics
+{
+public:
+	virtual std::unique_ptr<taptenc::ClockConstraint> compile() override;
 };
 
 
