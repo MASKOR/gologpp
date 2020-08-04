@@ -25,6 +25,7 @@
 #include "error.h"
 
 #include <boost/variant.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <unordered_map>
 
 
@@ -132,6 +133,9 @@ public:
 	///         Only difference to str() is that strings remain unquoted.
 	string string_representation() const;
 
+	template<typename NumericT>
+	NumericT numeric_convert() const;
+
 	virtual string to_string(const string &) const override;
 
 	virtual bool operator == (const Value &c) const;
@@ -169,6 +173,28 @@ private:
 	struct hash_visitor;
 	struct attach_semantics_visitor;
 };
+
+
+template<typename NumericT>
+NumericT Value::numeric_convert() const
+{
+	using namespace boost::typeindex;
+	if (!this->type().is<NumberType>())
+		throw TypeError(*this, get_type<NumberType>());
+
+	if (this->representation().type() == type_id<unsigned int>())
+		return boost::numeric_cast<NumericT>(static_cast<unsigned int>(*this));
+	else if (this->representation().type() == type_id<int>())
+		return boost::numeric_cast<NumericT>(static_cast<int>(*this));
+	else if (this->representation().type() == type_id<unsigned long>())
+		return boost::numeric_cast<NumericT>(static_cast<unsigned long>(*this));
+	else if (this->representation().type() == type_id<long>())
+		return boost::numeric_cast<NumericT>(static_cast<long>(*this));
+	else if (this->representation().type() == type_id<double>())
+		return boost::numeric_cast<NumericT>(static_cast<double>(*this));
+	else
+		throw std::runtime_error("Unknown numeric Value type");
+}
 
 
 template<>
