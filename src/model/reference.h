@@ -315,7 +315,6 @@ class ZeroArityReference
 : public virtual TargetT::ElementType
 , public AbstractReference
 , public NoScopeOwner
-, public LanguageElement<Reference<TargetT>>
 {
 public:
 	ZeroArityReference(const shared_ptr<TargetT> &target);
@@ -346,20 +345,6 @@ public:
 
 private:
 	shared_ptr<TargetT> target_;
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<>
-class Reference<Variable>
-: public ZeroArityReference<Variable>
-{
-public:
-	using ZeroArityReference<Variable>::ZeroArityReference;
-
-	virtual void attach_semantics(SemanticsFactory &implementor) override;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -436,17 +421,32 @@ template<class TargetT>
 const Expression &ZeroArityReference<TargetT>::arg_for_param(shared_ptr<const Variable>) const
 { throw Bug("This method is undefined and should not have been called"); }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+class Reference<Variable>
+: public ZeroArityReference<Variable>
+, public LanguageElement<Reference<Variable>>
+{
+public:
+	using ZeroArityReference<Variable>::ZeroArityReference;
+
+	virtual void attach_semantics(SemanticsFactory &implementor) override;
+};
+
 
 
 } // namespace gologpp
 
 
 
-namespace std {
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace std {
 
 template<class TargetT>
 struct hash<gologpp::Reference<TargetT>> {

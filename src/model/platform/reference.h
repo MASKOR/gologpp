@@ -46,6 +46,7 @@ template<>
 class Reference<Component>
 : public ZeroArityReference<platform::Component>
 , public ChildElement
+, public LanguageElement<Reference<Component>>
 {
 public:
 	using ZeroArityReference<platform::Component>::ZeroArityReference;
@@ -61,6 +62,7 @@ template<>
 class Reference<State>
 : public ZeroArityReference<platform::State>
 , public ChildElement
+, public LanguageElement<Reference<State>>
 {
 public:
 	using ZeroArityReference<platform::State>::ZeroArityReference;
@@ -76,6 +78,7 @@ template<>
 class Reference<Clock>
 : public ZeroArityReference<platform::Clock>
 , public ChildElement
+, public LanguageElement<Reference<Clock>>
 {
 public:
 	using ZeroArityReference<platform::Clock>::ZeroArityReference;
