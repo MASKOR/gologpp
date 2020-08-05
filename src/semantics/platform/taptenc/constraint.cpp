@@ -18,9 +18,12 @@
 #include "constraint.h"
 
 namespace gologpp {
-namespace platform {
 
 
+unique_ptr<taptenc::EncICInfo> Semantics<platform::Constraint>::compile()
+{
+	// TODO
+}
 
-} // namespace platform
+
 } // namespace gologpp
