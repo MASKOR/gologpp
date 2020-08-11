@@ -37,6 +37,10 @@ class Terminate {
 };
 
 
+class Yield {
+};
+
+
 
 class AExecutionContext {
 public:

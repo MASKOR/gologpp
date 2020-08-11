@@ -63,6 +63,9 @@ public:
 
 	virtual string to_string(const string &) const override;
 
+	shared_ptr<Variable> shared();
+	shared_ptr<const Variable> shared() const;
+
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*domain_)
 
 private:
