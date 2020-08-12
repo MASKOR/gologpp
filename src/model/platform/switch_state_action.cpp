@@ -18,6 +18,8 @@
 #include <model/effect_axiom.h>
 #include <model/logger.h>
 
+#include <execution/plan.h>
+
 #include "switch_state_action.h"
 #include "component.h"
 

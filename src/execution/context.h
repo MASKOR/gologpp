@@ -37,7 +37,7 @@ class Terminate {
 };
 
 
-class Yield {
+class NotPossible {
 };
 
 

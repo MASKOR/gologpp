@@ -45,6 +45,10 @@ class InconsistentTransition : public EngineError {
 	using EngineError::EngineError;
 };
 
+class Unsupported : public EngineError {
+	using EngineError::EngineError;
+};
+
 
 
 class Bug : public std::exception {

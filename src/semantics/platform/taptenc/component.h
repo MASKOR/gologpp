@@ -17,6 +17,9 @@
 
 #pragma once
 
+#include <model/platform/component.h>
+#include <model/semantics.h>
+
 #include <semantics/platform/taptenc/semantics.h>
 
 #include <taptenc/src/timed-automata/timed_automata.h>

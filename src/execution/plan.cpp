@@ -18,6 +18,8 @@
 #include "plan.h"
 #include <model/semantics.h>
 
+#include <execution/transition.h>
+
 namespace gologpp {
 
 
@@ -27,15 +29,18 @@ TimedInstruction::TimedInstruction(unique_ptr<Instruction> &&i)
 , latest_(Clock::time_point::max())
 {}
 
+
 TimedInstruction::TimedInstruction(Instruction *i)
 : TimedInstruction(unique_ptr<Instruction>(i))
 {}
+
 
 TimedInstruction::TimedInstruction(TimedInstruction &&i)
 : instruction_(std::move(i.instruction_))
 , earliest_(std::move(i.earliest_))
 , latest_(std::move(i.latest_))
 {}
+
 
 const Instruction &TimedInstruction::instruction() const
 { return *instruction_; }
@@ -48,6 +53,7 @@ Clock::time_point TimedInstruction::earliest_timepoint() const
 
 Clock::time_point TimedInstruction::latest_timepoint() const
 { return latest_; }
+
 
 void TimedInstruction::set_earliest(Clock::time_point t)
 { earliest_ = t; }
@@ -70,14 +76,41 @@ Plan::Plan(Plan &&sub)
 : elements_(std::move(sub.elements_))
 {}
 
-void Plan::append(TimedInstruction &&i)
-{ elements_.push_back(std::forward<TimedInstruction>(i)); }
+Plan &Plan::append(TimedInstruction &&i)
+{ 
+	elements_.push_back(std::forward<TimedInstruction>(i));
+	try {
+		Transition &instr = elements_.back().instruction().cast<Transition>();
+		if (instr.hook() == Transition::Hook::END) {
+			auto it = std::find_if(elements().begin(), elements().end(), [&] (TimedInstruction &ti) {
+				try {
+					Transition &trans = ti.instruction().cast<Transition>();
+					return trans.hook() == Transition::Hook::START && *trans.target() == *instr.target();
+				} catch (std::bad_cast &) {
+					return false;
+				}
+			} );
+
+			if (it == elements().end()) {
+				elements().back().set_earliest(Clock::now());
+				elements().back().set_latest(Clock::now() + instr->duration().max);
+			}
+			else {
+				elements().back().set_earliest(it->earliest_timepoint() + instr->duration().min);
+				elements().back().set_latest(it->latest_timepoint() + instr->duration().max);
+			}
+		}
+	} catch (std::bad_cast &) {
+	}
+	return *this;
+}
 
 Plan &Plan::operator =(Plan &&other)
 {
 	elements_ = std::move(other.elements_);
 	return *this;
 }
+
 
 vector<TimedInstruction> &Plan::elements()
 { return elements_; }

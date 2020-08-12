@@ -21,6 +21,8 @@
 #include "reference.h"
 #include "utilities.h"
 
+#include <execution/plan.h>
+
 
 namespace gologpp {
 

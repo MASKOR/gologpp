@@ -15,9 +15,12 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
+#include <execution/plan.h>
+
 #include <model/value.h>
 #include <model/action.h>
 #include <model/logger.h>
+
 
 #include "context.h"
 #include "transition.h"

@@ -58,6 +58,10 @@ public:
 	T &cast()
 	{ return dynamic_cast<typename std::remove_reference<T>::type &>(*this); }
 
+	template<class T>
+	const T &cast() const
+	{ return dynamic_cast<const T &>(*this); }
+
 protected:
 	std::unique_ptr<GeneralSemantics<ModelElement>> semantics_;
 };

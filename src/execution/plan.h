@@ -31,7 +31,8 @@
 namespace gologpp {
 
 
-class TimedInstruction {
+class TimedInstruction
+{
 public:
 	/**
 	 * Constructor. Takes ownership of the given @ref Instruction and initializes the
@@ -61,7 +62,6 @@ private:
 
 
 class Plan
-//: public ModelElement
 {
 public:
 	Plan() = default;
@@ -69,8 +69,8 @@ public:
 
 	Value max_reward(const Binding &binding, const Reference<Function> &reward_func);
 
-	void append(TimedInstruction &&);
-	void append(Plan &&);
+	Plan &append(TimedInstruction &&);
+	Plan &append(Plan &&);
 
 	Plan &operator = (Plan &&);
 

@@ -32,6 +32,7 @@
 #include "mapping.h"
 #include "reference.h"
 #include "fluent.h"
+#include <execution/clock.h>
 
 namespace gologpp {
 
@@ -109,6 +110,8 @@ public:
 
 	unique_ptr<Reference<Fluent>> &senses();
 	const unique_ptr<Reference<Fluent>> &senses() const;
+
+	Clock::Duration duration() const;
 
 private:
 	unique_ptr<Reference<Fluent>> senses_;

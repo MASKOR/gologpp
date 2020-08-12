@@ -34,7 +34,15 @@ struct Clock {
 	static PlatformBackend *clock_source;
 
 	static time_point now() noexcept;
+
+	struct Duration {
+		duration min;
+		duration max;
+	};
 };
+
+
+
 
 
 string to_string(Clock::time_point tp);
