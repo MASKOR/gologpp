@@ -156,6 +156,16 @@ unique_ptr<Reference<Fluent>> &Action::senses()
 const unique_ptr<Reference<Fluent>> &Action::senses() const
 { return senses_; }
 
+Clock::DurationRange Action::duration() const
+{ return duration_; }
+
+
+void Action::set_duration(boost::optional<Clock::DurationRange> dr)
+{
+	if (dr)
+		duration_ = dr.get();
+}
+
 
 void Action::define(
 	boost::optional<Expression *> precondition,

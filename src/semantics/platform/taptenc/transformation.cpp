@@ -65,6 +65,9 @@ unique_ptr<Plan> TaptencTransformation::transform(Plan &&p)
 	);
 }
 
+AExecutionContext &TaptencTransformation::context()
+{ return *context_; }
+
 
 shared_ptr<const platform::Component> TaptencTransformation::find_component_ref(const Expression &expr)
 {

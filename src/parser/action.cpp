@@ -30,7 +30,9 @@
 #include <boost/spirit/include/qi_eps.hpp>
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_char.hpp>
+#include <boost/spirit/include/qi_real.hpp>
 
+#include <boost/phoenix/object/construct.hpp>
 #include <boost/phoenix/object/delete.hpp>
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/operator/self.hpp>
@@ -62,12 +64,14 @@ template<>
 ActionDefinitionParser<Action>::ActionDefinitionParser()
 : ActionDefinitionParser<Action>::base_type(definition, "action_definition")
 {
+	static qi::real_parser<double> real_num;
 	definition = ( lit('{') > (
 		( "precondition:" > boolean_expression(*_r2) )
 		^ ( "effect:" > +(effect(*_r2) > ';') )
 		^ ( "senses:" > senses(*_r2, undefined_type()) )
 		^ ( "mapping:" > mapping(*_r2) )
 		^ ( "silent:" > boolean_value() )
+		^ ( "duration:" > duration )
 		^ qi::eps
 	) > '}' ) [
 		_a = phoenix::bind(
@@ -81,8 +85,13 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 			_r1,
 			_r2, undefined_type(), _r3, _r4, _1, _2, _3, _4
 		),
-		phoenix::bind(&AbstractAction::set_silent_v, _a, _5)
+		phoenix::bind(&AbstractAction::set_silent_v, _a, _5),
+		phoenix::bind(&Action::set_duration, _a, _6)
 		// Have to use two binds because the maximum number of arguments is limited :facepalm:
+	];
+
+	duration = (lit('[') > real_num > ',' > real_num > ']') [
+		_val = phoenix::construct<Clock::DurationRange>(_1, _2)
 	];
 
 	effect = list_effect(_r1) | field_effect(_r1) | fluent_effect(_r1);

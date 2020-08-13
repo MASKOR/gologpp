@@ -111,10 +111,12 @@ public:
 	unique_ptr<Reference<Fluent>> &senses();
 	const unique_ptr<Reference<Fluent>> &senses() const;
 
-	Clock::Duration duration() const;
+	Clock::DurationRange duration() const;
+	void set_duration(boost::optional<Clock::DurationRange>);
 
 private:
 	unique_ptr<Reference<Fluent>> senses_;
+	Clock::DurationRange duration_;
 };
 
 

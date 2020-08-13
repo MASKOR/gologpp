@@ -34,4 +34,15 @@ string to_string(Clock::time_point tp)
 string to_string(Clock::duration d)
 { return std::to_string(d.count()); }
 
+Clock::DurationRange::DurationRange()
+: min(0.)
+, max(std::numeric_limits<Clock::rep>::max())
+{}
+
+Clock::DurationRange::DurationRange(Clock::rep min, Clock::rep max)
+: min(min)
+, max(max)
+{}
+
+
 } // namespace gologpp

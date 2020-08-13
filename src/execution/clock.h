@@ -35,7 +35,9 @@ struct Clock {
 
 	static time_point now() noexcept;
 
-	struct Duration {
+	struct DurationRange {
+		DurationRange();
+		DurationRange(Clock::rep min, Clock::rep max);
 		duration min;
 		duration max;
 	};

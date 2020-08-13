@@ -26,6 +26,7 @@
 #include "mapping.h"
 
 #include <model/scope.h>
+#include <execution/clock.h>
 
 namespace gologpp {
 namespace parser {
@@ -50,6 +51,7 @@ struct ActionDefinitionParser
 	), locals<ActionT *> > definition;
 
 	rule<AbstractEffectAxiom *(Scope &)> effect;
+	rule<Clock::DurationRange()> duration;
 	EffectParser<Reference<Fluent>> fluent_effect;
 	EffectParser<FieldAccess> field_effect;
 	EffectParser<ListAccess> list_effect;
