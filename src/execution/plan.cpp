@@ -76,12 +76,15 @@ Plan::Plan(Plan &&sub)
 : elements_(std::move(sub.elements_))
 {}
 
+
 Plan &Plan::append(TimedInstruction &&i)
 { 
 	elements_.push_back(std::forward<TimedInstruction>(i));
 	try {
+		// Set timepoints
 		Transition &instr = elements_.back().instruction().cast<Transition>();
 		if (instr.hook() == Transition::Hook::END) {
+			// Find matching START transition
 			auto it = std::find_if(elements().begin(), elements().end(), [&] (TimedInstruction &ti) {
 				try {
 					Transition &trans = ti.instruction().cast<Transition>();
@@ -92,10 +95,12 @@ Plan &Plan::append(TimedInstruction &&i)
 			} );
 
 			if (it == elements().end()) {
+				// Not found: use best guess
 				elements().back().set_earliest(Clock::now());
 				elements().back().set_latest(Clock::now() + instr->duration().max);
 			}
 			else {
+				// Found: add on top
 				elements().back().set_earliest(it->earliest_timepoint() + instr->duration().min);
 				elements().back().set_latest(it->latest_timepoint() + instr->duration().max);
 			}
@@ -104,6 +109,7 @@ Plan &Plan::append(TimedInstruction &&i)
 	}
 	return *this;
 }
+
 
 Plan &Plan::operator =(Plan &&other)
 {

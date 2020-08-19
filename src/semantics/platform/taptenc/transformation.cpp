@@ -125,16 +125,19 @@ vector<taptenc::PlanAction> TaptencTransformation::plan_gpp_to_taptenc(Plan &&p)
 			} );
 		} catch (std::bad_cast &)
 		{
-			throw Unsupported("Non-transition element found in plan: " + ti.instruction().str());
+			throw Unsupported("Unsupported element found in plan: " + ti.instruction().str());
 		}
 	}
 	return rv;
 }
 
 
-unique_ptr<Plan> TaptencTransformation::plan_taptenc_to_gpp(taptenc::timed_trace_t &&)
+unique_ptr<Plan> TaptencTransformation::plan_taptenc_to_gpp(taptenc::timed_trace_t &&ttt)
 {
-	// TODO
+	unique_ptr<Plan> rv { new Plan() };
+	for (auto &pair : ttt) {
+		
+	}
 }
 
 
