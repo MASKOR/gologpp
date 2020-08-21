@@ -54,7 +54,7 @@ ClockFormulaParser::ClockFormulaParser()
 	clock_operation_seq = (
 		+(clock_unary(_r1) >> clock_binary_op) >> clock_unary(_r1)
 	) [
-		_val = phoenix::bind(&parse_op_precedence<platform::BooleanClockOperation>, _1, _2)
+		_val = phoenix::bind(&parse_op_precedence<platform::BooleanClockOperation, Expression>, _1, _2)
 	];
 	clock_operation_seq.name("clock_operation_seq");
 

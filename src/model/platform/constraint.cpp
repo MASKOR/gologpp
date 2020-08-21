@@ -27,7 +27,7 @@ namespace platform {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-Constraint::Constraint(Expression *lhs, Expression *rhs)
+Constraint::Constraint(ActionSpec *lhs, StateSpec *rhs)
 : lhs_(lhs)
 , rhs_(rhs)
 {
@@ -35,10 +35,10 @@ Constraint::Constraint(Expression *lhs, Expression *rhs)
 	rhs_->set_parent(this);
 }
 
-const Expression &Constraint::lhs() const
+const ActionSpec &Constraint::lhs() const
 { return *lhs_; }
 
-const Expression &Constraint::rhs() const
+const StateSpec &Constraint::rhs() const
 { return *rhs_; }
 
 string Constraint::to_string(const string &pfx) const
@@ -111,10 +111,11 @@ string StateAssertion::to_string(const string &pfx) const
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-BooleanConstraintOperation::BooleanConstraintOperation(
-	Expression *lhs,
+template<class SubjectT>
+BooleanConstraintOperation<SubjectT>::BooleanConstraintOperation(
+	SubjectT *lhs,
 	BooleanConstraintOperation::Operator op,
-	Expression *rhs
+	SubjectT *rhs
 )
 : lhs_(lhs)
 , rhs_(rhs)
@@ -124,36 +125,48 @@ BooleanConstraintOperation::BooleanConstraintOperation(
 	rhs_->set_parent(this);
 }
 
-const Expression &BooleanConstraintOperation::lhs() const
+template<class SubjectT>
+const SubjectT &BooleanConstraintOperation<SubjectT>::lhs() const
 { return *lhs_; }
 
-const Expression &BooleanConstraintOperation::rhs() const
+template<class SubjectT>
+const SubjectT &BooleanConstraintOperation<SubjectT>::rhs() const
 { return *rhs_; }
 
-typename BooleanConstraintOperation::Operator BooleanConstraintOperation::op() const
+template<class SubjectT>
+typename BooleanConstraintOperation<SubjectT>::Operator BooleanConstraintOperation<SubjectT>::op() const
 { return op_; }
 
-string BooleanConstraintOperation::to_string(const string &pfx) const
-{ return pfx + lhs().str() + " " + gologpp::platform::to_string(op()) + " " + rhs().str(); }
+template<class SubjectT>
+string BooleanConstraintOperation<SubjectT>::to_string(const string &pfx) const
+{ return pfx + lhs().str() + " " + gologpp::platform::to_string<SubjectT>(op()) + " " + rhs().str(); }
 
 
-string to_string(typename BooleanConstraintOperation::Operator op)
+template<class SubjectT>
+string to_string(typename BooleanConstraintOperation<SubjectT>::Operator op)
 {
 	switch (op) {
-	case BooleanConstraintOperation::Operator::OR:
+	case BooleanConstraintOperation<SubjectT>::Operator::OR:
 		return "|";
-	case BooleanConstraintOperation::Operator::AND:
+	case BooleanConstraintOperation<SubjectT>::Operator::AND:
 		return "&";
 	}
 	throw Bug("Unhandled BooleanConstraintOperation::Operator");
 }
 
+template
+class BooleanConstraintOperation<ActionSpec>;
+
+template
+class BooleanConstraintOperation<StateSpec>;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-TemporalUnaryOperation::TemporalUnaryOperation(
-	Expression *subject,
+template<class SubjectT>
+TemporalUnaryOperation<SubjectT>::TemporalUnaryOperation(
+	SubjectT *subject,
 	TemporalUnaryOperation::Operator op,
 	boost::optional<fusion_wtf_vector <
 		boost::optional<Value *>,
@@ -186,50 +199,65 @@ TemporalUnaryOperation::TemporalUnaryOperation(
 	}
 }
 
-const Expression &TemporalUnaryOperation::subject() const
+template<class SubjectT>
+const SubjectT &TemporalUnaryOperation<SubjectT>::subject() const
 { return *subject_; }
 
-typename TemporalUnaryOperation::Operator TemporalUnaryOperation::op() const
+template<class SubjectT>
+typename TemporalUnaryOperation<SubjectT>::Operator TemporalUnaryOperation<SubjectT>::op() const
 { return op_; }
 
-gologpp::Clock::duration TemporalUnaryOperation::lower_bound() const
+template<class SubjectT>
+gologpp::Clock::duration TemporalUnaryOperation<SubjectT>::lower_bound() const
 { return lower_bound_; }
 
-gologpp::Clock::duration TemporalUnaryOperation::upper_bound() const
+template<class SubjectT>
+gologpp::Clock::duration TemporalUnaryOperation<SubjectT>::upper_bound() const
 { return upper_bound_; }
 
 
-string TemporalUnaryOperation::to_string(const string &pfx) const
+template<class SubjectT>
+string TemporalUnaryOperation<SubjectT>::to_string(const string &pfx) const
 {
-	return pfx + gologpp::platform::to_string(op()) + "["
+	return pfx + gologpp::platform::to_string<SubjectT>(op()) + "["
 		+ gologpp::to_string(lower_bound()) + ", " + gologpp::to_string(upper_bound())
 		+ "] " + subject().str();
 }
 
 
-string to_string(typename TemporalUnaryOperation::Operator op)
+template<class SubjectT>
+string to_string(typename TemporalUnaryOperation<SubjectT>::Operator op)
 {
 	switch (op) {
-	case TemporalUnaryOperation::Operator::NEXT:
+	case TemporalUnaryOperation<SubjectT>::Operator::NEXT:
 		return "next";
-	case TemporalUnaryOperation::Operator::PREVIOUS:
+	case TemporalUnaryOperation<SubjectT>::Operator::PREVIOUS:
 		return "previous";
-	case TemporalUnaryOperation::Operator::FUTURE:
+	case TemporalUnaryOperation<SubjectT>::Operator::FUTURE:
 		return "future";
-	case TemporalUnaryOperation::Operator::PAST:
+	case TemporalUnaryOperation<SubjectT>::Operator::PAST:
 		return "past";
 	}
 	throw Bug("Unhandled TemporalUnaryOperation::Operator");
 }
 
+template
+class TemporalUnaryOperation<StateSpec>;
+
+template
+class TemporalUnaryOperation<ActionSpec>;
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-TemporalBinaryOperation::TemporalBinaryOperation(
-	Expression *lhs,
-	Expression *rhs,
-	TemporalBinaryOperation::Operator op,
+template<class SubjectT>
+TemporalBinaryOperation<SubjectT>::TemporalBinaryOperation(
+	SubjectT *lhs,
+	SubjectT *rhs,
+	TemporalBinaryOperation<SubjectT>::Operator op,
 	Value *lower_bound,
 	Value *upper_bound
 )
@@ -246,40 +274,53 @@ TemporalBinaryOperation::TemporalBinaryOperation(
 	delete upper_bound;
 }
 
-const Expression &TemporalBinaryOperation::lhs() const
+template<class SubjectT>
+const SubjectT &TemporalBinaryOperation<SubjectT>::lhs() const
 { return *lhs_; }
 
-const Expression &TemporalBinaryOperation::rhs() const
+template<class SubjectT>
+const SubjectT &TemporalBinaryOperation<SubjectT>::rhs() const
 { return *rhs_; }
 
-typename TemporalBinaryOperation::Operator TemporalBinaryOperation::op() const
+template<class SubjectT>
+typename TemporalBinaryOperation<SubjectT>::Operator TemporalBinaryOperation<SubjectT>::op() const
 { return op_; }
 
-gologpp::Clock::duration TemporalBinaryOperation::lower_bound() const
+template<class SubjectT>
+gologpp::Clock::duration TemporalBinaryOperation<SubjectT>::lower_bound() const
 { return lower_bound_; }
 
-gologpp::Clock::duration TemporalBinaryOperation::upper_bound() const
+template<class SubjectT>
+gologpp::Clock::duration TemporalBinaryOperation<SubjectT>::upper_bound() const
 { return upper_bound_; }
 
 
-string TemporalBinaryOperation::to_string(const string &pfx) const
+template<class SubjectT>
+string TemporalBinaryOperation<SubjectT>::to_string(const string &pfx) const
 {
-	return pfx + lhs().str() + gologpp::platform::to_string(op()) + "[" + gologpp::to_string(lower_bound()) + ", "
+	return pfx + lhs().str() + gologpp::platform::to_string<SubjectT>(op()) + "[" + gologpp::to_string(lower_bound()) + ", "
 		+ gologpp::to_string(upper_bound()) + "] " + rhs().str();
 }
 
 
-string to_string(typename TemporalBinaryOperation::Operator op)
+template<class SubjectT>
+string to_string(typename TemporalBinaryOperation<SubjectT>::Operator op)
 {
 	switch (op) {
-	case TemporalBinaryOperation::Operator::UNTIL:
+	case TemporalBinaryOperation<SubjectT>::Operator::UNTIL:
 		return "until";
-	case TemporalBinaryOperation::Operator::SINCE:
+	case TemporalBinaryOperation<SubjectT>::Operator::SINCE:
 		return "since";
 	}
 	throw Bug("Unhandled TemporalBinaryOperation::Operator");
 }
 
+
+template
+class TemporalBinaryOperation<StateSpec>;
+
+template
+class TemporalBinaryOperation<ActionSpec>;
 
 
 } // namespace platform

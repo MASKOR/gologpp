@@ -141,8 +141,8 @@ void handle_error(
 
 
 
-template<class OperationT>
-OperationT *parse_op_precedence_(op_list<OperationT> vec, Expression *last) {
+template<class OperationT, class ExprT>
+OperationT *parse_op_precedence_(op_list<OperationT, ExprT> vec, Expression *last) {
 	if (vec.size() == 1)
 		return new OperationT(
 			at_c<0>(vec.front()),
@@ -152,7 +152,7 @@ OperationT *parse_op_precedence_(op_list<OperationT> vec, Expression *last) {
 	else {
 		typename OperationT::Operator op = at_c<1>(vec.front());
 		OperationT *rhs = parse_op_precedence_<OperationT>(
-			op_list<OperationT>(++vec.begin(), vec.end()),
+			op_list<OperationT, ExprT>(++vec.begin(), vec.end()),
 			last
 		);
 		if (precedence(rhs->op()) > precedence(op))
@@ -166,7 +166,7 @@ OperationT *parse_op_precedence_(op_list<OperationT> vec, Expression *last) {
 			// and it's not the worst one, either.
 			typename OperationT::Operator op = at_c<1>(vec.back());
 			OperationT *lhs = parse_op_precedence_<OperationT>(
-				op_list<OperationT>(vec.begin(), --vec.end()),
+				op_list<OperationT, ExprT>(vec.begin(), --vec.end()),
 				at_c<0>(vec.back())
 			);
 			return new OperationT(
@@ -179,13 +179,13 @@ OperationT *parse_op_precedence_(op_list<OperationT> vec, Expression *last) {
 }
 
 
-template<class OperationT>
+template<class OperationT, class ExprT>
 OperationT *parse_op_precedence(
-	vector<fusion_wtf_vector<Expression *, typename OperationT::Operator>> vec,
-	Expression *rhs
+	vector<fusion_wtf_vector<ExprT *, typename OperationT::Operator>> vec,
+	ExprT *rhs
 ) {
-	return parse_op_precedence_<OperationT>(
-		op_list<OperationT>(vec.begin(), vec.end()),
+	return parse_op_precedence_<OperationT, ExprT>(
+		op_list<OperationT, ExprT>(vec.begin(), vec.end()),
 		rhs
 	);
 }
@@ -210,16 +210,25 @@ platform::BooleanClockOperation *parse_op_precedence(
 
 
 template
-helper::BinaryOpIntermediate *parse_op_precedence(
-	vector<fusion_wtf_vector<Expression *, helper::BinaryOpIntermediate::Operator>> vec,
-	Expression *rhs
+helper::BinaryOpIntermediate<platform::ActionSpec> *parse_op_precedence(
+	vector<fusion_wtf_vector<platform::ActionSpec *, helper::BinaryOpIntermediate<platform::ActionSpec>::Operator>> vec,
+	platform::ActionSpec *rhs
 );
 
+template
+helper::BinaryOpIntermediate<platform::StateSpec> *parse_op_precedence(
+	vector<fusion_wtf_vector<platform::StateSpec *, helper::BinaryOpIntermediate<platform::StateSpec>::Operator>> vec,
+	platform::StateSpec *rhs
+);
 
 
 template<>
 string debug_name<platform::State>()
 { return "state"; }
+
+template<>
+string debug_name<Action>()
+{ return "action"; }
 
 template<>
 string debug_name<platform::Clock>()
@@ -230,8 +239,12 @@ string debug_name<platform::Component>()
 { return "component"; }
 
 template<>
-string debug_name<Action>()
-{ return "action"; }
+string debug_name<platform::StateSpec>()
+{ return "state_spec"; }
+
+template<>
+string debug_name<platform::ActionSpec>()
+{ return "action_spec"; }
 
 
 rule<void ()> conditional_comma(const TypeList &tl)

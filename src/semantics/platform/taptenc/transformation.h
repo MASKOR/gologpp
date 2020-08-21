@@ -33,7 +33,7 @@ public:
 private:
 	AExecutionContext &context();
 
-	shared_ptr<const platform::Component> find_component_ref(const Expression &constraint_expr);
+	shared_ptr<const platform::Component> find_component_ref(const platform::StateSpec &constraint_expr);
 	vector<taptenc::PlanAction> plan_gpp_to_taptenc(Plan &&);
 	unique_ptr<Plan> plan_taptenc_to_gpp(taptenc::timed_trace_t &&);
 

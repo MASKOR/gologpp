@@ -100,8 +100,8 @@ private:
 
 #define DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(...) \
 	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override { \
-		if (!semantics_) { \
-			semantics_ = f.make_semantics(*this); \
+		if (!this->semantics_) { \
+			this->semantics_ = f.make_semantics(*this); \
 			boost::fusion::for_each(std::tie(__VA_ARGS__), [&] (auto &e) { \
 				e.attach_semantics(f); \
 			} ); \
@@ -110,8 +110,8 @@ private:
 
 #define DEFINE_ATTACH_SEMANTICS \
 	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override { \
-		if (!semantics_) \
-			semantics_ = f.make_semantics(*this); \
+		if (!this->semantics_) \
+			this->semantics_ = f.make_semantics(*this); \
 	}
 
 

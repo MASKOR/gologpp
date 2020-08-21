@@ -145,6 +145,9 @@ class PlatformBackend;
 
 namespace platform {
 
+class ActionSpec;
+class StateSpec;
+
 class Component;
 class ComponentBackend;
 class Transition;
@@ -162,9 +165,9 @@ class Constraint;
 class StateAssertion;
 class ActionHook;
 class During;
-class BooleanConstraintOperation;
-class TemporalUnaryOperation;
-class TemporalBinaryOperation;
+template<class> class BooleanConstraintOperation;
+template<class> class TemporalUnaryOperation;
+template<class> class TemporalBinaryOperation;
 
 template<class> class Reference;
 
@@ -255,9 +258,12 @@ class SemanticsFactory;
 	(platform::StateAssertion) \
 	(platform::ActionHook) \
 	(platform::During) \
-	(platform::BooleanConstraintOperation) \
-	(platform::TemporalUnaryOperation) \
-	(platform::TemporalBinaryOperation) \
+	(platform::BooleanConstraintOperation<platform::ActionSpec>) \
+	(platform::BooleanConstraintOperation<platform::StateSpec>) \
+	(platform::TemporalUnaryOperation<platform::ActionSpec>) \
+	(platform::TemporalUnaryOperation<platform::StateSpec>) \
+	(platform::TemporalBinaryOperation<platform::ActionSpec>) \
+	(platform::TemporalBinaryOperation<platform::StateSpec>) \
 
 #define GOLOGPP_SEMANTIC_TYPES \
 	GOLOGPP_INSTRUCTIONS \

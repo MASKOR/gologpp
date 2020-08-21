@@ -35,6 +35,22 @@ namespace gologpp {
 
 namespace platform {
 
+class ActionSpec
+: public virtual Expression
+, public virtual AbstractLanguageElement
+, public NoScopeOwner
+{
+};
+
+
+class StateSpec
+: public virtual Expression
+, public virtual AbstractLanguageElement
+, public NoScopeOwner
+{
+};
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,10 +60,10 @@ class Constraint
 , public LanguageElement<Constraint, BoolType>
 {
 public:
-	Constraint(Expression *lhs, Expression *rhs);
+	Constraint(ActionSpec *lhs, StateSpec *rhs);
 
-	const Expression &lhs() const;
-	const Expression &rhs() const;
+	const ActionSpec &lhs() const;
+	const StateSpec &rhs() const;
 
 	virtual string to_string(const string &pfx) const override;
 
@@ -57,8 +73,8 @@ public:
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*lhs_, *rhs_)
 
 private:
-	unique_ptr<Expression> lhs_;
-	unique_ptr<Expression> rhs_;
+	unique_ptr<ActionSpec> lhs_;
+	unique_ptr<StateSpec> rhs_;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,8 +82,7 @@ private:
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 class ActionHook
-: public Expression
-, public NoScopeOwner
+: public ActionSpec
 , public LanguageElement<ActionHook, BoolType>
 {
 public:
@@ -91,8 +106,7 @@ private:
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 class During
-: public Expression
-, public NoScopeOwner
+: public ActionSpec
 , public LanguageElement<During, BoolType>
 {
 public:
@@ -112,8 +126,7 @@ private:
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 class StateAssertion
-: public Expression
-, public NoScopeOwner
+: public StateSpec
 , public LanguageElement<StateAssertion, BoolType>
 {
 public:
@@ -134,20 +147,20 @@ private:
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<class SubjectT>
 class BooleanConstraintOperation
-: public Expression
-, public NoScopeOwner
-, public LanguageElement<BooleanConstraintOperation, BoolType>
+: public SubjectT
+, public LanguageElement<BooleanConstraintOperation<SubjectT>, BoolType>
 {
 public:
 	enum class Operator {
 		OR, AND
 	};
 
-	BooleanConstraintOperation(Expression *lhs, Operator op, Expression *rhs);
+	BooleanConstraintOperation(SubjectT *lhs, Operator op, SubjectT *rhs);
 
-	const Expression &lhs() const;
-	const Expression &rhs() const;
+	const SubjectT &lhs() const;
+	const SubjectT &rhs() const;
 	Operator op() const;
 
 	virtual string to_string(const string &pfx) const override;
@@ -155,20 +168,21 @@ public:
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*lhs_, *rhs_)
 
 private:
-	unique_ptr<Expression> lhs_, rhs_;
+	unique_ptr<SubjectT> lhs_, rhs_;
 	Operator op_;
 };
 
-string to_string(typename BooleanConstraintOperation::Operator op);
+template<class SubjectT>
+string to_string(typename BooleanConstraintOperation<SubjectT>::Operator op);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<class SubjectT>
 class TemporalUnaryOperation
-: public Expression
-, public NoScopeOwner
-, public LanguageElement<TemporalUnaryOperation, BoolType>
+: public SubjectT
+, public LanguageElement<TemporalUnaryOperation<SubjectT>, BoolType>
 {
 public:
 	enum class Operator {
@@ -176,7 +190,7 @@ public:
 	};
 
 	TemporalUnaryOperation(
-		Expression *subject,
+		SubjectT *subject,
 		Operator op,
 		boost::optional<fusion_wtf_vector <
 			boost::optional<Value *>,
@@ -184,7 +198,7 @@ public:
 		> > bound
 	);
 
-	const Expression &subject() const;
+	const SubjectT &subject() const;
 	Operator op() const;
 	gologpp::Clock::duration lower_bound() const;
 	gologpp::Clock::duration upper_bound() const;
@@ -194,21 +208,22 @@ public:
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*subject_);
 
 private:
-	unique_ptr<Expression> subject_;
+	unique_ptr<SubjectT> subject_;
 	Operator op_;
 	gologpp::Clock::duration lower_bound_, upper_bound_;
 };
 
-string to_string(typename TemporalUnaryOperation::Operator op);
+template<class SubjectT>
+string to_string(typename TemporalUnaryOperation<SubjectT>::Operator op);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<class SubjectT>
 class TemporalBinaryOperation
-: public Expression
-, public NoScopeOwner
-, public LanguageElement<TemporalBinaryOperation, BoolType>
+: public SubjectT
+, public LanguageElement<TemporalBinaryOperation<SubjectT>, BoolType>
 {
 public:
 	enum class Operator {
@@ -216,15 +231,15 @@ public:
 	};
 
 	TemporalBinaryOperation(
-		Expression *lhs,
-		Expression *rhs,
+		SubjectT *lhs,
+		SubjectT *rhs,
 		Operator op,
 		Value *lower_bound,
 		Value *upper_bound
 	);
 
-	const Expression &lhs() const;
-	const Expression &rhs() const;
+	const SubjectT &lhs() const;
+	const SubjectT &rhs() const;
 	Operator op() const;
 
 	gologpp::Clock::duration lower_bound() const;
@@ -235,12 +250,13 @@ public:
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*lhs_, *rhs_);
 
 private:
-	unique_ptr<Expression> lhs_, rhs_;
+	unique_ptr<SubjectT> lhs_, rhs_;
 	Operator op_;
 	gologpp::Clock::duration lower_bound_, upper_bound_;
 };
 
-string to_string(typename TemporalBinaryOperation::Operator op);
+template<class SubjectT>
+string to_string(typename TemporalBinaryOperation<SubjectT>::Operator op);
 
 
 

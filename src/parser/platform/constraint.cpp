@@ -50,8 +50,9 @@ namespace parser {
 
 namespace helper {
 
-BinaryOpIntermediate::Operator::Operator(
-	BinaryOpIntermediate::Operator::OpType type,
+template<class SubjectT>
+BinaryOpIntermediate<SubjectT>::Operator::Operator(
+	BinaryOpIntermediate<SubjectT>::Operator::OpType type,
 	boost::optional<fusion_wtf_vector<
 		boost::optional<Value *>,
 		boost::optional<Value *>
@@ -78,48 +79,68 @@ BinaryOpIntermediate::Operator::Operator(
 	}
 }
 
-BinaryOpIntermediate::Operator::~Operator()
+template<class SubjectT>
+BinaryOpIntermediate<SubjectT>::Operator::~Operator()
 {
 	delete lower_bound_;
 	delete upper_bound_;
 }
 
-BinaryOpIntermediate::Operator::OpType BinaryOpIntermediate::Operator::type() const
+template<class SubjectT>
+typename BinaryOpIntermediate<SubjectT>::Operator::OpType
+BinaryOpIntermediate<SubjectT>::Operator::type() const
 { return type_; }
 
-Value *BinaryOpIntermediate::Operator::lower_bound()
+template<class SubjectT>
+Value *BinaryOpIntermediate<SubjectT>::Operator::lower_bound()
 { return lower_bound_; }
 
-Value *BinaryOpIntermediate::Operator::upper_bound()
+template<class SubjectT>
+Value *BinaryOpIntermediate<SubjectT>::Operator::upper_bound()
 { return upper_bound_; }
 
 
 
-BinaryOpIntermediate::BinaryOpIntermediate(Expression *lhs, BinaryOpIntermediate::Operator op, Expression *rhs)
+template<class SubjectT>
+BinaryOpIntermediate<SubjectT>::BinaryOpIntermediate(SubjectT *lhs, BinaryOpIntermediate<SubjectT>::Operator op, SubjectT *rhs)
 : lhs_(lhs), rhs_(rhs), op_(op)
 {}
 
-BinaryOpIntermediate::Operator BinaryOpIntermediate::op() const
+template<class SubjectT>
+BinaryOpIntermediate<SubjectT>::BinaryOpIntermediate(Expression *lhs, BinaryOpIntermediate<SubjectT>::Operator op, Expression *rhs)
+: lhs_(&dynamic_cast<SubjectT &>(*lhs))
+, rhs_(&dynamic_cast<SubjectT &>(*rhs))
+, op_(op)
+{}
+
+template<class SubjectT>
+typename BinaryOpIntermediate<SubjectT>::Operator
+BinaryOpIntermediate<SubjectT>::op() const
 { return op_; }
 
-void BinaryOpIntermediate::attach_semantics(SemanticsFactory &)
+template<class SubjectT>
+void BinaryOpIntermediate<SubjectT>::attach_semantics(SemanticsFactory &)
 { throw Bug(string(__func__) + ": Not implemented"); }
 
-string BinaryOpIntermediate::to_string(const string &) const
+template<class SubjectT>
+string BinaryOpIntermediate<SubjectT>::to_string(const string &) const
 { throw Bug(string(__func__) + ": Not implemented"); }
 
-Scope &BinaryOpIntermediate::scope()
+template<class SubjectT>
+Scope &BinaryOpIntermediate<SubjectT>::scope()
 { throw Bug(string(__func__) + ": Not implemented"); }
 
-const Scope &BinaryOpIntermediate::scope() const
+template<class SubjectT>
+const Scope &BinaryOpIntermediate<SubjectT>::scope() const
 { throw Bug(string(__func__) + ": Not implemented"); }
 
-Expression *BinaryOpIntermediate::convert()
+template<class SubjectT>
+SubjectT *BinaryOpIntermediate<SubjectT>::convert()
 {
-	BinaryOpIntermediate *lhs_inter = dynamic_cast<BinaryOpIntermediate *>(lhs_);
-	BinaryOpIntermediate *rhs_inter = dynamic_cast<BinaryOpIntermediate *>(rhs_);
+	BinaryOpIntermediate<SubjectT> *lhs_inter = dynamic_cast<BinaryOpIntermediate<SubjectT> *>(lhs_);
+	BinaryOpIntermediate<SubjectT> *rhs_inter = dynamic_cast<BinaryOpIntermediate<SubjectT> *>(rhs_);
 
-	Expression *lhs_final = nullptr, *rhs_final = nullptr;
+	SubjectT *lhs_final = nullptr, *rhs_final = nullptr;
 
 	if (lhs_inter) {
 		lhs_final = lhs_inter->convert();
@@ -136,30 +157,30 @@ Expression *BinaryOpIntermediate::convert()
 		rhs_final = rhs_;
 
 	if (op().type() == Operator::OpType::OR)
-		return new platform::BooleanConstraintOperation(
+		return new platform::BooleanConstraintOperation<SubjectT>(
 			lhs_final,
-			platform::BooleanConstraintOperation::Operator::OR,
+			platform::BooleanConstraintOperation<SubjectT>::Operator::OR,
 			rhs_final
 		);
 	else if (op().type() == Operator::OpType::AND)
-		return new platform::BooleanConstraintOperation(
+		return new platform::BooleanConstraintOperation<SubjectT>(
 			lhs_final,
-			platform::BooleanConstraintOperation::Operator::AND,
+			platform::BooleanConstraintOperation<SubjectT>::Operator::AND,
 			rhs_final
 		);
 	else if (op().type() == Operator::OpType::SINCE)
-		return new platform::TemporalBinaryOperation(
+		return new platform::TemporalBinaryOperation<SubjectT>(
 			lhs_final,
 			rhs_final,
-			platform::TemporalBinaryOperation::Operator::SINCE,
+			platform::TemporalBinaryOperation<SubjectT>::Operator::SINCE,
 			op().lower_bound(),
 			op().upper_bound()
 		);
 	else if (op().type() == Operator::OpType::UNTIL)
-		return new platform::TemporalBinaryOperation(
+		return new platform::TemporalBinaryOperation<SubjectT>(
 			lhs_final,
 			rhs_final,
-			platform::TemporalBinaryOperation::Operator::UNTIL,
+			platform::TemporalBinaryOperation<SubjectT>::Operator::UNTIL,
 			op().lower_bound(),
 			op().upper_bound()
 		);
@@ -167,16 +188,38 @@ Expression *BinaryOpIntermediate::convert()
 	throw Bug("Unhandled BinaryOpIntermediate::Operator::OpType");
 }
 
+template
+class BinaryOpIntermediate<platform::StateSpec>;
 
-unsigned int precedence(const BinaryOpIntermediate::Operator &op)
+template
+class BinaryOpIntermediate<platform::ActionSpec>;
+
+
+
+unsigned int precedence(const typename BinaryOpIntermediate<platform::StateSpec>::Operator &op)
 {
 	switch (op.type()) {
-	case BinaryOpIntermediate::Operator::OpType::UNTIL:
-	case BinaryOpIntermediate::Operator::OpType::SINCE:
+	case BinaryOpIntermediate<platform::StateSpec>::Operator::OpType::UNTIL:
+	case BinaryOpIntermediate<platform::StateSpec>::Operator::OpType::SINCE:
 		return 1;
-	case BinaryOpIntermediate::Operator::OpType::OR:
+	case BinaryOpIntermediate<platform::StateSpec>::Operator::OpType::OR:
 		return 2;
-	case BinaryOpIntermediate::Operator::OpType::AND:
+	case BinaryOpIntermediate<platform::StateSpec>::Operator::OpType::AND:
+		return 3;
+	}
+	throw Bug("Unhandled BinaryOpIntermediate::Operator::OpType");
+}
+
+
+unsigned int precedence(const typename BinaryOpIntermediate<platform::ActionSpec>::Operator &op)
+{
+	switch (op.type()) {
+	case BinaryOpIntermediate<platform::ActionSpec>::Operator::OpType::UNTIL:
+	case BinaryOpIntermediate<platform::ActionSpec>::Operator::OpType::SINCE:
+		return 1;
+	case BinaryOpIntermediate<platform::ActionSpec>::Operator::OpType::OR:
+		return 2;
+	case BinaryOpIntermediate<platform::ActionSpec>::Operator::OpType::AND:
 		return 3;
 	}
 	throw Bug("Unhandled BinaryOpIntermediate::Operator::OpType");
@@ -186,43 +229,43 @@ unsigned int precedence(const BinaryOpIntermediate::Operator &op)
 
 
 
-template<class RefT>
-ConstraintSpecParser<RefT>::ConstraintSpecParser()
-: ConstraintSpecParser::base_type(constraint_spec, debug_name<RefT>() + "_spec")
+template<class SubjectT>
+ConstraintSpecParser<SubjectT>::ConstraintSpecParser()
+: ConstraintSpecParser::base_type(constraint_spec, debug_name<SubjectT>())
 {
-	constraint_spec = binary_sequence(_r1) [ _val = phoenix::bind(&helper::BinaryOpIntermediate::convert, _1) ]
+	constraint_spec = binary_sequence(_r1) [ _val = phoenix::bind(&helper::BinaryOpIntermediate<SubjectT>::convert, _1) ]
 		| unary_expr(_r1) [ _val = _1 ];
-	constraint_spec.name(debug_name<RefT>() + "_spec");
+	constraint_spec.name(debug_name<SubjectT>());
 
 	binary_sequence = (
 		+(unary_expr(_r1) >> binary_op) >> unary_expr(_r1)
 	) [
-		_val = phoenix::bind(&parse_op_precedence<helper::BinaryOpIntermediate>, _1, _2)
+		_val = phoenix::bind(&parse_op_precedence<helper::BinaryOpIntermediate<SubjectT>, SubjectT>, _1, _2)
 	];
 	binary_sequence.name("binary_op_seq");
 
 	binary_op =
 		lit('&') [
-			_val = construct<helper::BinaryOpIntermediate::Operator>(
-				helper::BinaryOpIntermediate::Operator::OpType::AND,
+			_val = construct<typename helper::BinaryOpIntermediate<SubjectT>::Operator>(
+				helper::BinaryOpIntermediate<SubjectT>::Operator::OpType::AND,
 				boost::none
 			)
 		]
 		| lit('|') [
-			_val = construct<helper::BinaryOpIntermediate::Operator>(
-				helper::BinaryOpIntermediate::Operator::OpType::OR,
+			_val = construct<typename helper::BinaryOpIntermediate<SubjectT>::Operator>(
+				helper::BinaryOpIntermediate<SubjectT>::Operator::OpType::OR,
 				boost::none
 			)
 		]
 		| (lit("until") > -bound) [
-			_val = construct<helper::BinaryOpIntermediate::Operator>(
-				helper::BinaryOpIntermediate::Operator::OpType::UNTIL,
+			_val = construct<typename helper::BinaryOpIntermediate<SubjectT>::Operator>(
+				helper::BinaryOpIntermediate<SubjectT>::Operator::OpType::UNTIL,
 				_1
 			)
 		]
 		| (lit("since") > -bound) [
-			_val = construct<helper::BinaryOpIntermediate::Operator>(
-				helper::BinaryOpIntermediate::Operator::OpType::SINCE,
+			_val = construct<typename helper::BinaryOpIntermediate<SubjectT>::Operator>(
+				helper::BinaryOpIntermediate<SubjectT>::Operator::OpType::SINCE,
 				_1
 			)
 		]
@@ -235,15 +278,15 @@ ConstraintSpecParser<RefT>::ConstraintSpecParser()
 	temporal_unary = (
 		temporal_unary_op > -bound > unary_expr(_r1)
 	) [
-		_val = new_<platform::TemporalUnaryOperation>(_3, _1, _2)
+		_val = new_<platform::TemporalUnaryOperation<SubjectT>>(_3, _1, _2)
 	];
 	temporal_unary.name("temporal_unary_expr");
 
 	temporal_unary_op =
-		lit("next") [ _val = platform::TemporalUnaryOperation::Operator::NEXT ]
-		| lit("previous") [ _val = platform::TemporalUnaryOperation::Operator::PREVIOUS ]
-		| lit("future") [ _val = platform::TemporalUnaryOperation::Operator::FUTURE ]
-		| lit("past") [ _val = platform::TemporalUnaryOperation::Operator::PAST ]
+		lit("next") [ _val = platform::TemporalUnaryOperation<SubjectT>::Operator::NEXT ]
+		| lit("previous") [ _val = platform::TemporalUnaryOperation<SubjectT>::Operator::PREVIOUS ]
+		| lit("future") [ _val = platform::TemporalUnaryOperation<SubjectT>::Operator::FUTURE ]
+		| lit("past") [ _val = platform::TemporalUnaryOperation<SubjectT>::Operator::PAST ]
 	;
 	temporal_unary_op.name("temporal_unary_operator");
 
@@ -262,7 +305,7 @@ ConstraintSpecParser<RefT>::ConstraintSpecParser()
 
 
 template<>
-void ConstraintSpecParser<Action>::init()
+void ConstraintSpecParser<platform::ActionSpec>::init()
 {
 	unary_expr = braced_expr(_r1)
 		| temporal_unary(_r1)
@@ -297,7 +340,7 @@ void ConstraintSpecParser<Action>::init()
 
 
 template<>
-void ConstraintSpecParser<platform::State>::init()
+void ConstraintSpecParser<platform::StateSpec>::init()
 {
 	unary_expr = braced_expr(_r1)
 		| temporal_unary(_r1)

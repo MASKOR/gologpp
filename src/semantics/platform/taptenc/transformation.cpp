@@ -69,26 +69,34 @@ AExecutionContext &TaptencTransformation::context()
 { return *context_; }
 
 
-shared_ptr<const platform::Component> TaptencTransformation::find_component_ref(const Expression &expr)
+shared_ptr<const platform::Component> TaptencTransformation::find_component_ref(const platform::StateSpec &expr)
 {
 	if (expr.is_a<platform::StateAssertion>())
 		return expr.cast<platform::StateAssertion>().component().target();
-	else if (expr.is_a<platform::TemporalBinaryOperation>()) {
-		shared_ptr<const platform::Component> lhs_ref = find_component_ref(expr.cast<platform::TemporalBinaryOperation>().lhs());
-		shared_ptr<const platform::Component> rhs_ref = find_component_ref(expr.cast<platform::TemporalBinaryOperation>().rhs());
+	else if (expr.is_a<platform::TemporalBinaryOperation<platform::StateSpec>>()) {
+		shared_ptr<const platform::Component> lhs_ref = find_component_ref(
+			expr.cast<platform::TemporalBinaryOperation<platform::StateSpec>>().lhs()
+		);
+		shared_ptr<const platform::Component> rhs_ref = find_component_ref(
+			expr.cast<platform::TemporalBinaryOperation<platform::StateSpec>>().rhs()
+		);
 		if (lhs_ref != rhs_ref)
 			throw Unsupported("Taptenc semantics require that a state spec refer to one component only: " + expr.str());
 		return lhs_ref;
 	}
-	else if (expr.is_a<platform::BooleanConstraintOperation>()) {
-		shared_ptr<const platform::Component> lhs_ref = find_component_ref(expr.cast<platform::BooleanConstraintOperation>().lhs());
-		shared_ptr<const platform::Component> rhs_ref = find_component_ref(expr.cast<platform::BooleanConstraintOperation>().rhs());
+	else if (expr.is_a<platform::BooleanConstraintOperation<platform::StateSpec>>()) {
+		shared_ptr<const platform::Component> lhs_ref = find_component_ref(
+			expr.cast<platform::BooleanConstraintOperation<platform::StateSpec>>().lhs()
+		);
+		shared_ptr<const platform::Component> rhs_ref = find_component_ref(
+			expr.cast<platform::BooleanConstraintOperation<platform::StateSpec>>().rhs()
+		);
 		if (lhs_ref != rhs_ref)
 			throw Unsupported("Taptenc semantics require that a state spec refer to one component only: " + expr.str());
 		return lhs_ref;
 	}
-	else if (expr.is_a<platform::TemporalUnaryOperation>())
-		return find_component_ref(expr.cast<platform::TemporalUnaryOperation>().subject());
+	else if (expr.is_a<platform::TemporalUnaryOperation<platform::StateSpec>>())
+		return find_component_ref(expr.cast<platform::TemporalUnaryOperation<platform::StateSpec>>().subject());
 	else
 		throw Unsupported("Unexpected constraint expression: " + expr.str());
 }

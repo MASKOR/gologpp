@@ -30,7 +30,8 @@ namespace helper {
 
 /* Intermediate, unified representation for binary temporal and boolean
  * constraint operations. Required for compatibility with the precedence parser */
-class BinaryOpIntermediate : public Expression {
+template<class SubjectT>
+class BinaryOpIntermediate : public SubjectT {
 public:
 	class Operator {
 	public:
@@ -58,6 +59,7 @@ public:
 		Value *lower_bound_ = nullptr, *upper_bound_ = nullptr;
 	};
 
+	BinaryOpIntermediate(SubjectT *lhs, Operator op, SubjectT *rhs);
 	BinaryOpIntermediate(Expression *lhs, Operator op, Expression *rhs);
 
 	Operator op() const;
@@ -67,31 +69,33 @@ public:
 	virtual Scope &scope() override;
 	virtual const Scope &scope() const override;
 
-	Expression *convert();
+	SubjectT *convert();
 
 private:
-	Expression *lhs_, *rhs_;
+	SubjectT *lhs_, *rhs_;
 	Operator op_;
 };
 
-unsigned int precedence(const BinaryOpIntermediate::Operator &op);
+unsigned int precedence(const typename BinaryOpIntermediate<platform::StateSpec>::Operator &op);
+unsigned int precedence(const typename BinaryOpIntermediate<platform::ActionSpec>::Operator &op);
 
 } // namespace helper
 
 
 
-template<class RefT>
-struct ConstraintSpecParser : public grammar<Expression *(Scope &)> {
+template<class SubjectT>
+struct ConstraintSpecParser : public grammar<SubjectT *(Scope &)> {
 	ConstraintSpecParser();
 	void init();
 
-	rule<Expression *(Scope &)> constraint_spec;
-	rule<helper::BinaryOpIntermediate *(Scope &)> binary_sequence;
-	rule<Expression *(Scope &)> braced_expr;
-	rule<platform::TemporalUnaryOperation *(Scope &)> temporal_unary;
-	rule<platform::TemporalUnaryOperation::Operator()> temporal_unary_op;
-	rule<helper::BinaryOpIntermediate::Operator()> binary_op;
-	rule<helper::BinaryOpIntermediate::Operator()> temporal_binary_op;
+	// (Nonterminal) Symbols which are common to both lhs and rhs of a constraint
+	rule<SubjectT *(Scope &)> constraint_spec;
+	rule<helper::BinaryOpIntermediate<SubjectT> *(Scope &)> binary_sequence;
+	rule<SubjectT *(Scope &)> braced_expr;
+	rule<platform::TemporalUnaryOperation<SubjectT> *(Scope &)> temporal_unary;
+	rule<typename platform::TemporalUnaryOperation<SubjectT>::Operator()> temporal_unary_op;
+	rule<typename helper::BinaryOpIntermediate<SubjectT>::Operator()> binary_op;
+	rule<typename helper::BinaryOpIntermediate<SubjectT>::Operator()> temporal_binary_op;
 	rule <
 		fusion_wtf_vector <
 			boost::optional<Value *>,
@@ -99,8 +103,9 @@ struct ConstraintSpecParser : public grammar<Expression *(Scope &)> {
 		> ()
 	> bound;
 
-	rule<Expression *(Scope &)> unary_expr;
-
+	// Symbols which are specific to lhs/rhs.
+	// Defined in the respective template specializations.
+	rule<SubjectT *(Scope &)> unary_expr;
 	rule<DurativeCall::Hook()> action_hook_name;
 	rule<platform::ActionHook *(Scope &)> action_hook;
 	rule<platform::During *(Scope &)> during;
@@ -119,8 +124,8 @@ struct ConstraintSectionParser : public grammar<void(Scope &)> {
 
 	rule<void(Scope &)> constraint_section;
 	rule<platform::Constraint *(Scope &)> constraint;
-	ConstraintSpecParser<Action> action_spec;
-	ConstraintSpecParser<platform::State> state_spec;
+	ConstraintSpecParser<platform::ActionSpec> action_spec;
+	ConstraintSpecParser<platform::StateSpec> state_spec;
 };
 
 

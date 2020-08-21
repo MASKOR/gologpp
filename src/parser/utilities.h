@@ -101,8 +101,8 @@ void handle_error(
 
 
 
-template<class OperationT>
-using op_list = std::list<fusion_wtf_vector<Expression *, typename OperationT::Operator>>;
+template<class OperationT, class ExprT>
+using op_list = std::list<fusion_wtf_vector<ExprT *, typename OperationT::Operator>>;
 
 /*
  * Behold the braindeadness of PEGs: Operator precedence is impossible to implement
@@ -112,10 +112,10 @@ using op_list = std::list<fusion_wtf_vector<Expression *, typename OperationT::O
  * list. Then shove it all into this "after-parser" to build a structured BooleanOperation
  * that properly reflects operator precedence.
  */
-template<class OperationT>
+template<class OperationT, class ExprT = Expression>
 OperationT *parse_op_precedence(
-	vector<fusion_wtf_vector<Expression *, typename OperationT::Operator>> vec,
-	Expression *rhs
+	vector<fusion_wtf_vector<ExprT *, typename OperationT::Operator>> vec,
+	ExprT *rhs
 );
 
 
