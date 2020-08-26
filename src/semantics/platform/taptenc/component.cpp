@@ -74,6 +74,32 @@ taptenc::Transition Semantics<platform::Transition>::compile()
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+taptenc::Transition Semantics<platform::ExogTransition>::compile()
+{
+	std::unique_ptr<taptenc::ClockConstraint> clock_formula;
+	if (element().clock_formula())
+		clock_formula = element().clock_formula()->semantics().compile();
+	else
+		log(LogLevel::WRN) << "Exogenous transition without clock formula: " << element().str() << flush;
+
+	taptenc::update_t resets;
+	for (auto &c : element().resets())
+		resets.insert((*c)->special_semantics().compile());
+
+	return taptenc::Transition {
+		element().from()->name(),
+		element().to()->name(),
+		"no_op",
+		*clock_formula,
+		std::move(resets),
+		"" /* TODO: unused? */
+	};
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 Semantics<platform::State>::Semantics(const platform::State &state, AExecutionContext &context)
 : GeneralSemantics<platform::State>(state, context)
@@ -122,8 +148,7 @@ std::unique_ptr<taptenc::automaton> Semantics<platform::Component>::compile()
 	}
 
 	for (const unique_ptr<platform::AbstractTransition> &t : element().transitions())
-		if (t->is_a<platform::Transition>())
-			transitions.emplace_back(t->cast<platform::Transition>().special_semantics().compile());
+		transitions.emplace_back(t->semantics<platform::AbstractTransition>().compile());
 
 	auto rv = std::make_unique<taptenc::automaton>(
 		std::move(states),

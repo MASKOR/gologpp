@@ -40,15 +40,41 @@ private:
 	std::shared_ptr<taptenc::Clock> ttclock_;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Only endogenous transitions have TaptencSemantics.
-// Exogenous ones are disregarded in the plan transformation.
+template<>
+class Semantics<platform::AbstractTransition>
+{
+public:
+	virtual taptenc::Transition compile() = 0;
+};
+
 template<>
 class Semantics<platform::Transition>
 : public GeneralSemantics<platform::Transition>
+, public Semantics<platform::AbstractTransition>
 {
 public:
-	taptenc::Transition compile();
+	using GeneralSemantics<platform::Transition>::GeneralSemantics;
+
+	virtual taptenc::Transition compile() override;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+class Semantics<platform::ExogTransition>
+: public GeneralSemantics<platform::ExogTransition>
+, public Semantics<platform::AbstractTransition>
+{
+public:
+	using GeneralSemantics<platform::ExogTransition>::GeneralSemantics;
+
+	virtual taptenc::Transition compile() override;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
