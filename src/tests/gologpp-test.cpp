@@ -27,6 +27,8 @@
 #include <semantics/readylog/execution.h>
 #include <semantics/readylog/procedural.h>
 
+#include <semantics/platform/taptenc/semantics.h>
+
 #include <parser/parser.h>
 
 #include <boost/program_options.hpp>
@@ -108,7 +110,7 @@ int main(int argc, char **argv) {
 		options.toplevel = false;
 		options.guitrace = !vm["guitrace"].empty();
 
-		ReadylogContext::init<platform::DummySemanticsFactory>(options);
+		ReadylogContext::init<platform::TaptencSemanticsFactory>(options);
 
 		int rv = test_file(unique_ptr<Instruction>(mainproc->ref({})));
 
