@@ -41,7 +41,7 @@ private:
 	Logger();
 	static std::unique_ptr<Logger> instance_;
 public:
-	~Logger();
+	virtual ~Logger();
 	Logger &level(const LogLevel &lvl);
 	Logger &flush();
 	static Logger &instance();

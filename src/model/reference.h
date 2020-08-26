@@ -283,16 +283,16 @@ public:
 
 	virtual ~Reference() override = default;
 
-	virtual const TargetT &operator * () const
+	virtual const TargetT &operator * () const override
 	{ return *this->target(); }
 
-	virtual TargetT &operator * ()
+	virtual TargetT &operator * () override
 	{ return *this->target(); }
 
-	virtual const TargetT *operator -> () const
+	virtual const TargetT *operator -> () const override
 	{ return this->target().get(); }
 
-	virtual TargetT *operator -> ()
+	virtual TargetT *operator -> () override
 	{ return this->target().get(); }
 
 	virtual void attach_semantics(SemanticsFactory &f) override
