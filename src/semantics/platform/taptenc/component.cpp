@@ -18,12 +18,21 @@
 #include "component.h"
 #include <model/platform/component.h>
 #include <model/platform/clock_formula.h>
+#include <model/logger.h>
 
 #include <taptenc/src/constants.h>
 #include <semantics/platform/taptenc/clock_formula.h>
 
 
 namespace gologpp {
+
+
+Semantics<platform::Clock>::Semantics(const platform::Clock &clock, AExecutionContext &context)
+: GeneralSemantics<platform::Clock>(clock, context)
+{
+	if (element().name() != tolower(element().name()))
+		throw Unsupported("Taptenc semantics require all platform model element names to be lowercase: " + element().str());
+}
 
 
 std::shared_ptr<taptenc::Clock> Semantics<platform::Clock>::compile()
@@ -52,15 +61,26 @@ taptenc::Transition Semantics<platform::Transition>::compile()
 	return taptenc::Transition {
 		element().from()->name(),
 		element().to()->name(),
-		tolower(dynamic_cast<const platform::Component &>(*element().parent()).name())
-			+ taptenc::constants::COMPONENT_SEP + tolower(element().from()->name())
-			+ "T" + tolower(element().to()->name()),
+		dynamic_cast<const platform::Component &>(*element().parent()).name()
+			+ taptenc::constants::COMPONENT_SEP + element().from()->name()
+			+ "T" + element().to()->name(),
 		*clock_formula,
 		std::move(resets),
 		"" /* TODO: unused? */
 	};
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+Semantics<platform::State>::Semantics(const platform::State &state, AExecutionContext &context)
+: GeneralSemantics<platform::State>(state, context)
+{
+	if (element().name() != tolower(element().name()))
+		throw Unsupported("Taptenc semantics require all platform model element names to be lowercase: " + element().str());
+}
 
 
 taptenc::State Semantics<platform::State>::compile()
@@ -74,6 +94,17 @@ taptenc::State Semantics<platform::State>::compile()
 	return taptenc::State { uppaal_qualified_name(element()), *clock_formula };
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+Semantics<platform::Component>::Semantics(const platform::Component &comp, AExecutionContext &context)
+: GeneralSemantics<platform::Component>(comp, context)
+{
+	if (element().name() != tolower(element().name()))
+		throw Unsupported("Taptenc semantics require all platform model element names to be lowercase: " + element().str());
+}
 
 
 std::unique_ptr<taptenc::automaton> Semantics<platform::Component>::compile()

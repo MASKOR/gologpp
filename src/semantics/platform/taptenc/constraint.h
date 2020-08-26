@@ -17,15 +17,14 @@
 
 #pragma once
 
+#include <model/platform/constraint.h>
+
 #include <semantics/platform/taptenc/semantics.h>
 
 #include <taptenc/src/encoder/enc_interconnection_info.h>
 
 
 namespace gologpp {
-
-
-std::string encode_alphabetic(size_t n);
 
 
 template<>

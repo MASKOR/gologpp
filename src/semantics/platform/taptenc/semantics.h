@@ -32,8 +32,8 @@ template<class ElemT>
 string uppaal_qualified_name(const ElemT &e)
 {
 	return taptenc::encoderutils::addToBaseId(
-		tolower(dynamic_cast<const Identifier &>(*e.parent()).name()),
-		tolower(e.name())
+		dynamic_cast<const Identifier &>(*e.parent()).name(),
+		e.name()
 	);
 }
 

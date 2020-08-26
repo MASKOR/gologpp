@@ -32,6 +32,8 @@ class Semantics<platform::Clock>
 : public GeneralSemantics<platform::Clock>
 {
 public:
+	Semantics(const platform::Clock &clock, AExecutionContext &context);
+
 	std::shared_ptr<taptenc::Clock> compile();
 
 private:
@@ -49,21 +51,31 @@ public:
 	taptenc::Transition compile();
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<>
 class Semantics<platform::State>
 : public GeneralSemantics<platform::State>
 {
 public:
+	Semantics(const platform::State &clock, AExecutionContext &context);
+
 	taptenc::State compile();
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<>
 class Semantics<platform::Component>
 : public GeneralSemantics<platform::Component>
 {
 public:
+	Semantics(const platform::Component &clock, AExecutionContext &context);
+
 	std::unique_ptr<taptenc::automaton> compile();
 };
 

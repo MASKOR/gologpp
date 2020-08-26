@@ -27,11 +27,6 @@
 namespace gologpp {
 
 
-std::string encode_alphabetic(size_t n)
-{
-
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +36,7 @@ size_t Semantics<platform::Constraint>::count_ = 0;
 
 Semantics<platform::Constraint>::Semantics(const platform::Constraint &elem, AExecutionContext &context)
 : GeneralSemantics<platform::Constraint>(elem, context)
-, id(encode_alphabetic(count_++))
+, id("constraint" + std::to_string(count_++))
 {}
 
 
@@ -82,23 +77,13 @@ bool Semantics<platform::Constraint>::is_chain(const platform::ActionSpec &as)
 
 std::vector<taptenc::ActionName> Semantics<platform::ActionHook>::compile()
 {
-	string hookname;
-	switch (element().hook()) {
-	case platform::ActionHook::Hook::START:
-		hookname = taptenc::constants::START_PA;
-		break;
-	case platform::ActionHook::Hook::END:
-		hookname = taptenc::constants::END_PA;
-		break;
-	default:
-		throw Unsupported("Unsupported action hook: " + element().str());
-	}
+	string hookname = gologpp::to_string(element().hook());
 
 	std::vector<std::string> args;
 	for (auto &a : element().action().args())
 		args.push_back(a->cast<Value>().string_representation());
 
-	return { taptenc::ActionName(hookname + element().action()->name(), args) };
+	return { taptenc::ActionName(hookname + 'G' + element().action()->name(), args) };
 }
 
 
