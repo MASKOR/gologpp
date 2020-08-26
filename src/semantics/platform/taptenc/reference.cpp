@@ -24,10 +24,10 @@ namespace gologpp {
 
 
 std::shared_ptr<taptenc::Clock> Semantics<platform::Reference<platform::Clock>>::compile()
-{ return element()->semantics().compile(); }
+{ return element()->special_semantics().compile(); }
 
 taptenc::State gologpp::Semantics<platform::Reference<platform::State>>::compile()
-{ return element()->semantics().compile(); }
+{ return element()->special_semantics().compile(); }
 
 
 } // namespace gologpp

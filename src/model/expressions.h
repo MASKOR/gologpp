@@ -52,8 +52,8 @@ public:
 	{ return ModelElement::general_semantics<GologT>(); }
 
 	template<class GologT = Expression>
-	Semantics<GologT> &elem_semantics() const
-	{ return ModelElement::semantics<GologT>(); }
+	Semantics<GologT> &semantics() const
+	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
 };
 
 
@@ -92,8 +92,8 @@ public:
 	{ return ModelElement::general_semantics<GologT>(); }
 
 	template<class GologT = Instruction>
-	Semantics<GologT> &elem_semantics() const
-	{ return ModelElement::semantics<GologT>(); }
+	Semantics<GologT> &semantics() const
+	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
 };
 
 

@@ -17,6 +17,7 @@
 
 #include "effect_axiom.h"
 #include "procedural.h"
+#include "action.h"
 
 
 
@@ -42,18 +43,18 @@ EC_word Semantics<EffectAxiom<Reference<Fluent>>>::plterm()
 	element().scope().semantics().init_vars();
 
 	EC_word condition_term = element().condition().semantics().plterm();
-	if (element().lhs().semantics().args_need_eval()) {
+	if (element().lhs().special_semantics().args_need_eval()) {
 
 		element().lhs().target()->scope().semantics().init_vars();
 
 		condition_term = ::term(EC_functor("and", 2),
-			element().lhs().semantics().args_binding(),
+			element().lhs().special_semantics().args_binding(),
 			condition_term
 		);
 	}
 
 	return ::term(EC_functor(cv_functor(element()).c_str(), 4),
-		element().action().semantics().plterm(),
+		element().action().semantics<AbstractAction>().plterm(),
 		element().lhs().semantics<Reference<Fluent>>().plterm_free_args(),
 		element().value().semantics().plterm(),
 		condition_term
@@ -71,19 +72,19 @@ EC_word Semantics<EffectAxiom<FieldAccess>>::plterm()
 	element().scope().semantics().init_vars();
 
 	EC_word condition_term = element().condition().semantics().plterm();
-	if (fluent_access.first->semantics().args_need_eval()) {
+	if (fluent_access.first->special_semantics().args_need_eval()) {
 
 		fluent_access.first->target()->scope().semantics().init_vars();
 
 		condition_term = ::term(EC_functor("and", 2),
-			fluent_access.first->semantics().args_binding(),
+			fluent_access.first->special_semantics().args_binding(),
 			condition_term
 		);
 	}
 
 	return ::term(EC_functor(cv_functor(element()).c_str(), 4),
-		element().action().semantics().plterm(),
-		fluent_access.first->semantics().plterm_free_args(),
+		element().action().semantics<AbstractAction>().plterm(),
+		fluent_access.first->special_semantics().plterm_free_args(),
 		::term(EC_functor("gpp_mixed_assign", 3),
 			fluent_access.second,
 			element().value().semantics().plterm(),
@@ -104,19 +105,19 @@ EC_word Semantics<EffectAxiom<ListAccess>>::plterm()
 	element().scope().semantics().init_vars();
 
 	EC_word condition_term = element().condition().semantics().plterm();
-	if (fluent_access.first->semantics().args_need_eval()) {
+	if (fluent_access.first->special_semantics().args_need_eval()) {
 
 		fluent_access.first->target()->scope().semantics().init_vars();
 
 		condition_term = ::term(EC_functor("and", 2),
-			fluent_access.first->semantics().args_binding(),
+			fluent_access.first->special_semantics().args_binding(),
 			condition_term
 		);
 	}
 
 	return ::term(EC_functor(cv_functor(element()).c_str(), 4),
-		element().action().semantics().plterm(),
-		fluent_access.first->semantics().plterm_free_args(),
+		element().action().semantics<AbstractAction>().plterm(),
+		fluent_access.first->special_semantics().plterm_free_args(),
 		::term(EC_functor("gpp_mixed_assign", 3),
 			fluent_access.second,
 			element().value().semantics().plterm(),

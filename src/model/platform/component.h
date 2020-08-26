@@ -39,6 +39,9 @@ public:
 	using EngineError::EngineError;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Clock
 : public LanguageElement<Clock, VoidType>
@@ -70,15 +73,15 @@ class State
 public:
 	using ElementType = ModelElement;
 
-	State(const string &name, Component &parent, boost::optional<Expression *> clock_formula);
+	State(const string &name, Component &parent, boost::optional<ClockFormula *> clock_formula);
 
-	const Expression *clock_formula() const;
+	const ClockFormula *clock_formula() const;
 
 	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override;
 	virtual string to_string(const string &pfx) const override;
 
 private:
-	unique_ptr<Expression> clock_formula_;
+	unique_ptr<ClockFormula> clock_formula_;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,21 +96,21 @@ public:
 	AbstractTransition(
 		Reference<State> *from,
 		Reference<State> *to,
-		boost::optional<Expression *> clock_formula,
+		boost::optional<ClockFormula *> clock_formula,
 		boost::optional<vector<Reference<Clock> *>> resets
 	);
 
 	const Reference<State> &from() const;
 	const Reference<State> &to() const;
 	const vector<unique_ptr<Reference<Clock>>> &resets() const;
-	const Expression *clock_formula() const;
+	const ClockFormula *clock_formula() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 protected:
 	unique_ptr<Reference<State>> from_;
 	unique_ptr<Reference<State>> to_;
-	unique_ptr<Expression> clock_formula_;
+	unique_ptr<ClockFormula> clock_formula_;
 	vector<unique_ptr<Reference<Clock>>> resets_;
 };
 
@@ -229,6 +232,7 @@ public:
 	virtual void init() override;
 	virtual void terminate() override;
 };
+
 
 } // namespace platform
 

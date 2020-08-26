@@ -25,17 +25,17 @@ namespace gologpp {
 namespace parser {
 
 
-struct ClockFormulaParser : public grammar<Expression *(platform::Component &)> {
+struct ClockFormulaParser : public grammar<platform::ClockFormula *(platform::Component &)> {
 	ClockFormulaParser();
 
-	rule<Expression *(platform::Component &)> clock_formula;
-	rule<Expression *(platform::Component &)> clock_unary;
+	rule<platform::ClockFormula *(platform::Component &)> clock_formula;
+	rule<platform::ClockFormula *(platform::Component &)> clock_unary;
 	rule<platform::BooleanClockOperation::Operator()> clock_binary_op;
-	rule<Expression *(platform::Component &)> clock_operation_seq;
-	rule<Expression *(platform::Component &)> clock_braced;
-	rule<Expression *(platform::Component &)> clock_bound;
+	rule<platform::ClockFormula *(platform::Component &)> clock_operation_seq;
+	rule<platform::ClockFormula *(platform::Component &)> clock_braced;
+	rule<platform::ClockFormula *(platform::Component &)> clock_bound;
 	rule<platform::ClockBound::Operator()> clock_bound_operator;
-	rule<Expression *(platform::Component &)> clock_negation;
+	rule<platform::ClockFormula *(platform::Component &)> clock_negation;
 };
 
 

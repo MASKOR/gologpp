@@ -109,8 +109,7 @@ public:
 		return dynamic_cast<GeneralSemantics<GologT> &>(*semantics_);
 	}*/
 
-	template<class = GologT>
-	Semantics<GologT> &semantics() const
+	Semantics<GologT> &special_semantics() const
 	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
 
 };

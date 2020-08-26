@@ -183,7 +183,7 @@ std::unique_ptr<taptenc::EncICInfo> Semantics<platform::StateAssertion>::compile
 		activations,
 		taptenc::TargetSpecs(
 			taptenc::Bounds(),
-			{ element().state().semantics().compile() }
+			{ element().state().special_semantics().compile() }
 		)
 	));
 }
@@ -200,7 +200,7 @@ std::unique_ptr<taptenc::EncICInfo> Semantics<platform::StateAssertion>::compile
 		activations,
 		{ taptenc::TargetSpecs(
 			taptenc::Bounds(),
-			{ element().state().semantics().compile() }
+			{ element().state().special_semantics().compile() }
 		) },
 		activations_end
 	));

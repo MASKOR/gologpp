@@ -33,12 +33,11 @@ namespace gologpp {
 class ReadylogContext;
 
 
-template<>
-class Semantics<ModelElement>
-: public virtual GeneralSemantics<ModelElement> {
+class ReadylogSemantics
+: public virtual GeneralSemantics<ModelElement>
+{
 public:
 	using GeneralSemantics<ModelElement>::GeneralSemantics;
-	virtual ~Semantics<ModelElement>() override = default;
 
 	ReadylogContext &rl_context() const;
 
@@ -46,13 +45,14 @@ public:
 };
 
 
-
 template<>
 class Semantics<Expression>
 : public virtual GeneralSemantics<Expression>
-, public virtual Semantics<ModelElement>
+, public ReadylogSemantics
 {
 public:
+	using GeneralSemantics<Expression>::GeneralSemantics;
+
 	virtual ~Semantics<Expression>() override = default;
 	virtual Value evaluate(const Binding &b, const History &h) override;
 	virtual const Expression &expression() const override;
@@ -63,14 +63,15 @@ public:
 template<>
 class Semantics<Instruction>
 : public virtual GeneralSemantics<Instruction>
-, public virtual Semantics<ModelElement>
+, public ReadylogSemantics
 {
 public:
+	using GeneralSemantics<Instruction>::GeneralSemantics;
+
 	virtual ~Semantics<Instruction>() override = default;
 	virtual unique_ptr<Plan> trans(const Binding &b, History &h) override;
 	virtual bool final(const Binding &b, const History &h) override;
 
-	using Semantics<ModelElement>::rl_context;
 	EC_word next_readylog_term();
 	virtual const Instruction &instruction() const override;
 
@@ -83,7 +84,6 @@ protected:
 template<>
 class Semantics<Type>
 : public virtual GeneralSemantics<ModelElement>
-, public Semantics<ModelElement>
 {
 };
 

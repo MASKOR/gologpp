@@ -35,7 +35,7 @@ EC_word *Semantics<Scope>::variables(const vector<string> &names)
 	EC_word *rv = new EC_word[names.size()];
 	arity_t i = 0;
 	for (const string &name : names)
-		rv[i++] = element().lookup_var(name)->semantics().plterm();
+		rv[i++] = element().lookup_var(name)->special_semantics().plterm();
 	return rv;
 }
 
@@ -46,7 +46,7 @@ void Semantics<Scope>::init_vars()
 		if (&element() == &(global_scope()) || !element().parent_scope().lookup_var(v->name()))
 			// Only init variables that aren't in the parent scope
 			// (They are initialized there).
-			v->semantics<Variable>().init();
+			v->special_semantics().init();
 }
 
 

@@ -18,13 +18,14 @@
 #pragma once
 
 #include "semantics.h"
+#include "reference.h"
 
 namespace gologpp {
 
 
 template<>
 class Semantics<Activity>
-: public Semantics<ModelElement>
+: public Semantics<AbstractReference>
 , public GeneralSemantics<Activity>
 {
 public:

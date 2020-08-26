@@ -26,6 +26,18 @@
 namespace gologpp {
 
 
-}
+template<>
+class Semantics<Domain>
+: public ReadylogSemantics
+, public GeneralSemantics<Domain>
+{
+public:
+	using GeneralSemantics<Domain>::GeneralSemantics;
+
+	virtual EC_word plterm() override;
+};
+
+
+} // namespace gologpp
 
 #endif // READYLOG_DOMAIN_H_

@@ -24,6 +24,7 @@
 #include <model/expressions.h>
 #include <type_traits>
 
+
 namespace gologpp {
 
 
@@ -56,6 +57,9 @@ vector<EC_word> to_ec_words(const ListT &args)
 		rv.push_back(arg->semantics().plterm());
 	return rv;
 }
+
+template<>
+vector<EC_word> to_ec_words(const vector<shared_ptr<Variable>> &args);
 
 
 

@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <model/platform/clock_formula.h>
 #include <semantics/platform/taptenc/semantics.h>
 #include <taptenc/src/constraints/constraints.h>
 
@@ -24,7 +25,8 @@
 namespace gologpp {
 
 
-class ClockFormulaSemantics {
+template<>
+class Semantics<platform::ClockFormula> {
 public:
 	virtual std::unique_ptr<taptenc::ClockConstraint> compile() = 0;
 };
@@ -36,9 +38,11 @@ public:
 template<>
 class Semantics<platform::ClockBound>
 : public GeneralSemantics<platform::ClockBound>
-, public ClockFormulaSemantics
+, public Semantics<platform::ClockFormula>
 {
 public:
+	using GeneralSemantics<platform::ClockBound>::GeneralSemantics;
+
 	virtual std::unique_ptr<taptenc::ClockConstraint> compile() override;
 };
 
@@ -49,9 +53,11 @@ public:
 template<>
 class Semantics<platform::BooleanClockOperation>
 : public GeneralSemantics<platform::BooleanClockOperation>
-, public ClockFormulaSemantics
+, public Semantics<platform::ClockFormula>
 {
 public:
+	using GeneralSemantics<platform::BooleanClockOperation>::GeneralSemantics;
+
 	virtual std::unique_ptr<taptenc::ClockConstraint> compile() override;
 };
 
@@ -62,9 +68,11 @@ public:
 template<>
 class Semantics<platform::ClockNegation>
 : public GeneralSemantics<platform::ClockNegation>
-, public ClockFormulaSemantics
+, public Semantics<platform::ClockFormula>
 {
 public:
+	using GeneralSemantics<platform::ClockNegation>::GeneralSemantics;
+
 	virtual std::unique_ptr<taptenc::ClockConstraint> compile() override;
 };
 

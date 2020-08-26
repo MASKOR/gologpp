@@ -18,6 +18,7 @@
 #include "clock_formula.h"
 #include <model/platform/clock_formula.h>
 #include <semantics/platform/taptenc/reference.h>
+#include <model/semantics.h>
 
 
 namespace gologpp {
@@ -35,7 +36,7 @@ std::unique_ptr<taptenc::ClockConstraint> Semantics<platform::ClockBound>::compi
 	}
 
 	return std::unique_ptr<taptenc::ClockConstraint>(new taptenc::ComparisonCC(
-		element().clock().semantics().compile(),
+		element().clock().special_semantics().compile(),
 		op,
 		element().bound().numeric_convert<int>()
 	));
@@ -51,8 +52,8 @@ std::unique_ptr<taptenc::ClockConstraint> Semantics<platform::BooleanClockOperat
 		throw EngineError("Only conjunction of clock constraints is supported by the taptenc semantics");
 
 	return std::unique_ptr<taptenc::ClockConstraint>(new taptenc::ConjunctionCC(
-		*dynamic_cast<ClockFormulaSemantics &>(element().lhs().semantics()).compile(),
-		*dynamic_cast<ClockFormulaSemantics &>(element().rhs().semantics()).compile()
+		*element().lhs().semantics().compile(),
+		*element().rhs().semantics().compile()
 	));
 }
 

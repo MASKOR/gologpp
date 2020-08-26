@@ -33,9 +33,20 @@ namespace gologpp {
 namespace platform {
 
 
-class ClockBound
-: public Expression
+class ClockFormula
+: public virtual Expression
+, public virtual AbstractLanguageElement
 , public NoScopeOwner
+{
+public:
+	template<class = ClockFormula>
+	Semantics<ClockFormula> &semantics() const
+	{ return Expression::semantics<ClockFormula>(); }
+};
+
+
+class ClockBound
+: public ClockFormula
 , public LanguageElement<ClockBound, BoolType>
 {
 public:
@@ -66,8 +77,7 @@ string to_string(ClockBound::Operator op);
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 class BooleanClockOperation
-: public Expression
-, public NoScopeOwner
+: public ClockFormula
 , public LanguageElement<BooleanOperation, BoolType>
 {
 public:
@@ -75,18 +85,18 @@ public:
 		AND, OR
 	};
 
-	BooleanClockOperation(Expression *lhs, Operator op, Expression *rhs);
+	BooleanClockOperation(ClockFormula *lhs, Operator op, ClockFormula *rhs);
 
 	Operator op() const;
-	const Expression &lhs() const;
-	const Expression &rhs() const;
+	const ClockFormula &lhs() const;
+	const ClockFormula &rhs() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*lhs_, *rhs_)
 
 private:
-	unique_ptr<Expression> lhs_, rhs_;
+	unique_ptr<ClockFormula> lhs_, rhs_;
 	Operator op_;
 };
 
@@ -99,21 +109,20 @@ unsigned int precedence(BooleanClockOperation::Operator op);
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 class ClockNegation
-: public Expression
-, public NoScopeOwner
+: public ClockFormula
 , public LanguageElement<ClockNegation, BoolType>
 {
 public:
-	ClockNegation(Expression *subject);
+	ClockNegation(ClockFormula *subject);
 
-	const Expression &subject() const;
+	const ClockFormula &subject() const;
 
 	virtual string to_string(const string &pfx) const override;
 
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*subject_)
 
 private:
-	unique_ptr<Expression> subject_;
+	unique_ptr<ClockFormula> subject_;
 };
 
 

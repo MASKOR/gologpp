@@ -42,7 +42,7 @@ template<class GologT> class Reference;
 template<>
 class Semantics<Binding>
 : public GeneralSemantics<Binding>
-, public Semantics<ModelElement>
+, public ReadylogSemantics
 {
 public:
 	using GeneralSemantics<Binding>::GeneralSemantics;
@@ -72,10 +72,18 @@ EC_word reference_term(const ReferenceBase<GologT> &ref)
 EC_word reference_term(const Reference<Variable> &ref);
 
 
+template<>
+class Semantics<AbstractReference>
+{
+public:
+	virtual EC_word plterm() = 0;
+};
+
 
 template<class TargetT>
 class Semantics<Reference<TargetT>>
 : public GeneralSemantics<Reference<TargetT>>
+, public Semantics<AbstractReference>
 , public Semantics<typename Reference<TargetT>::ElementType>
 {
 public:
@@ -101,7 +109,7 @@ public:
 			arity_t i = 0;
 			for (const unique_ptr<Expression> &expr : this->element().args()) {
 				if (!expr->is_a<Reference<Variable>>() && !expr->is_a<Value>())
-					args.push_back(this->element().target()->parameter(i)->semantics().plterm());
+					args.push_back(this->element().target()->parameter(i)->special_semantics().plterm());
 				else
 					args.push_back(expr->semantics().plterm());
 				++i;
@@ -120,7 +128,7 @@ public:
 			if (!arg.is_a<Reference<Variable>>() && !arg.is_a<Value>()) {
 				list = ::list(
 					::term(EC_functor("=", 2),
-						param->semantics().plterm(),
+						param->special_semantics().plterm(),
 						arg.semantics().plterm()
 					),
 					list

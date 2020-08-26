@@ -62,7 +62,6 @@ int p_exog_fluent_getValue()
 namespace gologpp {
 
 
-template<>
 EC_word Semantics<InitialValue>::plterm()
 {
 	element().fluent().scope().semantics().init_vars();
@@ -100,7 +99,7 @@ vector<EC_word> Semantics<Fluent>::initially()
 {
 	vector<EC_word> rv;
 	for (const unique_ptr<InitialValue> &ival : element().initially())
-		rv.push_back(ival->semantics().plterm());
+		rv.push_back(ival->special_semantics().plterm());
 
 	return rv;
 }
@@ -114,7 +113,7 @@ EC_word Semantics<Fluent>::prim_fluent()
 	for (const shared_ptr<Variable> &arg : element().params())
 		if (arg->domain().is_defined())
 			arg_domains.emplace_back(
-				arg->semantics().member_restriction()
+				arg->special_semantics().member_restriction()
 			);
 
 	EC_word prim_fluent = ::term(EC_functor("prim_fluent", 1), plterm());

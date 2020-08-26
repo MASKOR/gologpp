@@ -30,7 +30,7 @@ namespace gologpp {
 template<>
 class Semantics<History>
 : public GeneralSemantics<History>
-, public Semantics<ModelElement>
+, public ReadylogSemantics
 {
 public:
 	Semantics(History &, ReadylogContext &context);

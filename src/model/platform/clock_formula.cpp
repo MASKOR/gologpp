@@ -59,7 +59,7 @@ string to_string(ClockBound::Operator op)
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-BooleanClockOperation::BooleanClockOperation(Expression *lhs, BooleanClockOperation::Operator op, Expression *rhs)
+BooleanClockOperation::BooleanClockOperation(ClockFormula *lhs, BooleanClockOperation::Operator op, ClockFormula *rhs)
 : lhs_(lhs)
 , rhs_(rhs)
 , op_(op)
@@ -71,10 +71,10 @@ BooleanClockOperation::BooleanClockOperation(Expression *lhs, BooleanClockOperat
 BooleanClockOperation::Operator BooleanClockOperation::op() const
 { return op_; }
 
-const Expression &BooleanClockOperation::lhs() const
+const ClockFormula &BooleanClockOperation::lhs() const
 { return *lhs_; }
 
-const Expression &BooleanClockOperation::rhs() const
+const ClockFormula &BooleanClockOperation::rhs() const
 { return *rhs_; }
 
 string BooleanClockOperation::to_string(const string &pfx) const
@@ -108,11 +108,11 @@ unsigned int precedence(BooleanClockOperation::Operator op)
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-ClockNegation::ClockNegation(Expression *subject)
+ClockNegation::ClockNegation(ClockFormula *subject)
 : subject_(subject)
 { subject_->set_parent(this); }
 
-const Expression &ClockNegation::subject() const
+const ClockFormula &ClockNegation::subject() const
 { return *subject_; }
 
 string ClockNegation::to_string(const string &pfx) const

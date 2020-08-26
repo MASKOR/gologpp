@@ -47,9 +47,9 @@ void TaptencTransformation::init(AExecutionContext &ctx)
 
 	taptenc::transformation::Constraints::size_type i = 0;
 	for (const auto &pair : platform_model) {
-		tt_automata_.emplace_back(*pair.first->semantics().compile());
+		tt_automata_.emplace_back(*pair.first->special_semantics().compile());
 		for (const auto &constraint : pair.second)
-			tt_constraints_[i].emplace_back(constraint.get().semantics().compile());
+			tt_constraints_[i].emplace_back(constraint.get().special_semantics().compile());
 	}
 }
 

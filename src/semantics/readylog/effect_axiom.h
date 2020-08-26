@@ -34,6 +34,24 @@
 namespace gologpp {
 
 
+template<>
+class Semantics<AbstractEffectAxiom>
+: public ReadylogSemantics
+{
+};
+
+
+template<class LhsT>
+class Semantics<EffectAxiom<LhsT>>
+: public Semantics<AbstractEffectAxiom>
+, public GeneralSemantics<EffectAxiom<LhsT>>
+{
+public:
+	using GeneralSemantics<EffectAxiom<LhsT>>::GeneralSemantics;
+
+	virtual EC_word plterm() override;
+};
+
 } /* namespace gologpp */
 
 #endif /* READYLOG_EFFECTAXIOM_H_ */

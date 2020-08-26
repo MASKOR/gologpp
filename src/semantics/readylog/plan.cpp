@@ -59,7 +59,7 @@ unique_ptr<Plan> plan_from_ec_word(EC_word policy)
 			if (v_atom == EC_atom("fail") || v_atom == EC_atom("false"))
 				cond = ::term(EC_functor("not", 1), cond);
 
-			marker->semantics().make_plan_marker(cond);
+			marker->special_semantics().make_plan_marker(cond);
 			rv->append(marker);
 		}
 	}

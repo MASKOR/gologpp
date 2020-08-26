@@ -70,6 +70,8 @@ class Semantics<platform::ActionHook>
 , public Semantics<platform::ActionSpec>
 {
 public:
+	using GeneralSemantics<platform::ActionHook>::GeneralSemantics;
+
 	virtual std::vector<taptenc::ActionName> compile() override;
 
 	virtual std::pair <
@@ -88,6 +90,8 @@ class Semantics<platform::BooleanConstraintOperation<platform::ActionSpec>>
 , public Semantics<platform::ActionSpec>
 {
 public:
+	using GeneralSemantics<platform::BooleanConstraintOperation<platform::ActionSpec>>::GeneralSemantics;
+
 	virtual std::vector<taptenc::ActionName> compile() override;
 
 	virtual std::pair <

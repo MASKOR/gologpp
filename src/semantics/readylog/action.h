@@ -29,8 +29,14 @@ namespace gologpp {
 
 
 template<>
+class Semantics<AbstractAction>
+: public ReadylogSemantics {
+};
+
+
+template<>
 class Semantics<Action>
-: public Semantics<ModelElement>
+: public Semantics<AbstractAction>
 , public GeneralSemantics<Action>
 {
 public:
@@ -48,7 +54,7 @@ public:
 
 template<>
 class Semantics<ExogAction>
-: public Semantics<ModelElement>
+: public Semantics<AbstractAction>
 , public GeneralSemantics<ExogAction>
 {
 public:

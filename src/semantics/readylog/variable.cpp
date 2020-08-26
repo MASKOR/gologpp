@@ -61,8 +61,8 @@ void Semantics<Variable>::translate_as_golog_var(bool gv)
 EC_word Semantics<Variable>::member_restriction()
 {
 	return ::term(EC_functor("member", 2),
-		element().semantics().plterm(),
-		element().domain().semantics().plterm()
+		element().special_semantics().plterm(),
+		element().domain().special_semantics().plterm()
 	);
 }
 
@@ -76,7 +76,7 @@ GologVarMutator::~GologVarMutator()
 { var_impl_.translate_as_golog_var(false); }
 
 GologVarMutator::GologVarMutator(const Reference<Variable> &var_ref)
-: GologVarMutator(var_ref.target()->semantics())
+: GologVarMutator(var_ref.target()->special_semantics())
 {}
 
 

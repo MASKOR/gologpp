@@ -20,6 +20,7 @@
 #include "utilities.h"
 #include "value.h"
 #include "execution.h"
+#include "variable.h"
 
 #include <cstring>
 
@@ -28,6 +29,17 @@ namespace gologpp {
 
 EC_word operator && (const EC_word &lhs, const EC_word &rhs)
 { return ::term(EC_functor(",", 2), lhs, rhs); }
+
+
+
+template<>
+vector<EC_word> to_ec_words(const vector<shared_ptr<Variable>> &args)
+{
+	vector<EC_word> rv;
+	for (const auto &arg : args)
+		rv.push_back(arg->special_semantics().plterm());
+	return rv;
+}
 
 
 

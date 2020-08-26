@@ -27,7 +27,7 @@ EC_word reference_term(const Reference<Variable> &ref)
 
 template<>
 EC_word Semantics<Reference<Variable>>::plterm()
-{ return element().target()->semantics().plterm(); }
+{ return element().target()->special_semantics().plterm(); }
 
 
 
@@ -50,10 +50,10 @@ EC_word gologpp::Semantics<Binding>::plterm()
 		vector<EC_word> pl_binds;
 		for (const auto &pval : this->element().map()) {
 			pl_binds.push_back(
-			::term(EC_functor("=", 2),
-			pval.first->semantics().plterm(),
-			pval.second.get().semantics().plterm()
-			)
+				::term(EC_functor("=", 2),
+					pval.first->special_semantics().plterm(),
+					pval.second.get().semantics().plterm()
+				)
 			);
 		}
 
@@ -70,7 +70,7 @@ const Binding &Semantics<Binding >::model_element() const
 void Semantics<Binding >::init_vars()
 {
 	for (const auto &pval : this->element().map())
-		pval.first->semantics().init();
+		pval.first->special_semantics().init();
 }
 
 

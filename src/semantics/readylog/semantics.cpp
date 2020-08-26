@@ -43,7 +43,7 @@
 namespace gologpp {
 
 
-ReadylogContext &Semantics<ModelElement>::rl_context() const
+ReadylogContext &ReadylogSemantics::rl_context() const
 { return dynamic_cast<ReadylogContext &>(context()); }
 
 
@@ -57,10 +57,10 @@ Value Semantics<Expression>::evaluate(const Binding &b, const History &h)
 	b.semantics<Binding>().init_vars();
 	if (expression().type().is<BoolType>()) {
 		EC_word query = ::term(EC_functor("eval_formula", 1), ::term(EC_functor(",", 2),
-			b.semantics().plterm(),
+			b.semantics<Binding>().plterm(),
 			::term(EC_functor("holds", 2),
 				this->plterm(),
-				h.semantics().plterm()
+				h.special_semantics().plterm()
 			)
 		) );
 		if (rl_context().options().trace)
@@ -71,11 +71,11 @@ Value Semantics<Expression>::evaluate(const Binding &b, const History &h)
 	else {
 		EC_ref Result;
 		EC_word query = ::term(EC_functor(",", 2),
-			b.semantics().plterm(),
+			b.semantics<Binding>().plterm(),
 			::term(EC_functor("subf", 3),
 				this->plterm(),
 				Result,
-				h.semantics().plterm()
+				h.special_semantics().plterm()
 			)
 		);
 		if (rl_context().options().trace)
@@ -108,7 +108,7 @@ unique_ptr<Plan> Semantics<Instruction>::trans(const Binding &, History &history
 
 	EC_word trans = ::term(EC_functor("trans", 4),
 		next_readylog_term(),
-		history.semantics().plterm(),
+		history.special_semantics().plterm(),
 		e1, h1
 	);
 
@@ -133,7 +133,7 @@ unique_ptr<Plan> Semantics<Instruction>::trans(const Binding &, History &history
 
 			ManagedTerm prog(e1);
 
-			history.semantics().extend_history(h1);
+			history.special_semantics().extend_history(h1);
 
 			EC_word head, tail;
 
@@ -150,7 +150,7 @@ unique_ptr<Plan> Semantics<Instruction>::trans(const Binding &, History &history
 			else {
 				// Normal transition
 				rv.reset(new Plan());
-				shared_ptr<Transition> trans = history.semantics().get_last_transition();
+				shared_ptr<Transition> trans = history.special_semantics().get_last_transition();
 				if (trans)
 					rv->append(new Transition(*trans));
 				next_readylog_term_ = prog;
@@ -177,7 +177,7 @@ bool Semantics<Instruction>::final(const Binding &, const History &h)
 {
 	EC_word final = ::term(EC_functor("final", 2),
 		next_readylog_term(),
-		h.semantics().plterm()
+		h.special_semantics().plterm()
 	);
 	bool rv = rl_context().ec_query(final);
 	return rv;

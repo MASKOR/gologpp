@@ -124,18 +124,18 @@ EC_word Semantics<BooleanOperation>::plterm()
 template<>
 EC_word Semantics<Quantification>::plterm()
 {
-	{ GologVarMutator guard(element().variable().semantics());
+	{ GologVarMutator guard(element().variable().special_semantics());
 
 		switch (element().op()) {
 		case QuantificationOperator::EXISTS:
 			return ::term(EC_functor("some", 2),
-				element().variable().semantics().plterm(),
+				element().variable().special_semantics().plterm(),
 				element().expression().semantics().plterm()
 			);
 		case QuantificationOperator::FORALL:
 			return ::term(EC_functor("neg", 1),
 				::term(EC_functor("some", 2),
-					element().variable().semantics().plterm(),
+					element().variable().special_semantics().plterm(),
 					::term(EC_functor("neg", 1),
 						element().expression().semantics().plterm()
 					)

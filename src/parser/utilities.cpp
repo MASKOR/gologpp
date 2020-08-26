@@ -142,7 +142,7 @@ void handle_error(
 
 
 template<class OperationT, class ExprT>
-OperationT *parse_op_precedence_(op_list<OperationT, ExprT> vec, Expression *last) {
+OperationT *parse_op_precedence_(op_list<OperationT, ExprT> vec, ExprT *last) {
 	if (vec.size() == 1)
 		return new OperationT(
 			at_c<0>(vec.front()),
@@ -204,8 +204,8 @@ ArithmeticOperation *parse_op_precedence(
 
 template
 platform::BooleanClockOperation *parse_op_precedence(
-	vector<fusion_wtf_vector<Expression *, platform::BooleanClockOperation::Operator>> vec,
-	Expression *rhs
+	vector<fusion_wtf_vector<platform::ClockFormula *, platform::BooleanClockOperation::Operator>> vec,
+	platform::ClockFormula *rhs
 );
 
 

@@ -36,7 +36,7 @@ EC_word Semantics<Action>::durative_action()
 	for (const shared_ptr<Variable> &param : element().params())
 		if (param->domain().is_defined())
 			arg_domains.emplace_back(
-				param->semantics<Variable>().member_restriction()
+				param->special_semantics().member_restriction()
 			);
 
 	EC_word prim_action = ::term(EC_functor("durative_action", 1), plterm());
@@ -67,7 +67,7 @@ vector<EC_word> Semantics<Action>::durative_causes_vals()
 {
 	vector<EC_word> rv;
 	for (const unique_ptr<AbstractEffectAxiom> &effect : element().effects())
-		rv.push_back(effect->semantics().plterm());
+		rv.push_back(effect->semantics<AbstractEffectAxiom>().plterm());
 	return rv;
 }
 
@@ -117,7 +117,7 @@ vector<EC_word> Semantics<ExogAction>::causes_vals()
 	element().scope().semantics().init_vars();
 	vector<EC_word> rv;
 	for (const unique_ptr<AbstractEffectAxiom> &effect : element().effects())
-		rv.push_back(effect->semantics().plterm());
+		rv.push_back(effect->semantics<AbstractEffectAxiom>().plterm());
 	return rv;
 }
 

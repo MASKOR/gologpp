@@ -191,11 +191,11 @@ std::pair<const Reference<Fluent> *, EC_word> traverse_mixed_field_access(const 
 
 	do {
 		if (fa) {
-			field_list = ::list(fa->semantics().pl_field_name(), field_list);
+			field_list = ::list(fa->special_semantics().pl_field_name(), field_list);
 			sub = &fa->subject();
 		}
 		else if (la) {
-			field_list = ::list(la->semantics().pl_index(), field_list);
+			field_list = ::list(la->special_semantics().pl_index(), field_list);
 			sub = &la->subject();
 		}
 		else
@@ -255,9 +255,9 @@ EC_word Semantics<Pick>::plterm()
 {
 	// Make sure the `pick'ed variable is a Golog variable
 	// No init_vars() is needed in this case.
-	{ GologVarMutator guard(element().variable().semantics());
+	{ GologVarMutator guard(element().variable().special_semantics());
 		return ::term(EC_functor("pickBest", 3),
-			element().variable().semantics().plterm(),
+			element().variable().special_semantics().plterm(),
 			to_ec_list(element().domain(), element().domain().begin()),
 			element().statement().semantics().plterm()
 		);

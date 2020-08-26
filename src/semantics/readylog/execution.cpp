@@ -132,7 +132,7 @@ void ReadylogContext::compile(const AbstractAction &aa)
 {
 	if (aa.is_a<Action>()) {
 		const Action &action = dynamic_cast<const Action &>(aa);
-		Semantics<Action> &action_impl = action.semantics();
+		Semantics<Action> &action_impl = action.special_semantics();
 		compile_term(action_impl.durative_action());
 		compile_term(action_impl.durative_poss());
 		for (EC_word causes_val : action_impl.durative_causes_vals())
@@ -143,7 +143,7 @@ void ReadylogContext::compile(const AbstractAction &aa)
 			// the sensing result to the history, anyways
 	} else if (aa.is_a<ExogAction>()) {
 		const ExogAction &action = dynamic_cast<const ExogAction &>(aa);
-		Semantics<ExogAction> &action_impl = action.semantics();
+		Semantics<ExogAction> &action_impl = action.special_semantics();
 		compile_term(action_impl.exog_action());
 		compile_term(action_impl.poss());
 		for (EC_word &causes_val : action_impl.causes_vals())
@@ -155,17 +155,17 @@ void ReadylogContext::compile(const AbstractAction &aa)
 
 void ReadylogContext::compile(const Fluent &fluent)
 {
-	compile_term(fluent.semantics().prim_fluent());
-	for (EC_word &initially : fluent.semantics().initially())
+	compile_term(fluent.special_semantics().prim_fluent());
+	for (EC_word &initially : fluent.special_semantics().initially())
 		compile_term(initially);
 }
 
 
 void ReadylogContext::compile(const Function &function)
-{ compile_term(function.semantics().definition()); }
+{ compile_term(function.special_semantics().definition()); }
 
 void ReadylogContext::compile(const Procedure &proc)
-{ compile_term(proc.semantics().definition()); }
+{ compile_term(proc.special_semantics().definition()); }
 
 void ReadylogContext::compile(const platform::Component &)
 {}

@@ -33,19 +33,21 @@ std::shared_ptr<taptenc::Clock> Semantics<platform::Clock>::compile()
 	return ttclock_;
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 taptenc::Transition Semantics<platform::Transition>::compile()
 {
 	std::unique_ptr<taptenc::ClockConstraint> clock_formula;
 	if (element().clock_formula())
-		clock_formula = dynamic_cast<ClockFormulaSemantics &>(element().clock_formula()->semantics()).compile();
+		clock_formula = element().clock_formula()->semantics().compile();
 	else
 		clock_formula.reset(new taptenc::TrueCC());
 
 	taptenc::update_t resets;
 	for (auto &c : element().resets())
-		resets.insert((*c)->semantics().compile());
+		resets.insert((*c)->special_semantics().compile());
 
 	return taptenc::Transition {
 		element().from()->name(),
@@ -65,7 +67,7 @@ taptenc::State Semantics<platform::State>::compile()
 {
 	std::unique_ptr<taptenc::ClockConstraint> clock_formula;
 	if (element().clock_formula())
-		clock_formula = dynamic_cast<ClockFormulaSemantics &>(element().clock_formula()->semantics()).compile();
+		clock_formula = element().clock_formula()->semantics().compile();
 	else
 		clock_formula.reset(new taptenc::TrueCC());
 
@@ -82,7 +84,7 @@ std::unique_ptr<taptenc::automaton> Semantics<platform::Component>::compile()
 	std::vector<taptenc::Transition> transitions;
 
 	for (auto &s : element().states()) {
-		taptenc::State ttstate = s->semantics().compile();
+		taptenc::State ttstate = s->special_semantics().compile();
 		if (element().current_state() == *s)
 			ttstate.initial = true;
 		states.emplace_back(ttstate);
@@ -90,7 +92,7 @@ std::unique_ptr<taptenc::automaton> Semantics<platform::Component>::compile()
 
 	for (const unique_ptr<platform::AbstractTransition> &t : element().transitions())
 		if (t->is_a<platform::Transition>())
-			transitions.emplace_back(t->semantics<platform::Transition>().compile());
+			transitions.emplace_back(t->cast<platform::Transition>().special_semantics().compile());
 
 	auto rv = std::make_unique<taptenc::automaton>(
 		std::move(states),
@@ -100,10 +102,11 @@ std::unique_ptr<taptenc::automaton> Semantics<platform::Component>::compile()
 	);
 
 	for (const shared_ptr<platform::Clock> &c : element().clocks())
-		rv->clocks.emplace(c->semantics().compile());
+		rv->clocks.emplace(c->special_semantics().compile());
 
 	return rv;
 }
+
 
 
 } // namespace gologpp

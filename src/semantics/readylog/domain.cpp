@@ -22,7 +22,6 @@
 namespace gologpp {
 
 
-template<>
 EC_word Semantics<Domain>::plterm()
 { return to_ec_list(element().elements()); }
 

@@ -44,7 +44,7 @@ public:
 	GeneralSemantics<GologT> &general_semantics() const
 	{ return dynamic_cast<GeneralSemantics<GologT> &>(*semantics_); }
 
-	template<class GologT = ModelElement>
+	template<class GologT>
 	Semantics<GologT> &semantics() const
 	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
 

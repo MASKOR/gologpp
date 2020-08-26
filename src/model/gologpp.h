@@ -157,6 +157,7 @@ class State;
 
 class SwitchStateAction;
 
+class ClockFormula;
 class ClockBound;
 class BooleanClockOperation;
 class ClockNegation;
@@ -246,7 +247,6 @@ class SemanticsFactory;
 	(platform::ExogTransition) \
 	(platform::Clock) \
 	(platform::State) \
-	(platform::SwitchStateAction) \
 	(platform::ClockBound) \
 	(platform::ClockNegation) \
 	(platform::BooleanClockOperation) \

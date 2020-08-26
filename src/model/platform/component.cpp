@@ -39,7 +39,7 @@ string Clock::to_string(const string &pfx) const
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-State::State(const string &name, Component &parent, boost::optional<Expression *> clock_formula)
+State::State(const string &name, Component &parent, boost::optional<ClockFormula *> clock_formula)
 : Identifier(name, 0)
 , clock_formula_(clock_formula.get_value_or(nullptr))
 {
@@ -48,7 +48,7 @@ State::State(const string &name, Component &parent, boost::optional<Expression *
 		clock_formula_->set_parent(this);
 }
 
-const Expression *State::clock_formula() const
+const ClockFormula *State::clock_formula() const
 { return clock_formula_.get(); }
 
 void State::attach_semantics(::gologpp::SemanticsFactory &f)
@@ -75,7 +75,7 @@ string State::to_string(const string &pfx) const
 AbstractTransition::AbstractTransition(
 	Reference<State> *from,
 	Reference<State> *to,
-	boost::optional<Expression *> clock_formula,
+	boost::optional<ClockFormula *> clock_formula,
 	boost::optional<vector<Reference<Clock> *>> resets
 )
 : from_(from)
@@ -95,7 +95,7 @@ const Reference<State> &AbstractTransition::to() const
 const vector<unique_ptr<Reference<Clock>>> &AbstractTransition::resets() const
 { return resets_; }
 
-const Expression *AbstractTransition::clock_formula() const
+const ClockFormula *AbstractTransition::clock_formula() const
 { return clock_formula_.get(); }
 
 
