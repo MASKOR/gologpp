@@ -104,11 +104,37 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<>
+class Semantics<platform::TemporalUnaryOperation<platform::ActionSpec>>
+: public GeneralSemantics<platform::TemporalUnaryOperation<platform::ActionSpec>>
+{
+public:
+	Semantics(const platform::TemporalUnaryOperation<platform::ActionSpec> &elem, AExecutionContext &context);
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+class Semantics<platform::TemporalBinaryOperation<platform::ActionSpec>>
+: public GeneralSemantics<platform::TemporalBinaryOperation<platform::ActionSpec>>
+{
+public:
+	Semantics(const platform::TemporalBinaryOperation<platform::ActionSpec> &elem, AExecutionContext &context);
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
 class Semantics<platform::During>
 : public GeneralSemantics<platform::During>
 , public Semantics<platform::ActionSpec>
 {
 public:
+	using GeneralSemantics<platform::During>::GeneralSemantics;
+
 	virtual std::vector<taptenc::ActionName> compile() override;
 
 	virtual std::pair <
@@ -147,6 +173,8 @@ class Semantics<platform::StateAssertion>
 , public Semantics<platform::StateSpec>
 {
 public:
+	using GeneralSemantics<platform::StateAssertion>::GeneralSemantics;
+
 	virtual std::unique_ptr<taptenc::EncICInfo> compile(
 		string id,
 		const std::vector<taptenc::ActionName> activations
@@ -169,6 +197,8 @@ class Semantics<platform::BooleanConstraintOperation<platform::StateSpec>>
 , public Semantics<platform::StateSpec>
 {
 public:
+	using GeneralSemantics<platform::BooleanConstraintOperation<platform::StateSpec>>::GeneralSemantics;
+
 	virtual std::unique_ptr<taptenc::EncICInfo> compile(
 		string id,
 		const std::vector<taptenc::ActionName> activations
@@ -191,6 +221,8 @@ class Semantics<platform::TemporalUnaryOperation<platform::StateSpec>>
 , public Semantics<platform::StateSpec>
 {
 public:
+	using GeneralSemantics<platform::TemporalUnaryOperation<platform::StateSpec>>::GeneralSemantics;
+
 	virtual std::unique_ptr<taptenc::EncICInfo> compile(
 		string id,
 		const std::vector<taptenc::ActionName> activations
@@ -213,6 +245,8 @@ class Semantics<platform::TemporalBinaryOperation<platform::StateSpec>>
 , public Semantics<platform::StateSpec>
 {
 public:
+	using GeneralSemantics<platform::TemporalBinaryOperation<platform::StateSpec>>::GeneralSemantics;
+
 	virtual std::unique_ptr<taptenc::EncICInfo> compile(
 		string id,
 		const std::vector<taptenc::ActionName> activations

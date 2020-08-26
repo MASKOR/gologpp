@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include <model/platform/reference.h>
+
 #include <semantics/platform/taptenc/semantics.h>
 
 #include <taptenc/src/constraints/constraints.h>
@@ -30,6 +32,8 @@ class Semantics<platform::Reference<platform::Clock>>
 : public GeneralSemantics<platform::Reference<platform::Clock>>
 {
 public:
+	using GeneralSemantics<platform::Reference<platform::Clock>>::GeneralSemantics;
+
 	std::shared_ptr<taptenc::Clock> compile();
 };
 
@@ -42,6 +46,8 @@ class Semantics<platform::Reference<Action>>
 : public GeneralSemantics<platform::Reference<Action>>
 {
 public:
+	using GeneralSemantics<platform::Reference<Action>>::GeneralSemantics;
+
 	taptenc::ActionName compile();
 };
 
@@ -54,6 +60,8 @@ class Semantics<platform::Reference<platform::State>>
 : public GeneralSemantics<platform::Reference<platform::State>>
 {
 public:
+	using GeneralSemantics<platform::Reference<platform::State>>::GeneralSemantics;
+
 	taptenc::State compile();
 };
 
@@ -66,6 +74,8 @@ class Semantics<platform::Reference<platform::Component>>
 : public GeneralSemantics<platform::Reference<platform::Component>>
 {
 public:
+	using GeneralSemantics<platform::Reference<platform::Component>>::GeneralSemantics;
+
 	/* No compile() method since there are no explicit references to components
 	 * in taptenc. A component is simply a timed automaton and there are no references
 	 * to the TA as a whole in the TA formalism. */

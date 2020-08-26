@@ -126,6 +126,28 @@ std::pair<std::vector<taptenc::ActionName>, std::vector<taptenc::ActionName>> Se
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+Semantics<platform::TemporalUnaryOperation<platform::ActionSpec>>::Semantics(
+	const platform::TemporalUnaryOperation<platform::ActionSpec> &elem,
+	AExecutionContext &context
+)
+: GeneralSemantics<platform::TemporalUnaryOperation<platform::ActionSpec>>(elem, context)
+{ throw Unsupported("Temporal operators on action spec not supported by taptenc semantics"); }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+Semantics<platform::TemporalBinaryOperation<platform::ActionSpec>>::Semantics(
+	const platform::TemporalBinaryOperation<platform::ActionSpec> &elem,
+	AExecutionContext &context
+)
+: GeneralSemantics<platform::TemporalBinaryOperation<platform::ActionSpec>>(elem, context)
+{ throw Unsupported("Temporal operators on action spec not supported by taptenc semantics"); }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::vector<taptenc::ActionName> Semantics<platform::During>::compile()
 { throw Unsupported("Unsupported action spec"); }
 

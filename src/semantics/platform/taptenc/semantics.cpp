@@ -15,15 +15,13 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include <model/platform/clock_formula.h>
-#include <model/platform/component.h>
-#include <model/platform/reference.h>
-#include <model/platform/constraint.h>
-#include <model/platform/switch_state_action.h>
+#include <semantics/platform/taptenc/clock_formula.h>
+#include <semantics/platform/taptenc/component.h>
+#include <semantics/platform/taptenc/constraint.h>
+#include <semantics/platform/taptenc/reference.h>
 
 #include "semantics.h"
 #include "transformation.h"
-
 
 namespace gologpp {
 
@@ -42,11 +40,14 @@ string tolower(const string &s)
 }
 
 
+namespace platform {
+
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_SEMANTICS, TaptencSemanticsFactory, GOLOGPP_PLATFORM_ELEMENTS)
 
 PlanTransformation *TaptencSemanticsFactory::make_transformation()
 { return new TaptencTransformation(); }
 
+} // namespace platform
 
 
 } // namespace gologpp

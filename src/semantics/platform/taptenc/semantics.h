@@ -38,12 +38,7 @@ string uppaal_qualified_name(const ElemT &e)
 }
 
 
-template<class PlatformT>
-class Semantics : public GeneralSemantics<PlatformT> {
-public:
-	using GeneralSemantics<PlatformT>::GeneralSemantics;
-};
-
+namespace platform {
 
 class TaptencSemanticsFactory : public platform::SemanticsFactory {
 public:
@@ -51,6 +46,8 @@ public:
 
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE, (), GOLOGPP_PLATFORM_ELEMENTS)
 };
+
+} // namespace platform
 
 
 } // namespace gologpp
