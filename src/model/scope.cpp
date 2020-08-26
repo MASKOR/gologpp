@@ -183,6 +183,9 @@ void Scope::implement_globals(SemanticsFactory &implementor, AExecutionContext &
 	for (GlobalsMap::value_type &entry : *globals_)
 		entry.second->compile(ctx);
 
+	for (unique_ptr<platform::Constraint> &c : constraints())
+		c->attach_semantics(implementor);
+
 	ctx.postcompile();
 }
 
