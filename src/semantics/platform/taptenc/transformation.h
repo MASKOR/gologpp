@@ -19,6 +19,7 @@
 
 #include <model/gologpp.h>
 #include <execution/transformation.h>
+#include <execution/plan.h>
 
 #include <taptenc/src/transformation.h>
 
@@ -37,10 +38,18 @@ private:
 	vector<taptenc::PlanAction> plan_gpp_to_taptenc(Plan &&);
 	unique_ptr<Plan> plan_taptenc_to_gpp(taptenc::timed_trace_t &&);
 
+	std::string store_arg(const Value &);
+	Value *retrieve_arg(std::string taptenc_symbolic_arg);
+
+	TimedInstruction parse_domain_action(const std::string &tt_action, taptenc::groundedActionTime tt_time);
+	TimedInstruction parse_platform_action(const std::string &tt_action, taptenc::groundedActionTime tt_time);
+
 	std::vector<taptenc::Automaton> tt_automata_;
 	taptenc::transformation::Constraints tt_constraints_;
 
 	AExecutionContext *context_;
+
+	vector<Value *> arg_storage_;
 };
 
 
