@@ -236,16 +236,23 @@ void Component::initialize(AExecutionContext &context)
 void Component::add_state(State *s)
 {
 	scope().register_identifier(s);
+	s->set_parent(this);
 
 	if (states().size() == 2)
 		set_current_state(scope().lookup_identifier<State>(s->name()));
 }
 
 void Component::add_clock(Clock *c)
-{ scope().register_identifier(c); }
+{
+	scope().register_identifier(c);
+	c->set_parent(this);
+}
 
 void Component::add_transition(AbstractTransition *t)
-{ transitions_.emplace_back(t); }
+{
+	transitions_.emplace_back(t);
+	t->set_parent(this);
+}
 
 
 void Component::attach_semantics(::gologpp::SemanticsFactory &f)
