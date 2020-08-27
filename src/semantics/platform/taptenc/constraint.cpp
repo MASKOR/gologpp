@@ -80,8 +80,12 @@ std::vector<taptenc::ActionName> Semantics<platform::ActionHook>::compile()
 	string hookname = gologpp::to_string(element().hook());
 
 	std::vector<std::string> args;
-	for (auto &a : element().action().args())
-		args.push_back(a->cast<Value>().string_representation());
+	size_t i = 0;
+	for (auto &a : element().action().args()) {
+		if (a->cast<Value>() != Value::undefined())
+			throw Unsupported("Only wildcard action hooks supported by taptenc semantics: " + element().str());
+		args.push_back(std::string(1, taptenc::constants::VAR_PREFIX) + "arg" + std::to_string(i++));
+	}
 
 	return { taptenc::ActionName(hookname + 'G' + element().action()->name(), args) };
 }
