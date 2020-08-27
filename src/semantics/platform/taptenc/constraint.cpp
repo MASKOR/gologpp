@@ -173,17 +173,6 @@ Semantics<platform::During>::compile_chain()
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<taptenc::EncICInfo> Semantics<platform::StateSpec>::compile(
-	string /*id*/,
-	const std::vector<taptenc::ActionName> /*activations*/
-)
-{ throw Unsupported("Unsupported state spec"); }
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
 std::unique_ptr<taptenc::EncICInfo> Semantics<platform::StateAssertion>::compile(
 	string id,
 	const std::vector<taptenc::ActionName> activations
