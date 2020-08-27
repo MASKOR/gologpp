@@ -50,12 +50,11 @@ void TaptencTransformation::init(AExecutionContext &ctx)
 		platform_model[find_component_ref(constraint->rhs())]
 		              .push_back(std::ref(*constraint));
 
-	taptenc::transformation::Constraints::size_type i = 0;
 	for (const auto &pair : platform_model) {
 		tt_automata_.emplace_back(*pair.first->special_semantics().compile());
+		tt_constraints_.emplace_back();
 		for (const auto &constraint : pair.second)
-			tt_constraints_[i].emplace_back(constraint.get().special_semantics().compile());
-		++i;
+			tt_constraints_.back().emplace_back(constraint.get().special_semantics().compile());
 	}
 }
 
