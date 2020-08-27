@@ -21,6 +21,7 @@
 #include <model/platform/component.h>
 #include <model/platform/constraint.h>
 #include <model/platform/switch_state_action.h>
+#include <model/logger.h>
 
 #include <semantics/platform/taptenc/component.h>
 #include <semantics/platform/taptenc/constraint.h>
@@ -120,10 +121,7 @@ vector<taptenc::PlanAction> TaptencTransformation::plan_gpp_to_taptenc(Plan &&p)
 {
 	vector<taptenc::PlanAction> rv;
 	for (auto &ti : p.elements()) {
-#ifndef DEBUG
-		try
-#endif
-		{
+		if (ti.instruction().is_a<Transition>()) {
 			Transition &trans = ti.instruction().cast<Transition>();
 			std::string actstr = gologpp::to_string(trans.hook()) + "G" + trans->name();
 
@@ -153,11 +151,11 @@ vector<taptenc::PlanAction> TaptencTransformation::plan_gpp_to_taptenc(Plan &&p)
 				taptenc::Bounds(0, std::numeric_limits<taptenc::timepoint>::max())
 			} );
 		}
-#ifndef DEBUG
-		catch (std::bad_cast &) {
-			throw Unsupported("Unsupported element found in plan: " + ti.instruction().str());
+		else {
+			/* TODO: This silently discards test markers and other plan elements. Need to insert identifying
+			 * placeholders for other plan elements & retrieve them from storage when translating back */
+			log(LogLevel::WRN) << "FIXME: Discarding plan action " << ti.instruction().str() << flush;
 		}
-#endif
 	}
 	return rv;
 }
