@@ -49,7 +49,7 @@ std::unique_ptr<taptenc::ClockConstraint> Semantics<platform::ClockBound>::compi
 std::unique_ptr<taptenc::ClockConstraint> Semantics<platform::BooleanClockOperation>::compile()
 {
 	if (element().op() != platform::BooleanClockOperation::Operator::AND)
-		throw EngineError("Only conjunction of clock constraints is supported by the taptenc semantics");
+		throw Unsupported("Only conjunction of clock constraints is supported by the taptenc semantics");
 
 	return std::unique_ptr<taptenc::ClockConstraint>(new taptenc::ConjunctionCC(
 		*element().lhs().semantics().compile(),
@@ -62,7 +62,7 @@ std::unique_ptr<taptenc::ClockConstraint> Semantics<platform::BooleanClockOperat
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<taptenc::ClockConstraint> Semantics<platform::ClockNegation>::compile()
-{ throw EngineError("Negation of clock constraints is not supported by the taptenc semantics"); }
+{ throw Unsupported("Negation of clock constraints is not supported by the taptenc semantics"); }
 
 
 } // namespace gologpp
