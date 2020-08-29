@@ -25,10 +25,10 @@ namespace gologpp {
 
 
 struct Clock {
-	using rep = double;
-	using duration = std::chrono::duration<rep, std::nano>;
+	using duration = std::chrono::seconds;
+	using rep = duration::rep;
 	using period = duration::period;
-	using time_point = std::chrono::time_point<Clock, Clock::duration>;
+	using time_point = std::chrono::time_point<std::chrono::steady_clock, Clock::duration>;
 	static constexpr bool is_steady = true;
 
 	static PlatformBackend *clock_source;

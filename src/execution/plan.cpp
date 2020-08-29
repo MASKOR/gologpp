@@ -26,7 +26,7 @@ namespace gologpp {
 TimedInstruction::TimedInstruction(unique_ptr<Instruction> &&i)
 : instruction_(std::forward<unique_ptr<Instruction>>(i))
 , earliest_(Clock::now())
-, latest_(Clock::time_point::max())
+, latest_(Clock::now() + Clock::duration(32767))
 {}
 
 

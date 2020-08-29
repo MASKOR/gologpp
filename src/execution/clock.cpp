@@ -35,8 +35,8 @@ string to_string(Clock::duration d)
 { return std::to_string(d.count()); }
 
 Clock::DurationRange::DurationRange()
-: min(0.)
-, max(std::numeric_limits<Clock::rep>::max())
+: min(0)
+, max(32767)
 {}
 
 Clock::DurationRange::DurationRange(Clock::rep min, Clock::rep max)
