@@ -75,9 +75,12 @@ transitions:
 }
 
 constraints {
-	start(scan(*)): state(realsense) = on;
+	start(stack(*,*)): state(realsense) = on;
+	during(stack(*,*)): state(realsense) = on;
+	end(stack(*,*)): state(realsense) = off;//*/
+/*	start(scan(*)): state(realsense) = on;
 	during(scan(*)): state(realsense) = on;
-	end(scan(*)): state(realsense) = off;
+	end(scan(*)): state(realsense) = off;//*/
 }
 
 
