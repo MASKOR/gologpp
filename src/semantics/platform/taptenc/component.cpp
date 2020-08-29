@@ -59,10 +59,10 @@ taptenc::Transition Semantics<platform::Transition>::compile()
 		resets.insert((*c)->special_semantics().compile());
 
 	return taptenc::Transition {
-		element().from()->name(),
-		element().to()->name(),
+		element().from()->special_semantics().taptenc_name(),
+		element().to()->special_semantics().taptenc_name(),
 		dynamic_cast<const platform::Component &>(*element().parent()).name()
-			+ taptenc::constants::COMPONENT_SEP + element().from()->name()
+			+ "G" + element().from()->name()
 			+ "T" + element().to()->name(),
 		*clock_formula,
 		std::move(resets),
@@ -87,8 +87,8 @@ taptenc::Transition Semantics<platform::ExogTransition>::compile()
 		resets.insert((*c)->special_semantics().compile());
 
 	return taptenc::Transition {
-		element().from()->name(),
-		element().to()->name(),
+		element().from()->special_semantics().taptenc_name(),
+		element().to()->special_semantics().taptenc_name(),
 		"no_op",
 		*clock_formula,
 		std::move(resets),
@@ -117,8 +117,12 @@ taptenc::State Semantics<platform::State>::compile()
 	else
 		clock_formula.reset(new taptenc::TrueCC());
 
-	return taptenc::State { uppaal_qualified_name(element()), *clock_formula };
+	return taptenc::State { taptenc_name(), *clock_formula };
 }
+
+
+std::string Semantics<platform::State>::taptenc_name()
+{ return uppaal_qualified_name(element()); }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
@@ -157,6 +161,7 @@ std::unique_ptr<taptenc::automaton> Semantics<platform::Component>::compile()
 		false /* TODO: set_trap? Wot is det ??*/
 	);
 
+	rv->clocks.emplace(new taptenc::Clock(taptenc::constants::GLOBAL_CLOCK));
 	for (const shared_ptr<platform::Clock> &c : element().clocks())
 		rv->clocks.emplace(c->special_semantics().compile());
 

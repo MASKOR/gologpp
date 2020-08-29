@@ -89,6 +89,7 @@ public:
 	Semantics(const platform::State &clock, AExecutionContext &context);
 
 	taptenc::State compile();
+	std::string taptenc_name();
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

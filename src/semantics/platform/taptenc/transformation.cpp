@@ -220,9 +220,9 @@ TimedInstruction TaptencTransformation::parse_domain_action(
 	else if (hookstr == "finish")
 		hook = Transition::Hook::FINISH;
 
-	string act_name = tt_action.substr(hook_sep + 1, brace_opn);
+	string act_name = tt_action.substr(hook_sep + 1, brace_opn - (hook_sep + 1));
 
-	string argstr = tt_action.substr(brace_opn + 1, brace_cls);
+	string argstr = tt_action.substr(brace_opn + 1, brace_cls - (brace_opn + 1));
 	vector<unique_ptr<Expression>> args;
 	while (argstr.size()) {
 		auto arg_sep = argstr.find(taptenc::constants::VAR_SEP);
@@ -233,13 +233,11 @@ TimedInstruction TaptencTransformation::parse_domain_action(
 			argstr = argstr.substr(arg_sep + 1);
 	}
 
-	TimedInstruction ti {
-		new Transition(
-			global_scope().lookup_global<Action>(act_name),
-			std::move(args),
-			hook
-		)
-	};
+	shared_ptr<Action> a = global_scope().lookup_global<Action>(act_name);
+	if (!a)
+		throw Bug("Unrecognized taptenc action name: " + act_name);
+
+	TimedInstruction ti { new Transition(a, std::move(args), hook) };
 	ti.set_earliest(context().context_time() + std::chrono::seconds(tt_time.earliest_start));
 	ti.set_latest(context().context_time() + std::chrono::seconds(tt_time.earliest_start + tt_time.max_delay));
 
@@ -258,16 +256,16 @@ TimedInstruction TaptencTransformation::parse_platform_action(
 		throw Bug("Got unexpected platform transition: " + tt_action);
 
 	string s_from = tt_action.substr(0, sp1_idx);
-	string s_act = tt_action.substr(sp1_idx + 2, sp2_idx - 2);
-	string s_to = tt_action.substr(sp2_idx);
+	string s_act = tt_action.substr(sp1_idx + 2, sp2_idx - 4 - sp1_idx);
+	string s_to = tt_action.substr(sp2_idx + 1);
 
-	auto comp_idx_from = s_from.find(taptenc::constants::COMPONENT_SEP);
+	auto comp_idx_from = s_from.find('G');
 	if (comp_idx_from == std::string::npos)
 		throw Bug("Component name missing in transition string: " + tt_action);
 	string component_name_from = s_from.substr(0, comp_idx_from);
 	string from_name = s_from.substr(comp_idx_from + 1);
 
-	auto comp_idx_to = s_to.find(taptenc::constants::COMPONENT_SEP);
+	auto comp_idx_to = s_to.find('G');
 	if (comp_idx_to == std::string::npos)
 		throw Bug("Component name missing in transition string: " + tt_action);
 	string component_name_to = s_to.substr(0, comp_idx_to);
@@ -276,8 +274,12 @@ TimedInstruction TaptencTransformation::parse_platform_action(
 	if (component_name_from != component_name_to)
 		throw Bug("Inconsistent component names: " + tt_action);
 
+	shared_ptr<platform::SwitchStateAction> sa = global_scope().lookup_global<platform::SwitchStateAction>("switch_state");
+	if (!sa)
+		throw Bug("switch_state action is not defined");
+
 	TimedInstruction rv { new Reference<platform::SwitchStateAction> {
-		global_scope().lookup_global<platform::SwitchStateAction>("switch_state"),
+		sa,
 		vector<Expression *> {
 			new Value(get_type<StringType>(), component_name_from),
 			new Value(get_type<StringType>(), from_name),

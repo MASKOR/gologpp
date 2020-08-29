@@ -164,8 +164,8 @@ Semantics<platform::During>::compile_chain()
 		args.push_back(a->cast<Value>().string_representation());
 
 	return {
-		{ taptenc::ActionName(taptenc::constants::START_PA + element().action()->name(), args) },
-		{ taptenc::ActionName(taptenc::constants::END_PA + element().action()->name(), args) }
+		{ taptenc::ActionName(std::string("start") + "G" + element().action()->name(), args) },
+		{ taptenc::ActionName(std::string("end") + "G" + element().action()->name(), args) }
 	};
 }
 
