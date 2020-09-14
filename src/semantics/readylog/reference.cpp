@@ -52,7 +52,7 @@ EC_word gologpp::Semantics<Binding>::plterm()
 			pl_binds.push_back(
 				::term(EC_functor("=", 2),
 					pval.first->special_semantics().plterm(),
-					pval.second.get().semantics().plterm()
+					pval.second->semantics().plterm()
 				)
 			);
 		}

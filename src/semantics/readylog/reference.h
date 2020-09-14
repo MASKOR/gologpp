@@ -93,8 +93,8 @@ public:
 	{ return reference_term(this->element()); }
 
 	bool args_need_eval() {
-		for (const unique_ptr<Expression> &expr : this->element().args())
-			if (!expr->is_a<Reference<Variable>>() && !expr->is_a<Value>())
+		for (auto &expr : this->element().args())
+			if (!expr->template is_a<Reference<Variable>>() && !expr->template is_a<Value>())
 				return true;
 
 		return false;
@@ -107,8 +107,8 @@ public:
 		else {
 			vector<EC_word> args;
 			arity_t i = 0;
-			for (const unique_ptr<Expression> &expr : this->element().args()) {
-				if (!expr->is_a<Reference<Variable>>() && !expr->is_a<Value>())
+			for (auto &expr : this->element().args()) {
+				if (!expr->template is_a<Reference<Variable>>() && !expr->template is_a<Value>())
 					args.push_back(this->element().target()->parameter(i)->special_semantics().plterm());
 				else
 					args.push_back(expr->semantics().plterm());

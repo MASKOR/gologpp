@@ -27,7 +27,7 @@ void Reference<Action>::attach_semantics(gologpp::SemanticsFactory &f)
 	if (!semantics_) {
 		semantics_ = f.make_semantics(*this);
 		binding().attach_semantics(f);
-		for (unique_ptr<Expression> &c : args())
+		for (auto &c : args())
 			c->attach_semantics(f);
 	}
 }

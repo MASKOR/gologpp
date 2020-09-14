@@ -51,6 +51,14 @@ vector<unique_ptr<Expression>> copy(const vector<unique_ptr<Expression>> &v)
 }
 
 
+vector<Expression *> copy(const vector<Expression *> &v)
+{
+	vector<Expression *> rv;
+	for (const Expression *e : v)
+		rv.emplace_back(dynamic_cast<const Value &>(*e).copy());
+	return rv;
+}
+
 
 #ifdef DEBUG_PARSER
 const string indent("");

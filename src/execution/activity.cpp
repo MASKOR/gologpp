@@ -122,7 +122,7 @@ void Activity::attach_semantics(SemanticsFactory &implementor)
 	if (!semantics_) {
 		binding().attach_semantics(implementor);
 		semantics_ = implementor.make_semantics(*this);
-		for (unique_ptr<Expression> &c : args())
+		for (auto &c : args())
 			c->attach_semantics(implementor);
 	}
 }

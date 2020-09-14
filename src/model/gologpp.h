@@ -44,7 +44,6 @@ using string = std::string;
 class Expression;
 class Instruction;
 
-// TODO: clean up this mess
 class Binding;
 
 class ModelElement;

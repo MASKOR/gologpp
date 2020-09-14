@@ -67,7 +67,7 @@ void Transition::attach_semantics(SemanticsFactory &implementor)
 	if (!semantics_) {
 		semantics_ = implementor.make_semantics(*this);
 		binding().attach_semantics(implementor);
-		for (unique_ptr<Expression> &c : args())
+		for (auto &c : args())
 			c->attach_semantics(implementor);
 	}
 }

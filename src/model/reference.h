@@ -41,7 +41,7 @@ class Binding : public ModelElement {
 public:
 	using MapT = std::unordered_map <
 		shared_ptr<const Variable>,
-		std::reference_wrapper<Expression>
+		unique_ptr<Expression>
 	>;
 
 	Binding(const Binding &);
@@ -50,7 +50,7 @@ public:
 
 	virtual ~Binding() = default;
 
-	void bind(shared_ptr<const Variable> var, Expression &expr);
+	void bind(shared_ptr<const Variable> var, unique_ptr<Expression> &&expr);
 	virtual Expression &get(shared_ptr<const Variable> param) const;
 	const MapT &map() const;
 
@@ -96,17 +96,25 @@ class ReferenceBase
 {
 public:
 	ReferenceBase(const shared_ptr<TargetT> &target, vector<unique_ptr<Expression>> &&args)
-	: args_(std::move(args))
-	, target_(target)
+	: target_(target)
 	{
 		size_t idx = 0;
-		while (idx < this->args().size() && idx < this->target()->params().size()) {
-			Expression &arg = *this->args()[idx];
-			shared_ptr<Variable> param = this->target()->params()[idx];
-			binding_.bind(param, arg);
-			dynamic_cast<Expression &>(arg).set_parent(this);
+		while (idx < args.size() && idx < this->target()->params().size()) {
+			unique_ptr<Expression> arg { std::move(args[idx]) };
+			arg->set_parent(this);
+			args_.emplace_back(arg.get());
+			binding_.bind(this->target()->params()[idx], std::move(arg));
 			++idx;
 		}
+		ensure_consistent();
+	}
+
+	ReferenceBase(const shared_ptr<TargetT> &target, Binding &&binding)
+	: target_(target)
+	, binding_(std::move(binding))
+	{
+		for (auto param : target()->params())
+			args_.emplace_back(&this->binding().get(param));
 		ensure_consistent();
 	}
 
@@ -181,10 +189,10 @@ public:
 	virtual bool bound() const override
 	{ return !target_.expired(); }
 
-	const vector<unique_ptr<Expression>> &args() const
+	const vector<Expression *> &args() const
 	{ return args_; }
 
-	vector<unique_ptr<Expression>> &args()
+	vector<Expression *> &args()
 	{ return args_; }
 
 	virtual const Expression &arg_for_param(shared_ptr<const Variable> param) const override
@@ -229,7 +237,7 @@ public:
 	size_t hash() const
 	{
 		size_t rv = this->target()->hash();
-		for (const unique_ptr<Expression> &c : this->args())
+		for (auto &c : this->args())
 			boost::hash_combine(rv, dynamic_cast<Value &>(*c).hash());
 
 		return rv;
@@ -242,7 +250,7 @@ public:
 	{ return binding_; }
 
 protected:
-	vector<unique_ptr<Expression>> args_;
+	vector<Expression *> args_;
 	weak_ptr<TargetT> target_;
 	Binding binding_;
 };

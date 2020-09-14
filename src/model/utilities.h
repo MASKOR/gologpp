@@ -73,6 +73,7 @@ struct identifier_equals {
 
 
 vector<unique_ptr<Expression>> copy(const vector<unique_ptr<Expression>> &v);
+vector<Expression *> copy(const vector<Expression *> &v);
 
 
 template<class CharT, class TraitsT, class GologT>
@@ -180,7 +181,15 @@ string to_string(const shared_ptr<T> &o, const string &pfx)
 { return o->to_string(pfx); }
 
 template<class T>
-string to_string(const T &o, const string &pfx)
+string to_string(const T *o, const string &pfx)
+{ return o->to_string(pfx); }
+
+template<class T>
+typename std::enable_if <
+	! std::is_pointer<T>::is_pointer,
+	string
+>::type
+to_string(const T &o, const string &pfx)
 { return o.to_string(pfx); }
 
 
