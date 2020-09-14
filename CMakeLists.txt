@@ -413,6 +413,7 @@ if (BUILD_TAPTENC_SEMANTICS)
 	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
 	target_link_libraries(taptenc-golog++ parsegolog++)
 	target_include_directories(taptenc-golog++ PUBLIC external)
+	set(TEST_LIBS ${TEST_LIBS} taptenc-golog++)
 
 	add_executable(taptenc_rcll_perception external/taptenc/src/rcll_perception.cpp ${TAPTENC_SRC})
 	target_include_directories(taptenc_rcll_perception PRIVATE ${TAPTENC_INCLUDE_PATHS})
@@ -438,8 +439,13 @@ if (BUILD_PARSER AND BUILD_READYLOG_IMPL)
 		set(TEST_LIBS asan)
 	endif()
 
-	set(TEST_LIBS ${TEST_LIBS} boost_filesystem boost_program_options parsegolog++ readylog++ taptenc-golog++)
+	set(TEST_LIBS ${TEST_LIBS} boost_filesystem boost_program_options parsegolog++ readylog++)
 	target_link_libraries(gologpp-test ${TEST_LIBS})
+
+	if (BUILD_TAPTENC_SEMANTICS)
+		target_link_libraries(gologpp-test taptenc-golog++)
+		add_compile_definitions(gologpp-test -DBUILD_TAPTENC_SEMANTICS)
+	endif()
 
 	if (BUILD_TESTING)
 		foreach(TI ${GPP_TESTS})

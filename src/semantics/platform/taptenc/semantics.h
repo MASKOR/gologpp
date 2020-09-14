@@ -19,8 +19,6 @@
 
 #include <model/platform/semantics.h>
 
-#include <taptenc/src/encoder/encoder_utils.h>
-
 
 namespace gologpp {
 

@@ -27,14 +27,15 @@
 #include <semantics/readylog/execution.h>
 #include <semantics/readylog/procedural.h>
 
-#include <semantics/platform/taptenc/semantics.h>
-
 #include <parser/parser.h>
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 
 #include <model/platform/semantics.h>
+
+
+
 
 
 using namespace gologpp;
@@ -110,7 +111,11 @@ int main(int argc, char **argv) {
 		options.toplevel = false;
 		options.guitrace = !vm["guitrace"].empty();
 
+#ifdef GOLOGPP_BUILD_TAPTENC_SEMANTICS
 		ReadylogContext::init<platform::TaptencSemanticsFactory>(options);
+#else
+		ReadylogContext::init<platform::DummySemanticsFactory>(options);
+#endif
 
 		int rv = test_file(unique_ptr<Instruction>(mainproc->ref({})));
 
