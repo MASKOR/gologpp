@@ -30,6 +30,19 @@ find_package(Threads)
 
 pkg_check_modules(SWIPL "swipl")
 
+
+option(BUILD_TAPTENC_SEMANTICS "Build the taptenc platform model semantics" OFF)
+option(USE_LIBASAN "Enable the AddressSanitizer to detect memory management bugs" OFF)
+option(BUILD_PARSER "Build the parser library" ON)
+CMAKE_DEPENDENT_OPTION(DEBUG_PARSER "Enable debug output for the parser" OFF "BUILD_PARSER" OFF)
+if (${ECLIPSE_FOUND})
+	option(BUILD_READYLOG_IMPL "Build the readylog semantics (ECLiPSe Prolog)" ON)
+endif()
+
+if (BUILD_TAPTENC_SEMANTICS)
+	add_compile_definitions(BUILD_TAPTENC_SEMANTICS)
+endif()
+
 include_directories(${Boost_INCLUDE_DIR} src)
 
 add_compile_options(-Wall -Wno-unknown-pragmas)
@@ -48,7 +61,6 @@ foreach(def ${EXTRA_COMPILER_MACROS})
 	add_definitions(-D${def})
 endforeach()
 
-option(USE_LIBASAN "Enable the AddressSanitizer to detect memory management bugs" OFF)
 if (${USE_LIBASAN})
 	add_compile_options(-fsanitize=address)
 endif()
@@ -193,8 +205,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/golog++.pc DESTINATION ${CMAKE_INSTALL
 # The golog++ parser: libparsegolog++.so
 ######################################################################################
 
-option(BUILD_PARSER "Build the parser library" ON)
-CMAKE_DEPENDENT_OPTION(DEBUG_PARSER "Enable debug output for the parser" OFF "BUILD_PARSER" OFF)
 if (${BUILD_PARSER})
 	set(OPTIMIZE_PARSER 2 CACHE STRING "Optimization level for the parser (0 - 3)")
 	set(PARSER_SRC
@@ -286,9 +296,6 @@ endif()
 # The golog++ readylog semantics: libreadylog++.so
 ######################################################################################
 
-if (${ECLIPSE_FOUND})
-	option(BUILD_READYLOG_IMPL "Build the readylog semantics (ECLiPSe Prolog)" ON)
-endif()
 if (${BUILD_READYLOG_IMPL})
 	set(READYLOG_SRC
 		src/semantics/readylog/action.cpp
@@ -369,7 +376,6 @@ if (${BUILD_READYLOG_IMPL})
 endif()
 
 
-option(BUILD_TAPTENC_SEMANTICS "Build the taptenc platform model semantics" OFF)
 if (BUILD_TAPTENC_SEMANTICS)
 	set(TAPTENC_SRC
 		external/taptenc/src/constraints/constraints.cpp
@@ -444,7 +450,6 @@ if (BUILD_PARSER AND BUILD_READYLOG_IMPL)
 
 	if (BUILD_TAPTENC_SEMANTICS)
 		target_link_libraries(gologpp-test taptenc-golog++)
-		add_compile_definitions(gologpp-test -DBUILD_TAPTENC_SEMANTICS)
 	endif()
 
 	if (BUILD_TESTING)
