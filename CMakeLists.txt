@@ -50,8 +50,6 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -fno-omit-frame-point
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O2")
 
-set_property(GLOBAL PROPERTY CXX_STANDARD 14)
-
 add_definitions(-DSOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\")
 
 set(EXTRA_COMPILER_MACROS "" CACHE STRING "Extra macro definitions to pass to the compiler with the -D option")
@@ -419,10 +417,12 @@ if (BUILD_TAPTENC_SEMANTICS)
 	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
 	target_link_libraries(taptenc-golog++ parsegolog++)
 	target_include_directories(taptenc-golog++ PUBLIC external)
+	target_compile_options(taptenc-golog++ PRIVATE -std=c++17)
 	set(TEST_LIBS ${TEST_LIBS} taptenc-golog++)
 
 	add_executable(taptenc_rcll_perception external/taptenc/src/rcll_perception.cpp ${TAPTENC_SRC})
 	target_include_directories(taptenc_rcll_perception PRIVATE ${TAPTENC_INCLUDE_PATHS})
+	target_compile_options(taptenc_rcll_perception PRIVATE -std=c++17)
 endif()
 
 
