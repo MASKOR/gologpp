@@ -147,7 +147,7 @@ void DummyBackend::terminate()
 
 void DummyBackend::schedule_timer_event(Clock::time_point when)
 {
-	timer_evt_thread_ = std::thread([&] () {
+	timer_evt_thread_ = std::thread([&, when] () {
 		wait_until_ready();
 
 		std::unique_lock<std::mutex> sleep_lock(terminate_mutex_);
