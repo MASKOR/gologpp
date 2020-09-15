@@ -57,16 +57,69 @@ public:
 	Logger &operator<< (char *msg);
 	Logger &operator<< (const Clock::time_point &tm);
 
-	template<class ListT>
-	Logger &operator<< (const ListT &l) {
-		msg_pfx_ += "(";
-		for (auto elem : l) {
-			msg_pfx_ += std::to_string(elem) + ", ";
+	template<class GologT>
+	typename std::enable_if<
+		std::is_base_of<ModelElement, GologT>::value,
+		Logger &
+	>::type
+	operator << (const GologT &obj)
+	{ return *this << obj.to_string(""); }
+
+
+	template<class GologT>
+	typename std::enable_if<
+		std::is_base_of<ModelElement, GologT>::value,
+		Logger &
+	>::type
+	operator << (const GologT *obj)
+	{ return *this << (obj ? obj->to_string("") : "nullptr"); }
+
+
+	template<class GologT>
+	typename std::enable_if<
+		std::is_base_of<ModelElement, GologT>::value,
+		Logger &
+	>::type
+	operator << (const shared_ptr<GologT> &obj)
+	{ return *this << (obj ? obj->to_string("") : "nullptr"); }
+
+
+	template<class ElemT>
+	Logger &
+	operator << (const vector<ElemT> &v)
+	{
+		*this << "[";
+		typename vector<ElemT>::const_iterator it = v.begin();
+		for (const ElemT &e : v) {
+			*this << e;
+			if (++it < v.cend())
+				*this << ", ";
 		}
-		msg_pfx_.pop_back(); msg_pfx_.pop_back();
-		msg_pfx_ += ")";
-		return *this;
+		return *this << "]";
 	}
+
+
+	template<class ElemT>
+	Logger &
+	operator << (const std::list<ElemT> &v)
+	{
+		*this << "[";
+		typename std::list<ElemT>::const_iterator it = v.begin();
+		for (const ElemT &e : v) {
+			*this << e;
+			if (++it != v.cend())
+				*this << ", ";
+		}
+		return *this << "]";
+	}
+
+
+	template<class T>
+	Logger &
+	operator << (const std::reference_wrapper<T> &v)
+	{ return *this << v.get(); }
+
+
 
 	virtual void output_message(const std::string &msg);
 
@@ -80,6 +133,7 @@ private:
 
 Logger &flush(Logger &l);
 Logger &log(LogLevel lvl);
+
 
 
 } // namespace gologpp

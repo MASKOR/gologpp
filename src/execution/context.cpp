@@ -139,7 +139,7 @@ void AExecutionContext::drain_exog_queue()
 		shared_ptr<Reference<AbstractAction>> r = exog_queue_pop();
 		Reference<ExogAction> &exog = r->cast<Reference<ExogAction>>();
 		if (!exog->silent()) {
-			std::cout << ">>> Exogenous event: " << exog << std::endl;
+			log(LogLevel::INF) << ">>> Exogenous event: " << exog << flush;
 			silent_ = false;
 		}
 		exog->attach_semantics(semantics_factory());
@@ -150,12 +150,12 @@ void AExecutionContext::drain_exog_queue()
 void AExecutionContext::drain_exog_queue_blocking()
 {
 	if (!silent_)
-		std::cout << "=== No transition possible: Waiting for exogenous events..." << std::endl;
+		log(LogLevel::INF) << "=== No transition possible: Waiting for exogenous events..." << flush;
 
 	shared_ptr<Reference<AbstractAction>> exog = exog_queue_poll();
 	if (exog) {
 		if (!(*exog)->silent()) {
-			std::cout << ">>> Exogenous event: " << exog << std::endl;
+			log(LogLevel::INF) << ">>> Exogenous event: " << exog << flush;
 			silent_ = false;
 		}
 		exog->attach_semantics(semantics_factory());
