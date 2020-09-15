@@ -19,6 +19,7 @@
 #include <model/action.h>
 #include <model/procedural.h>
 #include <model/effect_axiom.h>
+#include <model/logger.h>
 
 #include <model/platform/semantics.h>
 #include <model/platform/switch_state_action.h>
@@ -32,6 +33,7 @@
 
 
 #include <iostream>
+#include <iomanip>
 
 
 
@@ -160,6 +162,11 @@ void AExecutionContext::drain_exog_queue_blocking()
 		history().general_semantics<History>().append(exog);
 		drain_exog_queue();
 	}
+	else
+		log(LogLevel::DBG)
+			<< ">>> Timer wakeup: "
+			<< context_time()
+			<< flush;
 }
 
 bool AExecutionContext::silent() const

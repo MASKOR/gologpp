@@ -18,6 +18,7 @@
 #include "logger.h"
 
 #include <iostream>
+#include <iomanip>
 
 
 
@@ -143,6 +144,15 @@ Logger &Logger::operator<< (const char *msg)
 
 Logger &Logger::operator<< (char *msg)
 { msg_pfx_ += msg; return *this; }
+
+Logger &Logger::operator<<(const Clock::time_point &tm)
+{
+	auto in_time_t = Clock::to_time_t(tm);
+	std::stringstream ss;
+	ss << std::put_time(std::localtime(&in_time_t), "%Y-%M-%d %H:%M:%S");
+	msg_pfx_ += ss.str();
+	return *this;
+}
 
 
 Logger &Logger::operator<< (Logger & (*pf_flush)(Logger &))

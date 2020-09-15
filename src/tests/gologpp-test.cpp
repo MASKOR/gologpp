@@ -89,6 +89,9 @@ int main(int argc, char **argv) {
 	po::positional_options_description p;
 	p.add("file", -1);
 	po::variables_map vm;
+
+	Logger::instance().log_lvl() = LogLevel::DBG;
+
 	try {
 		po::store(
 			po::command_line_parser(argc, argv).options(desc).positional(p).run(),

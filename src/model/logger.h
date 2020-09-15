@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <execution/clock.h>
 
 namespace gologpp {
 
@@ -54,6 +55,7 @@ public:
 	Logger &operator<< (Logger & (*pf_flush)(Logger &));
 	Logger &operator<< (const char *msg);
 	Logger &operator<< (char *msg);
+	Logger &operator<< (const Clock::time_point &tm);
 
 	template<class ListT>
 	Logger &operator<< (const ListT &l) {

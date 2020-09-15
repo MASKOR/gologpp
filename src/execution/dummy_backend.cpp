@@ -151,12 +151,15 @@ void DummyBackend::schedule_timer_event(Clock::time_point when)
 		wait_until_ready();
 
 		std::unique_lock<std::mutex> sleep_lock(terminate_mutex_);
+		log(LogLevel::DBG) << "=== Schedule wakeup: " << when << flush;
 		terminate_condition_.wait_until(sleep_lock, when, [&] () {
 			return terminated_.load();
 		} );
 
-		if (!terminated_)
+		if (!terminated_) {
+			log(LogLevel::DBG) << "<<< Dispatch wakeup " << when << " @" << Clock::now() << flush;
 			exec_context()->exog_timer_wakeup();
+		}
 	});
 	timer_evt_thread_.detach();
 }
