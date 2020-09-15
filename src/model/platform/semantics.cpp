@@ -37,7 +37,7 @@ BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_PLATFORM_SEMANTICS, (), GOLOGPP_PLATFO
 
 namespace platform {
 
-#ifndef BUILD_TAPTENC_SEMANTICS
+#ifdef USE_DUMMY_PLATFORM
 	unique_ptr<SemanticsFactory> SemanticsFactory::construct()
 	{ return unique_ptr<SemanticsFactory>(new DummySemanticsFactory()); }
 #endif

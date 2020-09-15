@@ -39,9 +39,6 @@ if (${ECLIPSE_FOUND})
 	option(BUILD_READYLOG_IMPL "Build the readylog semantics (ECLiPSe Prolog)" ON)
 endif()
 
-if (BUILD_TAPTENC_SEMANTICS)
-	add_compile_definitions(BUILD_TAPTENC_SEMANTICS)
-endif()
 
 include_directories(${Boost_INCLUDE_DIR} src)
 
@@ -129,6 +126,10 @@ target_compile_options(golog++ PUBLIC -fPIC)
 target_link_libraries (golog++ ${CMAKE_THREAD_LIBS_INIT})
 set_property(TARGET golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
 install(TARGETS golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+if (NOT BUILD_TAPTENC_SEMANTICS)
+	target_compile_definitions(golog++ PRIVATE USE_DUMMY_PLATFORM)
+endif()
 
 install(FILES
 	src/model/model_element.h
@@ -424,6 +425,7 @@ if (BUILD_TAPTENC_SEMANTICS)
 	target_include_directories(taptenc_rcll_perception PRIVATE ${TAPTENC_INCLUDE_PATHS})
 	target_compile_options(taptenc_rcll_perception PRIVATE -std=c++17)
 endif()
+
 
 
 ######################################################################################
