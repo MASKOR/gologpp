@@ -47,6 +47,16 @@ ReadylogContext &ReadylogSemantics::rl_context() const
 { return dynamic_cast<ReadylogContext &>(context()); }
 
 
+#ifndef BUILD_TAPTENC_SEMANTICS
+unique_ptr<SemanticsFactory> SemanticsFactory::construct()
+{
+	return unique_ptr<SemanticsFactory>(new ReadylogSemanticsFactory(
+		platform::SemanticsFactory::construct()
+	));
+}
+#endif
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/

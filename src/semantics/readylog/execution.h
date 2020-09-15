@@ -37,7 +37,6 @@ class ReadylogContext : public ExecutionContext {
 public:
 	virtual ~ReadylogContext() override;
 
-	template<class TPlatformSemanticsFactory>
 	static void init(
 		const eclipse_opts &options = {false, false, false},
 		unique_ptr<PlatformBackend> &&backend = nullptr,
@@ -88,20 +87,7 @@ class EclipseError : public std::runtime_error {
 
 
 
-template<class TPlatformSemanticsFactory>
-void ReadylogContext::init(
-	const eclipse_opts &options,
-	unique_ptr<PlatformBackend> &&exec_backend,
-	unique_ptr<PlanTransformation> &&transformation
-)
-{
-	instance_ = unique_ptr<ReadylogContext>(new ReadylogContext(
-		options,
-		std::move(exec_backend),
-		std::move(transformation),
-		unique_ptr<TPlatformSemanticsFactory>(new TPlatformSemanticsFactory())
-	) );
-}
+
 
 
 } // namespace gologpp

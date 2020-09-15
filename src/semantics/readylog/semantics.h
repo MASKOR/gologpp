@@ -19,6 +19,7 @@
 #define READYLOG_IMPLEMENTATION_H_
 
 #include <model/semantics.h>
+#include <model/platform/semantics.h>
 
 #include <eclipseclass.h>
 
@@ -31,6 +32,18 @@ namespace gologpp {
 
 
 class ReadylogContext;
+
+
+class ReadylogSemanticsFactory : public SemanticsFactory {
+public:
+	ReadylogSemanticsFactory(unique_ptr<platform::SemanticsFactory> &&);
+	virtual ~ReadylogSemanticsFactory() override = default;
+
+	virtual ReadylogContext &context() override;
+
+	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE, (), GOLOGPP_SEMANTIC_TYPES)
+};
+
 
 
 class ReadylogSemantics
@@ -102,17 +115,6 @@ public:
 	{ return GeneralSemantics<GologT>::element(); }
 };
 
-
-
-class ReadylogSemanticsFactory : public SemanticsFactory {
-public:
-	ReadylogSemanticsFactory(unique_ptr<platform::SemanticsFactory> &&);
-	virtual ~ReadylogSemanticsFactory() override = default;
-
-	virtual ReadylogContext &context() override;
-
-	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE, (), GOLOGPP_SEMANTIC_TYPES)
-};
 
 
 

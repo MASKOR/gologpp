@@ -80,6 +80,7 @@ private:
 class SemanticsFactory {
 public:
 	SemanticsFactory(unique_ptr<platform::SemanticsFactory> &&psf);
+	static unique_ptr<SemanticsFactory> construct();
 
 	virtual ~SemanticsFactory() = default;
 

@@ -111,6 +111,16 @@ ReadylogContext::ReadylogContext(
 ReadylogContext::~ReadylogContext()
 {}
 
+void ReadylogContext::init(const eclipse_opts &options, unique_ptr<PlatformBackend> &&backend, unique_ptr<PlanTransformation> &&transformation)
+{
+	instance_ = unique_ptr<ReadylogContext>(new ReadylogContext(
+		options,
+		std::move(backend),
+		std::move(transformation),
+		platform::SemanticsFactory::construct()
+	) );
+}
+
 
 ReadylogContext &ReadylogContext::instance()
 { return *instance_; }

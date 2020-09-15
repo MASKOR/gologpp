@@ -28,6 +28,7 @@ namespace platform {
 class SemanticsFactory {
 public:
 	virtual ~SemanticsFactory() = default;
+	static unique_ptr<SemanticsFactory> construct();
 
 	virtual AExecutionContext &context();
 	void set_context(AExecutionContext &);

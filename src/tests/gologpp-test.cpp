@@ -111,11 +111,7 @@ int main(int argc, char **argv) {
 		options.toplevel = false;
 		options.guitrace = !vm["guitrace"].empty();
 
-#ifdef GOLOGPP_BUILD_TAPTENC_SEMANTICS
-		ReadylogContext::init<platform::TaptencSemanticsFactory>(options);
-#else
-		ReadylogContext::init<platform::DummySemanticsFactory>(options);
-#endif
+		ReadylogContext::init(options);
 
 		int rv = test_file(unique_ptr<Instruction>(mainproc->ref({})));
 

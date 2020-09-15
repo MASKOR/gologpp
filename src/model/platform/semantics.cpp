@@ -31,31 +31,37 @@ unique_ptr<GeneralSemantics<ModelElement>> SemanticsFactory::make_semantics(T &e
 
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_PLATFORM_SEMANTICS, (), GOLOGPP_PLATFORM_ELEMENTS)
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace platform {
 
+#ifndef BUILD_TAPTENC_SEMANTICS
+	unique_ptr<SemanticsFactory> SemanticsFactory::construct()
+	{ return unique_ptr<SemanticsFactory>(new DummySemanticsFactory()); }
+#endif
 
-AExecutionContext &SemanticsFactory::context()
-{ return *context_; }
+	AExecutionContext &SemanticsFactory::context()
+	{ return *context_; }
 
-void SemanticsFactory::set_context(AExecutionContext &ctx)
-{ context_ = &ctx; }
+	void SemanticsFactory::set_context(AExecutionContext &ctx)
+	{ context_ = &ctx; }
 
 
 
 #define GOLOGPP_DEFINE_DUMMY_MAKE_PLATFORM_SEMANTICS(_r, _data, T) \
-unique_ptr<GeneralSemantics<ModelElement>> DummySemanticsFactory::make_semantics(T &) { \
-	return nullptr; \
-}
+	unique_ptr<GeneralSemantics<ModelElement>> DummySemanticsFactory::make_semantics(T &) { \
+		return nullptr; \
+	}
 
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_DUMMY_MAKE_PLATFORM_SEMANTICS, (), GOLOGPP_PLATFORM_ELEMENTS)
 
-PlanTransformation *DummySemanticsFactory::make_transformation()
-{ return new DummyPlanTransformation(); }
-
+	PlanTransformation *DummySemanticsFactory::make_transformation()
+	{ return new DummyPlanTransformation(); }
 
 } // namespace platform
+
 
 
 } // namespace gologpp
