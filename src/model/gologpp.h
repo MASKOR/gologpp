@@ -209,7 +209,6 @@ class SemanticsFactory;
 	(Reference<Fluent>) \
 	(Reference<Variable>) \
 	(Reference<Function>) \
-	(Reference<platform::SwitchStateAction>) \
 	(FieldAccess) \
 	(ListAccess) \
 	(ListLength) \

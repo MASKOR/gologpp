@@ -39,13 +39,13 @@
 
 #include <model/platform/semantics.h>
 #include <model/platform/switch_state_action.h>
+#include <model/logger.h>
 
 namespace gologpp {
 
-
-ReadylogContext &ReadylogSemantics::rl_context() const
-{ return dynamic_cast<ReadylogContext &>(context()); }
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 unique_ptr<SemanticsFactory> SemanticsFactory::construct()
 {
@@ -53,6 +53,13 @@ unique_ptr<SemanticsFactory> SemanticsFactory::construct()
 		platform::SemanticsFactory::construct()
 	));
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+ReadylogContext &ReadylogSemantics::rl_context() const
+{ return dynamic_cast<ReadylogContext &>(context()); }
 
 
 

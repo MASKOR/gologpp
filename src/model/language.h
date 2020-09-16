@@ -75,7 +75,7 @@ class ChildElement
 : public virtual AbstractLanguageElement
 {
 public:
-	ChildElement() = default;
+	ChildElement();
 	ChildElement(ChildElement &&) = default;
 
 	AbstractLanguageElement *parent();
@@ -87,7 +87,7 @@ public:
 	virtual const Scope &parent_scope() const override;
 
 private:
-	AbstractLanguageElement *parent_ = nullptr;
+	AbstractLanguageElement *parent_;
 };
 
 

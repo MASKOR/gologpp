@@ -40,4 +40,10 @@ platform::SemanticsFactory &SemanticsFactory::platform_semantics_factory()
 { return *platform_semantics_factory_; }
 
 
+SemanticsFactory &SemanticsFactory::get() {
+	static unique_ptr<SemanticsFactory> instance = construct();
+	return *instance;
+}
+
+
 } // namespace gologpp

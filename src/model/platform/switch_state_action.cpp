@@ -75,6 +75,18 @@ shared_ptr<const Variable> SwitchStateAction::param_to_state() const
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+unique_ptr<GeneralSemantics<ModelElement>>
+SemanticsFactory::make_semantics(Reference<platform::SwitchStateAction> &obj)
+{
+	return unique_ptr<GeneralSemantics<ModelElement>>(
+		new GeneralSemantics<Reference<platform::SwitchStateAction>>(obj, context())
+	);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 GeneralSemantics<Reference<platform::SwitchStateAction>>::GeneralSemantics(
 	const Reference<platform::SwitchStateAction> &elem,
 	AExecutionContext &context
@@ -100,7 +112,7 @@ unique_ptr<Plan> GeneralSemantics<Reference<platform::SwitchStateAction> >::tran
 		dynamic_cast<const Value &>(element().arg_for_param(element()->param_to_state()))
 	);
 
-	shared_ptr<platform::Component> component = element().scope().lookup_global<platform::Component>(component_name);
+	shared_ptr<platform::Component> component = global_scope().lookup_global<platform::Component>(component_name);
 
 	if (component->current_state() != from_state)
 		log(LogLevel::ERR) << "Component \"" << component_name << "\" expected to be in state \"" << from_state

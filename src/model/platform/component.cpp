@@ -292,7 +292,7 @@ string Component::to_string(const string &pfx) const
 }
 
 void Component::compile(AExecutionContext &ctx)
-{ ctx.compile(*this); }
+{ initialize(ctx); }
 
 ModelElement *Component::ref(const vector<Expression *> &/*args*/)
 { return new Reference<Component>(std::dynamic_pointer_cast<Component>(shared_from_this())); }

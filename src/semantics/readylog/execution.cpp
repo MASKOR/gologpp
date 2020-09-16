@@ -53,11 +53,9 @@ void ReadylogContext::shutdown()
 ReadylogContext::ReadylogContext(
 	const eclipse_opts &options,
 	unique_ptr<PlatformBackend> &&exec_backend,
-	unique_ptr<PlanTransformation> &&transformation,
-	unique_ptr<platform::SemanticsFactory> &&psf
+	unique_ptr<PlanTransformation> &&transformation
 )
 : ExecutionContext(
-  	std::make_unique<ReadylogSemanticsFactory>(std::move(psf)),
   	std::move(exec_backend),
   	std::move(transformation)
   )
@@ -116,8 +114,7 @@ void ReadylogContext::init(const eclipse_opts &options, unique_ptr<PlatformBacke
 	instance_ = unique_ptr<ReadylogContext>(new ReadylogContext(
 		options,
 		std::move(backend),
-		std::move(transformation),
-		platform::SemanticsFactory::construct()
+		std::move(transformation)
 	) );
 }
 
@@ -176,9 +173,6 @@ void ReadylogContext::compile(const Function &function)
 
 void ReadylogContext::compile(const Procedure &proc)
 { compile_term(proc.special_semantics().definition()); }
-
-void ReadylogContext::compile(const platform::Component &)
-{}
 
 
 void ReadylogContext::compile_term(const EC_word &term)

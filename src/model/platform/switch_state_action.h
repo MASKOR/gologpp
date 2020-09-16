@@ -52,17 +52,17 @@ private:
 
 template<>
 class GeneralSemantics<Reference<platform::SwitchStateAction>>
-: public virtual GeneralSemantics<ModelElement>
+: public virtual GeneralSemantics<Instruction>
 {
 public:
 	GeneralSemantics(const Reference<platform::SwitchStateAction> &elem, AExecutionContext &context);
 
-	virtual bool final(const Binding &b, const History &h);
-	virtual unique_ptr<Plan> trans(const Binding &, History &);
+	virtual bool final(const Binding &b, const History &h) override;
+	virtual unique_ptr<Plan> trans(const Binding &, History &) override;
 
 	const Reference<platform::SwitchStateAction> &element() const;
 	virtual const ModelElement &model_element() const override;
-	virtual const Instruction &instruction() const;
+	virtual const Instruction &instruction() const override;
 
 	virtual AExecutionContext &context() const override;
 

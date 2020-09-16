@@ -40,9 +40,9 @@
 namespace gologpp {
 
 
-AExecutionContext::AExecutionContext(unique_ptr<SemanticsFactory> &&semantics, unique_ptr<PlatformBackend> &&platform_backend)
+AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_backend)
 : platform_backend_(move(platform_backend))
-, semantics_(std::move(semantics))
+, semantics_(&SemanticsFactory::get())
 , silent_(false)
 , terminated(false)
 , context_time_(Clock::time_point::min())
@@ -124,7 +124,7 @@ bool AExecutionContext::exog_empty()
 	return exog_queue_.empty();
 }
 
-SemanticsFactory &AExecutionContext::semantics_factory()
+SemanticsFactory &AExecutionContext::semantics_factory() const
 { return *semantics_; }
 
 PlatformBackend &AExecutionContext::backend()
@@ -176,16 +176,30 @@ void AExecutionContext::set_silent(bool silent)
 { silent_ = silent; }
 
 Clock::time_point AExecutionContext::context_time() const
-{ return context_time_; }
+{
+	unique_ptr<Expression> context_time {
+		global_scope().lookup_global<Fluent>("context_time")->make_ref({})
+	};
+	context_time->attach_semantics(semantics_factory());
+
+	Binding empty_binding;
+	empty_binding.attach_semantics(semantics_factory());
+
+	return Clock::time_point(Clock::duration(
+		context_time->general_semantics().evaluate(
+			empty_binding,
+			history_
+		).numeric_convert<Clock::rep>()
+	));
+}
 
 
 
 ExecutionContext::ExecutionContext(
-	unique_ptr<SemanticsFactory> &&semantics,
 	unique_ptr<PlatformBackend> &&exec_backend,
 	unique_ptr<PlanTransformation> &&plan_transformation
 )
-: AExecutionContext(std::move(semantics), std::move(exec_backend))
+: AExecutionContext(std::move(exec_backend))
 , plan_transformation_(std::move(plan_transformation))
 {
 	if (!plan_transformation_)

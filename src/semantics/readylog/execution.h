@@ -52,7 +52,6 @@ public:
 	virtual void compile(const Fluent &fluent) override;
 	virtual void compile(const Function &function) override;
 	virtual void compile(const Procedure &proc) override;
-	virtual void compile(const platform::Component &) override;
 	virtual void postcompile() override;
 
 	bool ec_query(EC_word t);
@@ -66,8 +65,7 @@ private:
     ReadylogContext(
 		const eclipse_opts &options,
 		unique_ptr<PlatformBackend> &&exec_backend,
-		unique_ptr<PlanTransformation> &&transformation,
-		unique_ptr<platform::SemanticsFactory> &&platform_semantics_factory
+		unique_ptr<PlanTransformation> &&transformation
 	);
 
     virtual void compile_term(const EC_word &term);

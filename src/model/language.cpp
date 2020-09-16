@@ -113,6 +113,10 @@ BOOST_PP_SEQ_FOR_EACH(GOLOGPP_INSTANTIATE_T_SET_TYPE_UNCHECKED, (), GOLOGPP_PRED
 
 
 
+ChildElement::ChildElement()
+: parent_(nullptr)
+{}
+
 AbstractLanguageElement *ChildElement::parent()
 { return parent_; }
 

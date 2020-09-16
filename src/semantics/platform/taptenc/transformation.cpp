@@ -241,6 +241,8 @@ TimedInstruction TaptencTransformation::parse_domain_action(
 	ti.set_earliest(context().context_time() + std::chrono::seconds(tt_time.earliest_start));
 	ti.set_latest(context().context_time() + std::chrono::seconds(tt_time.earliest_start + tt_time.max_delay));
 
+	ti.instruction().attach_semantics(SemanticsFactory::get());
+
 	return ti;
 }
 
@@ -288,6 +290,8 @@ TimedInstruction TaptencTransformation::parse_platform_action(
 	} };
 	rv.set_earliest(context().context_time() + std::chrono::seconds(tt_time.earliest_start));
 	rv.set_latest(context().context_time() + std::chrono::seconds(tt_time.earliest_start + tt_time.max_delay));
+
+	rv.instruction().attach_semantics(SemanticsFactory::get());
 
 	return rv;
 }

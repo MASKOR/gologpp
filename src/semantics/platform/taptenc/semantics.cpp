@@ -40,6 +40,7 @@ string tolower(const string &s)
 }
 
 
+
 namespace platform {
 
 BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_SEMANTICS, TaptencSemanticsFactory, GOLOGPP_PLATFORM_ELEMENTS)

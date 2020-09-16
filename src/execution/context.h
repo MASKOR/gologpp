@@ -46,7 +46,7 @@ class AExecutionContext {
 public:
 	typedef std::queue<shared_ptr<Reference<AbstractAction>>> ExogQueue;
 
-	AExecutionContext(unique_ptr<SemanticsFactory> &&implementor, unique_ptr<PlatformBackend> &&platform_backend);
+	AExecutionContext(unique_ptr<PlatformBackend> &&platform_backend);
 	virtual ~AExecutionContext() = default;
 
 	virtual void precompile() = 0;
@@ -57,7 +57,6 @@ public:
 	virtual void compile(const AbstractAction &action) = 0;
 	virtual void compile(const Function &function) = 0;
 	virtual void compile(const Procedure &function) = 0;
-	virtual void compile(const platform::Component &component) = 0;
 
 	virtual void postcompile() = 0;
 
@@ -78,7 +77,7 @@ public:
 
 	virtual void terminate();
 
-	SemanticsFactory &semantics_factory();
+	SemanticsFactory &semantics_factory() const;
 	PlatformBackend &backend();
 	History &history();
 
@@ -100,7 +99,7 @@ private:
 
 	ExogQueue exog_queue_;
 	unique_ptr<PlatformBackend> platform_backend_;
-	unique_ptr<SemanticsFactory> semantics_;
+	SemanticsFactory *semantics_;
 	History history_;
 	bool silent_;
 
@@ -114,7 +113,6 @@ protected:
 class ExecutionContext : public AExecutionContext {
 public:
 	ExecutionContext(
-		unique_ptr<SemanticsFactory> &&implementor,
 		unique_ptr<PlatformBackend> &&exec_backend,
 		unique_ptr<PlanTransformation> &&plan_transformation
 	);

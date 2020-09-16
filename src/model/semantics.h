@@ -28,7 +28,9 @@
 
 namespace gologpp {
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class GologT>
 class GeneralSemantics
@@ -61,7 +63,9 @@ private:
 	AExecutionContext &context_;
 };
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS(r, data, T) \
 	virtual unique_ptr<GeneralSemantics<ModelElement>> make_semantics(T &) = 0;
@@ -76,11 +80,13 @@ private:
 	unique_ptr<GeneralSemantics<ModelElement>> FactoryClass::make_semantics(GologT &obj) \
 	{ return unique_ptr<GeneralSemantics<ModelElement>>(new Semantics<GologT>(obj, context())); }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class SemanticsFactory {
 public:
 	SemanticsFactory(unique_ptr<platform::SemanticsFactory> &&psf);
-	static unique_ptr<SemanticsFactory> construct();
 
 	virtual ~SemanticsFactory() = default;
 
@@ -88,16 +94,23 @@ public:
 	void set_context(AExecutionContext &);
 
 	platform::SemanticsFactory &platform_semantics_factory();
+	static SemanticsFactory &get();
+
+	GOLOGPP_DECLARE_MAKE_SEMANTICS((), (), Reference<platform::SwitchStateAction>)
 
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS, (), GOLOGPP_SEMANTIC_TYPES)
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECLARE_MAKE_SEMANTICS, (), GOLOGPP_PLATFORM_ELEMENTS)
 
 private:
+	static unique_ptr<SemanticsFactory> construct();
+
 	unique_ptr<platform::SemanticsFactory> platform_semantics_factory_;
 	AExecutionContext *context_;
 };
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(...) \
 	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override { \
@@ -117,6 +130,6 @@ private:
 
 
 
-}
+} // namespace gologpp
 
 #endif // GOLOGPP_IMPLEMENTATION_H_
