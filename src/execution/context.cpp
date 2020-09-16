@@ -234,6 +234,10 @@ void ExecutionContext::run(Block &&program)
 			if (plan) {
 				plan = plan_transformation_->transform(std::move(*plan));
 
+				log(LogLevel::DBG) << "Got plan:" << flush;
+				for (auto &e : plan->elements())
+					log(LogLevel::DBG) << e.instruction() << flush;
+
 				while (!plan->elements().empty()) {
 					if (terminated)
 						throw Terminate();

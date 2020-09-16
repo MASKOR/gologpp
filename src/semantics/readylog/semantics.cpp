@@ -114,6 +114,8 @@ const Expression &Semantics<Expression>::expression() const
 
 unique_ptr<Plan> Semantics<Instruction>::trans(const Binding &, History &history)
 {
+	log(LogLevel::DBG) << "Readylog trans: " << instruction() << flush;
+
 	if (!rl_context().options().guitrace && rl_context().options().toplevel) {
 		post_goal("toplevel");
 		EC_resume();
