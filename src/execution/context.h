@@ -105,7 +105,6 @@ private:
 
 protected:
 	std::atomic_bool terminated;
-	std::atomic<Clock::time_point> context_time_;
 };
 
 

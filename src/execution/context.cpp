@@ -20,6 +20,7 @@
 #include <model/procedural.h>
 #include <model/effect_axiom.h>
 #include <model/logger.h>
+#include <model/reference.h>
 
 #include <model/platform/semantics.h>
 #include <model/platform/switch_state_action.h>
@@ -45,18 +46,44 @@ AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_back
 , semantics_(&SemanticsFactory::get())
 , silent_(false)
 , terminated(false)
-, context_time_(Clock::time_point::min())
 {
-	Scope *action_scope = new Scope(global_scope());
-	global_scope().register_global(new platform::SwitchStateAction(action_scope));
-
 	if (!platform_backend_)
 		platform_backend_ = std::make_unique<DummyBackend>();
 	platform_backend_->set_context(this);
 	Clock::clock_source = platform_backend_.get();
-	context_time_ = Clock::now();
 
 	semantics_->set_context(*this);
+	Scope *action_scope = new Scope(global_scope());
+
+	/***************************************************************************
+	 * Define platform/temporal execution model                                */
+	global_scope().register_global(new platform::SwitchStateAction(action_scope));
+
+	Fluent *f_time = global_scope().define_global<Fluent, const vector<InitialValue *>>(
+		new Scope(global_scope()),
+		get_type<NumberType>(),
+		"context_time",
+		boost::none,
+		{ new InitialValue(boost::none, new Value(get_type<NumberType>(), Clock::now().time_since_epoch().count())) }
+	);
+
+	Scope *ea_scope = new Scope(global_scope());
+	shared_ptr<Variable> time_var = ea_scope->get_var(VarDefinitionMode::FORCE, get_type<NumberType>(), "next_time");
+	ExogAction *a_step_time = global_scope().define_global<ExogAction>(
+		ea_scope,
+		get_type<VoidType>(),
+		"step_context_time",
+		boost::optional<vector<shared_ptr<Variable>>>{{ time_var }},
+		boost::none,
+		boost::none,
+		boost::none
+	);
+
+	EffectAxiom<Reference<Fluent>> *time_eff = new EffectAxiom<Reference<Fluent>>();
+	time_eff->define(boost::none, f_time->make_ref({}), new Reference<Variable>(time_var));
+	time_eff->set_action(*a_step_time);
+	a_step_time->add_effect(time_eff);
+	/***************************************************************************/
 }
 
 
@@ -71,19 +98,16 @@ shared_ptr<Reference<AbstractAction>> AExecutionContext::exog_queue_pop()
 
 shared_ptr<Reference<AbstractAction>> AExecutionContext::exog_queue_poll()
 {
-	Clock::time_point prev_time = context_time();
 	std::unique_lock<std::mutex> queue_empty_lock { queue_empty_mutex_ };
 	{
 		std::lock_guard<std::mutex> l1{ wait_mutex_ };
 		queue_empty_condition_.wait(queue_empty_lock, [&] {
-			return !exog_queue_.empty() || terminated || context_time() > prev_time;
+			return !exog_queue_.empty() || terminated;
 		});
 	}
 
 	if (terminated)
 		throw Terminate();
-	else if (context_time() > prev_time)
-		return nullptr;
 	else
 		return exog_queue_pop();
 }
@@ -112,8 +136,15 @@ void AExecutionContext::exog_queue_push(shared_ptr<Reference<AbstractAction>> ex
 
 void AExecutionContext::exog_timer_wakeup()
 {
-	context_time_ = backend().time();
-	queue_empty_condition_.notify_all();
+	exog_queue_push(shared_ptr<Reference<AbstractAction>> {
+		global_scope().lookup_global<Action>("step_context_time")->make_ref(
+			{ new Value(
+				get_type<NumberType>(),
+				Clock::now().time_since_epoch().count())
+			}
+		)
+	} );
+
 	std::lock_guard<std::mutex> l2 { wait_mutex_ };
 }
 
