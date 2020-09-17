@@ -132,7 +132,11 @@ void DummyBackend::preempt_activity(shared_ptr<Activity> a)
 
 Clock::time_point DummyBackend::time() const noexcept
 {
-	return std::chrono::time_point_cast<Clock::duration>(std::chrono::steady_clock::now());
+	return Clock::time_point(
+		std::chrono::duration_cast<Clock::duration>(
+			std::chrono::steady_clock::now().time_since_epoch()
+		)
+	);
 }
 
 

@@ -26,14 +26,14 @@ namespace gologpp {
 
 PlatformBackend::PlatformBackend()
 {
-	if (Clock::clock_source)
+	if (Clock::clock_source_)
 		throw Bug("Cannot have multiple instances of the PlatformBackend because there must be a unique clock source");
-	Clock::clock_source = this;
+	Clock::set_clock_source(this);
 }
 
 PlatformBackend::~PlatformBackend()
 {
-	Clock::clock_source = nullptr;
+	Clock::uninit();
 }
 
 shared_ptr<Activity> PlatformBackend::start_activity(const Transition &trans)

@@ -17,6 +17,7 @@
 
 #include "plan.h"
 #include <model/semantics.h>
+#include <model/logger.h>
 
 #include <execution/transition.h>
 
@@ -33,7 +34,6 @@ TimedInstruction::TimedInstruction(unique_ptr<Instruction> &&i)
 TimedInstruction::TimedInstruction(Instruction *i)
 : TimedInstruction(unique_ptr<Instruction>(i))
 {}
-
 
 TimedInstruction::TimedInstruction(TimedInstruction &&i)
 : instruction_(std::move(i.instruction_))
@@ -123,6 +123,20 @@ vector<TimedInstruction> &Plan::elements()
 
 const vector<TimedInstruction> &Plan::elements() const
 { return elements_; }
+
+Logger &operator <<(Logger &l, const Plan &p)
+{
+	l << "{\n";
+	for (auto &e : p.elements())
+		l << " ["
+			<< e.earliest_timepoint() << ", "
+			<< e.latest_timepoint()
+			<< "] "
+			<< e.instruction() << "\n"
+		;
+	l << "}" << flush;
+	return l;
+}
 
 
 /*void Plan::attach_semantics(SemanticsFactory &f)

@@ -40,6 +40,7 @@ using fusion_wtf_vector = boost::fusion::vector2<T1, T2>;
 
 using string = std::string;
 
+class Logger;
 
 class Expression;
 class Instruction;

@@ -60,7 +60,6 @@ private:
 };
 
 
-
 class Plan
 {
 public:
@@ -85,5 +84,7 @@ private:
 	vector<TimedInstruction> elements_;
 };
 
+
+Logger &operator << (Logger &l, const Plan &p);
 
 }

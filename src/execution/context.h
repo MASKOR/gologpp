@@ -102,6 +102,8 @@ private:
 	SemanticsFactory *semantics_;
 	History history_;
 	bool silent_;
+	shared_ptr<ExogAction> step_time_action_;
+	unique_ptr<Clock::time_point> context_time_;
 
 protected:
 	std::atomic_bool terminated;

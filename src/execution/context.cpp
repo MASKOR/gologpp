@@ -45,12 +45,13 @@ AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_back
 : platform_backend_(move(platform_backend))
 , semantics_(&SemanticsFactory::get())
 , silent_(false)
+, context_time_(new Clock::time_point())
 , terminated(false)
 {
 	if (!platform_backend_)
 		platform_backend_ = std::make_unique<DummyBackend>();
 	platform_backend_->set_context(this);
-	Clock::clock_source = platform_backend_.get();
+	Clock::init();
 
 	semantics_->set_context(*this);
 	Scope *action_scope = new Scope(global_scope());
@@ -69,7 +70,7 @@ AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_back
 
 	Scope *ea_scope = new Scope(global_scope());
 	shared_ptr<Variable> time_var = ea_scope->get_var(VarDefinitionMode::FORCE, get_type<NumberType>(), "next_time");
-	ExogAction *a_step_time = global_scope().define_global<ExogAction>(
+	step_time_action_.reset(global_scope().define_global<ExogAction>(
 		ea_scope,
 		get_type<VoidType>(),
 		"step_context_time",
@@ -77,12 +78,12 @@ AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_back
 		boost::none,
 		boost::none,
 		boost::none
-	);
+	));
 
 	EffectAxiom<Reference<Fluent>> *time_eff = new EffectAxiom<Reference<Fluent>>();
 	time_eff->define(boost::none, f_time->make_ref({}), new Reference<Variable>(time_var));
-	time_eff->set_action(*a_step_time);
-	a_step_time->add_effect(time_eff);
+	time_eff->set_action(*step_time_action_);
+	step_time_action_->add_effect(time_eff);
 	/***************************************************************************/
 }
 
@@ -137,7 +138,7 @@ void AExecutionContext::exog_queue_push(shared_ptr<Reference<AbstractAction>> ex
 void AExecutionContext::exog_timer_wakeup()
 {
 	exog_queue_push(shared_ptr<Reference<AbstractAction>> {
-		global_scope().lookup_global<Action>("step_context_time")->make_ref(
+		step_time_action_->make_ref(
 			{ new Value(
 				get_type<NumberType>(),
 				Clock::now().time_since_epoch().count())
@@ -216,12 +217,14 @@ Clock::time_point AExecutionContext::context_time() const
 	Binding empty_binding;
 	empty_binding.attach_semantics(semantics_factory());
 
-	return Clock::time_point(Clock::duration(
+	*context_time_ = Clock::time_point(Clock::duration(
 		context_time->general_semantics().evaluate(
 			empty_binding,
 			history_
 		).numeric_convert<Clock::rep>()
 	));
+
+	return *context_time_;
 }
 
 
@@ -265,9 +268,7 @@ void ExecutionContext::run(Block &&program)
 			if (plan) {
 				plan = plan_transformation_->transform(std::move(*plan));
 
-				log(LogLevel::DBG) << "Got plan:" << flush;
-				for (auto &e : plan->elements())
-					log(LogLevel::DBG) << e.instruction() << flush;
+				log(LogLevel::DBG) << "Got plan: " << *plan << flush;
 
 				while (!plan->elements().empty()) {
 					if (terminated)
@@ -304,7 +305,11 @@ void ExecutionContext::run(Block &&program)
 					else {
 						// Current Plan element not executable
 						drain_exog_queue_blocking();
-						plan = plan_transformation_->transform(std::move(*plan));
+						if (context_time() > plan->elements().front().latest_timepoint()) {
+							// First plan element's time window has passed: replan!
+							plan = plan_transformation_->transform(std::move(*plan));
+							log(LogLevel::DBG) << "Replanned: " << *plan << flush;
+						}
 					}
 
 					if (history().general_semantics<History>().should_progress()) {

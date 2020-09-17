@@ -22,17 +22,38 @@
 namespace gologpp {
 
 
-PlatformBackend *Clock::clock_source = nullptr;
+PlatformBackend *Clock::clock_source_ = nullptr;
+Clock::time_point Clock::epoch_;
 
 Clock::time_point Clock::now() noexcept
-{ return clock_source->time(); }
+{
+	return Clock::time_point(clock_source_->time() - epoch());
+}
 
+void Clock::init()
+{ epoch_ = clock_source_->time(); }
+
+void Clock::uninit()
+{
+	epoch_ = time_point();
+	clock_source_ = nullptr;
+}
+
+
+void Clock::set_clock_source(PlatformBackend *b)
+{ clock_source_ = b; }
+
+Clock::time_point Clock::epoch()
+{ return epoch_; }
 
 string to_string(Clock::time_point tp)
 { return to_string(tp.time_since_epoch()); }
 
 string to_string(Clock::duration d)
 { return std::to_string(d.count()); }
+
+
+
 
 Clock::DurationRange::DurationRange()
 : min(0)

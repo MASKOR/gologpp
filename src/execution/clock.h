@@ -25,15 +25,18 @@ namespace gologpp {
 
 
 struct Clock {
-	using duration = std::chrono::seconds;
+public:
+	friend PlatformBackend;
+
+	using duration = std::chrono::duration<double>;
 	using rep = duration::rep;
 	using period = duration::period;
-	using time_point = std::chrono::time_point<std::chrono::steady_clock, Clock::duration>;
+	using time_point = std::chrono::time_point<Clock>;
 	static constexpr bool is_steady = true;
 
-	static PlatformBackend *clock_source;
-
 	static time_point now() noexcept;
+	static void init();
+	static void uninit();
 
 	struct DurationRange {
 		DurationRange();
@@ -42,16 +45,13 @@ struct Clock {
 		duration max;
 	};
 
-	static std::time_t
-	to_time_t(const time_point& t) noexcept
-	{
-		return std::time_t(
-			std::chrono::duration_cast<std::chrono::seconds>(
-				t.time_since_epoch()
-			).count()
-		);
-	}
 
+	static time_point epoch();
+
+private:
+	static void set_clock_source(PlatformBackend *);
+	static PlatformBackend *clock_source_;
+	static time_point epoch_;
 };
 
 

@@ -147,13 +147,16 @@ Logger &Logger::operator<< (char *msg)
 
 Logger &Logger::operator<<(const Clock::time_point &tm)
 {
-	auto in_time_t = Clock::to_time_t(tm);
+	using namespace std::chrono;
+	auto sys_now = system_clock::now();
+	auto delta = tm - Clock::now();
+	auto sys_tm = sys_now + delta;
+	auto in_time_t = std::time_t(duration_cast<seconds>(sys_tm.time_since_epoch()).count());
 	std::stringstream ss;
-	ss << std::put_time(std::localtime(&in_time_t), "%Y-%M-%d %H:%M:%S");
+	ss << std::put_time(std::localtime(&in_time_t), /*"%Y-%m-%d "*/"%H:%M:%S");
 	msg_pfx_ += ss.str();
 	return *this;
 }
-
 
 Logger &Logger::operator<< (Logger & (*pf_flush)(Logger &))
 { return pf_flush(*this); }
