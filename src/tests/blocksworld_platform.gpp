@@ -39,6 +39,7 @@ precondition:
 
 effect:
 	loc(x) = y;
+duration: [2, 4]
 }
 
 
