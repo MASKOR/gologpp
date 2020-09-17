@@ -46,6 +46,7 @@ DummyBackend::DummyBackend()
 , rnd_list_len_(0, 16)
 , rnd_number_value_(-1000, 1000)
 , rnd_bool_value_(0, 1)
+, terminated_(false)
 {
 	for (shared_ptr<Global> &g : global_scope().globals()) {
 		shared_ptr<ExogAction> exog = std::dynamic_pointer_cast<ExogAction>(g);
