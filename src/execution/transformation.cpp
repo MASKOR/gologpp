@@ -34,6 +34,7 @@ void PlanTransformation::init(AExecutionContext &ctx)
 {
 	for (auto &c : global_scope().local_identifiers<platform::Component>()) {
 		c->attach_semantics(ctx.semantics_factory());
+		c->initialize(ctx);
 		components.emplace_back(c);
 	}
 	for (auto &c : global_scope().constraints()) {

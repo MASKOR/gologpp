@@ -193,6 +193,7 @@ void Component::initialize(AExecutionContext &context)
 	backend_ = context.backend().get_component_backend(this->name());
 	backend_->set_model(*this);
 	backend_->set_context(context);
+	backend_->init();
 }
 
 void Component::add_state(State *s)

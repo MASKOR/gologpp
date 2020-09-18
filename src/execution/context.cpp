@@ -57,7 +57,9 @@ AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_back
 	/***************************************************************************
 	 * Define platform/temporal execution model                                */
 	Scope *action_scope = new Scope(global_scope());
+
 	global_scope().register_global(new platform::SwitchStateAction(action_scope));
+	switch_state_action_ = global_scope().lookup_global<platform::SwitchStateAction>("switch_state");
 
 	Fluent *f_time = global_scope().define_global<Fluent, const vector<InitialValue *>>(
 		new Scope(global_scope()),
@@ -168,12 +170,16 @@ void AExecutionContext::drain_exog_queue()
 {
 	while (!exog_empty()) {
 		shared_ptr<Reference<AbstractAction>> r = exog_queue_pop();
+
+		if (std::dynamic_pointer_cast<Reference<platform::SwitchStateAction>>(r))
+			continue; // Nothing to do, effects already applied by the ComponentBackend.
+
 		Reference<ExogAction> &exog = r->cast<Reference<ExogAction>>();
 		if (!exog->silent()) {
 			log(LogLevel::INF) << ">>> Exogenous event: " << exog << flush;
 			silent_ = false;
 		}
-		exog->attach_semantics(semantics_factory());
+		exog.attach_semantics(semantics_factory());
 		history().general_semantics<History>().append(exog);
 	}
 }
@@ -185,12 +191,14 @@ void AExecutionContext::drain_exog_queue_blocking()
 
 	shared_ptr<Reference<AbstractAction>> exog = exog_queue_poll();
 	if (exog) {
-		if (!(*exog)->silent()) {
-			log(LogLevel::INF) << ">>> Exogenous event: " << exog << flush;
-			silent_ = false;
+		if (!std::dynamic_pointer_cast<Reference<platform::SwitchStateAction>>(exog)) {
+			if (!(*exog)->silent()) {
+				log(LogLevel::INF) << ">>> Exogenous event: " << exog << flush;
+				silent_ = false;
+			}
+			exog->attach_semantics(semantics_factory());
+			history().general_semantics<History>().append(exog);
 		}
-		exog->attach_semantics(semantics_factory());
-		history().general_semantics<History>().append(exog);
 		drain_exog_queue();
 	}
 	else

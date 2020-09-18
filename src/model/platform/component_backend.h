@@ -20,6 +20,10 @@
 #include <model/gologpp.h>
 #include <model/platform/component.h>
 
+#include <atomic>
+#include <condition_variable>
+#include <thread>
+
 
 namespace gologpp {
 namespace platform {
@@ -36,6 +40,7 @@ public:
 	virtual void switch_state(const string &state_name) = 0;
 	virtual void init() = 0;
 	virtual void terminate() = 0;
+	virtual bool is_dummy() const;
 
 private:
 	Component *model_;
@@ -50,9 +55,23 @@ private:
 
 class DummyComponentBackend : public ComponentBackend {
 public:
+	DummyComponentBackend();
+
 	virtual void switch_state(const string &state_name) override;
 	virtual void init() override;
 	virtual void terminate() override;
+	virtual bool is_dummy() const override;
+
+
+	void request_state_change(const string &state);
+
+private:
+	std::thread exog_state_change_thread_;
+	std::atomic_bool terminated_;
+
+	std::condition_variable pending_request_;
+	std::mutex mutex_;
+	shared_ptr<State> requested_state_;
 };
 
 

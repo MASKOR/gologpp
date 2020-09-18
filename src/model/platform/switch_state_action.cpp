@@ -22,6 +22,7 @@
 
 #include "switch_state_action.h"
 #include "component.h"
+#include "component_backend.h"
 
 
 
@@ -118,21 +119,27 @@ unique_ptr<Plan> GeneralSemantics<Reference<platform::SwitchStateAction> >::tran
 	shared_ptr<State> from_st = component->state(from_state);
 	shared_ptr<State> to_st = component->state(to_state);
 
-	if (component->current_state() != from_state)
-		log(LogLevel::ERR) << "Component \"" << component_name << "\" expected to be in state \"" << from_state
-			<< "\", but it's in state \"" << component->current_state().name() << "\"" << flush;
-	// TODO: What should really happen in a case like this?
 
 	if (component->find_transition<platform::Transition>(*from_st, *to_st)) {
+		if (component->current_state() != from_state)
+			log(LogLevel::ERR) << "Component \"" << component_name << "\" expected to be in state \"" << from_state
+				<< "\", but it's in state \"" << component->current_state().name() << "\"" << flush;
+		// TODO: What should really happen in a case like this?
+
 		component->switch_state(to_state);
 		final_ = true;
 		return unique_ptr<Plan>(new Plan());
 	}
-	else if (component->find_transition<platform::ExogTransition>(*from_st, *to_st)
-		&& component->current_state() == *to_st
-	) {
-		final_ = true;
-		return unique_ptr<Plan>(new Plan());
+	else if (component->find_transition<platform::ExogTransition>(*from_st, *to_st)) {
+		if (component->current_state() != *to_st && component->backend().is_dummy()) {
+			DummyComponentBackend &dummy = dynamic_cast<platform::DummyComponentBackend &>(component->backend());
+			dummy.request_state_change(to_state);
+			return nullptr;
+		}
+		else {
+			final_ = true;
+			return unique_ptr<Plan>(new Plan());
+		}
 	}
 	else
 		return nullptr;

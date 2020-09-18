@@ -45,7 +45,9 @@ void ComponentBackend::exog_state_change(const string &state_name)
 	if (!tgt)
 		throw ComponentError(string(__func__) + ": Invalid target state: " + state_name);
 
-	model_->find_transition<ExogTransition>(model_->current_state(), *tgt);
+	if (!model_->find_transition<ExogTransition>(model_->current_state(), *tgt))
+		log(LogLevel::ERR) << "Component backend \"" << model().name() << "\" breached model by going from state \""
+			<< model().current_state() << "\" to \"" << state_name << "\"" << flush;
 
 	shared_ptr<SwitchStateAction> exog_state_change = exec_context_->switch_state_action();
 	shared_ptr<gologpp::Reference<AbstractAction>> evt { new gologpp::Reference<platform::SwitchStateAction> {
@@ -62,18 +64,62 @@ void ComponentBackend::exog_state_change(const string &state_name)
 	context().exog_queue_push(evt);
 }
 
+bool ComponentBackend::is_dummy() const
+{ return false; }
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+DummyComponentBackend::DummyComponentBackend()
+: terminated_(false)
+{}
+
 void DummyComponentBackend::switch_state(const string &state_name)
 { log(LogLevel::INF) << "Dummy component " << model().name() << " switches to state " << state_name << flush; }
 
+
 void DummyComponentBackend::init()
-{ log(LogLevel::INF) << "Dummy component " << model().name() << " init" << flush; }
+{
+	log(LogLevel::INF) << "Dummy component " << model().name() << " init" << flush;
+
+	exog_state_change_thread_ = std::thread([&] () {
+		while (!terminated_) {
+			std::unique_lock<std::mutex> lock(mutex_);
+			pending_request_.wait(lock, [&] () {
+				return terminated_  || std::atomic_load(&requested_state_);
+			});
+
+			if (std::atomic_load(&requested_state_)) {
+				log(LogLevel::INF) << "Dummy component " << model().name() << " exog switches to state "
+					<< std::atomic_load(&requested_state_)->name() << flush;
+				exog_state_change(std::atomic_load(&requested_state_)->name());
+				std::atomic_store(&requested_state_, std::shared_ptr<platform::State>());
+			}
+		}
+	});
+	exog_state_change_thread_.detach();
+}
+
 
 void DummyComponentBackend::terminate()
-{ log(LogLevel::INF) << "Dummy component " << model().name() << " terminate" << flush; }
+{
+	log(LogLevel::INF) << "Dummy component " << model().name() << " terminate" << flush;
+	terminated_ = true;
+	pending_request_.notify_all();
+}
+
+bool DummyComponentBackend::is_dummy() const
+{ return true; }
+
+
+void DummyComponentBackend::request_state_change(const string &state)
+{
+	std::atomic_store(&requested_state_, model().state(state));
+	pending_request_.notify_all();
+}
+
+
 
 
 
