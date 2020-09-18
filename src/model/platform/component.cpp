@@ -299,11 +299,9 @@ const TransitionT *Component::find_transition(const State &from, const State &to
 		}
 	);
 	if (it == transitions().end())
-		throw ComponentError(
-			"No transition from " + from.str()
-			+ " to " + to.str() + " in component " + name()
-		);
-	return dynamic_cast<const TransitionT *>(it->get());
+		return nullptr;
+	else
+		return dynamic_cast<const TransitionT *>(it->get());
 }
 
 template
