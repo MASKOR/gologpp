@@ -102,6 +102,8 @@ bool GeneralSemantics<Reference<platform::SwitchStateAction> >::final(const Bind
 
 unique_ptr<Plan> GeneralSemantics<Reference<platform::SwitchStateAction> >::trans(const Binding &, History &)
 {
+	using namespace platform;
+
 	string component_name = static_cast<string>(
 		dynamic_cast<const Value &>(element().arg_for_param(element()->param_component()))
 	);
@@ -112,17 +114,28 @@ unique_ptr<Plan> GeneralSemantics<Reference<platform::SwitchStateAction> >::tran
 		dynamic_cast<const Value &>(element().arg_for_param(element()->param_to_state()))
 	);
 
-	shared_ptr<platform::Component> component = global_scope().lookup_global<platform::Component>(component_name);
+	shared_ptr<Component> component = global_scope().lookup_global<platform::Component>(component_name);
+	shared_ptr<State> from_st = component->state(from_state);
+	shared_ptr<State> to_st = component->state(to_state);
 
 	if (component->current_state() != from_state)
 		log(LogLevel::ERR) << "Component \"" << component_name << "\" expected to be in state \"" << from_state
 			<< "\", but it's in state \"" << component->current_state().name() << "\"" << flush;
 	// TODO: What should really happen in a case like this?
 
-	component->switch_state(to_state);
-	final_ = true;
-
-	return unique_ptr<Plan>(new Plan());
+	if (component->find_transition<platform::Transition>(*from_st, *to_st)) {
+		component->switch_state(to_state);
+		final_ = true;
+		return unique_ptr<Plan>(new Plan());
+	}
+	else if (component->find_transition<platform::ExogTransition>(*from_st, *to_st)
+		&& component->current_state() == *to_st
+	) {
+		final_ = true;
+		return unique_ptr<Plan>(new Plan());
+	}
+	else
+		return nullptr;
 }
 
 const Reference<platform::SwitchStateAction> &GeneralSemantics<Reference<platform::SwitchStateAction> >::element() const

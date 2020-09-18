@@ -181,6 +181,9 @@ public:
 	void set_current_state(const shared_ptr<State> &);
 	const State &current_state() const;
 	vector<shared_ptr<State>> states() const;
+	shared_ptr<State> state(const string name);
+	shared_ptr<const State> state(const string name) const;
+
 	const vector<unique_ptr<AbstractTransition>> &transitions() const;
 	vector<shared_ptr<Clock>> clocks() const;
 
@@ -202,7 +205,7 @@ public:
 	void switch_state(const string &state_name);
 
 	template<class TransitionT>
-	const TransitionT &find_transition(const State &from, const State &to) const;
+	const TransitionT *find_transition(const State &from, const State &to) const;
 
 	ComponentBackend &backend();
 

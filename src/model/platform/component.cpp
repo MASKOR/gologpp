@@ -220,6 +220,9 @@ const State &Component::current_state() const
 vector<shared_ptr<State>> Component::states() const
 { return scope().local_identifiers<State>(); }
 
+shared_ptr<State> Component::state(const string name)
+{ return scope().lookup_local_identifier<State>(name); }
+
 const vector<unique_ptr<AbstractTransition>> &Component::transitions() const
 { return transitions_; }
 
@@ -239,7 +242,7 @@ void Component::add_state(State *s)
 	s->set_parent(this);
 
 	if (states().size() == 2)
-		set_current_state(scope().lookup_identifier<State>(s->name()));
+		set_current_state(scope().lookup_local_identifier<State>(s->name()));
 }
 
 void Component::add_clock(Clock *c)
@@ -304,7 +307,11 @@ void Component::switch_state(const string &state_name)
 	if (!tgt)
 		throw Bug(string(__func__) + ": Invalid target state: " + state_name);
 
-	find_transition<Transition>(current_state(), *tgt);
+	if (!find_transition<Transition>(current_state(), *tgt))
+		throw ComponentError(
+			"No transition from " + current_state().name()
+			+ " to " + state_name + " in component " + name()
+		);
 
 	backend_->switch_state(state_name);
 	set_current_state(tgt);
@@ -318,7 +325,7 @@ Component::Lock Component::lock() const
 
 
 template<class TransitionT>
-const TransitionT &Component::find_transition(const State &from, const State &to) const
+const TransitionT *Component::find_transition(const State &from, const State &to) const
 {
 	auto it = std::find_if(
 		transitions().begin(),
@@ -337,14 +344,14 @@ const TransitionT &Component::find_transition(const State &from, const State &to
 			"No transition from " + from.str()
 			+ " to " + to.str() + " in component " + name()
 		);
-	return dynamic_cast<const TransitionT &>(**it);
+	return dynamic_cast<const TransitionT *>(it->get());
 }
 
 template
-const Transition &Component::find_transition(const State &from, const State &to) const;
+const Transition *Component::find_transition(const State &from, const State &to) const;
 
 template
-const ExogTransition &Component::find_transition(const State &from, const State &to) const;
+const ExogTransition *Component::find_transition(const State &from, const State &to) const;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/

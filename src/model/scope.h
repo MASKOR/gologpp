@@ -141,6 +141,17 @@ public:
 
 
 	template<class GologT = Identifier>
+	shared_ptr<GologT> lookup_local_identifier(const string &name) const
+	{
+		auto it = identifiers_.find(name);
+		if (it != identifiers_.end())
+			return std::dynamic_pointer_cast<GologT>(it->second);
+		else
+			return nullptr;
+	};
+
+
+	template<class GologT = Identifier>
 	void register_identifier(GologT *i)
 	{
 		if (lookup_identifier<GologT>(i->name()))
