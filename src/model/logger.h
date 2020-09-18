@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <mutex>
 #include <execution/clock.h>
 
 namespace gologpp {
@@ -131,6 +132,7 @@ private:
 	LogLevel msg_lvl_;
 	static thread_local std::unique_ptr<std::string> msg_pfx_;
 	std::exception_ptr exception_;
+	std::mutex mutex_;
 };
 
 Logger &flush(Logger &l);

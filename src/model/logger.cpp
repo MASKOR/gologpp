@@ -76,7 +76,8 @@ LogLevel &Logger::log_lvl()
 { return log_lvl_; }
 
 
-Logger &flush(Logger &l) { return l.flush(); }
+Logger &flush(Logger &l)
+{ return l.flush(); }
 
 
 Logger &log(LogLevel lvl)
@@ -87,13 +88,12 @@ Logger &log(LogLevel lvl)
 
 
 Logger::~Logger()
-{
-	flush();
-}
+{}
 
 
 Logger &Logger::flush()
 {
+	std::lock_guard<std::mutex> l(mutex_);
 	if (msg_pfx().length() == 0) return *this;
 	if (msg_lvl_ <= log_lvl_) {
 		output_message(msg_pfx());
