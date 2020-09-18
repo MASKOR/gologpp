@@ -26,6 +26,7 @@ namespace gologpp {
 
 
 std::unique_ptr<Logger> Logger::instance_;
+thread_local std::unique_ptr<std::string> Logger::msg_pfx_(new std::string());
 
 
 LogLevel &operator--(LogLevel &l)
@@ -65,7 +66,8 @@ Logger::Logger()
 
 Logger &Logger::instance()
 {
-	if (!instance_) instance_ = std::unique_ptr<Logger>(new Logger());
+	if (!instance_)
+		instance_ = std::unique_ptr<Logger>(new Logger());
 	return *instance_;
 }
 
@@ -92,11 +94,11 @@ Logger::~Logger()
 
 Logger &Logger::flush()
 {
-	if (msg_pfx_.length() == 0) return *this;
+	if (msg_pfx().length() == 0) return *this;
 	if (msg_lvl_ <= log_lvl_) {
-		output_message(msg_pfx_);
+		output_message(msg_pfx());
 	}
-	msg_pfx_ = "";
+	msg_pfx() = "";
 
 	return *this;
 }
@@ -107,20 +109,23 @@ void Logger::output_message(const std::string &s)
 	std::cerr << s << std::endl;
 }
 
+std::string &Logger::msg_pfx()
+{ return *msg_pfx_; }
+
 
 
 Logger &Logger::level(const LogLevel &lvl)
 {
 	flush();
 	if (!syslog_ && msg_lvl_ != lvl && lvl >= log_lvl_ && msg_lvl_ >= log_lvl_)
-		msg_pfx_ = "\n";
+		msg_pfx() = "\n";
 	else
-		msg_pfx_ = "";
+		msg_pfx() = "";
 
 	if (lvl == LogLevel::WRN)
-		msg_pfx_ += "WARNING: ";
+		msg_pfx() += "WARNING: ";
 	else if (lvl == LogLevel::ERR)
-		msg_pfx_ += "ERROR: ";
+		msg_pfx() += "ERROR: ";
 
 	this->msg_lvl_ = lvl;
 	return *this;
@@ -128,22 +133,22 @@ Logger &Logger::level(const LogLevel &lvl)
 
 
 Logger &Logger::operator<<( const std::string &msg)
-{ msg_pfx_ += msg; return *this; }
+{ msg_pfx() += msg; return *this; }
 
 Logger &Logger::operator<< (const int i)
-{ msg_pfx_ += std::to_string(i); return *this; }
+{ msg_pfx() += std::to_string(i); return *this; }
 
 Logger &Logger::operator<< (const unsigned int i)
-{ msg_pfx_ += std::to_string(i); return *this; }
+{ msg_pfx() += std::to_string(i); return *this; }
 
 Logger &Logger::operator<< (const float &i)
-{ msg_pfx_ += std::to_string(i); return *this; }
+{ msg_pfx() += std::to_string(i); return *this; }
 
 Logger &Logger::operator<< (const char *msg)
-{ msg_pfx_ += msg; return *this; }
+{ msg_pfx() += msg; return *this; }
 
 Logger &Logger::operator<< (char *msg)
-{ msg_pfx_ += msg; return *this; }
+{ msg_pfx() += msg; return *this; }
 
 Logger &Logger::operator<<(const Clock::time_point &tm)
 {
@@ -159,7 +164,7 @@ Logger &Logger::operator<<(const Clock::time_point &tm)
 	//ss << std::put_time(std::localtime(&in_time_t), /*"%Y-%m-%d "*/"%H:%M:%S");
 	ss << tm.time_since_epoch().count();
 
-	msg_pfx_ += ss.str();
+	msg_pfx() += ss.str();
 	return *this;
 }
 

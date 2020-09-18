@@ -124,10 +124,12 @@ public:
 	virtual void output_message(const std::string &msg);
 
 private:
+	std::string &msg_pfx();
+
 	bool syslog_;
 	LogLevel log_lvl_;
 	LogLevel msg_lvl_;
-	std::string msg_pfx_;
+	static thread_local std::unique_ptr<std::string> msg_pfx_;
 	std::exception_ptr exception_;
 };
 
