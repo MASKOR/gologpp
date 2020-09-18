@@ -44,12 +44,20 @@ private:
 	TimedInstruction parse_domain_action(const std::string &tt_action, taptenc::groundedActionTime tt_time);
 	TimedInstruction parse_platform_action(const std::string &tt_action, taptenc::groundedActionTime tt_time);
 
+	void tt_update_automata();
+
 	std::vector<taptenc::Automaton> tt_automata_;
 	taptenc::transformation::Constraints tt_constraints_;
 
 	AExecutionContext *context_;
 
 	vector<Value *> arg_storage_;
+
+	std::unordered_map <
+		shared_ptr<const platform::Component>,
+		vector<std::reference_wrapper<platform::Constraint>>
+	> platform_model_;
+
 };
 
 

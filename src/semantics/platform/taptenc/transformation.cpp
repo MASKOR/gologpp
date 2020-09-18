@@ -41,17 +41,13 @@ void TaptencTransformation::init(AExecutionContext &ctx)
 {
 	context_ = &ctx;
 
-	std::unordered_map <
-		shared_ptr<const platform::Component>,
-		vector<std::reference_wrapper<platform::Constraint>>
-	> platform_model;
-
+	// Must match constraints to the components the refer to.
+	// Note: Each constraint must refer to exactly one component!
 	for (const auto &constraint : global_scope().constraints())
-		platform_model[find_component_ref(constraint->rhs())]
+		platform_model_[find_component_ref(constraint->rhs())]
 		              .push_back(std::ref(*constraint));
 
-	for (const auto &pair : platform_model) {
-		tt_automata_.emplace_back(*pair.first->special_semantics().compile());
+	for (const auto &pair : platform_model_) {
 		tt_constraints_.emplace_back();
 		for (const auto &constraint : pair.second)
 			tt_constraints_.back().emplace_back(constraint.get().special_semantics().compile());
@@ -62,6 +58,7 @@ void TaptencTransformation::init(AExecutionContext &ctx)
 unique_ptr<Plan> TaptencTransformation::transform(Plan &&p)
 {
 	arg_storage_.clear();
+	tt_update_automata();
 
 	if (tt_automata_.size() == 0 && tt_constraints_.size() == 0)
 		return unique_ptr<Plan>(new Plan(std::move(p)));
@@ -76,6 +73,15 @@ unique_ptr<Plan> TaptencTransformation::transform(Plan &&p)
 	else
 		throw Unsupported("Taptenc semantics require at least one constraint for each component");
 }
+
+
+void TaptencTransformation::tt_update_automata()
+{
+	tt_automata_.clear();
+	for (const auto &pair : platform_model_)
+		tt_automata_.emplace_back(*pair.first->special_semantics().compile());
+}
+
 
 AExecutionContext &TaptencTransformation::context()
 { return *context_; }
