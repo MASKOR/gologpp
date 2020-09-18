@@ -20,6 +20,7 @@
 #include <model/platform/clock_formula.h>
 #include <model/platform/reference.h>
 #include <model/platform/switch_state_action.h>
+#include <model/platform/component_backend.h>
 
 #include <execution/context.h>
 
@@ -146,48 +147,6 @@ void ExogTransition::attach_semantics(::gologpp::SemanticsFactory &f)
 		clock_formula_->attach_semantics(f);
 	for (unique_ptr<Reference<Clock>> &c : resets_)
 		c->attach_semantics(f);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-void ComponentBackend::set_model(Component &model)
-{ model_ = &model; }
-
-Component &ComponentBackend::model()
-{ return *model_; }
-
-void ComponentBackend::set_context(AExecutionContext &context)
-{ exec_context_ = &context; }
-
-AExecutionContext &ComponentBackend::context()
-{ return *exec_context_; }
-
-void ComponentBackend::exog_state_change(const string &state_name)
-{
-	shared_ptr<State> tgt = model_->scope().lookup_identifier<State>(state_name);
-	if (!tgt)
-		throw ComponentError(string(__func__) + ": Invalid target state: " + state_name);
-
-	model_->find_transition<ExogTransition>(model_->current_state(), *tgt);
-
-	shared_ptr<SwitchStateAction> exog_state_change = global_scope().lookup_global<SwitchStateAction>("exog_state_change");
-	if (!exog_state_change)
-		throw Bug("exog_action exog_state_change is not defined");
-
-	shared_ptr<gologpp::Reference<AbstractAction>> evt { new gologpp::Reference<platform::SwitchStateAction> {
-		exog_state_change,
-		{
-			new Value(get_type<StringType>(), model_->name()),
-			new Value(get_type<StringType>(), model_->current_state().name()),
-			new Value(get_type<StringType>(), state_name)
-		}
-	} };
-
-	context().exog_queue_push(evt);
-
-	model_->set_current_state(tgt);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -356,15 +315,6 @@ const ExogTransition *Component::find_transition(const State &from, const State 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
-
-void DummyComponentBackend::switch_state(const string &state_name)
-{ log(LogLevel::INF) << "Dummy component " << model().name() << " switches to state " << state_name << flush; }
-
-void DummyComponentBackend::init()
-{ log(LogLevel::INF) << "Dummy component " << model().name() << " init" << flush; }
-
-void DummyComponentBackend::terminate()
-{ log(LogLevel::INF) << "Dummy component " << model().name() << " terminate" << flush; }
 
 
 

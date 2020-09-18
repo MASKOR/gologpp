@@ -120,6 +120,7 @@ set(INTERFACE_SRC
 	src/model/platform/semantics.cpp
 	src/model/platform/reference.cpp
 	src/model/platform/switch_state_action.cpp
+	src/model/platform/component_backend.cpp
 )
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
@@ -184,6 +185,7 @@ install(FILES
 	src/model/platform/semantics.h
 	src/model/platform/reference.h
 	src/model/platform/switch_state_action.h
+	src/model/platform/component_backend.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/model/platform
 )

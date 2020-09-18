@@ -33,6 +33,9 @@
 namespace gologpp {
 namespace platform {
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class ComponentError : public EngineError {
 public:
@@ -144,28 +147,6 @@ public:
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-class ComponentBackend {
-public:
-	void set_model(Component &model);
-	Component &model();
-	void set_context(AExecutionContext &context);
-	AExecutionContext &context();
-
-	void exog_state_change(const string &state_name);
-
-	virtual void switch_state(const string &state_name) = 0;
-	virtual void init() = 0;
-	virtual void terminate() = 0;
-
-private:
-	Component *model_;
-	AExecutionContext *exec_context_;
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
 class Component
 : public Global
 , public ScopeOwner
@@ -224,17 +205,6 @@ private:
 template<class GologT>
 Reference<GologT> *Component::get_ref(const string &name)
 { return new Reference<GologT>(scope().lookup_identifier<GologT>(name)); }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-class DummyComponentBackend : public ComponentBackend {
-public:
-	virtual void switch_state(const string &state_name) override;
-	virtual void init() override;
-	virtual void terminate() override;
-};
 
 
 } // namespace platform

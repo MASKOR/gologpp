@@ -20,7 +20,7 @@
 #include "activity.h"
 
 #include <model/logger.h>
-#include <model/platform/component.h>
+#include <model/platform/component_backend.h>
 
 namespace gologpp {
 
