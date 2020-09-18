@@ -128,24 +128,11 @@ vector<taptenc::PlanAction> TaptencTransformation::plan_gpp_to_taptenc(Plan &&p)
 			for (auto &arg : trans.args())
 				argstr.push_back(store_arg(dynamic_cast<const Value &>(*arg)));
 
-			auto e = std::chrono::duration_cast<std::chrono::seconds>(ti.earliest_timepoint() - context().context_time());
-			auto l = std::chrono::duration_cast<std::chrono::seconds>(
-				Clock::duration(std::min(
-					(ti.latest_timepoint() - context().context_time()).count(),
-					static_cast<Clock::rep>(32767)
-				))
-			);
-
 			rv.push_back(taptenc::PlanAction {
 				taptenc::ActionName(actstr, argstr),
 				taptenc::Bounds(
-					boost::numeric_cast<taptenc::timepoint>(e.count()),
-					boost::numeric_cast<taptenc::timepoint>(
-						std::min(
-							static_cast<decltype(l)::rep>(32767),
-							l.count()
-						)
-					)
+					boost::numeric_cast<taptenc::timepoint>(ti.earliest_timepoint().time_since_epoch().count()),
+					boost::numeric_cast<taptenc::timepoint>(ti.latest_timepoint().time_since_epoch().count())
 				),
 				taptenc::Bounds(trans->duration().min.count(), trans->duration().max.count())
 			} );
