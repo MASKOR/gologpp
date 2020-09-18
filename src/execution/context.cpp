@@ -52,12 +52,11 @@ AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_back
 		platform_backend_ = std::make_unique<DummyBackend>();
 	platform_backend_->set_context(this);
 	Clock::init();
-
 	semantics_->set_context(*this);
-	Scope *action_scope = new Scope(global_scope());
 
 	/***************************************************************************
 	 * Define platform/temporal execution model                                */
+	Scope *action_scope = new Scope(global_scope());
 	global_scope().register_global(new platform::SwitchStateAction(action_scope));
 
 	Fluent *f_time = global_scope().define_global<Fluent, const vector<InitialValue *>>(
@@ -274,7 +273,7 @@ void ExecutionContext::run(Block &&program)
 			if (plan) {
 				plan = plan_transformation_->transform(std::move(*plan));
 
-				log(LogLevel::DBG) << "Got plan: " << *plan << flush;
+				log(LogLevel::DBG) << "<<< Got plan: " << *plan << flush;
 
 				while (!plan->elements().empty()) {
 					if (terminated)
@@ -313,8 +312,9 @@ void ExecutionContext::run(Block &&program)
 						drain_exog_queue_blocking();
 						if (context_time() > plan->elements().front().latest_timepoint()) {
 							// First plan element's time window has passed: replan!
+							log(LogLevel::DBG) << "=== Re-transforming..." << flush;
 							plan = plan_transformation_->transform(std::move(*plan));
-							log(LogLevel::DBG) << "Replanned: " << *plan << flush;
+							log(LogLevel::DBG) << "=== New schedule " << *plan << flush;
 						}
 					}
 

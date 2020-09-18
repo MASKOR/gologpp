@@ -294,7 +294,7 @@ const Expression &Test::expression() const
 { return *expression_; }
 
 string Test::to_string(const string &pfx) const
-{ return linesep + pfx + "test (" + expression().to_string("") + ");"; }
+{ return pfx + "test (" + expression().to_string("") + ");"; }
 
 
 
