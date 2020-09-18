@@ -227,7 +227,13 @@ Clock::time_point AExecutionContext::context_time() const
 	return *context_time_;
 }
 
+shared_ptr<platform::SwitchStateAction> AExecutionContext::switch_state_action()
+{ return switch_state_action_; }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 ExecutionContext::ExecutionContext(
 	unique_ptr<PlatformBackend> &&exec_backend,

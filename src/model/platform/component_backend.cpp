@@ -47,10 +47,7 @@ void ComponentBackend::exog_state_change(const string &state_name)
 
 	model_->find_transition<ExogTransition>(model_->current_state(), *tgt);
 
-	shared_ptr<SwitchStateAction> exog_state_change = global_scope().lookup_global<SwitchStateAction>("exog_state_change");
-	if (!exog_state_change)
-		throw Bug("exog_action exog_state_change is not defined");
-
+	shared_ptr<SwitchStateAction> exog_state_change = exec_context_->switch_state_action();
 	shared_ptr<gologpp::Reference<AbstractAction>> evt { new gologpp::Reference<platform::SwitchStateAction> {
 		exog_state_change,
 		{
@@ -60,9 +57,9 @@ void ComponentBackend::exog_state_change(const string &state_name)
 		}
 	} };
 
-	context().exog_queue_push(evt);
-
 	model_->set_current_state(tgt);
+
+	context().exog_queue_push(evt);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

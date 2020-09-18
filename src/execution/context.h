@@ -91,6 +91,8 @@ public:
 	/// Updated intermittently by exogenous timer events.
 	Clock::time_point context_time() const;
 
+	shared_ptr<platform::SwitchStateAction> switch_state_action();
+
 private:
 	std::mutex exog_mutex_;
 	std::condition_variable queue_empty_condition_;
@@ -103,6 +105,7 @@ private:
 	History history_;
 	bool silent_;
 	shared_ptr<ExogAction> step_time_action_;
+	shared_ptr<platform::SwitchStateAction> switch_state_action_;
 	unique_ptr<Clock::time_point> context_time_;
 
 protected:
