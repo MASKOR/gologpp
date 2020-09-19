@@ -77,7 +77,7 @@ string Binding::to_string(const string &pfx) const
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-GeneralSemantics<Binding>::GeneralSemantics(const Binding &elem, AExecutionContext &context)
+GeneralSemantics<Binding>::GeneralSemantics(const Binding &elem, AExecutionController &context)
 : element_(&elem)
 , context_(context)
 {}
@@ -88,7 +88,7 @@ const Binding &GeneralSemantics<Binding>::element() const
 void GeneralSemantics<Binding>::update_element(const Binding *new_element)
 { element_ = new_element; }
 
-AExecutionContext &GeneralSemantics<Binding>::context() const
+AExecutionController &GeneralSemantics<Binding>::context() const
 { return context_; }
 
 

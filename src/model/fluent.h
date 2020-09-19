@@ -89,7 +89,7 @@ public:
 
 	virtual string to_string(const string &pfx) const override;
 
-	virtual void compile(AExecutionContext &ctx) override;
+	virtual void compile(AExecutionController &ctx) override;
 
 private:
 	vector<unique_ptr<InitialValue>> initial_values_;

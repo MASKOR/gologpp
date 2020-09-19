@@ -59,7 +59,7 @@ void AbstractAction::add_effect(AbstractEffectAxiom *effect)
 	effects_.emplace_back(effect);
 }
 
-void AbstractAction::compile(AExecutionContext &ctx)
+void AbstractAction::compile(AExecutionController &ctx)
 { ctx.compile(*this); }
 
 

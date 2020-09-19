@@ -32,7 +32,7 @@ class Semantics<platform::Clock>
 : public GeneralSemantics<platform::Clock>
 {
 public:
-	Semantics(const platform::Clock &clock, AExecutionContext &context);
+	Semantics(const platform::Clock &clock, AExecutionController &context);
 
 	std::shared_ptr<taptenc::Clock> compile();
 
@@ -86,7 +86,7 @@ class Semantics<platform::State>
 : public GeneralSemantics<platform::State>
 {
 public:
-	Semantics(const platform::State &clock, AExecutionContext &context);
+	Semantics(const platform::State &clock, AExecutionController &context);
 
 	taptenc::State compile();
 	std::string taptenc_name();
@@ -101,7 +101,7 @@ class Semantics<platform::Component>
 : public GeneralSemantics<platform::Component>
 {
 public:
-	Semantics(const platform::Component &clock, AExecutionContext &context);
+	Semantics(const platform::Component &clock, AExecutionController &context);
 
 	std::unique_ptr<taptenc::automaton> compile();
 };

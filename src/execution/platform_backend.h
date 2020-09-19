@@ -55,8 +55,8 @@ public:
 	Lock lock();
 
 	virtual Clock::time_point time() const noexcept = 0;
-	void set_context(AExecutionContext *ctx);
-	AExecutionContext *exec_context();
+	void set_context(AExecutionController *ctx);
+	AExecutionController *exec_context();
 
 	Activity::State current_state(const ReferenceBase<Action> &);
 
@@ -75,7 +75,7 @@ private:
 	virtual void preempt_activity(shared_ptr<Activity> a) = 0;
 
 	ActivityMap activities_;
-	std::atomic<AExecutionContext *> exec_ctx_;
+	std::atomic<AExecutionController *> exec_ctx_;
 	Lock::mutex_type mutex_;
 
 	std::mutex ready_mutex_;

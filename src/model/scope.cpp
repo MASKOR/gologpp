@@ -172,7 +172,7 @@ const Scope::IdentifierMap &Scope::identifier_map() const
 { return identifiers_; }
 
 
-void Scope::implement_globals(SemanticsFactory &implementor, AExecutionContext &ctx)
+void Scope::implement_globals(SemanticsFactory &implementor, AExecutionController &ctx)
 {
 	ctx.precompile();
 

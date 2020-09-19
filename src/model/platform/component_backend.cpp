@@ -33,10 +33,10 @@ void ComponentBackend::set_model(Component &model)
 Component &ComponentBackend::model()
 { return *model_; }
 
-void ComponentBackend::set_context(AExecutionContext &context)
+void ComponentBackend::set_context(AExecutionController &context)
 { exec_context_ = &context; }
 
-AExecutionContext &ComponentBackend::context()
+AExecutionController &ComponentBackend::context()
 { return *exec_context_; }
 
 void ComponentBackend::exog_state_change(const string &state_name)

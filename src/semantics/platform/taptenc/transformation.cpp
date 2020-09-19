@@ -37,7 +37,7 @@
 namespace gologpp {
 
 
-void TaptencTransformation::init(AExecutionContext &ctx)
+void TaptencTransformation::init(AExecutionController &ctx)
 {
 	context_ = &ctx;
 
@@ -83,7 +83,7 @@ void TaptencTransformation::tt_update_automata()
 }
 
 
-AExecutionContext &TaptencTransformation::context()
+AExecutionController &TaptencTransformation::context()
 { return *context_; }
 
 

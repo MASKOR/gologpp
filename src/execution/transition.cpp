@@ -77,7 +77,7 @@ string Transition::to_string(const string &pfx) const
 
 
 
-GeneralSemantics<Transition>::GeneralSemantics(const Transition &elem, AExecutionContext &context)
+GeneralSemantics<Transition>::GeneralSemantics(const Transition &elem, AExecutionController &context)
 : element_(&elem)
 , context_(context)
 , final_(false)
@@ -89,7 +89,7 @@ const Transition &GeneralSemantics<Transition>::element() const
 void GeneralSemantics<Transition>::update_element(const Transition *new_element)
 { element_ = new_element; }
 
-AExecutionContext &GeneralSemantics<Transition>::context() const
+AExecutionController &GeneralSemantics<Transition>::context() const
 { return context_; }
 
 

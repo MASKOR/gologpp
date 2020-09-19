@@ -206,11 +206,11 @@ template<>
 class GeneralSemantics<Value>
 : public virtual GeneralSemantics<Expression> {
 public:
-	GeneralSemantics(const Value &elem, AExecutionContext &context);
+	GeneralSemantics(const Value &elem, AExecutionController &context);
 
 	virtual ~GeneralSemantics<Value>() = default;
 
-	virtual AExecutionContext &context() const override;
+	virtual AExecutionController &context() const override;
 
 	virtual Value evaluate(const Binding &, const History &) override;
 	virtual GeneralSemantics<Value> *copy(const Value &target_element) const = 0;
@@ -222,7 +222,7 @@ public:
 
 private:
 	const Value *expression_;
-	AExecutionContext &context_;
+	AExecutionController &context_;
 };
 
 

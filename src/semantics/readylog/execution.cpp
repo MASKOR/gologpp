@@ -55,7 +55,7 @@ ReadylogContext::ReadylogContext(
 	unique_ptr<PlatformBackend> &&exec_backend,
 	unique_ptr<PlanTransformation> &&transformation
 )
-: ExecutionContext(
+: ExecutionController(
   	std::move(exec_backend),
   	std::move(transformation)
   )

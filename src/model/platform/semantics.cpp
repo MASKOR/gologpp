@@ -42,10 +42,10 @@ namespace platform {
 	{ return unique_ptr<SemanticsFactory>(new DummySemanticsFactory()); }
 #endif
 
-	AExecutionContext &SemanticsFactory::context()
+	AExecutionController &SemanticsFactory::context()
 	{ return *context_; }
 
-	void SemanticsFactory::set_context(AExecutionContext &ctx)
+	void SemanticsFactory::set_context(AExecutionController &ctx)
 	{ context_ = &ctx; }
 
 

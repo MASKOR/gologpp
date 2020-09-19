@@ -298,7 +298,7 @@ Value Value::undefined()
 
 
 
-GeneralSemantics<Value>::GeneralSemantics(const Value &elem, AExecutionContext &context)
+GeneralSemantics<Value>::GeneralSemantics(const Value &elem, AExecutionController &context)
 : expression_(&elem)
 , context_(context)
 {}
@@ -306,7 +306,7 @@ GeneralSemantics<Value>::GeneralSemantics(const Value &elem, AExecutionContext &
 const Expression &GeneralSemantics<Value>::expression() const
 { return *expression_; }
 
-AExecutionContext &GeneralSemantics<Value>::context() const
+AExecutionController &GeneralSemantics<Value>::context() const
 { return context_; }
 
 Value GeneralSemantics<Value>::evaluate(const Binding &, const History &)

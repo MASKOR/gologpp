@@ -335,7 +335,7 @@ public:
 	virtual Instruction *ref(const vector<Expression *> &params) override;
 	virtual const Instruction &definition() const;
 	void define(Instruction *definition);
-	virtual void compile(AExecutionContext &ctx) override;
+	virtual void compile(AExecutionController &ctx) override;
 
 	virtual string to_string(const string &pfx) const override;
 
@@ -371,7 +371,7 @@ public:
 	virtual Expression *ref(const vector<Expression *> &params) override;
 	virtual const Expression &definition() const;
 	void define(Expression *definition);
-	virtual void compile(AExecutionContext &ctx) override;
+	virtual void compile(AExecutionController &ctx) override;
 
 	virtual string to_string(const string &pfx) const override;
 

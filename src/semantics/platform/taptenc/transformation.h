@@ -28,11 +28,11 @@ namespace gologpp {
 
 class TaptencTransformation : public PlanTransformation {
 public:
-	virtual void init(AExecutionContext &ctx) override;
+	virtual void init(AExecutionController &ctx) override;
 	virtual unique_ptr<Plan> transform(Plan &&) override;
 
 private:
-	AExecutionContext &context();
+	AExecutionController &context();
 
 	shared_ptr<const platform::Component> find_component_ref(const platform::StateSpec &constraint_expr);
 	vector<taptenc::PlanAction> plan_gpp_to_taptenc(Plan &&);
@@ -49,7 +49,7 @@ private:
 	std::vector<taptenc::Automaton> tt_automata_;
 	taptenc::transformation::Constraints tt_constraints_;
 
-	AExecutionContext *context_;
+	AExecutionController *context_;
 
 	vector<Value *> arg_storage_;
 

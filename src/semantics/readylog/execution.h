@@ -20,7 +20,7 @@
 
 #include <iostream>
 
-#include <execution/context.h>
+#include <execution/controller.h>
 #include <eclipseclass.h>
 
 namespace gologpp {
@@ -33,7 +33,7 @@ struct eclipse_opts {
 	bool toplevel = false;
 };
 
-class ReadylogContext : public ExecutionContext {
+class ReadylogContext : public ExecutionController {
 public:
 	virtual ~ReadylogContext() override;
 

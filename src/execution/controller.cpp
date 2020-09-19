@@ -41,7 +41,7 @@
 namespace gologpp {
 
 
-AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_backend)
+AExecutionController::AExecutionController(unique_ptr<PlatformBackend> &&platform_backend)
 : platform_backend_(move(platform_backend))
 , semantics_(&SemanticsFactory::get())
 , silent_(false)
@@ -89,7 +89,7 @@ AExecutionContext::AExecutionContext(unique_ptr<PlatformBackend> &&platform_back
 }
 
 
-shared_ptr<Reference<AbstractAction>> AExecutionContext::exog_queue_pop()
+shared_ptr<Reference<AbstractAction>> AExecutionController::exog_queue_pop()
 {
 	std::lock_guard<std::mutex> locked{ exog_mutex_ };
 	shared_ptr<Reference<AbstractAction>> rv = std::move(exog_queue_.front());
@@ -98,7 +98,7 @@ shared_ptr<Reference<AbstractAction>> AExecutionContext::exog_queue_pop()
 }
 
 
-shared_ptr<Reference<AbstractAction>> AExecutionContext::exog_queue_poll()
+shared_ptr<Reference<AbstractAction>> AExecutionController::exog_queue_poll()
 {
 	std::unique_lock<std::mutex> queue_empty_lock { queue_empty_mutex_ };
 	{
@@ -115,7 +115,7 @@ shared_ptr<Reference<AbstractAction>> AExecutionContext::exog_queue_poll()
 }
 
 
-void AExecutionContext::terminate()
+void AExecutionController::terminate()
 {
 	std::lock_guard<std::mutex> l1 { exog_mutex_ };
 	platform_backend_->terminate();
@@ -125,7 +125,7 @@ void AExecutionContext::terminate()
 }
 
 
-void AExecutionContext::exog_queue_push(shared_ptr<Reference<AbstractAction>> exog)
+void AExecutionController::exog_queue_push(shared_ptr<Reference<AbstractAction>> exog)
 {
 	std::lock_guard<std::mutex> { exog_mutex_ };
 	exog_queue_.push(std::move(exog));
@@ -136,7 +136,7 @@ void AExecutionContext::exog_queue_push(shared_ptr<Reference<AbstractAction>> ex
 }
 
 
-void AExecutionContext::exog_timer_wakeup()
+void AExecutionController::exog_timer_wakeup()
 {
 	exog_queue_push(shared_ptr<Reference<AbstractAction>> {
 		step_time_action_->make_ref(
@@ -151,22 +151,22 @@ void AExecutionContext::exog_timer_wakeup()
 }
 
 
-bool AExecutionContext::exog_empty()
+bool AExecutionController::exog_empty()
 {
 	std::lock_guard<std::mutex> l(exog_mutex_);
 	return exog_queue_.empty();
 }
 
-SemanticsFactory &AExecutionContext::semantics_factory() const
+SemanticsFactory &AExecutionController::semantics_factory() const
 { return *semantics_; }
 
-PlatformBackend &AExecutionContext::backend()
+PlatformBackend &AExecutionController::backend()
 { return *platform_backend_;}
 
-History &AExecutionContext::history()
+History &AExecutionController::history()
 { return history_; }
 
-void AExecutionContext::drain_exog_queue()
+void AExecutionController::drain_exog_queue()
 {
 	while (!exog_empty()) {
 		shared_ptr<Reference<AbstractAction>> r = exog_queue_pop();
@@ -184,7 +184,7 @@ void AExecutionContext::drain_exog_queue()
 	}
 }
 
-void AExecutionContext::drain_exog_queue_blocking()
+void AExecutionController::drain_exog_queue_blocking()
 {
 	if (!silent_)
 		log(LogLevel::INF) << "=== No transition possible: Waiting for exogenous events..." << flush;
@@ -208,13 +208,13 @@ void AExecutionContext::drain_exog_queue_blocking()
 			<< flush;
 }
 
-bool AExecutionContext::silent() const
+bool AExecutionController::silent() const
 { return silent_; }
 
-void AExecutionContext::set_silent(bool silent)
+void AExecutionController::set_silent(bool silent)
 { silent_ = silent; }
 
-Clock::time_point AExecutionContext::context_time() const
+Clock::time_point AExecutionController::context_time() const
 {
 	unique_ptr<Expression> context_time {
 		global_scope().lookup_global<Fluent>("context_time")->make_ref({})
@@ -234,7 +234,7 @@ Clock::time_point AExecutionContext::context_time() const
 	return *context_time_;
 }
 
-shared_ptr<platform::SwitchStateAction> AExecutionContext::switch_state_action()
+shared_ptr<platform::SwitchStateAction> AExecutionController::switch_state_action()
 { return switch_state_action_; }
 
 
@@ -242,22 +242,22 @@ shared_ptr<platform::SwitchStateAction> AExecutionContext::switch_state_action()
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExecutionContext::ExecutionContext(
+ExecutionController::ExecutionController(
 	unique_ptr<PlatformBackend> &&exec_backend,
 	unique_ptr<PlanTransformation> &&plan_transformation
 )
-: AExecutionContext(std::move(exec_backend))
+: AExecutionController(std::move(exec_backend))
 , plan_transformation_(std::move(plan_transformation))
 {
 	if (!plan_transformation_)
 		plan_transformation_.reset(semantics_factory().platform_semantics_factory().make_transformation());
 }
 
-ExecutionContext::~ExecutionContext()
+ExecutionController::~ExecutionController()
 {}
 
 
-void ExecutionContext::run(Block &&program)
+void ExecutionController::run(Block &&program)
 {
 	try {
 		history().attach_semantics(semantics_factory());

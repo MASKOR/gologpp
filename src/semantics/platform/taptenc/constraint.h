@@ -32,7 +32,7 @@ class Semantics<platform::Constraint>
 : public GeneralSemantics<platform::Constraint>
 {
 public:
-	Semantics(const platform::Constraint &elem, AExecutionContext &context);
+	Semantics(const platform::Constraint &elem, AExecutionController &context);
 
 	std::unique_ptr<taptenc::EncICInfo> compile();
 
@@ -108,7 +108,7 @@ class Semantics<platform::TemporalUnaryOperation<platform::ActionSpec>>
 : public GeneralSemantics<platform::TemporalUnaryOperation<platform::ActionSpec>>
 {
 public:
-	Semantics(const platform::TemporalUnaryOperation<platform::ActionSpec> &elem, AExecutionContext &context);
+	Semantics(const platform::TemporalUnaryOperation<platform::ActionSpec> &elem, AExecutionController &context);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +120,7 @@ class Semantics<platform::TemporalBinaryOperation<platform::ActionSpec>>
 : public GeneralSemantics<platform::TemporalBinaryOperation<platform::ActionSpec>>
 {
 public:
-	Semantics(const platform::TemporalBinaryOperation<platform::ActionSpec> &elem, AExecutionContext &context);
+	Semantics(const platform::TemporalBinaryOperation<platform::ActionSpec> &elem, AExecutionController &context);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

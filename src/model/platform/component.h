@@ -168,7 +168,7 @@ public:
 	const vector<unique_ptr<AbstractTransition>> &transitions() const;
 	vector<shared_ptr<Clock>> clocks() const;
 
-	void initialize(AExecutionContext &);
+	void initialize(AExecutionController &);
 
 	void add_state(State *);
 	void add_clock(Clock *);
@@ -180,7 +180,7 @@ public:
 	virtual void attach_semantics(::gologpp::SemanticsFactory &f) override;
 	virtual string to_string(const string &pfx) const override;
 
-	virtual void compile(gologpp::AExecutionContext &) override;
+	virtual void compile(gologpp::AExecutionController &) override;
 	virtual ModelElement *ref(const vector<Expression *> &args = {}) override;
 
 	void switch_state(const string &state_name);

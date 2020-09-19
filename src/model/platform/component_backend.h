@@ -32,8 +32,8 @@ class ComponentBackend {
 public:
 	void set_model(Component &model);
 	Component &model();
-	void set_context(AExecutionContext &context);
-	AExecutionContext &context();
+	void set_context(AExecutionController &context);
+	AExecutionController &context();
 
 	void exog_state_change(const string &state_name);
 
@@ -44,7 +44,7 @@ public:
 
 private:
 	Component *model_;
-	AExecutionContext *exec_context_;
+	AExecutionController *exec_context_;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

@@ -42,12 +42,12 @@ class NotPossible {
 
 
 
-class AExecutionContext {
+class AExecutionController {
 public:
 	typedef std::queue<shared_ptr<Reference<AbstractAction>>> ExogQueue;
 
-	AExecutionContext(unique_ptr<PlatformBackend> &&platform_backend);
-	virtual ~AExecutionContext() = default;
+	AExecutionController(unique_ptr<PlatformBackend> &&platform_backend);
+	virtual ~AExecutionController() = default;
 
 	virtual void precompile() = 0;
 
@@ -114,14 +114,14 @@ protected:
 
 
 
-class ExecutionContext : public AExecutionContext {
+class ExecutionController : public AExecutionController {
 public:
-	ExecutionContext(
+	ExecutionController(
 		unique_ptr<PlatformBackend> &&exec_backend,
 		unique_ptr<PlanTransformation> &&plan_transformation
 	);
 
-	virtual ~ExecutionContext() override;
+	virtual ~ExecutionController() override;
 
 	virtual void run(Block &&program) override;
 

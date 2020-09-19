@@ -30,7 +30,7 @@ class Semantics<Transition>
 , public Semantics<Instruction>
 {
 public:
-	Semantics(const Transition &elem, ExecutionContext &context);
+	Semantics(const Transition &elem, ExecutionController &context);
 	virtual ~Semantics() override = default;
 
 	virtual EC_word plterm() override;

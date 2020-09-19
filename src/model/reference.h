@@ -70,19 +70,19 @@ class GeneralSemantics<Binding>
 : public virtual GeneralSemantics<ModelElement>
 {
 public:
-	GeneralSemantics(const Binding &elem, AExecutionContext &context);
+	GeneralSemantics(const Binding &elem, AExecutionController &context);
 
 	virtual ~GeneralSemantics<Binding>() = default;
 
 	const Binding &element() const;
 	void update_element(const Binding *new_element);
-	virtual AExecutionContext &context() const override;
+	virtual AExecutionController &context() const override;
 
 	virtual GeneralSemantics<Binding> *copy(const Binding &target_element) const = 0;
 
 private:
 	const Binding *element_;
-	AExecutionContext &context_;
+	AExecutionController &context_;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

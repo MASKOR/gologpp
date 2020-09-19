@@ -90,7 +90,7 @@ SemanticsFactory::make_semantics(Reference<platform::SwitchStateAction> &obj)
 
 GeneralSemantics<Reference<platform::SwitchStateAction>>::GeneralSemantics(
 	const Reference<platform::SwitchStateAction> &elem,
-	AExecutionContext &context
+	AExecutionController &context
 )
 : element_(&elem)
 , context_(context)
@@ -154,7 +154,7 @@ const ModelElement &GeneralSemantics<Reference<platform::SwitchStateAction> >::m
 const Instruction &GeneralSemantics<Reference<platform::SwitchStateAction> >::instruction() const
 { return element(); }
 
-AExecutionContext &GeneralSemantics<Reference<platform::SwitchStateAction> >::context() const
+AExecutionController &GeneralSemantics<Reference<platform::SwitchStateAction> >::context() const
 { return context_; }
 
 

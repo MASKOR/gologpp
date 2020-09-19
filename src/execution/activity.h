@@ -38,8 +38,8 @@ class Activity
 public:
 	enum State { IDLE, RUNNING, FINAL, CANCELLED, FAILED };
 
-	Activity(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, AExecutionContext &, State state = IDLE);
-	Activity(const Transition &, AExecutionContext &);
+	Activity(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, AExecutionController &, State state = IDLE);
+	Activity(const Transition &, AExecutionController &);
 
 	virtual const Action &operator * () const override;
 	virtual Action &operator * () override;
@@ -67,7 +67,7 @@ public:
 private:
 	State state_;
 	boost::optional<Value> sensing_result_;
-	AExecutionContext &exec_context_;
+	AExecutionController &exec_context_;
 };
 
 

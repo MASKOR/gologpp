@@ -60,7 +60,7 @@ class GeneralSemantics<Transition>
 : public virtual GeneralSemantics<Instruction>
 {
 public:
-	GeneralSemantics(const Transition &elem, AExecutionContext &context);
+	GeneralSemantics(const Transition &elem, AExecutionController &context);
 	GeneralSemantics(const GeneralSemantics<Transition> &other);
 
 	virtual unique_ptr<Plan> trans(const Binding &, History &) override;
@@ -72,11 +72,11 @@ public:
 	void update_element(const Transition *new_element);
 	virtual GeneralSemantics<Transition> *copy(const Transition &target_element) const = 0;
 
-	virtual AExecutionContext &context() const override;
+	virtual AExecutionController &context() const override;
 
 private:
 	const Transition *element_;
-	AExecutionContext &context_;
+	AExecutionController &context_;
 	bool final_;
 };
 

@@ -34,7 +34,7 @@ public:
 	PlanTransformation() = default;
 	virtual ~PlanTransformation();
 
-	virtual void init(AExecutionContext &ctx);
+	virtual void init(AExecutionController &ctx);
 
 	virtual unique_ptr<Plan> transform(Plan &&) = 0;
 

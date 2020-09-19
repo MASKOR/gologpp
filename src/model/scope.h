@@ -175,7 +175,7 @@ public:
 
 
 	const IdentifierMap &identifier_map() const;
-	void implement_globals(SemanticsFactory &implementor, AExecutionContext &ctx);
+	void implement_globals(SemanticsFactory &implementor, AExecutionController &ctx);
 	void clear();
 
 	bool exists_global(const string &name) const;

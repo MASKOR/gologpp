@@ -353,7 +353,7 @@ void Function::define(Expression *definition)
 }
 
 
-void Function::compile(AExecutionContext &ctx)
+void Function::compile(AExecutionController &ctx)
 { ctx.compile(*this); }
 
 Reference<Function> *Function::make_ref(const vector<Expression *> &args)
@@ -404,7 +404,7 @@ string Procedure::to_string(const string &pfx) const
 }
 
 
-void Procedure::compile(AExecutionContext &ctx)
+void Procedure::compile(AExecutionController &ctx)
 { ctx.compile(*this); }
 
 Reference<Procedure> *Procedure::make_ref(const vector<Expression *> &args)

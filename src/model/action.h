@@ -68,7 +68,7 @@ public:
 	vector<unique_ptr<AbstractEffectAxiom>> &effects();
 	void add_effect(AbstractEffectAxiom *effect);
 
-	virtual void compile(AExecutionContext &ctx) override;
+	virtual void compile(AExecutionController &ctx) override;
 	virtual string to_string(const string &pfx) const override;
 
 	const ActionMapping &mapping() const;

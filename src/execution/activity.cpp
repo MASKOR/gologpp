@@ -23,13 +23,13 @@ namespace gologpp {
 
 
 
-Activity::Activity(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, AExecutionContext &ctx, State state)
+Activity::Activity(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, AExecutionController &ctx, State state)
 : ReferenceBase<Action>(action, std::move(args))
 , state_(state)
 , exec_context_(ctx)
 {}
 
-Activity::Activity(const Transition &trans, AExecutionContext &ctx)
+Activity::Activity(const Transition &trans, AExecutionController &ctx)
 : ReferenceBase<Action>(trans.target(), copy(trans.args()))
 , state_(State::IDLE)
 , exec_context_(ctx)

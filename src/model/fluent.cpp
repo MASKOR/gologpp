@@ -116,7 +116,7 @@ Reference<Fluent> *Fluent::make_ref(const vector<Expression *> &args)
 Expression *Fluent::ref(const vector<Expression *> &args)
 { return make_ref(args); }
 
-void Fluent::compile(AExecutionContext &ctx)
+void Fluent::compile(AExecutionController &ctx)
 { ctx.compile(*this); }
 
 

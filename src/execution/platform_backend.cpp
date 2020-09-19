@@ -99,7 +99,7 @@ shared_ptr<Activity> PlatformBackend::end_activity(const Transition &trans)
 }
 
 
-void PlatformBackend::set_context(AExecutionContext *ctx)
+void PlatformBackend::set_context(AExecutionController *ctx)
 {
 	exec_ctx_ = ctx;
 	ready_condition_.notify_all();
@@ -145,7 +145,7 @@ platform::ComponentBackend *PlatformBackend::get_component_backend(const string 
 }
 
 
-AExecutionContext *PlatformBackend::exec_context()
+AExecutionController *PlatformBackend::exec_context()
 { return exec_ctx_.load(); }
 
 void PlatformBackend::wait_until_ready()

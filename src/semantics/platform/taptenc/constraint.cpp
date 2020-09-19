@@ -34,7 +34,7 @@ namespace gologpp {
 size_t Semantics<platform::Constraint>::count_ = 0;
 
 
-Semantics<platform::Constraint>::Semantics(const platform::Constraint &elem, AExecutionContext &context)
+Semantics<platform::Constraint>::Semantics(const platform::Constraint &elem, AExecutionController &context)
 : GeneralSemantics<platform::Constraint>(elem, context)
 , id("constraint" + std::to_string(count_++))
 {}
@@ -132,7 +132,7 @@ std::pair<std::vector<taptenc::ActionName>, std::vector<taptenc::ActionName>> Se
 
 Semantics<platform::TemporalUnaryOperation<platform::ActionSpec>>::Semantics(
 	const platform::TemporalUnaryOperation<platform::ActionSpec> &elem,
-	AExecutionContext &context
+	AExecutionController &context
 )
 : GeneralSemantics<platform::TemporalUnaryOperation<platform::ActionSpec>>(elem, context)
 { throw Unsupported("Temporal operators on action spec not supported by taptenc semantics"); }
@@ -143,7 +143,7 @@ Semantics<platform::TemporalUnaryOperation<platform::ActionSpec>>::Semantics(
 
 Semantics<platform::TemporalBinaryOperation<platform::ActionSpec>>::Semantics(
 	const platform::TemporalBinaryOperation<platform::ActionSpec> &elem,
-	AExecutionContext &context
+	AExecutionController &context
 )
 : GeneralSemantics<platform::TemporalBinaryOperation<platform::ActionSpec>>(elem, context)
 { throw Unsupported("Temporal operators on action spec not supported by taptenc semantics"); }

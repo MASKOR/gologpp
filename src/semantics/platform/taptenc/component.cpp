@@ -27,7 +27,7 @@
 namespace gologpp {
 
 
-Semantics<platform::Clock>::Semantics(const platform::Clock &clock, AExecutionContext &context)
+Semantics<platform::Clock>::Semantics(const platform::Clock &clock, AExecutionController &context)
 : GeneralSemantics<platform::Clock>(clock, context)
 {
 	if (element().name() != tolower(element().name()))
@@ -101,7 +101,7 @@ taptenc::Transition Semantics<platform::ExogTransition>::compile()
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-Semantics<platform::State>::Semantics(const platform::State &state, AExecutionContext &context)
+Semantics<platform::State>::Semantics(const platform::State &state, AExecutionController &context)
 : GeneralSemantics<platform::State>(state, context)
 {
 	if (element().name() != tolower(element().name()))
@@ -129,7 +129,7 @@ std::string Semantics<platform::State>::taptenc_name()
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-Semantics<platform::Component>::Semantics(const platform::Component &comp, AExecutionContext &context)
+Semantics<platform::Component>::Semantics(const platform::Component &comp, AExecutionController &context)
 : GeneralSemantics<platform::Component>(comp, context)
 {
 	if (element().name() != tolower(element().name()))

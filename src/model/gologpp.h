@@ -136,8 +136,8 @@ template<class> class GeneralSemantics;
 
 class SemanticsFactory;
 
-class AExecutionContext;
-class ExecutionContext;
+class AExecutionController;
+class ExecutionController;
 
 class PlatformBackend;
 

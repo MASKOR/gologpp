@@ -30,7 +30,7 @@ namespace gologpp {
 PlanTransformation::~PlanTransformation()
 {}
 
-void PlanTransformation::init(AExecutionContext &ctx)
+void PlanTransformation::init(AExecutionController &ctx)
 {
 	for (auto &c : global_scope().local_identifiers<platform::Component>()) {
 		c->attach_semantics(ctx.semantics_factory());

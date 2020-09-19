@@ -188,7 +188,7 @@ const vector<unique_ptr<AbstractTransition>> &Component::transitions() const
 vector<shared_ptr<Clock>> Component::clocks() const
 { return scope().local_identifiers<Clock>(); }
 
-void Component::initialize(AExecutionContext &context)
+void Component::initialize(AExecutionController &context)
 {
 	backend_ = context.backend().get_component_backend(this->name());
 	backend_->set_model(*this);
@@ -254,7 +254,7 @@ string Component::to_string(const string &pfx) const
 	return rv;
 }
 
-void Component::compile(AExecutionContext &ctx)
+void Component::compile(AExecutionController &ctx)
 { initialize(ctx); }
 
 ModelElement *Component::ref(const vector<Expression *> &/*args*/)

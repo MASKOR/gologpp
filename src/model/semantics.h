@@ -37,7 +37,7 @@ class GeneralSemantics
 : public virtual GeneralSemantics<ModelElement>
 {
 public:
-	GeneralSemantics(const GologT &elem, AExecutionContext &context)
+	GeneralSemantics(const GologT &elem, AExecutionController &context)
 	: element_(&elem)
 	, context_(context)
 	{}
@@ -49,7 +49,7 @@ public:
 	const GologT &element() const
 	{ return *element_; }
 
-	virtual AExecutionContext &context() const override
+	virtual AExecutionController &context() const override
 	{ return context_; }
 
 	void update_element(const GologT *new_element)
@@ -60,7 +60,7 @@ public:
 
 private:
 	const GologT *element_;
-	AExecutionContext &context_;
+	AExecutionController &context_;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,8 +90,8 @@ public:
 
 	virtual ~SemanticsFactory() = default;
 
-	virtual AExecutionContext &context();
-	void set_context(AExecutionContext &);
+	virtual AExecutionController &context();
+	void set_context(AExecutionController &);
 
 	platform::SemanticsFactory &platform_semantics_factory();
 	static SemanticsFactory &get();
@@ -105,7 +105,7 @@ private:
 	static unique_ptr<SemanticsFactory> construct();
 
 	unique_ptr<platform::SemanticsFactory> platform_semantics_factory_;
-	AExecutionContext *context_;
+	AExecutionController *context_;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
