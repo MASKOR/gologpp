@@ -16,7 +16,7 @@
 **************************************************************************/
 
 #include "activity.h"
-#include "context.h"
+#include "controller.h"
 
 
 namespace gologpp {

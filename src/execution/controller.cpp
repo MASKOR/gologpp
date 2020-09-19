@@ -26,7 +26,7 @@
 #include <model/platform/switch_state_action.h>
 
 #include "plan.h"
-#include "context.h"
+#include "controller.h"
 #include "history.h"
 #include "platform_backend.h"
 #include "dummy_backend.h"

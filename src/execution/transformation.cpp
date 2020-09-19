@@ -22,7 +22,7 @@
 #include <model/platform/semantics.h>
 #include <model/platform/component.h>
 #include <model/platform/constraint.h>
-#include <execution/context.h>
+#include <execution/controller.h>
 
 namespace gologpp {
 

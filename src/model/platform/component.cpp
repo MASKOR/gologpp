@@ -22,7 +22,7 @@
 #include <model/platform/switch_state_action.h>
 #include <model/platform/component_backend.h>
 
-#include <execution/context.h>
+#include <execution/controller.h>
 
 namespace gologpp {
 

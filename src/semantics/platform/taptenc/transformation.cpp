@@ -27,7 +27,7 @@
 #include <semantics/platform/taptenc/constraint.h>
 
 #include <execution/plan.h>
-#include <execution/context.h>
+#include <execution/controller.h>
 
 #include <taptenc/src/transformation.h>
 #include <taptenc/src/constants.h>

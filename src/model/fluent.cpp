@@ -17,7 +17,7 @@
 
 #include "fluent.h"
 
-#include <execution/context.h>
+#include <execution/controller.h>
 
 namespace gologpp {
 

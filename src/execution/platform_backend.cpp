@@ -16,7 +16,7 @@
 **************************************************************************/
 
 #include "platform_backend.h"
-#include "context.h"
+#include "controller.h"
 #include "activity.h"
 
 #include <model/logger.h>

@@ -109,7 +109,7 @@ set(INTERFACE_SRC
 	src/execution/activity.cpp
 	src/execution/clock.cpp
 	src/execution/dummy_backend.cpp
-	src/execution/context.cpp
+	src/execution/controller.cpp
 	src/execution/plan.cpp
 	src/execution/platform_backend.cpp
 	src/execution/transformation.cpp
@@ -170,7 +170,7 @@ install(FILES
 	src/execution/activity.h
 	src/execution/clock.h
 	src/execution/dummy_backend.h
-	src/execution/context.h
+	src/execution/controller.h
 	src/execution/plan.h
 	src/execution/platform_backend.h
 	src/execution/transformation.h

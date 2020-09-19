@@ -17,7 +17,7 @@
 
 #include "dummy_backend.h"
 #include "activity.h"
-#include "context.h"
+#include "controller.h"
 
 #include <model/logger.h>
 
