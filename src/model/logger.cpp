@@ -162,7 +162,7 @@ Logger &Logger::operator<<(const Clock::time_point &tm)
 	auto in_time_t = std::time_t(duration_cast<seconds>(sys_tm.time_since_epoch()).count());//*/
 
 	//ss << std::put_time(std::localtime(&in_time_t), /*"%Y-%m-%d "*/"%H:%M:%S");
-	ss << tm.time_since_epoch().count();
+	ss << std::fixed << tm.time_since_epoch().count();
 
 	msg_pfx() += ss.str();
 	return *this;
