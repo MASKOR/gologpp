@@ -57,6 +57,7 @@ void TaptencTransformation::init(AExecutionController &ctx)
 
 unique_ptr<Plan> TaptencTransformation::transform(Plan &&p)
 {
+	log(LogLevel::DBG) << "=== Trafo input: " << p << flush;
 	arg_storage_.clear();
 	tt_update_automata();
 
