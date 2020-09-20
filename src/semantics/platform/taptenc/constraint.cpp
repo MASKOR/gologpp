@@ -159,8 +159,12 @@ std::pair<std::vector<taptenc::ActionName>, std::vector<taptenc::ActionName>>
 Semantics<platform::During>::compile_chain()
 {
 	std::vector<std::string> args;
-	for (auto &a : element().action().args())
-		args.push_back(a->cast<Value>().string_representation());
+	size_t i = 0;
+	for (auto &a : element().action().args()) {
+		if (a->cast<Value>() != Value::undefined())
+			throw Unsupported("Only wildcard action hooks supported by taptenc semantics: " + element().str());
+		args.push_back(std::string(1, taptenc::constants::VAR_PREFIX) + "arg" + std::to_string(i++));
+	}
 
 	return {
 		{ taptenc::ActionName(std::string("start") + "G" + element().action()->name(), args) },
@@ -195,7 +199,7 @@ std::unique_ptr<taptenc::EncICInfo> Semantics<platform::StateAssertion>::compile
 ) {
 	return std::unique_ptr<taptenc::EncICInfo>(new taptenc::ChainInfo(
 		id,
-		taptenc::ICType::NoOp,
+		taptenc::ICType::UntilChain,
 		activations,
 		{ taptenc::TargetSpecs(
 			taptenc::Bounds(),
