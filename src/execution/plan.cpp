@@ -85,7 +85,7 @@ Plan &Plan::append(TimedInstruction &&i)
 		Transition &instr = elements_.back().instruction().cast<Transition>();
 		if (instr.hook() == Transition::Hook::END) {
 			// Find matching START transition
-			auto it = std::find_if(elements().begin(), elements().end(), [&] (TimedInstruction &ti) {
+			auto it = std::find_if(elements().rbegin(), elements().rend(), [&] (TimedInstruction &ti) {
 				try {
 					Transition &trans = ti.instruction().cast<Transition>();
 					return trans.hook() == Transition::Hook::START && trans == instr;
@@ -94,7 +94,7 @@ Plan &Plan::append(TimedInstruction &&i)
 				}
 			} );
 
-			if (it == elements().end()) {
+			if (it == elements().rend()) {
 				// Not found: use best guess
 				elements().back().set_earliest(Clock::now());
 				elements().back().set_latest(Clock::now() + instr->duration().max);
