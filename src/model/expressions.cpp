@@ -33,6 +33,12 @@ const Scope &Expression::parent_scope() const
 bool Expression::operator <= (const Type &t) const
 { return t >= *this; }
 
+bool Expression::operator ==(const Expression &other) const
+{ return this == &other; }
+
+bool Expression::operator !=(const Expression &other) const
+{ return this != &other; }
+
 
 
 Instruction::Instruction()

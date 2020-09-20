@@ -47,6 +47,9 @@ public:
 	virtual const Scope &parent_scope() const override;
 	virtual bool operator <= (const Type &type) const;
 
+	virtual bool operator == (const Expression &other) const;
+	virtual bool operator != (const Expression &other) const;
+
 	template<class GologT = Expression>
 	GeneralSemantics<GologT> &general_semantics() const
 	{ return ModelElement::general_semantics<GologT>(); }

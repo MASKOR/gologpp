@@ -138,10 +138,6 @@ struct Value::attach_semantics_visitor {
 Value::~Value()
 {}
 
-bool Value::operator != (const Value &other) const
-{ return !(*this == other); }
-
-
 Value::Value(Representation &&l)
 : representation_(std::move(l))
 {}
@@ -256,11 +252,19 @@ Value *Value::copy() const
 { return new Value(*this); }
 
 
-bool Value::operator == (const Value &c) const
+bool Value::operator == (const Expression &e) const
 {
-	return this->type() >= c.type() && this->type() <= c.type()
-		&& representation() == c.representation();
+	try {
+		const Value &c = dynamic_cast<const Value &>(e);
+		return this->type() >= c.type() && this->type() <= c.type()
+			&& representation() == c.representation();
+	} catch (std::bad_cast &) {
+		return false;
+	}
 }
+
+bool Value::operator != (const Expression &other) const
+{ return !(*this == other); }
 
 
 bool Value::operator <= (const Type &t) const

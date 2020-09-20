@@ -138,7 +138,8 @@ public:
 
 	virtual string to_string(const string &) const override;
 
-	virtual bool operator == (const Value &c) const;
+	virtual bool operator == (const Expression &c) const override;
+	virtual bool operator != (const Expression &c) const override;
 
 	bool operator >= (const Value &) const;
 	bool operator <= (const Value &) const;
@@ -156,7 +157,6 @@ public:
 	Value operator % (const Value &) const;
 	Value pow(const Value &) const;
 
-	bool operator != (const Value &) const;
 	virtual Value *copy() const;
 
 	virtual void attach_semantics(SemanticsFactory &f) override;

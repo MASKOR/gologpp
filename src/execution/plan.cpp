@@ -88,7 +88,7 @@ Plan &Plan::append(TimedInstruction &&i)
 			auto it = std::find_if(elements().begin(), elements().end(), [&] (TimedInstruction &ti) {
 				try {
 					Transition &trans = ti.instruction().cast<Transition>();
-					return trans.hook() == Transition::Hook::START && *trans.target() == *instr.target();
+					return trans.hook() == Transition::Hook::START && trans == instr;
 				} catch (std::bad_cast &) {
 					return false;
 				}
