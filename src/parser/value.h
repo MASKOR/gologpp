@@ -27,6 +27,7 @@ namespace parser {
 
 
 rule<Value *()> &numeric_value();
+rule<Value()> &numeric_value_o();
 rule<Value *()> &boolean_value();
 rule<Value *()> &string_value();
 rule<Value *()> &symbolic_value();
@@ -34,6 +35,7 @@ rule<Value *()> &symbolic_value_def();
 rule<Value *()> &compound_value();
 rule<Value *()> &list_value();
 rule<Value *()> &undefined_value();
+rule<Value()> &undefined_value_o();
 
 rule<Value *()> &any_value();
 

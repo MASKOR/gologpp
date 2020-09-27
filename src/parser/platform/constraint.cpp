@@ -54,8 +54,8 @@ template<class SubjectT>
 BinaryOpIntermediate<SubjectT>::Operator::Operator(
 	BinaryOpIntermediate<SubjectT>::Operator::OpType type,
 	boost::optional<fusion_wtf_vector<
-		boost::optional<Value *>,
-		boost::optional<Value *>
+		boost::optional<Value>,
+		boost::optional<Value>
 	> > bound
 )
 : type_(type)
@@ -66,24 +66,17 @@ BinaryOpIntermediate<SubjectT>::Operator::Operator(
 		if (at_c<0>(bound.get()))
 			lower_bound_ = at_c<0>(bound.get()).get();
 		else
-			lower_bound_ = new Value(get_type<NumberType>(), tmin);
+			lower_bound_ = Value(get_type<NumberType>(), tmin);
 
 		if (at_c<1>(bound.get()))
 			upper_bound_ = at_c<1>(bound.get()).get();
 		else
-			upper_bound_ = new Value(get_type<NumberType>(), tmax);
+			upper_bound_ = Value(get_type<NumberType>(), tmax);
 	}
 	else {
-		lower_bound_ = new Value(get_type<NumberType>(), tmin);
-		upper_bound_ = new Value(get_type<NumberType>(), tmax);
+		lower_bound_ = Value(get_type<NumberType>(), tmin);
+		upper_bound_ = Value(get_type<NumberType>(), tmax);
 	}
-}
-
-template<class SubjectT>
-BinaryOpIntermediate<SubjectT>::Operator::~Operator()
-{
-	delete lower_bound_;
-	delete upper_bound_;
 }
 
 template<class SubjectT>
@@ -92,11 +85,11 @@ BinaryOpIntermediate<SubjectT>::Operator::type() const
 { return type_; }
 
 template<class SubjectT>
-Value *BinaryOpIntermediate<SubjectT>::Operator::lower_bound()
+const Value &BinaryOpIntermediate<SubjectT>::Operator::lower_bound() const
 { return lower_bound_; }
 
 template<class SubjectT>
-Value *BinaryOpIntermediate<SubjectT>::Operator::upper_bound()
+const Value &BinaryOpIntermediate<SubjectT>::Operator::upper_bound() const
 { return upper_bound_; }
 
 
@@ -114,7 +107,7 @@ BinaryOpIntermediate<SubjectT>::BinaryOpIntermediate(Expression *lhs, BinaryOpIn
 {}
 
 template<class SubjectT>
-typename BinaryOpIntermediate<SubjectT>::Operator
+const typename BinaryOpIntermediate<SubjectT>::Operator &
 BinaryOpIntermediate<SubjectT>::op() const
 { return op_; }
 
@@ -173,16 +166,16 @@ SubjectT *BinaryOpIntermediate<SubjectT>::convert()
 			lhs_final,
 			rhs_final,
 			platform::TemporalBinaryOperation<SubjectT>::Operator::SINCE,
-			op().lower_bound(),
-			op().upper_bound()
+			new Value(op().lower_bound()),
+			new Value(op().upper_bound())
 		);
 	else if (op().type() == Operator::OpType::UNTIL)
 		return new platform::TemporalBinaryOperation<SubjectT>(
 			lhs_final,
 			rhs_final,
 			platform::TemporalBinaryOperation<SubjectT>::Operator::UNTIL,
-			op().lower_bound(),
-			op().upper_bound()
+			new Value(op().lower_bound()),
+			new Value(op().upper_bound())
 		);
 
 	throw Bug("Unhandled BinaryOpIntermediate::Operator::OpType");
@@ -290,7 +283,7 @@ ConstraintSpecParser<SubjectT>::ConstraintSpecParser()
 	;
 	temporal_unary_op.name("temporal_unary_operator");
 
-	bound = lit('[') > -numeric_value() > ',' > -numeric_value() > ']';
+	bound = lit('[') > -numeric_value_o() > ',' > -numeric_value_o() > ']';
 	bound.name("t_bound");
 
 	init();
@@ -317,6 +310,7 @@ void ConstraintSpecParser<platform::ActionSpec>::init()
 	action_hook = (action_hook_name > '(' > action_ref(_r1, void_type()) > ')') [
 		_val = new_<platform::ActionHook>(_1, _2)
 	];
+	action_hook.name("action_hook");
 
 	action_hook_name =
 		lit("start") [ _val = DurativeCall::Hook::START ]
@@ -335,6 +329,7 @@ void ConstraintSpecParser<platform::ActionSpec>::init()
 	GOLOGPP_DEBUG_NODES(
 		(action_hook)
 		(during)
+		(unary_expr)
 	)
 }
 

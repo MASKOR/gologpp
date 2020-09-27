@@ -169,8 +169,8 @@ TemporalUnaryOperation<SubjectT>::TemporalUnaryOperation(
 	SubjectT *subject,
 	TemporalUnaryOperation::Operator op,
 	boost::optional<fusion_wtf_vector <
-		boost::optional<Value *>,
-		boost::optional<Value *>
+		boost::optional<Value>,
+		boost::optional<Value>
 	> > bound
 )
 : subject_(subject)
@@ -185,14 +185,14 @@ TemporalUnaryOperation<SubjectT>::TemporalUnaryOperation(
 	if (bound) {
 		if (at_c<0>(bound.get()))
 			lower_bound_ = gologpp::Clock::duration {
-				static_cast<gologpp::Clock::rep>(*at_c<0>(bound.get()).get())
+				boost::numeric_cast<gologpp::Clock::rep>(at_c<0>(bound.get()).get())
 			};
 		else
 			lower_bound_ = tmin;
 
 		if (at_c<1>(bound.get()))
 			upper_bound_ = gologpp::Clock::duration {
-				static_cast<gologpp::Clock::rep>(*at_c<1>(bound.get()).get())
+				boost::numeric_cast<gologpp::Clock::rep>(at_c<1>(bound.get()).get())
 			};
 		else
 			upper_bound_ = tmax;

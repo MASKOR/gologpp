@@ -44,25 +44,26 @@ public:
 		Operator(
 			OpType type,
 			boost::optional < fusion_wtf_vector <
-				boost::optional<Value *>,
-				boost::optional<Value *>
+				boost::optional<Value>,
+				boost::optional<Value>
 			> > bound
 		);
-		~Operator();
 
 		OpType type() const;
-		Value *lower_bound();
-		Value *upper_bound();
+		const Value &lower_bound() const;
+		const Value &upper_bound() const;
 
 	private:
 		OpType type_;
-		Value *lower_bound_ = nullptr, *upper_bound_ = nullptr;
+
+		// This thing is being copied, so contrary to the rest, we don't use pointers here
+		Value lower_bound_, upper_bound_;
 	};
 
 	BinaryOpIntermediate(SubjectT *lhs, Operator op, SubjectT *rhs);
 	BinaryOpIntermediate(Expression *lhs, Operator op, Expression *rhs);
 
-	Operator op() const;
+	const Operator &op() const;
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
@@ -95,11 +96,10 @@ struct ConstraintSpecParser : public grammar<SubjectT *(Scope &)> {
 	rule<platform::TemporalUnaryOperation<SubjectT> *(Scope &)> temporal_unary;
 	rule<typename platform::TemporalUnaryOperation<SubjectT>::Operator()> temporal_unary_op;
 	rule<typename helper::BinaryOpIntermediate<SubjectT>::Operator()> binary_op;
-	rule<typename helper::BinaryOpIntermediate<SubjectT>::Operator()> temporal_binary_op;
 	rule <
 		fusion_wtf_vector <
-			boost::optional<Value *>,
-			boost::optional<Value *>
+			boost::optional<Value>,
+			boost::optional<Value>
 		> ()
 	> bound;
 

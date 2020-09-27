@@ -193,8 +193,8 @@ public:
 		SubjectT *subject,
 		Operator op,
 		boost::optional<fusion_wtf_vector <
-			boost::optional<Value *>,
-			boost::optional<Value *>
+			boost::optional<Value>,
+			boost::optional<Value>
 		> > bound
 	);
 

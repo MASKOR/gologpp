@@ -36,6 +36,7 @@
 #include <boost/phoenix/bind/bind_function.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/object/new.hpp>
+#include <boost/phoenix/object/construct.hpp>
 #include <boost/phoenix/operator/self.hpp>
 #include <boost/phoenix/operator/comparison.hpp>
 #include <boost/phoenix/operator/arithmetic.hpp>
@@ -68,6 +69,14 @@ rule<Value *()> &undefined_value() {
 	return rv;
 }
 
+rule<Value()> &undefined_value_o() {
+	static rule<Value()> rv {
+		lit("null") [
+			_val = construct<Value>()
+		]
+	};
+	return rv;
+}
 
 rule<Value *()> &numeric_value() {
 	static real_parser<double, strict_real_policies<double>> strict_double;
@@ -78,6 +87,22 @@ rule<Value *()> &numeric_value() {
 		]
 		| int_ [
 			_val = new_<Value>(number_type(), _1)
+		],
+		"numeric_value"
+	};
+//	GOLOGPP_DEBUG_NODE(rv)
+	return rv;
+}
+
+rule<Value()> &numeric_value_o() {
+	static real_parser<double, strict_real_policies<double>> strict_double;
+	static rule<Value()> rv {
+		undefined_value_o() [ _val = _1 ]
+		| strict_double [
+			_val = construct<Value>(number_type(), _1)
+		]
+		| int_ [
+			_val = construct<Value>(number_type(), _1)
 		],
 		"numeric_value"
 	};
