@@ -426,6 +426,9 @@ if (BUILD_TAPTENC_SEMANTICS)
 	add_executable(taptenc_rcll_perception external/taptenc/src/rcll_perception.cpp ${TAPTENC_SRC})
 	target_include_directories(taptenc_rcll_perception PRIVATE ${TAPTENC_INCLUDE_PATHS})
 	target_compile_options(taptenc_rcll_perception PRIVATE -std=c++17)
+	if (USE_LIBASAN)
+		target_link_libraries(taptenc_rcll_perception asan)
+	endif()
 endif()
 
 
