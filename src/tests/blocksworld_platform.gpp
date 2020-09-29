@@ -8,33 +8,33 @@
  *
  * golog++ is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR a PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-symbol domain block = {a, b, c}
-symbol domain location = block | {table}
+symbol domain Block = {a, b, c}
+symbol domain Location = Block | {table}
+symbol domain Poi = { table, Home }
 
-location fluent loc(block x) {
+Location fluent loc(Block x) {
 initially:
 	(a) = c;
 	(b) = table;
 	(c) = b;
-// 	(d) = a; //*/
 }
 
-action stack(block x, location y) {
+action stack(Block x, Location y) {
 precondition:
 	  x != y // Can't stack x on x
 	& x != table // Can't stack table
 	& loc(x) != y // Can't stack the same thing twice
-	& (!exists(block z) loc(z) == x) // Nothing is on x
+	& (!exists(Block z) loc(z) == x) // Nothing is on x
 	& (
 		y == table // either y is the table...
-		| !exists(block z) loc(z) == y // or nothing is on y
+		| !exists(Block z) loc(z) == y // or nothing is on y
 	)
 
 effect:
@@ -43,6 +43,11 @@ duration: [2, 4]
 }
 
 
+action go_to(Poi p)
+{ duration: [0, 20] }
+
+action position_precisely(Poi p)
+{ duration: [2, 8] }
 
 bool function goal() =
 	loc(a) == table & loc(b) == a & loc(c) == b
@@ -58,12 +63,12 @@ number function reward() =
 		-1
 
 
-action scan(block b) {
+action scan(Block b) {
 senses:
 	loc(b)
 }
 
-component realsense {
+component depth_cam {
 clocks:
 	bcl
 states:
@@ -76,19 +81,19 @@ transitions:
 }
 
 constraints {
-	start(stack(*,*)): state(realsense) = on;
-	during(stack(*,*)): state(realsense) = on;
-	end(stack(*,*)): state(realsense) = off;//*/
-/*	start(scan(*)): state(realsense) = on;
-	during(scan(*)): state(realsense) = on;
-	end(scan(*)): state(realsense) = off;//*/
+	during(stack(*,*)): state(depth_cam) = on;
+	during(go_to(*)): state(depth_cam) = off;
 }
 
 
-procedure main()
-	solve(8, reward())
+procedure main() {
+	solve(12, reward()) {
+		go_to(table);
+		position_precisely(table);
 		while (!goal())
-			pick (block x in {a, b, c})
-				pick(location y in {table, a, b, c})
+			pick (Block x in {a, b, c})
+				pick(Location y in {table, a, b, c})
 					stack(x, y);
-
+		go_to(Home);
+	}
+}
