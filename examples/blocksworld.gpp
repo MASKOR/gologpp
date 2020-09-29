@@ -58,8 +58,11 @@ number function reward() =
 	else
 		-1
 
+bool function postcond() = goal()
 
-{
+		
+
+procedure main() {
 	solve(8, reward())
 		while (!goal())
 			pick (block x in {a, b, c})
