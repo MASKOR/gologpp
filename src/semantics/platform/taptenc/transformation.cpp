@@ -58,7 +58,8 @@ void TaptencTransformation::init(AExecutionController &ctx)
 unique_ptr<Plan> TaptencTransformation::transform(Plan &&p)
 {
 	log(LogLevel::DBG) << "=== Trafo input: " << p << flush;
-	arg_storage_.clear();
+	arg_to_sym_.clear();
+	sym_to_arg_.clear();
 	tt_update_automata();
 
 	if (tt_automata_.size() == 0 && tt_constraints_.size() == 0)
@@ -133,7 +134,7 @@ vector<taptenc::PlanAction> TaptencTransformation::plan_gpp_to_taptenc(Plan &&p)
 
 			std::vector<std::string> argstr;
 			for (auto &arg : trans.args())
-				argstr.push_back(store_arg(dynamic_cast<const Value &>(*arg)));
+				argstr.push_back(store_arg(dynamic_cast<Value &>(*arg)));
 
 			rv.push_back(taptenc::PlanAction {
 				taptenc::ActionName(actstr, argstr),
@@ -173,23 +174,27 @@ unique_ptr<Plan> TaptencTransformation::plan_taptenc_to_gpp(taptenc::timed_trace
 }
 
 
-std::string TaptencTransformation::store_arg(const Value &v)
+std::string TaptencTransformation::store_arg(Value &v)
 {
-	arg_storage_.push_back(v.copy());
-	return "arg" + std::to_string(arg_storage_.size() - 1);
+	auto it = arg_to_sym_.find(unique_ptr<Value>(v.copy()));
+	if (it != arg_to_sym_.end())
+		return it->second;
+	else {
+		size_t count = arg_to_sym_.size();
+		std::string rv = "arg" + std::to_string(count);
+		arg_to_sym_.insert({ unique_ptr<Value>(v.copy()), rv });
+		sym_to_arg_.insert({ rv, unique_ptr<Value>(v.copy()) });
+		return rv;
+	}
 }
 
 
 Value *TaptencTransformation::retrieve_arg(std::string taptenc_symbolic_arg)
 {
-	std::stringstream str(taptenc_symbolic_arg);
-	str.seekg(3);
-	size_t idx = std::numeric_limits<size_t>::max();
-	str >> idx;
-	if (idx == std::numeric_limits<size_t>::max())
+	auto it = sym_to_arg_.find(taptenc_symbolic_arg);
+	if (it == sym_to_arg_.end())
 		throw Bug("Cannot retrieve argument from storage: " + taptenc_symbolic_arg);
-
-	return arg_storage_[idx];
+	return it->second->copy();
 }
 
 

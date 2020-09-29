@@ -244,6 +244,18 @@ struct equal_to<gologpp::unique_ptr<gologpp::Value>> {
 	{ return *lhs == *rhs; }
 };
 
+template<>
+struct hash<gologpp::Value *> {
+	size_t operator () (const gologpp::Value *o) const
+	{ return o->hash(); }
+};
+
+template<>
+struct equal_to<gologpp::Value *> {
+	bool operator () (const gologpp::Value *lhs, const gologpp::Value *rhs) const
+	{ return *lhs == *rhs; }
+};
+
 } // namespace std
 
 #endif //GOLOGPP_CONSTANT_H_

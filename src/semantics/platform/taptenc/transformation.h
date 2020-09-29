@@ -18,6 +18,7 @@
 #pragma once
 
 #include <model/gologpp.h>
+#include <model/value.h>
 #include <execution/transformation.h>
 #include <execution/plan.h>
 
@@ -38,7 +39,7 @@ private:
 	vector<taptenc::PlanAction> plan_gpp_to_taptenc(Plan &&);
 	unique_ptr<Plan> plan_taptenc_to_gpp(taptenc::timed_trace_t &&);
 
-	std::string store_arg(const Value &);
+	std::string store_arg(Value &);
 	Value *retrieve_arg(std::string taptenc_symbolic_arg);
 
 	TimedInstruction parse_domain_action(const std::string &tt_action, taptenc::groundedActionTime tt_time);
@@ -51,7 +52,8 @@ private:
 
 	AExecutionController *context_;
 
-	vector<Value *> arg_storage_;
+	std::unordered_map<unique_ptr<Value>, string> arg_to_sym_;
+	std::unordered_map<string, unique_ptr<Value>> sym_to_arg_;
 
 	std::unordered_map <
 		shared_ptr<const platform::Component>,
