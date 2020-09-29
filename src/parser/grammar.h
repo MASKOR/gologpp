@@ -32,7 +32,7 @@ struct BatParser : grammar<void(Scope &)> {
 	BatParser()
 	: BatParser::base_type(program)
 	{
-		program = +(
+		program = expect[+(
 			fluent(_r1)
 			| action(_r1)
 			| exog_action(_r1)
@@ -42,13 +42,15 @@ struct BatParser : grammar<void(Scope &)> {
 			| type_definition(_r1)
 			| component(_r1)
 			| constraint_section(_r1)
-		);
+		)];
 
 		// The rules that parse all the different expression types have to be defined
 		// after all of the other high-level grammars have been initialized to break
 		// the dependency cyle. Fortunately, we can reference a rule before it is defined.
 		initialize_cyclic_expressions();
 		initialize_cyclic_values();
+
+		on_error<rethrow>(program, phoenix::bind(&handle_error, _1, _3, _2, _4));
 
 		GOLOGPP_DEBUG_NODE(program)
 	}
