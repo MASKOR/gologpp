@@ -36,7 +36,7 @@ string tolower(const string &s)
 			return std::tolower(c);
 		}
 	);
-	return s;
+	return rv;
 }
 
 
