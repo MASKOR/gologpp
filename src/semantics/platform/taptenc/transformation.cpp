@@ -45,7 +45,7 @@ void TaptencTransformation::init(AExecutionController &ctx)
 	// Note: Each constraint must refer to exactly one component!
 	for (const auto &constraint : global_scope().constraints())
 		platform_model_[find_component_ref(constraint->rhs())]
-		              .push_back(std::ref(*constraint));
+			.push_back(std::ref(*constraint));
 
 	for (const auto &pair : platform_model_) {
 		tt_constraints_.emplace_back();
