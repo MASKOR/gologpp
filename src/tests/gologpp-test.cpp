@@ -85,12 +85,11 @@ int main(int argc, char **argv) {
 		("file,f", po::value<string>(), "golog++ test program to process")
 		("trace,t", "Trace calls to eclipse-clp")
 		("guitrace,g", "Wait for graphical eclipse-clp tracer to attach")
+		("loglevel,l", po::value<int>(), "Set loglevel [0..4], default 3")
 	;
 	po::positional_options_description p;
 	p.add("file", -1);
 	po::variables_map vm;
-
-	Logger::instance().log_lvl() = LogLevel::DBG;
 
 	try {
 		po::store(
@@ -99,6 +98,12 @@ int main(int argc, char **argv) {
 		);
 
 		filename = vm["file"].as<string>();
+		int loglevel = 3;
+
+		if (vm.count("loglevel"))
+			loglevel = std::max(0, std::min(4, vm["loglevel"].as<int>()));
+
+		Logger::instance().log_lvl() = static_cast<LogLevel>(loglevel);
 
 		log(LogLevel::INF) << "Testing " << filename << "..." << flush;
 		parser::parse_file(filename);

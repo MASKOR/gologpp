@@ -28,7 +28,7 @@ namespace gologpp {
 
 
 enum class LogLevel {
-	ERR,
+	ERR = 0,
 	WRN,
 	NFY,
 	INF,
