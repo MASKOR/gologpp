@@ -87,7 +87,7 @@ constraints {
 
 
 procedure main() {
-	solve(12, reward()) {
+	solve(14, reward()) {
 		go_to(table);
 		position_precisely(table);
 		while (!goal())
