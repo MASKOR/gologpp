@@ -38,6 +38,8 @@ public:
 	static void init();
 	static void uninit();
 
+	static bool ready();
+
 	struct DurationRange {
 		DurationRange();
 		DurationRange(Clock::rep min, Clock::rep max);
@@ -55,11 +57,9 @@ private:
 };
 
 
-
-
-
 string to_string(Clock::time_point tp);
 
 string to_string(Clock::duration d);
+
 
 } // namespace gologpp

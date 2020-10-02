@@ -26,8 +26,6 @@
 #include "transition.h"
 #include "history.h"
 
-#include <iostream>
-
 
 namespace gologpp {
 
@@ -144,7 +142,7 @@ unique_ptr<Plan> GeneralSemantics<Transition>::trans(const Binding &, History &h
 	}
 
 	if (!element()->silent()) {
-		std::cout << "<<< trans: " << element().str() << std::endl;
+		log(LogLevel::INF) << "<<< trans: " << element().str() << flush;
 		context().set_silent(false);
 	}
 

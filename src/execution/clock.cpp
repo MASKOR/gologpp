@@ -39,6 +39,8 @@ void Clock::uninit()
 	clock_source_ = nullptr;
 }
 
+bool Clock::ready()
+{ return clock_source_; }
 
 void Clock::set_clock_source(PlatformBackend *b)
 { clock_source_ = b; }

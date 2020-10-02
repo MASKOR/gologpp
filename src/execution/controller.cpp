@@ -33,10 +33,6 @@
 #include "activity.h"
 
 
-#include <iostream>
-#include <iomanip>
-
-
 
 namespace gologpp {
 
@@ -281,7 +277,7 @@ void ExecutionController::run(Block &&program)
 			if (plan) {
 				plan = plan_transformation_->transform(std::move(*plan));
 
-				log(LogLevel::DBG) << "<<< Got plan: " << *plan << flush;
+				log(LogLevel::INF) << "<<< Transformed schedule: " << *plan << flush;
 
 				while (!plan->elements().empty()) {
 					if (terminated)
@@ -320,14 +316,14 @@ void ExecutionController::run(Block &&program)
 						drain_exog_queue_blocking();
 						if (context_time() > plan->elements().front().latest_timepoint()) {
 							// First plan element's time window has passed: replan!
-							log(LogLevel::DBG) << "=== Re-transforming..." << flush;
+							log(LogLevel::INF) << "=== Re-transforming..." << flush;
 							plan = plan_transformation_->transform(std::move(*plan));
-							log(LogLevel::DBG) << "=== New schedule " << *plan << flush;
+							log(LogLevel::INF) << "=== New schedule " << *plan << flush;
 						}
 					}
 
 					if (history().general_semantics<History>().should_progress()) {
-						std::cout << "=== Progressing history." << std::endl;
+						log(LogLevel::DBG) << "=== Progressing history." << flush;
 						history().general_semantics<History>().progress();
 					}
 				}
@@ -341,7 +337,7 @@ void ExecutionController::run(Block &&program)
 
 		}
 	} catch (Terminate &) {
-		std::cout << ">>> Terminated." << std::endl;
+		log(LogLevel::DBG) << ">>> Terminated." << flush;
 	}
 }
 

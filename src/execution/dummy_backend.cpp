@@ -22,7 +22,6 @@
 #include <model/logger.h>
 
 #include <thread>
-#include <iostream>
 #include <tuple>
 #include <array>
 #include <limits>
@@ -156,13 +155,13 @@ void DummyBackend::schedule_timer_event(Clock::time_point when)
 		wait_until_ready();
 
 		std::unique_lock<std::mutex> sleep_lock(terminate_mutex_);
-		//log(LogLevel::DBG) << "=== @" << Clock::now() << ": Schedule wakeup @" << when << flush;
+		log(LogLevel::DBG) << "=== Schedule wakeup @" << when << flush;
 		terminate_condition_.wait_until(sleep_lock, when, [&] () {
 			return terminated_.load();
 		} );
 
 		if (!terminated_) {
-			//log(LogLevel::DBG) << "<<< Dispatch wakeup " << when << " @" << Clock::now() << flush;
+			log(LogLevel::DBG) << "<<< Dispatch wakeup " << when << flush;
 			exec_context()->exog_timer_wakeup();
 		}
 	});
@@ -187,14 +186,11 @@ void DummyBackend::ActivityThread::start()
 			bool canceled = cancel_cond_.wait_for(cancel_lock, duration_, [&] { return bool(cancel_); });
 
 			if (canceled) {
-				std::cout << "DummyBackend: Activity " << activity_->str() << " STOPPED" << std::endl;
 				activity_->update(Transition::Hook::CANCEL);
 			}
 			else {
-				std::cout << "DummyBackend: Activity " << activity_->str() << " FINAL" << std::endl;
 				if (activity_->target()->senses()) {
 					unique_ptr<Value> sensing_result = backend_.rnd_value(activity_->target()->senses()->type());
-					std::cout << "Sensing result: " << sensing_result->str() << std::endl;
 					activity_->update(Transition::Hook::FINISH, *sensing_result);
 				}
 				else
@@ -220,14 +216,6 @@ void DummyBackend::ActivityThread::cancel()
 void DummyBackend::execute_activity(shared_ptr<Activity> a)
 {
 	double rnd_dur { rnd_activity_duration_(prng_) };
-
-	std::cout << "DummyBackend: Activity " << a->str() << " START, duration: " << rnd_dur << std::endl;
-
-	std::cout << "   " << a->target()->mapping().backend_name() << "( ";
-	for (const auto &pair : a->target()->mapping().arg_mapping()) {
-		std::cout << a->mapped_arg_value(pair.first).str() << " ";
-	}
-	std::cout << " )" << std::endl;
 
 	std::lock_guard<std::mutex> locked(thread_mtx_);
 

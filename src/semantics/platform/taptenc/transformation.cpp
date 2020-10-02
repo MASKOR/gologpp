@@ -148,7 +148,7 @@ vector<taptenc::PlanAction> TaptencTransformation::plan_gpp_to_taptenc(Plan &&p)
 		else {
 			/* TODO: This silently discards test markers and other plan elements. Need to insert identifying
 			 * placeholders for other plan elements & retrieve them from storage when translating back */
-			log(LogLevel::WRN) << "FIXME: Discarding plan action " << ti.instruction().str() << flush;
+			log(LogLevel::DBG) << "FIXME: Discarding plan action " << ti.instruction().str() << flush;
 		}
 	}
 	return rv;

@@ -94,7 +94,8 @@ Logger::~Logger()
 Logger &Logger::flush()
 {
 	std::lock_guard<std::mutex> l(mutex_);
-	if (msg_pfx().length() == 0) return *this;
+	if (msg_pfx().length() == 0)
+		return *this;
 	if (msg_lvl_ <= log_lvl_) {
 		output_message(msg_pfx());
 	}
@@ -106,6 +107,17 @@ Logger &Logger::flush()
 
 void Logger::output_message(const std::string &s)
 {
+	using namespace std::chrono;
+	std::stringstream ss;
+
+	//auto t_now = std::time_t(duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
+	//ss << std::put_time(std::localtime(&t_now), /*"%Y-%m-%d "*/"%H:%M:%S");
+	if (Clock::ready()) {
+		ss.precision(2);
+		ss << std::fixed << Clock::now().time_since_epoch().count();
+		std::cerr << ss.str() << " ";
+	}
+
 	std::cerr << s << std::endl;
 }
 
@@ -117,10 +129,7 @@ std::string &Logger::msg_pfx()
 Logger &Logger::level(const LogLevel &lvl)
 {
 	flush();
-	if (!syslog_ && msg_lvl_ != lvl && lvl >= log_lvl_ && msg_lvl_ >= log_lvl_)
-		msg_pfx() = "\n";
-	else
-		msg_pfx() = "";
+	msg_pfx() = "";
 
 	if (lvl == LogLevel::WRN)
 		msg_pfx() += "WARNING: ";
@@ -152,20 +161,20 @@ Logger &Logger::operator<< (char *msg)
 
 Logger &Logger::operator<<(const Clock::time_point &tm)
 {
-	using namespace std::chrono;
 	std::stringstream ss;
+
 	ss.precision(2);
-
-	/*auto sys_now = system_clock::now();
-	auto delta = tm - Clock::now();
-	auto sys_tm = sys_now + delta;
-	auto in_time_t = std::time_t(duration_cast<seconds>(sys_tm.time_since_epoch()).count());//*/
-
-	//ss << std::put_time(std::localtime(&in_time_t), /*"%Y-%m-%d "*/"%H:%M:%S");
 	ss << std::fixed << tm.time_since_epoch().count();
-
 	msg_pfx() += ss.str();
+
 	return *this;
+}
+
+Logger &Logger::operator <<(const std::thread::id &id)
+{
+	std::stringstream ss;
+	ss << id;
+	return *this << ss.str();
 }
 
 Logger &Logger::operator<< (Logger & (*pf_flush)(Logger &))
