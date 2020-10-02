@@ -89,12 +89,19 @@ shared_ptr<Reference<AbstractAction>> AExecutionController::exog_queue_pop()
 {
 	std::lock_guard<std::mutex> locked{ exog_mutex_ };
 	shared_ptr<Reference<AbstractAction>> rv = std::move(exog_queue_.front());
-	exog_queue_.pop();
+	exog_queue_.pop_front();
 	return rv;
 }
 
 
 shared_ptr<Reference<AbstractAction>> AExecutionController::exog_queue_poll()
+{
+	exog_queue_block();
+	return exog_queue_pop();
+}
+
+
+void AExecutionController::exog_queue_block()
 {
 	std::unique_lock<std::mutex> queue_empty_lock { queue_empty_mutex_ };
 	{
@@ -106,8 +113,6 @@ shared_ptr<Reference<AbstractAction>> AExecutionController::exog_queue_poll()
 
 	if (terminated)
 		throw Terminate();
-	else
-		return exog_queue_pop();
 }
 
 
@@ -124,7 +129,17 @@ void AExecutionController::terminate()
 void AExecutionController::exog_queue_push(shared_ptr<Reference<AbstractAction>> exog)
 {
 	std::lock_guard<std::mutex> { exog_mutex_ };
-	exog_queue_.push(std::move(exog));
+	exog_queue_.push_back(std::move(exog));
+	{
+		std::lock_guard<std::mutex> { queue_empty_mutex_ };
+		queue_empty_condition_.notify_one();
+	}
+}
+
+void AExecutionController::exog_queue_push_front(shared_ptr<Reference<AbstractAction> > exog)
+{
+	std::lock_guard<std::mutex> { exog_mutex_ };
+	exog_queue_.push_front(std::move(exog));
 	{
 		std::lock_guard<std::mutex> { queue_empty_mutex_ };
 		queue_empty_condition_.notify_one();
@@ -134,7 +149,7 @@ void AExecutionController::exog_queue_push(shared_ptr<Reference<AbstractAction>>
 
 void AExecutionController::exog_timer_wakeup()
 {
-	exog_queue_push(shared_ptr<Reference<AbstractAction>> {
+	exog_queue_push_front(shared_ptr<Reference<AbstractAction>> {
 		step_time_action_->make_ref(
 			{ new Value(
 				get_type<NumberType>(),
@@ -165,29 +180,11 @@ History &AExecutionController::history()
 void AExecutionController::drain_exog_queue()
 {
 	while (!exog_empty()) {
-		shared_ptr<Reference<AbstractAction>> r = exog_queue_pop();
+		shared_ptr<Reference<AbstractAction>> exog = exog_queue_pop();
 
-		if (std::dynamic_pointer_cast<Reference<platform::SwitchStateAction>>(r))
-			continue; // Nothing to do, effects already applied by the ComponentBackend.
-
-		Reference<ExogAction> &exog = r->cast<Reference<ExogAction>>();
-		if (!exog->silent()) {
-			log(LogLevel::INF) << ">>> Exogenous event: " << exog << flush;
-			silent_ = false;
-		}
-		exog.attach_semantics(semantics_factory());
-		history().general_semantics<History>().append(exog);
-	}
-}
-
-void AExecutionController::drain_exog_queue_blocking()
-{
-	if (!silent_)
-		log(LogLevel::INF) << "=== No transition possible: Waiting for exogenous events..." << flush;
-
-	shared_ptr<Reference<AbstractAction>> exog = exog_queue_poll();
-	if (exog) {
 		if (!std::dynamic_pointer_cast<Reference<platform::SwitchStateAction>>(exog)) {
+			// Nothing to do here for SwitchStateAction:
+			// its effects have already been applied to the component model
 			if (!(*exog)->silent()) {
 				log(LogLevel::INF) << ">>> Exogenous event: " << exog << flush;
 				silent_ = false;
@@ -195,13 +192,16 @@ void AExecutionController::drain_exog_queue_blocking()
 			exog->attach_semantics(semantics_factory());
 			history().general_semantics<History>().append(exog);
 		}
-		drain_exog_queue();
 	}
-	else
-		log(LogLevel::DBG)
-			<< ">>> Timer wakeup: "
-			<< context_time()
-			<< flush;
+}
+
+void AExecutionController::drain_exog_queue_blocking()
+{
+	if (!silent_)
+		log(LogLevel::DBG) << "=== No transition possible: Waiting for exogenous events..." << flush;
+
+	exog_queue_block();
+	drain_exog_queue();
 }
 
 bool AExecutionController::silent() const
