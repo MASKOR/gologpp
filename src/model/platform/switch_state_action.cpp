@@ -121,9 +121,9 @@ unique_ptr<Plan> GeneralSemantics<Reference<platform::SwitchStateAction> >::tran
 
 
 	if (component->find_transition<platform::Transition>(*from_st, *to_st)) {
-		if (component->current_state() != from_state)
+		if (*component->current_state() != from_state)
 			log(LogLevel::ERR) << "Component \"" << component_name << "\" expected to be in state \"" << from_state
-				<< "\", but it's in state \"" << component->current_state().name() << "\"" << flush;
+				<< "\", but it's in state \"" << component->current_state()->name() << "\"" << flush;
 		// TODO: What should really happen in a case like this?
 
 		component->switch_state(to_state);
@@ -131,9 +131,11 @@ unique_ptr<Plan> GeneralSemantics<Reference<platform::SwitchStateAction> >::tran
 		return unique_ptr<Plan>(new Plan());
 	}
 	else if (component->find_transition<platform::ExogTransition>(*from_st, *to_st)) {
-		if (component->current_state() != *to_st && component->backend().is_dummy()) {
-			DummyComponentBackend &dummy = dynamic_cast<platform::DummyComponentBackend &>(component->backend());
-			dummy.request_state_change(to_state);
+		if (*component->current_state() != *to_st) {
+			if (component->backend().is_dummy()) {
+				DummyComponentBackend &dummy = dynamic_cast<platform::DummyComponentBackend &>(component->backend());
+				dummy.request_state_change(to_state);
+			}
 			return nullptr;
 		}
 		else {

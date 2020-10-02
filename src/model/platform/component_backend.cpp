@@ -45,7 +45,7 @@ void ComponentBackend::exog_state_change(const string &state_name)
 	if (!tgt)
 		throw ComponentError(string(__func__) + ": Invalid target state: " + state_name);
 
-	if (!model_->find_transition<ExogTransition>(model_->current_state(), *tgt))
+	if (!model_->find_transition<ExogTransition>(*model_->current_state(), *tgt))
 		log(LogLevel::ERR) << "Component backend \"" << model().name() << "\" breached model by going from state \""
 			<< model().current_state() << "\" to \"" << state_name << "\"" << flush;
 
@@ -54,12 +54,12 @@ void ComponentBackend::exog_state_change(const string &state_name)
 		exog_state_change,
 		{
 			new Value(get_type<StringType>(), model_->name()),
-			new Value(get_type<StringType>(), model_->current_state().name()),
+			new Value(get_type<StringType>(), model_->current_state()->name()),
 			new Value(get_type<StringType>(), state_name)
 		}
 	} };
 
-	model_->set_current_state(tgt);
+	model_->set_current_state_exog(tgt);
 
 	context().exog_queue_push(evt);
 }

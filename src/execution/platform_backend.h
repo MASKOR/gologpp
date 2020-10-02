@@ -67,6 +67,9 @@ public:
 	void register_component_backend(const string &component_name, platform::ComponentBackend *b);
 	virtual platform::ComponentBackend *get_component_backend(const string &component_name);
 
+	/// @return Whether the current state of any component changed exogenously since the last call to this function
+	bool any_component_state_changed_exog() const;
+
 protected:
 	void wait_until_ready();
 

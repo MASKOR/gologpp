@@ -285,7 +285,8 @@ void ExecutionController::run(Block &&program)
 
 					if (!exog_empty()) {
 						drain_exog_queue();
-						plan = plan_transformation_->transform(std::move(*plan));
+						if (backend().any_component_state_changed_exog())
+							plan = plan_transformation_->transform(std::move(*plan));
 					}
 
 					unique_ptr<Plan> empty_plan;
@@ -314,7 +315,10 @@ void ExecutionController::run(Block &&program)
 					else {
 						// Current Plan element not executable
 						drain_exog_queue_blocking();
-						if (context_time() > plan->elements().front().latest_timepoint()) {
+
+						if (context_time() > plan->elements().front().latest_timepoint()
+							|| backend().any_component_state_changed_exog()
+						) {
 							// First plan element's time window has passed: replan!
 							log(LogLevel::INF) << "=== Re-transforming..." << flush;
 							plan = plan_transformation_->transform(std::move(*plan));

@@ -145,6 +145,19 @@ platform::ComponentBackend *PlatformBackend::get_component_backend(const string 
 }
 
 
+bool PlatformBackend::any_component_state_changed_exog() const
+{
+	for (auto &e : component_backends_) {
+		if (e.second->model().state_changed_exog()) {
+			e.second->model().set_current_state(e.second->model().current_state());
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
 AExecutionController *PlatformBackend::exec_context()
 { return exec_ctx_.load(); }
 

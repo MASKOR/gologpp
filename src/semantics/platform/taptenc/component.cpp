@@ -146,7 +146,7 @@ std::unique_ptr<taptenc::automaton> Semantics<platform::Component>::compile()
 
 	for (auto &s : element().states()) {
 		taptenc::State ttstate = s->special_semantics().compile();
-		if (element().current_state() == *s)
+		if (*element().current_state() == *s)
 			ttstate.initial = true;
 		states.emplace_back(ttstate);
 	}

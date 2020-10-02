@@ -165,16 +165,30 @@ Component::Component(
 	scope().register_identifier(new State("error", *this, boost::none));
 	error_state_ = scope().lookup_identifier<State>("error");
 	current_state_ = error_state_;
+	expected_state_ = error_state_;
 }
 
+
 void Component::set_current_state(const shared_ptr<State> &state)
+{
+	Lock l(lock());
+	expected_state_ = state;
+	current_state_ = state;
+}
+
+
+void Component::set_current_state_exog(const shared_ptr<State> &state)
 {
 	Lock l(lock());
 	current_state_ = state;
 }
 
-const State &Component::current_state() const
-{ return *current_state_; }
+
+shared_ptr<const State> Component::current_state() const
+{ return current_state_; }
+
+shared_ptr<State> Component::current_state()
+{ return current_state_; }
 
 vector<shared_ptr<State>> Component::states() const
 { return scope().local_identifiers<State>(); }
@@ -182,11 +196,15 @@ vector<shared_ptr<State>> Component::states() const
 shared_ptr<State> Component::state(const string name)
 { return scope().lookup_local_identifier<State>(name); }
 
+bool Component::state_changed_exog()
+{ return expected_state_ != current_state_; }
+
 const vector<unique_ptr<AbstractTransition>> &Component::transitions() const
 { return transitions_; }
 
 vector<shared_ptr<Clock>> Component::clocks() const
 { return scope().local_identifiers<Clock>(); }
+
 
 void Component::initialize(AExecutionController &context)
 {
@@ -195,6 +213,7 @@ void Component::initialize(AExecutionController &context)
 	backend_->set_context(context);
 	backend_->init();
 }
+
 
 void Component::add_state(State *s)
 {
@@ -205,11 +224,13 @@ void Component::add_state(State *s)
 		set_current_state(scope().lookup_local_identifier<State>(s->name()));
 }
 
+
 void Component::add_clock(Clock *c)
 {
 	scope().register_identifier(c);
 	c->set_parent(this);
 }
+
 
 void Component::add_transition(AbstractTransition *t)
 {
@@ -267,9 +288,9 @@ void Component::switch_state(const string &state_name)
 	if (!tgt)
 		throw Bug(string(__func__) + ": Invalid target state: " + state_name);
 
-	if (!find_transition<Transition>(current_state(), *tgt))
+	if (!find_transition<Transition>(*current_state(), *tgt))
 		throw ComponentError(
-			"No transition from " + current_state().name()
+			"No transition from " + current_state()->name()
 			+ " to " + state_name + " in component " + name()
 		);
 
