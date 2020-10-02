@@ -63,6 +63,7 @@ private:
 	std::atomic_bool terminated_;
 
 	std::thread timer_evt_thread_;
+	std::unordered_set<Clock::time_point::rep> scheduled_wakeups_;
 
 	class ActivityThread {
 	public:

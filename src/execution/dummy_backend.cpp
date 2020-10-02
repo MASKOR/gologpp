@@ -151,14 +151,32 @@ void DummyBackend::terminate()
 
 void DummyBackend::schedule_timer_event(Clock::time_point when)
 {
+	{
+		// Eliminate duplicate timer wakeups
+		// TODO: This should rather be handled generically by the PlatformBackend
+		PlatformBackend::Lock l(this->lock());
+		if (scheduled_wakeups_.find(when.time_since_epoch().count()) != scheduled_wakeups_.end())
+			return;
+	}
+
 	timer_evt_thread_ = std::thread([&, when] () {
 		wait_until_ready();
+
+		{
+			PlatformBackend::Lock l(this->lock());
+			scheduled_wakeups_.insert(when.time_since_epoch().count());
+		}
 
 		std::unique_lock<std::mutex> sleep_lock(terminate_mutex_);
 		log(LogLevel::DBG) << "=== Schedule wakeup @" << when << flush;
 		terminate_condition_.wait_until(sleep_lock, when, [&] () {
 			return terminated_.load();
 		} );
+
+		{
+			PlatformBackend::Lock l(this->lock());
+			scheduled_wakeups_.erase(when.time_since_epoch().count());
+		}
 
 		if (!terminated_) {
 			log(LogLevel::DBG) << "<<< Dispatch wakeup " << when << flush;
