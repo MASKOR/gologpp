@@ -31,10 +31,9 @@ public:
 
 	virtual void preempt_activity(shared_ptr<Activity>) override;
 	virtual Clock::time_point time() const noexcept override;
-	virtual void terminate() override;
-	virtual void schedule_timer_event(Clock::time_point when) override;
 
 private:
+	virtual void terminate_() override;
 	virtual void execute_activity(shared_ptr<Activity> a) override;
 
 	std::function<void()> rnd_exog_generator();
@@ -57,13 +56,6 @@ private:
 
 	vector<shared_ptr<ExogAction>> exogs_;
 	std::thread exog_generator_;
-
-	std::mutex terminate_mutex_;
-	std::condition_variable terminate_condition_;
-	std::atomic_bool terminated_;
-
-	std::thread timer_evt_thread_;
-	std::unordered_set<Clock::time_point::rep> scheduled_wakeups_;
 
 	class ActivityThread {
 	public:

@@ -45,7 +45,6 @@ DummyBackend::DummyBackend()
 , rnd_list_len_(0, 16)
 , rnd_number_value_(-1000, 1000)
 , rnd_bool_value_(0, 1)
-, terminated_(false)
 {
 	for (shared_ptr<Global> &g : global_scope().globals()) {
 		shared_ptr<ExogAction> exog = std::dynamic_pointer_cast<ExogAction>(g);
@@ -66,10 +65,10 @@ std::function<void()> DummyBackend::rnd_exog_generator()
 {
 	return [&] () {
 		wait_until_ready();
-		while (!terminated_) {
-			std::unique_lock<std::mutex> sleep_lock(terminate_mutex_);
-			terminate_condition_.wait_for(sleep_lock, std::chrono::duration<double>(rnd_exog_delay_(prng_)));
-			if (terminated_)
+		while (!terminated) {
+			std::unique_lock<std::mutex> sleep_lock(terminate_mutex);
+			terminate_condition.wait_for(sleep_lock, std::chrono::duration<double>(rnd_exog_delay_(prng_)));
+			if (terminated)
 				break;
 			shared_ptr<ExogAction> exog = exogs_[static_cast<size_t>(rnd_exog_index_(prng_))];
 
@@ -140,50 +139,10 @@ Clock::time_point DummyBackend::time() const noexcept
 }
 
 
-void DummyBackend::terminate()
+void DummyBackend::terminate_()
 {
-	terminated_ = true;
-	terminate_condition_.notify_all();
 	for (auto &entry : activity_threads_)
 		entry.second->cancel();
-}
-
-
-void DummyBackend::schedule_timer_event(Clock::time_point when)
-{
-	{
-		// Eliminate duplicate timer wakeups
-		// TODO: This should rather be handled generically by the PlatformBackend
-		PlatformBackend::Lock l(this->lock());
-		if (scheduled_wakeups_.find(when.time_since_epoch().count()) != scheduled_wakeups_.end())
-			return;
-	}
-
-	timer_evt_thread_ = std::thread([&, when] () {
-		wait_until_ready();
-
-		{
-			PlatformBackend::Lock l(this->lock());
-			scheduled_wakeups_.insert(when.time_since_epoch().count());
-		}
-
-		std::unique_lock<std::mutex> sleep_lock(terminate_mutex_);
-		log(LogLevel::DBG) << "=== Schedule wakeup @" << when << flush;
-		terminate_condition_.wait_until(sleep_lock, when, [&] () {
-			return terminated_.load();
-		} );
-
-		{
-			PlatformBackend::Lock l(this->lock());
-			scheduled_wakeups_.erase(when.time_since_epoch().count());
-		}
-
-		if (!terminated_) {
-			log(LogLevel::DBG) << "<<< Dispatch wakeup " << when << flush;
-			exec_context()->exog_timer_wakeup();
-		}
-	});
-	timer_evt_thread_.detach();
 }
 
 

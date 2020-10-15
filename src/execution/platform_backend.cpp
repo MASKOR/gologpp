@@ -25,6 +25,7 @@
 namespace gologpp {
 
 PlatformBackend::PlatformBackend()
+: terminated(false)
 {
 	if (Clock::clock_source_)
 		throw Bug("Cannot have multiple instances of the PlatformBackend because there must be a unique clock source");
@@ -119,10 +120,48 @@ Activity::State PlatformBackend::current_state(const ReferenceBase<Action> &a)
 }
 
 
-void PlatformBackend::terminate_components()
+void PlatformBackend::terminate()
 {
+	terminated = true;
+	terminate_condition.notify_all();
+	terminate_();
 	for (auto &pair : component_backends_)
 		pair.second->terminate();
+}
+
+
+void PlatformBackend::schedule_timer_event(Clock::time_point when)
+{
+	{
+		// Eliminate duplicate timer wakeups
+		// TODO: This should rather be handled generically by the PlatformBackend
+		PlatformBackend::Lock l(this->lock());
+		if (scheduled_wakeups_.find(when.time_since_epoch().count()) != scheduled_wakeups_.end())
+			return;
+		else
+			scheduled_wakeups_.insert(when.time_since_epoch().count());
+	}
+
+	std::thread thread = std::thread([&, when] () {
+		wait_until_ready();
+
+		std::unique_lock<std::mutex> sleep_lock(terminate_mutex);
+		log(LogLevel::DBG) << "=== Schedule wakeup @" << when << flush;
+		terminate_condition.wait_until(sleep_lock, when, [&] () {
+			return terminated.load();
+		} );
+
+		{
+			PlatformBackend::Lock l(this->lock());
+			scheduled_wakeups_.erase(when.time_since_epoch().count());
+		}
+
+		if (!terminated) {
+			log(LogLevel::DBG) << "<<< Dispatch wakeup " << when << flush;
+			exec_context()->exog_timer_wakeup();
+		}
+	});
+	thread.detach();
 }
 
 

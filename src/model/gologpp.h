@@ -141,6 +141,8 @@ class ExecutionController;
 
 class PlatformBackend;
 
+using ExogEvent = Reference<ExogAction>;
+
 
 
 namespace platform {

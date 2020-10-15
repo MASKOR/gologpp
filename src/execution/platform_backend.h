@@ -60,9 +60,8 @@ public:
 
 	Activity::State current_state(const ReferenceBase<Action> &);
 
-	void terminate_components();
-	virtual void terminate() = 0;
-	virtual void schedule_timer_event(Clock::time_point when) = 0;
+	void terminate();
+	virtual void schedule_timer_event(Clock::time_point when);
 
 	void register_component_backend(const string &component_name, platform::ComponentBackend *b);
 	virtual platform::ComponentBackend *get_component_backend(const string &component_name);
@@ -71,9 +70,23 @@ public:
 	bool any_component_state_changed_exog() const;
 
 protected:
+
+	/// Set to true on terminate(), before implementation-defined terminate_() is called
+	std::atomic_bool terminated;
+
+	/// Gets notified on terminate(), after setting @ref terminated to true.
+	/// Sleepers should wait on this to be cancelled on shutdown.
+	std::condition_variable terminate_condition;
+
+	/// Accompanying mutex for @ref terminate_condition
+	std::mutex terminate_mutex;
+
+	/// Block until execution context is initialized,
+	/// i.e. until @ref exec_context() is guaranteed to return non-null
 	void wait_until_ready();
 
 private:
+	virtual void terminate_() = 0;
 	virtual void execute_activity(shared_ptr<Activity> a) = 0;
 	virtual void preempt_activity(shared_ptr<Activity> a) = 0;
 
@@ -85,6 +98,7 @@ private:
 	std::condition_variable ready_condition_;
 
 	std::unordered_map<string, unique_ptr<platform::ComponentBackend>> component_backends_;
+	std::unordered_set<Clock::time_point::rep> scheduled_wakeups_;
 };
 
 
