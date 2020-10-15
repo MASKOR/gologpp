@@ -113,7 +113,7 @@ public:
 	: target_(target)
 	, binding_(std::move(binding))
 	{
-		for (auto param : target()->params())
+		for (auto param : this->target()->params())
 			args_.emplace_back(&this->binding().get(param));
 		ensure_consistent();
 	}

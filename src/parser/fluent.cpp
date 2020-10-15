@@ -44,6 +44,7 @@
 #include <boost/optional/optional_io.hpp>
 
 #include <model/fluent.h>
+#include <model/reference.h>
 #include <model/expressions.h>
 
 

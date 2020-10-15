@@ -38,6 +38,10 @@ using fusion_wtf_vector = boost::fusion::vector2<T1, T2>;
 #endif
 
 
+/** @class ActionMapping Maps golog++ expressions (typically action arguments) to the parameter names in a backend action.
+ * For an @ref ExogAction, the mapped golog++ expressions must be the action's arguments.
+ * For an endogenous @ref Action, arbitrary golog++ expressions can be used.
+ */
 class ActionMapping : public LanguageElement<ActionMapping>, public NoScopeOwner {
 public:
 	using ArgMapping = std::unordered_map<
@@ -49,10 +53,23 @@ public:
 		const string &backend_name,
 		boost::optional<vector<fusion_wtf_vector<string, Expression *>>> arg_mapping
 	);
+	~ActionMapping() = default;
 
 	const string &backend_name() const;
-	const Expression &mapped_expr(const string &arg_name) const;
-	bool is_mapped(const string &arg_name) const;
+
+	/// @param backend_param_name Name of the data field in the PlatformBackend implementation
+	/// @return The expression mapped to @ref backend_param_name.
+	/// Throws an @ref UserError if nothing is mapped to @ref backend_param_name.
+	const Expression &mapped_expr(const string &backend_param_name) const;
+
+	/// @param backend_param_name Name of the data field in the PlatformBackend implementation
+	/// @return The action parameter mapped to @ref backend_param_name. nullptr if the mapped @ref Expression is not a @ref Variable.
+	/// Throws an @ref UserError if nothing is mapped to @ref backend_param_name
+	shared_ptr<const Variable> mapped_var(const string &backend_param_name) const;
+
+	/// @param backend_param_name Name of the data field in the PlatformBackend implementation
+	/// @return whether any golog++ @ref Expression is mapped to @ref backend_param_name
+	bool is_mapped(const string &backend_param_name) const;
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;

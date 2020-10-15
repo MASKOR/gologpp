@@ -15,7 +15,10 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
+#include "mapping.h"
 #include "action.h"
+#include "fluent.h"
+#include "reference.h"
 #include "effect_axiom.h"
 #include "execution/controller.h"
 #include "error.h"

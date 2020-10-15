@@ -29,9 +29,6 @@
 #include "language.h"
 #include "scope.h"
 #include "global.h"
-#include "mapping.h"
-#include "reference.h"
-#include "fluent.h"
 #include <execution/clock.h>
 
 namespace gologpp {

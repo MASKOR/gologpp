@@ -17,6 +17,8 @@
 
 #include "reference.h"
 
+#include <unordered_map>
+
 
 namespace gologpp {
 

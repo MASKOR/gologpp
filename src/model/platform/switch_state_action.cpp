@@ -17,6 +17,7 @@
 
 #include <model/effect_axiom.h>
 #include <model/logger.h>
+#include <model/mapping.h>
 
 #include <execution/plan.h>
 

@@ -22,7 +22,6 @@
 #include "utilities.h"
 #include "error.h"
 #include "global.h"
-#include "reference.h"
 #include "value.h"
 
 namespace gologpp {

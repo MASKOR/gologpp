@@ -18,6 +18,8 @@
 #include "activity.h"
 #include "controller.h"
 
+#include <model/mapping.h>
+
 
 namespace gologpp {
 

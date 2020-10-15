@@ -17,6 +17,7 @@
 
 #include <model/fluent.h>
 #include <model/action.h>
+#include <model/mapping.h>
 #include <model/procedural.h>
 #include <model/effect_axiom.h>
 #include <model/logger.h>

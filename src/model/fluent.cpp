@@ -16,6 +16,8 @@
 **************************************************************************/
 
 #include "fluent.h"
+#include "variable.h"
+#include "reference.h"
 
 #include <execution/controller.h>
 

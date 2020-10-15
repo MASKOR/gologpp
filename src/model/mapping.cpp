@@ -19,11 +19,12 @@
 #include "error.h"
 #include "action.h"
 #include "utilities.h"
+#include "reference.h"
 
 #include <boost/fusion/include/at_c.hpp>
 
 
-namespace gologpp{
+namespace gologpp {
 
 ActionMapping::ActionMapping(
 	const string &backend_name,
@@ -47,9 +48,18 @@ const Expression &ActionMapping::mapped_expr(const string &name) const
 {
 	auto it = arg_mapping_.find(name);
 	if (it == arg_mapping_.end())
-		throw Bug("Missing mapping entry for backend argument name '" + name + "`");
+		throw UserError("Missing mapping entry for backend argument name '" + name + "`");
 
 	return *it->second;
+}
+
+shared_ptr<const Variable> ActionMapping::mapped_var(const string &name) const
+{
+	try {
+		return mapped_expr(name).cast<Reference<Variable>>().target();
+	} catch (std::bad_cast &) {
+		return nullptr;
+	}
 }
 
 bool ActionMapping::is_mapped(const string &arg_name) const
