@@ -78,34 +78,31 @@ Plan::Plan(Plan &&sub)
 
 
 Plan &Plan::append(TimedInstruction &&i)
-{ 
+{
 	elements_.push_back(std::forward<TimedInstruction>(i));
-	try {
-		// Set timepoints
-		Transition &instr = elements_.back().instruction().cast<Transition>();
-		if (instr.hook() == Transition::Hook::END) {
-			// Find matching START transition
-			auto it = std::find_if(elements().rbegin(), elements().rend(), [&] (TimedInstruction &ti) {
-				try {
-					Transition &trans = ti.instruction().cast<Transition>();
-					return trans.hook() == Transition::Hook::START && trans == instr;
-				} catch (std::bad_cast &) {
-					return false;
-				}
-			} );
+	// Set timepoints
+	Transition *instr = dynamic_cast<Transition *>(&elements_.back().instruction());
+	if (instr && instr->hook() == Transition::Hook::END) {
+		// Find matching START transition
+		auto it = std::find_if(elements().rbegin(), elements().rend(), [&] (TimedInstruction &ti) {
+			try {
+				Transition &trans = ti.instruction().cast<Transition>();
+				return trans.hook() == Transition::Hook::START && trans == *instr;
+			} catch (std::bad_cast &) {
+				return false;
+			}
+		} );
 
-			if (it == elements().rend()) {
-				// Not found: use best guess
-				elements().back().set_earliest(Clock::now());
-				elements().back().set_latest(Clock::now() + instr->duration().max);
-			}
-			else {
-				// Found: add on top
-				elements().back().set_earliest(it->earliest_timepoint() + instr->duration().min);
-				elements().back().set_latest(it->latest_timepoint() + instr->duration().max);
-			}
+		if (it == elements().rend()) {
+			// Not found: use best guess
+			elements().back().set_earliest(Clock::now());
+			elements().back().set_latest(Clock::now() + (*instr)->duration().max);
 		}
-	} catch (std::bad_cast &) {
+		else {
+			// Found: add on top
+			elements().back().set_earliest(it->earliest_timepoint() + (*instr)->duration().min);
+			elements().back().set_latest(it->latest_timepoint() + (*instr)->duration().max);
+		}
 	}
 	return *this;
 }
