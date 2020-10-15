@@ -268,7 +268,6 @@ if (${BUILD_PARSER})
 		src/parser/mapping.h
 		src/parser/list_expression.h
 		src/parser/value.h
-		src/parser/platform_model.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)
 
