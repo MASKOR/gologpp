@@ -54,10 +54,9 @@ int test_file(unique_ptr<Instruction> &&mainproc)
 	unique_ptr<Reference<Function>> postcond { f_postcond->make_ref({})	};
 	postcond->attach_semantics(ReadylogContext::instance().semantics_factory());
 
-	ReadylogContext::instance().run(Block(
-		new Scope(global_scope()),
-		{ mainproc.release() }
-	));
+	mainproc->attach_semantics(ReadylogContext::instance().semantics_factory());
+
+	ReadylogContext::instance().run(*mainproc);
 
 	Binding empty_binding;
 	empty_binding.attach_semantics(ReadylogContext::instance().semantics_factory());

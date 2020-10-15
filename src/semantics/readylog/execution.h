@@ -47,7 +47,6 @@ public:
 	static ReadylogContext &instance();
 
 	virtual void precompile() override {}
-	virtual void compile(const Block &block) override;
 	virtual void compile(const AbstractAction &action) override;
 	virtual void compile(const Fluent &fluent) override;
 	virtual void compile(const Function &function) override;

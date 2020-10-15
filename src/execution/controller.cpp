@@ -253,14 +253,11 @@ ExecutionController::~ExecutionController()
 {}
 
 
-void ExecutionController::run(Block &&program)
+void ExecutionController::run(const Instruction &program)
 {
 	try {
 		history().attach_semantics(semantics_factory());
 		global_scope().implement_globals(semantics_factory(), *this);
-
-		program.attach_semantics(semantics_factory());
-		compile(program);
 
 		plan_transformation_->init(*this);
 

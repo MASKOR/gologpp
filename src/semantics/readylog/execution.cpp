@@ -103,6 +103,11 @@ ReadylogContext::ReadylogContext(
 	ec_query(::term(EC_functor("compile", 1),
 		EC_atom(find_boilerplate().c_str())
 	));
+
+	// Boilerplate stuff
+	compile_term(::term(EC_functor("events_list", 1), ::nil()));
+	compile_term(::term(EC_functor("param_cycletime", 1), EC_word(99999999)));
+
 }
 
 
@@ -121,18 +126,6 @@ void ReadylogContext::init(const eclipse_opts &options, unique_ptr<PlatformBacke
 
 ReadylogContext &ReadylogContext::instance()
 { return *instance_; }
-
-
-void ReadylogContext::compile(const Block &block)
-{
-	// Discard result since this is only called for the toplevel program,
-	// which only needs to initialize its internal state.
-	ec_write(block.semantics().plterm());
-
-	// Boilerplate stuff
-	compile_term(::term(EC_functor("events_list", 1), ::nil()));
-	compile_term(::term(EC_functor("param_cycletime", 1), EC_word(99999999)));
-}
 
 
 void ReadylogContext::compile(const AbstractAction &aa)

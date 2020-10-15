@@ -51,8 +51,6 @@ public:
 
 	virtual void precompile() = 0;
 
-	/// Called once for the toplevel @param program.
-	virtual void compile(const Block &program) = 0;
 	virtual void compile(const Fluent &fluent) = 0;
 	virtual void compile(const AbstractAction &action) = 0;
 	virtual void compile(const Function &function) = 0;
@@ -60,7 +58,7 @@ public:
 
 	virtual void postcompile() = 0;
 
-	virtual void run(Block &&program) = 0;
+	virtual void run(const Instruction &program) = 0;
 
 	/// \return Head popped from the exog_queue or nullptr if it is empty.
 	shared_ptr<Reference<AbstractAction>> exog_queue_pop();
@@ -127,7 +125,7 @@ public:
 
 	virtual ~ExecutionController() override;
 
-	virtual void run(Block &&program) override;
+	virtual void run(const Instruction &program) override;
 
 private:
 	unique_ptr<PlanTransformation> plan_transformation_;
