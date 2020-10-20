@@ -128,10 +128,6 @@ target_link_libraries (golog++ ${CMAKE_THREAD_LIBS_INIT})
 set_property(TARGET golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
 install(TARGETS golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-if (NOT BUILD_TAPTENC_SEMANTICS)
-	target_compile_definitions(golog++ PRIVATE USE_DUMMY_PLATFORM)
-endif()
-
 install(FILES
 	src/model/model_element.h
 	src/model/abstract_reference.h
@@ -417,7 +413,6 @@ if (BUILD_TAPTENC_SEMANTICS)
 	add_library(taptenc-golog++ SHARED ${TAPTENC_SRC} ${TAPTENC_SEMANTICS_SRC})
 	target_include_directories(taptenc-golog++ PUBLIC ${TAPTENC_INCLUDE_PATHS})
 	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
-	target_link_libraries(taptenc-golog++ parsegolog++)
 	target_include_directories(taptenc-golog++ PUBLIC external)
 	target_compile_options(taptenc-golog++ PRIVATE -std=c++17)
 	set(TEST_LIBS ${TEST_LIBS} taptenc-golog++)
@@ -428,7 +423,16 @@ if (BUILD_TAPTENC_SEMANTICS)
 	if (USE_LIBASAN)
 		target_link_libraries(taptenc_rcll_perception asan)
 	endif()
-endif()
+
+	target_link_libraries(golog++ taptenc-golog++)
+
+	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+	install(TARGETS taptenc-golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+else(BUILD_TAPTENC_SEMANTICS)
+	target_compile_definitions(golog++ PRIVATE USE_DUMMY_PLATFORM)
+
+endif(BUILD_TAPTENC_SEMANTICS)
 
 
 
