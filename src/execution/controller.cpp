@@ -68,7 +68,7 @@ AExecutionController::AExecutionController(unique_ptr<PlatformBackend> &&platfor
 
 	Scope *ea_scope = new Scope(global_scope());
 	shared_ptr<Variable> time_var = ea_scope->get_var(VarDefinitionMode::FORCE, get_type<NumberType>(), "next_time");
-	step_time_action_.reset(global_scope().define_global<ExogAction>(
+	global_scope().define_global<ExogAction>(
 		ea_scope,
 		get_type<VoidType>(),
 		"step_context_time",
@@ -76,7 +76,8 @@ AExecutionController::AExecutionController(unique_ptr<PlatformBackend> &&platfor
 		boost::none,
 		boost::none,
 		boost::none
-	));
+	);
+	step_time_action_ = global_scope().lookup_global<ExogAction>("step_context_time");
 
 	EffectAxiom<Reference<Fluent>> *time_eff = new EffectAxiom<Reference<Fluent>>();
 	time_eff->define(boost::none, f_time->make_ref({}), new Reference<Variable>(time_var));
