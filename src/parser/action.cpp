@@ -68,7 +68,7 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 	definition = ( lit('{') > (
 		( "precondition:" > boolean_expression(*_r2) )
 		^ ( "effect:" > +(effect(*_r2) > ';') )
-		^ ( "senses:" > senses(*_r2, undefined_type()) )
+		^ ( "senses:" > senses(*_r2) )
 		^ ( "mapping:" > mapping(*_r2) )
 		^ ( "silent:" > boolean_value() )
 		^ ( "duration:" > duration )
@@ -79,7 +79,7 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 				Action,
 				boost::optional<Expression *>,
 				boost::optional<vector<AbstractEffectAxiom *>>,
-				boost::optional<Reference<Fluent> *>,
+				boost::optional<AbstractAssignment *>,
 				boost::optional<BackendMapping *>
 			>,
 			_r1,
@@ -89,6 +89,8 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 		phoenix::bind(&Action::set_duration, _a, _6)
 		// Have to use two binds because the maximum number of arguments is limited :facepalm:
 	];
+
+	senses = senses_fluent(_r1) | senses_list_element(_r1) | senses_compound_field(_r1);
 
 	duration = (lit('[') > real_num > ',' > real_num > ']') [
 		_val = phoenix::construct<Clock::DurationRange>(_1, _2)

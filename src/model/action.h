@@ -95,12 +95,12 @@ class Action : public AbstractAction, public LanguageElement<Action> {
 public:
 	using AbstractAction::AbstractAction;
 
-	void set_senses(Reference<Fluent> *);
+	void set_senses(AbstractAssignment *);
 
 	void define(
 		boost::optional<Expression *> precondition,
 		boost::optional<vector<AbstractEffectAxiom *>> effects,
-		boost::optional<Reference<Fluent> *> senses,
+		boost::optional<AbstractAssignment *> senses,
 		boost::optional<BackendMapping *> mapping
 	);
 
@@ -110,14 +110,14 @@ public:
 	virtual Instruction *ref(const vector<Expression *> &params) override;
 	Reference<Action> *make_ref(const vector<Expression *> &params);
 
-	unique_ptr<Reference<Fluent>> &senses();
-	const unique_ptr<Reference<Fluent>> &senses() const;
+	unique_ptr<AbstractAssignment> &senses();
+	const unique_ptr<AbstractAssignment> &senses() const;
 
 	Clock::DurationRange duration() const;
 	void set_duration(boost::optional<Clock::DurationRange>);
 
 private:
-	unique_ptr<Reference<Fluent>> senses_;
+	unique_ptr<AbstractAssignment> senses_;
 	Clock::DurationRange duration_;
 };
 

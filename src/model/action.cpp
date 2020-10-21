@@ -143,13 +143,13 @@ Reference<Action> *Action::make_ref(const vector<Expression *> &args)
 Instruction *Action::ref(const vector<Expression *> &args)
 { return make_ref(args); }
 
-void Action::set_senses(Reference<Fluent> *f)
+void Action::set_senses(AbstractAssignment *f)
 { senses_.reset(f); }
 
-unique_ptr<Reference<Fluent>> &Action::senses()
+unique_ptr<AbstractAssignment> &Action::senses()
 { return senses_; }
 
-const unique_ptr<Reference<Fluent>> &Action::senses() const
+const unique_ptr<AbstractAssignment> &Action::senses() const
 { return senses_; }
 
 Clock::DurationRange Action::duration() const
@@ -166,7 +166,7 @@ void Action::set_duration(boost::optional<Clock::DurationRange> dr)
 void Action::define(
 	boost::optional<Expression *> precondition,
 	boost::optional<vector<AbstractEffectAxiom *>> effects,
-	boost::optional<Reference<Fluent> *> senses,
+	boost::optional<AbstractAssignment *> senses,
 	boost::optional<BackendMapping *> mapping
 ) {
 	if (precondition)

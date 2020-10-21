@@ -108,6 +108,7 @@ class Block;
 class Choose;
 template<class> class Conditional;
 class Concurrent;
+class AbstractAssignment;
 template<class> class Assignment;
 class Pick;
 class Call;

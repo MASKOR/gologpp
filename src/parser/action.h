@@ -24,6 +24,7 @@
 #include "reference.h"
 #include "formula.h"
 #include "mapping.h"
+#include "assignment.h"
 
 #include <model/scope.h>
 #include <execution/clock.h>
@@ -55,7 +56,10 @@ struct ActionDefinitionParser
 	EffectParser<Reference<Fluent>> fluent_effect;
 	EffectParser<FieldAccess> field_effect;
 	EffectParser<ListAccess> list_effect;
-	ReferenceParser<Fluent> senses;
+	rule<AbstractAssignment *(Scope &)> senses;
+	AssignmentParser<Reference<Fluent>> senses_fluent;
+	AssignmentParser<ListAccess> senses_list_element;
+	AssignmentParser<FieldAccess> senses_compound_field;
 	MappingParser mapping;
 	BooleanExpressionParser boolean_expression;
 };
