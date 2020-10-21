@@ -65,7 +65,9 @@ string Block::to_string(const string &pfx) const
 	}
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 Choose::Choose(Scope *own_scope, const vector<Instruction *> &alternatives)
 : ScopeOwner(own_scope)
@@ -98,6 +100,9 @@ string Choose::to_string(const string &pfx) const
 		+ pfx + "}" linesep;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class SignT>
 Conditional<SignT>::Conditional(
@@ -140,7 +145,9 @@ class Conditional<Instruction>;
 template
 class Conditional<Expression>;
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 Concurrent::Concurrent(Scope *own_scope, const vector<Instruction *> &procs)
 : ScopeOwner(own_scope)
@@ -171,7 +178,9 @@ string Concurrent::to_string(const string &pfx) const
 		+ pfx + "}";
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 Pick::Pick(
 	Scope *own_scope,
@@ -222,9 +231,9 @@ void Pick::attach_semantics(SemanticsFactory &f)
 	set_semantics(f.make_semantics(*this));
 }
 
-
-
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 Search::Search(Instruction *statement)
 : statement_(statement)
@@ -238,7 +247,9 @@ const Instruction &Search::statement() const
 string Search::to_string(const string &pfx) const
 { return linesep + pfx + "search " + statement().to_string(pfx); }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 Solve::Solve(
 	Expression *horizon,
@@ -282,7 +293,9 @@ string Solve::to_string(const string &pfx) const
 		+ statement().to_string(pfx + indent);
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 Test::Test(Expression *expression)
 : expression_(expression)
@@ -296,7 +309,9 @@ const Expression &Test::expression() const
 string Test::to_string(const string &pfx) const
 { return pfx + "test (" + expression().to_string("") + ");"; }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 While::While(Expression *expression, Instruction *statement)
 : expression_(expression)
@@ -315,7 +330,9 @@ const Instruction &While::statement() const
 string While::to_string(const string &pfx) const
 { return linesep + pfx + "while (" + expression().to_string("") + ") " + statement().to_string(pfx); }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 Function::Function(
 	Scope *own_scope,
@@ -342,8 +359,8 @@ Function::Function(
 string Function::to_string(const string &pfx) const
 {
 	return linesep + pfx + type().name() + " function " + name() + '('
-	+ concat_list(params(), ", ")
-	+ ") " + definition().to_string(pfx);
+		+ concat_list(params(), ", ")
+		+ ") " + definition().to_string(pfx);
 }
 
 void Function::define(Expression *definition)
@@ -506,9 +523,9 @@ Instruction *Procedure::ref(const vector<Expression *> &args)
 const Instruction &Procedure::definition() const
 { return *definition_; }
 
-
-
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 DurativeCall::DurativeCall(DurativeCall::Hook type, Reference<Action> *action)
 : hook_(type)
@@ -544,7 +561,9 @@ string to_string(DurativeCall::Hook h)
 	throw Bug(string("Unhandled ") + typeid(h).name());
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 FieldAccess::FieldAccess(Expression *subject, const string &field_name)
 : subject_(subject)
@@ -569,7 +588,9 @@ const Type &FieldAccess::type() const
 string FieldAccess::to_string(const string &pfx) const
 { return pfx + subject().str() + "." + field_name(); }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 ListAccess::ListAccess(Expression *subject, Expression *index)
 : subject_(subject)
@@ -596,7 +617,9 @@ const Type &ListAccess::type() const
 string ListAccess::to_string(const string &pfx) const
 { return subject_->to_string(pfx) + '[' + index_->str() + ']'; }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 ListLength::ListLength(Expression *subject)
 : subject_(subject)
@@ -621,7 +644,9 @@ string to_string(ListOpEnd which_end)
 	throw Bug(string("Unhandled ") + typeid(which_end).name());
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 ListPop::ListPop(Expression *list, ListOpEnd which_end)
 : list_(list)
@@ -637,7 +662,9 @@ ListOpEnd ListPop::which_end() const
 string ListPop::to_string(const string &pfx) const
 { return pfx + "pop_" + gologpp::to_string(which_end_) + '(' + list_->str() + ')'; }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 ListPush::ListPush(Expression *list, ListOpEnd which_end, Expression *what)
 : list_(list)
@@ -666,7 +693,9 @@ const Expression &ListPush::what() const
 string ListPush::to_string(const string &pfx) const
 { return pfx + "push_" + gologpp::to_string(which_end_) + '(' + list_->str() + ')'; }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 During::During(
 	Reference<Action> *action_call,
