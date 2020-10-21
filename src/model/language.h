@@ -105,10 +105,6 @@ public:
 
 	virtual ~LanguageElement() = default;
 
-	/*GeneralSemantics<GologT> &general_semantics() const {
-		return dynamic_cast<GeneralSemantics<GologT> &>(*semantics_);
-	}*/
-
 	Semantics<GologT> &special_semantics() const
 	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
 

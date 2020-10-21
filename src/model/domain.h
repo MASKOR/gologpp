@@ -69,7 +69,7 @@ public:
 	 * By default, every @ref Variable has an empty implicit domain, which means its domain is undefined.
 	 * For @ref Fluent arguments, the domain can be implicitly defined through the initially: statement.
 	 */
-	bool is_implicit();
+	bool is_implicit(); // TODO: Throw out this whole implicit domain bullshit
 	void add_subject(AbstractLanguageElement &subject);
 
 	std::unordered_set<AbstractLanguageElement *> &subjects();

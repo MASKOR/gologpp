@@ -47,10 +47,12 @@ public:
 	static ReadylogContext &instance();
 
 	virtual void precompile() override {}
-	virtual void compile(const AbstractAction &action) override;
-	virtual void compile(const Fluent &fluent) override;
-	virtual void compile(const Function &function) override;
-	virtual void compile(const Procedure &proc) override;
+	virtual void compile(const Action &) override;
+	virtual void compile(const ExogAction &) override;
+	virtual void compile(const Fluent &) override;
+	virtual void compile(const ExogFluent &) override;
+	virtual void compile(const Function &) override;
+	virtual void compile(const Procedure &) override;
 	virtual void postcompile() override;
 
 	bool ec_query(EC_word t);

@@ -42,7 +42,11 @@ using fusion_wtf_vector = boost::fusion::vector2<T1, T2>;
  * For an @ref ExogAction, the mapped golog++ expressions must be the action's arguments.
  * For an endogenous @ref Action, arbitrary golog++ expressions can be used.
  */
-class BackendMapping : public LanguageElement<BackendMapping>, public NoScopeOwner {
+class BackendMapping
+: public LanguageElement<BackendMapping>
+, public NoScopeOwner
+, public ChildElement
+{
 public:
 	using ArgMapping = std::unordered_map<
 		string,
@@ -53,6 +57,10 @@ public:
 		const string &backend_name,
 		boost::optional<vector<fusion_wtf_vector<string, Expression *>>> arg_mapping
 	);
+
+	/// Create a default (identity) mapping
+	BackendMapping(const Global &identity);
+
 	~BackendMapping() = default;
 
 	const string &backend_name() const;
@@ -74,15 +82,9 @@ public:
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
 
-	virtual Scope &parent_scope() override;
-	virtual const Scope &parent_scope() const override;
-
 	const ArgMapping &arg_mapping() const;
 
-	void set_action(AbstractAction *);
-
 private:
-	AbstractAction *action_;
 	string backend_name_;
 	ArgMapping arg_mapping_;
 };

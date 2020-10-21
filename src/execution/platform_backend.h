@@ -69,6 +69,13 @@ public:
 	/// @return Whether the current state of any component changed exogenously since the last call to this function
 	bool any_component_state_changed_exog() const;
 
+	/// @return The current value of the @ref ExogFluent with the given @ref backend_name, @ref return_type and @ref args
+	virtual Value eval_exog_fluent(
+		const Type &return_type,
+		const string &backend_name,
+		const std::unordered_map<string, Value> &args
+	) = 0;
+
 protected:
 
 	/// Set to true on terminate(), before implementation-defined terminate_() is called

@@ -35,20 +35,11 @@ AbstractAction::AbstractAction(
 )
 : Signified<Instruction>(name, params)
 , ScopeOwner(own_scope)
+, mapping_(new BackendMapping(*this))
 {
 	set_type(gologpp::type<VoidType>());
 	set_precondition(new Value(gologpp::type<BoolType>(), true));
 	set_silent(false);
-
-	vector<fusion_wtf_vector<string, Expression *>> default_mapping;
-	for (const shared_ptr<Variable> &param : params)
-		default_mapping.push_back(
-			fusion_wtf_vector<string, Expression *> {
-				param->name(),
-				new Reference<Variable>(param)
-			}
-		);
-	AbstractAction::set_mapping(new BackendMapping(name, default_mapping));
 }
 
 
@@ -61,9 +52,6 @@ void AbstractAction::add_effect(AbstractEffectAxiom *effect)
 	effect->set_action(*this);
 	effects_.emplace_back(effect);
 }
-
-void AbstractAction::compile(AExecutionController &ctx)
-{ ctx.compile(*this); }
 
 
 string AbstractAction::to_string(const string &pfx) const
@@ -101,7 +89,7 @@ BackendMapping& AbstractAction::mapping()
 void AbstractAction::set_mapping(BackendMapping *mapping)
 {
 	mapping_.reset(mapping);
-	mapping_->set_action(this);
+	mapping_->set_parent(this);
 }
 
 
@@ -129,7 +117,12 @@ void AbstractAction::set_silent_v(boost::optional<Value *> silent)
 bool AbstractAction::silent() const
 { return silent_; }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
+void Action::compile(AExecutionController &ctx)
+{ ctx.compile(*this); }
 
 void Action::attach_semantics(SemanticsFactory &f)
 {
@@ -187,7 +180,12 @@ void Action::define(
 		set_mapping(mapping.value());
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
+void ExogAction::compile(AExecutionController &ctx)
+{ ctx.compile(*this); }
 
 void ExogAction::attach_semantics(SemanticsFactory &f)
 {

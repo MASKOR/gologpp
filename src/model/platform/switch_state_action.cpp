@@ -46,6 +46,9 @@ SwitchStateAction::SwitchStateAction(Scope *own_scope)
 , param_to_state_(own_scope->lookup_var("to_state"))
 {}
 
+void SwitchStateAction::compile(AExecutionController &)
+{}
+
 void SwitchStateAction::attach_semantics(gologpp::SemanticsFactory &f)
 { AbstractAction::attach_semantics(f); }
 

@@ -125,6 +125,7 @@ class During;
 
 class Function;
 class Procedure;
+class ExogFunction;
 
 class AbstractReference;
 template<class> class Reference;
@@ -215,6 +216,7 @@ class SemanticsFactory;
 	(Reference<Fluent>) \
 	(Reference<Variable>) \
 	(Reference<Function>) \
+	(Reference<ExogFunction>) \
 	(FieldAccess) \
 	(ListAccess) \
 	(ListLength) \
@@ -237,6 +239,7 @@ class SemanticsFactory;
 	(Binding) \
 	(Domain) \
 	(Function) \
+	(ExogFunction) \
 	(Procedure) \
 	(Action) \
 	(Activity) \

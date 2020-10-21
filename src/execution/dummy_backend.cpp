@@ -138,6 +138,13 @@ Clock::time_point DummyBackend::time() const noexcept
 	);
 }
 
+Value DummyBackend::eval_exog_fluent(
+	const Type &return_type,
+	const string &,
+	const std::unordered_map<string, Value> &
+)
+{ return *rnd_value(return_type).release(); }
+
 
 void DummyBackend::terminate_()
 {

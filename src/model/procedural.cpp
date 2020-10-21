@@ -356,16 +356,106 @@ void Function::define(Expression *definition)
 void Function::compile(AExecutionController &ctx)
 { ctx.compile(*this); }
 
-Reference<Function> *Function::make_ref(const vector<Expression *> &args)
-{ return make_ref_<Function>(args); }
-
 Expression *Function::ref(const vector<Expression *> &args)
 { return make_ref(args); }
+
+Reference<Function> *Function::make_ref(const vector<Expression *> &args)
+{ return make_ref_<Function>(args); }
 
 const Expression &Function::definition() const
 { return *definition_; }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
+ExogFunction::ExogFunction(
+	Scope *own_scope,
+	const Type &t,
+	const string &name,
+	const vector<shared_ptr<Variable>> &args
+)
+: ScopeOwner(own_scope)
+, Signified<Expression>(name, args)
+, mapping_(new BackendMapping(*this))
+{ set_type(t); }
+
+
+ExogFunction::ExogFunction(
+	Scope *own_scope,
+	const Type &t,
+	const string &name,
+	const boost::optional<vector<shared_ptr<Variable>>> &args
+)
+: ScopeOwner(own_scope)
+, Signified<Expression>(name, args.get_value_or({}))
+, mapping_(new BackendMapping(*this))
+{ set_type(t); }
+
+
+string ExogFunction::to_string(const string &pfx) const
+{
+	return linesep + pfx + type().name() + " function " + name() + '('
+		+ concat_list(params(), ", ")
+		+ ") " + mapping().to_string(pfx);
+}
+
+void ExogFunction::define(boost::optional<BackendMapping *> mapping)
+{
+	if (mapping) {
+		mapping_.reset(mapping.get());
+		mapping_->set_parent(this);
+	}
+}
+
+
+void ExogFunction::compile(AExecutionController &ctx)
+{ ctx.compile(*this); }
+
+Expression *ExogFunction::ref(const vector<Expression *> &args)
+{ return make_ref(args); }
+
+Reference<ExogFunction> *ExogFunction::make_ref(const vector<Expression *> &args)
+{ return make_ref_<ExogFunction>(args); }
+
+
+
+GeneralSemantics<Reference<ExogFunction>>::GeneralSemantics(const Reference<ExogFunction> &elem, AExecutionController &context)
+: element_(&elem)
+, context_(context)
+{}
+
+const Reference<ExogFunction> &GeneralSemantics<Reference<ExogFunction>>::element() const
+{ return *element_; }
+
+AExecutionController &GeneralSemantics<Reference<ExogFunction>>::context() const
+{ return context_; }
+
+void GeneralSemantics<Reference<ExogFunction>>::update_element(const Reference<ExogFunction> *new_element)
+{ element_ = new_element; }
+
+const ModelElement &GeneralSemantics<Reference<ExogFunction>>::model_element() const
+{ return *element_; }
+
+Value GeneralSemantics<Reference<ExogFunction> >::evaluate(const Binding &b, const History &h)
+{
+	std::unordered_map<string, Value> backend_args;
+	for (auto &pair : element().target()->mapping().arg_mapping())
+		backend_args.insert( {
+			pair.first,
+			pair.second->general_semantics().evaluate(b, h)
+		} );
+
+	return context().backend().eval_exog_fluent(
+		element().type(),
+		element().target()->mapping().backend_name(),
+		backend_args
+	);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 Procedure::Procedure(
 	Scope *own_scope,

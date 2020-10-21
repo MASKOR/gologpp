@@ -29,6 +29,7 @@ class SwitchStateAction
 public:
 	SwitchStateAction(Scope *own_scope);
 
+	virtual void compile(AExecutionController &) override;
 	virtual void attach_semantics(gologpp::SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
 	virtual Instruction *ref(const vector<Expression *> &args) override;

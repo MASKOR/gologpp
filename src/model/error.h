@@ -69,6 +69,9 @@ public:
 	UserError(const string &msg);
 };
 
+class NameNotMapped : public std::runtime_error {
+	using std::runtime_error::runtime_error;
+};
 
 class SyntaxError : public UserError {
 public:

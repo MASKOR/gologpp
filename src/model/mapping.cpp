@@ -39,6 +39,12 @@ BackendMapping::BackendMapping(
 		);
 }
 
+BackendMapping::BackendMapping(const Global &identity)
+{
+	for (const shared_ptr<Variable> &param : identity.params())
+		arg_mapping_.emplace(param->name(), param->ref());
+}
+
 
 const string &BackendMapping::backend_name() const
 { return backend_name_; }
@@ -48,7 +54,7 @@ const Expression &BackendMapping::mapped_expr(const string &name) const
 {
 	auto it = arg_mapping_.find(name);
 	if (it == arg_mapping_.end())
-		throw UserError("Missing mapping entry for backend argument name '" + name + "`");
+		throw NameNotMapped("Missing mapping entry for backend argument name '" + name + "`");
 
 	return *it->second;
 }
@@ -72,15 +78,6 @@ void BackendMapping::attach_semantics(SemanticsFactory &f)
 		pair.second->attach_semantics(f);
 }
 
-Scope &BackendMapping::parent_scope()
-{ return action_->scope(); }
-
-const Scope &BackendMapping::parent_scope() const
-{ return action_->scope(); }
-
-void BackendMapping::set_action(AbstractAction *action)
-{ action_ = action; }
-
 const BackendMapping::ArgMapping &BackendMapping::arg_mapping() const
 { return arg_mapping_; }
 
@@ -96,6 +93,7 @@ string BackendMapping::to_string(const string &pfx) const
 
 	return rv + linesep + pfx + "}" linesep;
 }
+
 
 
 }

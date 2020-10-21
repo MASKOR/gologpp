@@ -128,28 +128,25 @@ ReadylogContext &ReadylogContext::instance()
 { return *instance_; }
 
 
-void ReadylogContext::compile(const AbstractAction &aa)
+void ReadylogContext::compile(const Action &action)
 {
-	if (aa.is_a<Action>()) {
-		const Action &action = dynamic_cast<const Action &>(aa);
-		Semantics<Action> &action_impl = action.special_semantics();
-		compile_term(action_impl.durative_action());
-		compile_term(action_impl.durative_poss());
-		for (EC_word causes_val : action_impl.durative_causes_vals())
-			compile_term(causes_val);
-		if (action.senses())
-			compile_term(action_impl.senses());
-			// senses/2 declaration not really needed since golog++ appends
-			// the sensing result to the history, anyways
-	} else if (aa.is_a<ExogAction>()) {
-		const ExogAction &action = dynamic_cast<const ExogAction &>(aa);
-		Semantics<ExogAction> &action_impl = action.special_semantics();
-		compile_term(action_impl.exog_action());
-		compile_term(action_impl.poss());
-		for (EC_word &causes_val : action_impl.causes_vals())
-			compile_term(causes_val);
-	}
-	// Silently ignore other action types
+	Semantics<Action> &action_impl = action.special_semantics();
+	compile_term(action_impl.durative_action());
+	compile_term(action_impl.durative_poss());
+	for (EC_word causes_val : action_impl.durative_causes_vals())
+		compile_term(causes_val);
+	if (action.senses())
+		compile_term(action_impl.senses());
+		// senses/2 declaration not really needed since golog++ appends
+		// the sensing result to the history, anyways
+}
+
+void ReadylogContext::compile(const ExogAction &action) {
+	Semantics<ExogAction> &action_impl = action.special_semantics();
+	compile_term(action_impl.exog_action());
+	compile_term(action_impl.poss());
+	for (EC_word &causes_val : action_impl.causes_vals())
+		compile_term(causes_val);
 }
 
 

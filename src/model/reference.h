@@ -198,7 +198,6 @@ public:
 	virtual const Expression &arg_for_param(shared_ptr<const Variable> param) const override
 	{ return binding_.get(param); }
 
-
 	virtual bool consistent() const override
 	{
 		if (!bound() || args().size() != target()->params().size())
@@ -312,6 +311,20 @@ public:
 				arg->attach_semantics(f);
 		}
 	}
+
+	unique_ptr<Reference<TargetT>> ground_args(const Binding &b, const History &h) const
+	{
+		Binding gb;
+		for (auto &pair : this->binding().map())
+			gb.bind(
+				pair.first,
+				unique_ptr<Expression>(new Value(
+					std::move(pair.second->general_semantics().evaluate(b, h))
+				))
+			);
+		return unique_ptr<Reference<TargetT>>(new Reference<TargetT>(this->target(), std::move(gb)));
+	}
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

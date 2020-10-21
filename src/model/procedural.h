@@ -36,6 +36,7 @@
 #include "action.h"
 #include "reference.h"
 #include "fluent.h"
+#include "mapping.h"
 
 namespace gologpp {
 
@@ -367,8 +368,9 @@ public:
 		const boost::optional<vector<shared_ptr<Variable>>> &params
 	);
 
-	Reference<Function> *make_ref(const vector<Expression *> &params);
+
 	virtual Expression *ref(const vector<Expression *> &params) override;
+	Reference<Function> *make_ref(const vector<Expression *> &params);
 	virtual const Expression &definition() const;
 	void define(Expression *definition);
 	virtual void compile(AExecutionController &ctx) override;
@@ -381,7 +383,72 @@ private:
 	unique_ptr<Expression> definition_;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
+class ExogFunction
+: public ScopeOwner
+, public Signified<Expression>
+, public LanguageElement<ExogFunction>
+{
+public:
+	ExogFunction(
+		Scope *own_scope,
+		const Type &t,
+		const string &name,
+		const vector<shared_ptr<Variable>> &params
+	);
+
+	ExogFunction(
+		Scope *own_scope,
+		const Type &t,
+		const string &name,
+		const boost::optional<vector<shared_ptr<Variable>>> &params
+	);
+
+	virtual Expression *ref(const vector<Expression *> &params) override;
+	Reference<ExogFunction> *make_ref(const vector<Expression *> &params);
+	void define(boost::optional<BackendMapping *> mapping);
+	virtual void compile(AExecutionController &ctx) override;
+
+	virtual string to_string(const string &pfx) const override;
+
+	const BackendMapping &mapping() const;
+	BackendMapping &mapping();
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(scope(), *mapping_)
+
+private:
+	unique_ptr<BackendMapping> mapping_;
+};
+
+
+
+template<>
+class GeneralSemantics<Reference<ExogFunction>>
+: public GeneralSemantics<Expression>
+{
+public:
+	GeneralSemantics(const Reference<ExogFunction> &elem, AExecutionController &context);
+
+	virtual ~GeneralSemantics<Reference<ExogFunction>>() = default;
+
+	virtual Value evaluate(const Binding &, const History &) override;
+
+	const Reference<ExogFunction> &element() const;
+	virtual AExecutionController &context() const override;
+	void update_element(const Reference<ExogFunction> *new_element);
+	virtual const ModelElement &model_element() const override;
+
+private:
+	const Reference<ExogFunction> *element_;
+	AExecutionController &context_;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class DurativeCall
 : public Instruction
@@ -551,6 +618,8 @@ private:
 	unique_ptr<Instruction> on_fail_;
 	unique_ptr<Instruction> on_cancel_;
 };
+
+
 
 } // namespace gologpp
 

@@ -36,6 +36,9 @@ namespace gologpp {
 
 class AbstractEffectAxiom;
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class AbstractAction
 : public Signified<Instruction>
@@ -65,7 +68,6 @@ public:
 	vector<unique_ptr<AbstractEffectAxiom>> &effects();
 	void add_effect(AbstractEffectAxiom *effect);
 
-	virtual void compile(AExecutionController &ctx) override;
 	virtual string to_string(const string &pfx) const override;
 
 	const BackendMapping &mapping() const;
@@ -85,7 +87,9 @@ private:
 	bool silent_;
 };
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Action : public AbstractAction, public LanguageElement<Action> {
 public:
@@ -100,6 +104,7 @@ public:
 		boost::optional<BackendMapping *> mapping
 	);
 
+	virtual void compile(AExecutionController &ctx) override;
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
 	virtual Instruction *ref(const vector<Expression *> &params) override;
@@ -116,7 +121,9 @@ private:
 	Clock::DurationRange duration_;
 };
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class ExogAction : public AbstractAction, public LanguageElement<ExogAction> {
 public:
@@ -128,6 +135,7 @@ public:
 		boost::optional<BackendMapping *> mapping
 	);
 
+	virtual void compile(AExecutionController &ctx) override;
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
 	virtual Instruction *ref(const vector<Expression *> &params) override;
