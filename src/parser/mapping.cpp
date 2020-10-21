@@ -48,7 +48,7 @@ MappingParser::MappingParser()
 			> value_expression()(_r1)
 		) % ',')
 	> '}') [
-		_val = new_<ActionMapping>(_1, _2)
+		_val = new_<BackendMapping>(_1, _2)
 	];
 }
 

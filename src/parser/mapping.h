@@ -27,10 +27,10 @@ namespace gologpp {
 namespace parser {
 
 
-struct MappingParser : public grammar<ActionMapping *(Scope &)> {
+struct MappingParser : public grammar<BackendMapping *(Scope &)> {
 	MappingParser();
 
-	rule<ActionMapping *(Scope &)> mapping;
+	rule<BackendMapping *(Scope &)> mapping;
 };
 
 

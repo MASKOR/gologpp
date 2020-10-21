@@ -58,7 +58,9 @@ template<class, class> class LanguageElement;
 class AbstractAction;
 class Action;
 class ExogAction;
-class ActionMapping;
+
+class BackendMapping;
+
 class Activity;
 class Transition;
 

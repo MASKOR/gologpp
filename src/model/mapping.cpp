@@ -26,7 +26,7 @@
 
 namespace gologpp {
 
-ActionMapping::ActionMapping(
+BackendMapping::BackendMapping(
 	const string &backend_name,
 	boost::optional<vector<fusion_wtf_vector<string, Expression *>>> arg_mapping
 )
@@ -40,11 +40,11 @@ ActionMapping::ActionMapping(
 }
 
 
-const string &ActionMapping::backend_name() const
+const string &BackendMapping::backend_name() const
 { return backend_name_; }
 
 
-const Expression &ActionMapping::mapped_expr(const string &name) const
+const Expression &BackendMapping::mapped_expr(const string &name) const
 {
 	auto it = arg_mapping_.find(name);
 	if (it == arg_mapping_.end())
@@ -53,7 +53,7 @@ const Expression &ActionMapping::mapped_expr(const string &name) const
 	return *it->second;
 }
 
-shared_ptr<const Variable> ActionMapping::mapped_var(const string &name) const
+shared_ptr<const Variable> BackendMapping::mapped_var(const string &name) const
 {
 	try {
 		return mapped_expr(name).cast<Reference<Variable>>().target();
@@ -62,30 +62,30 @@ shared_ptr<const Variable> ActionMapping::mapped_var(const string &name) const
 	}
 }
 
-bool ActionMapping::is_mapped(const string &arg_name) const
+bool BackendMapping::is_mapped(const string &arg_name) const
 { return arg_mapping_.find(arg_name) != arg_mapping_.end(); }
 
 
-void ActionMapping::attach_semantics(SemanticsFactory &f)
+void BackendMapping::attach_semantics(SemanticsFactory &f)
 {
 	for (auto &pair : arg_mapping_)
 		pair.second->attach_semantics(f);
 }
 
-Scope &ActionMapping::parent_scope()
+Scope &BackendMapping::parent_scope()
 { return action_->scope(); }
 
-const Scope &ActionMapping::parent_scope() const
+const Scope &BackendMapping::parent_scope() const
 { return action_->scope(); }
 
-void ActionMapping::set_action(AbstractAction *action)
+void BackendMapping::set_action(AbstractAction *action)
 { action_ = action; }
 
-const ActionMapping::ArgMapping &ActionMapping::arg_mapping() const
+const BackendMapping::ArgMapping &BackendMapping::arg_mapping() const
 { return arg_mapping_; }
 
 
-string ActionMapping::to_string(const string &pfx) const
+string BackendMapping::to_string(const string &pfx) const
 {
 	string rv = linesep + pfx + '"' + backend_name_ + "\" {" linesep;
 	for (auto &pair : arg_mapping_)

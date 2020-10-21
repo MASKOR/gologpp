@@ -58,7 +58,7 @@ Instruction *SwitchStateAction::ref(const vector<Expression *> &args)
 gologpp::Reference<SwitchStateAction> *SwitchStateAction::make_ref(const vector<Expression *> &args)
 { return make_ref_<SwitchStateAction>(args); }
 
-void SwitchStateAction::set_mapping(ActionMapping *)
+void SwitchStateAction::set_mapping(BackendMapping *)
 {}
 
 shared_ptr<const Variable> SwitchStateAction::param_component() const

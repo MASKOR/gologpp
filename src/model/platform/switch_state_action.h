@@ -33,7 +33,7 @@ public:
 	virtual string to_string(const string &pfx) const override;
 	virtual Instruction *ref(const vector<Expression *> &args) override;
 	gologpp::Reference<SwitchStateAction> *make_ref(const vector<Expression *> &args);
-	virtual void set_mapping (ActionMapping *) override;
+	virtual void set_mapping (BackendMapping *) override;
 
 	shared_ptr<const Variable> param_component() const;
 	shared_ptr<const Variable> param_from_state() const;

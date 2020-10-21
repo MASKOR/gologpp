@@ -80,7 +80,7 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 				boost::optional<Expression *>,
 				boost::optional<vector<AbstractEffectAxiom *>>,
 				boost::optional<Reference<Fluent> *>,
-				boost::optional<ActionMapping *>
+				boost::optional<BackendMapping *>
 			>,
 			_r1,
 			_r2, undefined_type(), _r3, _r4, _1, _2, _3, _4
@@ -119,7 +119,7 @@ ActionDefinitionParser<ExogAction>::ActionDefinitionParser()
 				ExogAction,
 				boost::optional<Expression *>,
 				boost::optional<vector<AbstractEffectAxiom *>>,
-				boost::optional<ActionMapping *>
+				boost::optional<BackendMapping *>
 			>,
 			_r1,
 			_r2, undefined_type(), _r3, _r4, _1, _2, _3

@@ -68,9 +68,9 @@ public:
 	virtual void compile(AExecutionController &ctx) override;
 	virtual string to_string(const string &pfx) const override;
 
-	const ActionMapping &mapping() const;
-	ActionMapping &mapping();
-	virtual void set_mapping (ActionMapping *);
+	const BackendMapping &mapping() const;
+	BackendMapping &mapping();
+	virtual void set_mapping (BackendMapping *);
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 
@@ -81,7 +81,7 @@ public:
 private:
 	vector<unique_ptr<AbstractEffectAxiom>> effects_;
 	SafeExprOwner<BoolType> precondition_;
-	unique_ptr<ActionMapping> mapping_;
+	unique_ptr<BackendMapping> mapping_;
 	bool silent_;
 };
 
@@ -97,7 +97,7 @@ public:
 		boost::optional<Expression *> precondition,
 		boost::optional<vector<AbstractEffectAxiom *>> effects,
 		boost::optional<Reference<Fluent> *> senses,
-		boost::optional<ActionMapping *> mapping
+		boost::optional<BackendMapping *> mapping
 	);
 
 	virtual void attach_semantics(SemanticsFactory &) override;
@@ -125,14 +125,14 @@ public:
 	void define(
 		boost::optional<Expression *> precondition,
 		boost::optional<vector<AbstractEffectAxiom *>> effects,
-		boost::optional<ActionMapping *> mapping
+		boost::optional<BackendMapping *> mapping
 	);
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 	virtual string to_string(const string &pfx) const override;
 	virtual Instruction *ref(const vector<Expression *> &params) override;
 	Reference<ExogAction> *make_ref(const vector<Expression *> &params);
-	virtual void set_mapping (ActionMapping *) override;
+	virtual void set_mapping (BackendMapping *) override;
 };
 
 

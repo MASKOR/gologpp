@@ -38,22 +38,22 @@ using fusion_wtf_vector = boost::fusion::vector2<T1, T2>;
 #endif
 
 
-/** @class ActionMapping Maps golog++ expressions (typically action arguments) to the parameter names in a backend action.
+/** @class BackendMapping Maps golog++ expressions (typically action arguments) to the parameter names in a backend action.
  * For an @ref ExogAction, the mapped golog++ expressions must be the action's arguments.
  * For an endogenous @ref Action, arbitrary golog++ expressions can be used.
  */
-class ActionMapping : public LanguageElement<ActionMapping>, public NoScopeOwner {
+class BackendMapping : public LanguageElement<BackendMapping>, public NoScopeOwner {
 public:
 	using ArgMapping = std::unordered_map<
 		string,
 		unique_ptr<Expression>
 	>;
 
-	ActionMapping(
+	BackendMapping(
 		const string &backend_name,
 		boost::optional<vector<fusion_wtf_vector<string, Expression *>>> arg_mapping
 	);
-	~ActionMapping() = default;
+	~BackendMapping() = default;
 
 	const string &backend_name() const;
 

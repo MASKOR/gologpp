@@ -48,7 +48,7 @@ AbstractAction::AbstractAction(
 				new Reference<Variable>(param)
 			}
 		);
-	AbstractAction::set_mapping(new ActionMapping(name, default_mapping));
+	AbstractAction::set_mapping(new BackendMapping(name, default_mapping));
 }
 
 
@@ -92,13 +92,13 @@ void AbstractAction::set_precondition(Expression *cond)
 	precondition_->set_parent(this);
 }
 
-const ActionMapping& AbstractAction::mapping() const
+const BackendMapping& AbstractAction::mapping() const
 { return *mapping_; }
 
-ActionMapping& AbstractAction::mapping()
+BackendMapping& AbstractAction::mapping()
 { return *mapping_; }
 
-void AbstractAction::set_mapping(ActionMapping *mapping)
+void AbstractAction::set_mapping(BackendMapping *mapping)
 {
 	mapping_.reset(mapping);
 	mapping_->set_action(this);
@@ -174,7 +174,7 @@ void Action::define(
 	boost::optional<Expression *> precondition,
 	boost::optional<vector<AbstractEffectAxiom *>> effects,
 	boost::optional<Reference<Fluent> *> senses,
-	boost::optional<ActionMapping *> mapping
+	boost::optional<BackendMapping *> mapping
 ) {
 	if (precondition)
 		set_precondition(precondition.value());
@@ -210,7 +210,7 @@ Instruction *ExogAction::ref(const vector<Expression *> &args)
 void ExogAction::define(
 	boost::optional<Expression *> precondition,
 	boost::optional<vector<AbstractEffectAxiom *>> effects,
-	boost::optional<ActionMapping *> mapping
+	boost::optional<BackendMapping *> mapping
 ) {
 	if (precondition)
 		set_precondition(precondition.value());
@@ -221,10 +221,10 @@ void ExogAction::define(
 		set_mapping(mapping.value());
 }
 
-void ExogAction::set_mapping(ActionMapping *m) {
+void ExogAction::set_mapping(BackendMapping *m) {
 	string missing;
 
-	const ActionMapping::ArgMapping &arg_mapping = m->arg_mapping();
+	const BackendMapping::ArgMapping &arg_mapping = m->arg_mapping();
 
 	for (const shared_ptr<Variable> &param : params()) {
 		auto it = arg_mapping.begin();
