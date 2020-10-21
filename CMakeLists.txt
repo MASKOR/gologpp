@@ -36,7 +36,7 @@ option(USE_LIBASAN "Enable the AddressSanitizer to detect memory management bugs
 option(BUILD_PARSER "Build the parser library" ON)
 CMAKE_DEPENDENT_OPTION(DEBUG_PARSER "Enable debug output for the parser" OFF "BUILD_PARSER" OFF)
 if (${ECLIPSE_FOUND})
-	option(BUILD_READYLOG_IMPL "Build the readylog semantics (ECLiPSe Prolog)" ON)
+	option(BUILD_READYLOG_SEMANTICS "Build the readylog semantics (ECLiPSe Prolog)" ON)
 endif()
 
 
@@ -292,7 +292,7 @@ endif()
 # The golog++ readylog semantics: libreadylog++.so
 ######################################################################################
 
-if (${BUILD_READYLOG_IMPL})
+if (${BUILD_READYLOG_SEMANTICS})
 	set(READYLOG_SRC
 		src/semantics/readylog/action.cpp
 		src/semantics/readylog/variable.cpp
@@ -447,7 +447,7 @@ set(GPP_TESTS
 	blocksworld_platform.gpp
 )
 
-if (BUILD_PARSER AND BUILD_READYLOG_IMPL)
+if (BUILD_PARSER AND BUILD_READYLOG_SEMANTICS)
 	include(CTest)
 
 	add_executable(gologpp-test src/tests/gologpp-test.cpp)
