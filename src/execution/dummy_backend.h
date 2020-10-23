@@ -66,11 +66,12 @@ private:
 	class ActivityThread {
 	public:
 		ActivityThread(DummyBackend &backend, shared_ptr<Activity> a, double duration);
+		~ActivityThread() = default;
 		void start();
 		void cancel();
 
 	private:
-		std::thread activity_thread_;
+		std::thread thread_;
 		std::condition_variable cancel_cond_;
 		std::atomic_bool cancel_;
 		std::mutex cancel_mutex_;

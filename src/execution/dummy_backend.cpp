@@ -164,19 +164,14 @@ DummyBackend::ActivityThread::ActivityThread(DummyBackend &backend, shared_ptr<A
 
 void DummyBackend::ActivityThread::start()
 {
-	activity_thread_ = std::thread(
+	thread_ = std::thread(
 		[&] () {
-			std::unique_lock<std::mutex> cancel_lock(cancel_mutex_);
-			bool canceled = cancel_cond_.wait_for(cancel_lock, duration_, [&] { return bool(cancel_); });
+			{
+				std::unique_lock<std::mutex> cancel_lock(cancel_mutex_);
+				bool canceled = cancel_cond_.wait_for(cancel_lock, duration_, [&] { return bool(cancel_); });
 
-			if (canceled) {
-				activity_->update(Transition::Hook::CANCEL);
-			}
-			else {
-				if (activity_->target()->senses()) {
-					unique_ptr<Value> sensing_result = backend_.rnd_value(activity_->target()->senses()->type());
-					activity_->update(Transition::Hook::FINISH, *sensing_result);
-				}
+				if (canceled)
+					activity_->update(Transition::Hook::CANCEL);
 				else
 					activity_->update(Transition::Hook::FINISH);
 			}
@@ -185,7 +180,7 @@ void DummyBackend::ActivityThread::start()
 			backend_.activity_threads_.erase(activity_);
 		}
 	);
-	activity_thread_.detach();
+	thread_.detach();
 }
 
 
@@ -193,7 +188,7 @@ void DummyBackend::ActivityThread::cancel()
 {
 	cancel_ = true;
 	cancel_cond_.notify_all();
-	activity_thread_.join();
+	thread_.join();
 }
 
 
