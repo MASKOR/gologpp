@@ -61,6 +61,7 @@ void initialize_list_exprs()
 		list_value() [ _val = _1 ]
 			| typed_reference<Fluent>()(_r1, _r2) [ _val = _1 ]
 			| typed_reference<Function>()(_r1, _r2) [ _val = _1 ]
+			| typed_reference<ExogFunction>()(_r1, _r2) [ _val = _1 ]
 			| var_usage()(_r1, _r2) [
 				_val = new_<Reference<Variable>>(_1)
 			]

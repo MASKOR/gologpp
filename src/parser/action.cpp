@@ -68,7 +68,7 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 	definition = ( lit('{') > (
 		( "precondition:" > boolean_expression(*_r2) )
 		^ ( "effect:" > +(effect(*_r2) > ';') )
-		^ ( "senses:" > senses(*_r2) )
+		^ ( "senses:" > senses(*_r2) > ';' )
 		^ ( "mapping:" > mapping(*_r2) )
 		^ ( "silent:" > boolean_value() )
 		^ ( "duration:" > duration )

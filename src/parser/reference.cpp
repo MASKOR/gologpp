@@ -107,6 +107,7 @@ ReferenceParser<GologT>::ReferenceParser()
 template struct ReferenceParser<Action>;
 template struct ReferenceParser<ExogAction>;
 template struct ReferenceParser<Function>;
+template struct ReferenceParser<ExogFunction>;
 template struct ReferenceParser<Procedure>;
 template struct ReferenceParser<Fluent>;
 

@@ -88,6 +88,44 @@ FunctionParser::FunctionParser()
 }
 
 
+ExogFunctionParser::ExogFunctionParser()
+: ExogFunctionParser::base_type(function, "exog_function_definition")
+{
+	function =
+		(
+			(type_identifier<Type>()(_r1) >> "exog_function")
+			> r_name() > '('
+		) [
+			_a = new_<Scope>(_r1),
+			_b = _2,
+			_d = _1
+		]
+		> ( -(var_decl()(*_a) % ',') > ')' ) [
+			_c = _1
+		]
+		> (
+			lit(';') [
+				_val = phoenix::bind(
+					&Scope::declare_global<ExogFunction>,
+					_r1, _a, *_d, _b, _c
+				),
+				_pass = !!_val
+			]
+			| (lit('{') > -("mapping:" > mapping(*_a)) > '}') [
+				_val = phoenix::bind(
+					&Scope::define_global<ExogFunction, boost::optional<BackendMapping *>>,
+					_r1, _a, *_d, _b, _c, _1
+				),
+				_pass = !!_val
+			]
+		)
+	;
+	function.name("exog_function_definition");
+	on_error<rethrow>(function, delete_(_a));
+	GOLOGPP_DEBUG_NODE(exog_function)
+}
+
+
 
 ProcedureParser::ProcedureParser()
 : ProcedureParser::base_type(procedure, "procedure_definition")

@@ -20,6 +20,7 @@
 
 #include "utilities.h"
 #include "statements.h"
+#include "mapping.h"
 
 namespace gologpp {
 namespace parser {
@@ -38,7 +39,7 @@ struct FunctionParser
 > {
 	FunctionParser();
 
-	rule<
+	rule <
 		Function *(Scope &),
 		locals <
 			Scope *,
@@ -48,6 +49,34 @@ struct FunctionParser
 		>
 	> function;
 };
+
+
+
+struct ExogFunctionParser
+: grammar <
+	ExogFunction *(Scope &),
+	locals <
+		Scope *,
+		string,
+		boost::optional<vector<shared_ptr<Variable>>>,
+		shared_ptr<const Type>
+	>
+> {
+	ExogFunctionParser();
+
+	rule <
+		ExogFunction *(Scope &),
+		locals <
+			Scope *,
+			string,
+			boost::optional<vector<shared_ptr<Variable>>>,
+			shared_ptr<const Type>
+		>
+	> function;
+
+	MappingParser mapping;
+};
+
 
 
 
@@ -63,7 +92,7 @@ struct ProcedureParser
 > {
 	ProcedureParser();
 
-	rule<
+	rule <
 		Procedure *(Scope &),
 		locals <
 			Scope *,

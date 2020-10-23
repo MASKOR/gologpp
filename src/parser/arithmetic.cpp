@@ -57,6 +57,7 @@ NumericExpressionParser::NumericExpressionParser()
 		| conditional_expression(_r1, number_type())
 		| typed_reference<Fluent>()(_r1, number_type())
 		| typed_reference<Function>()(_r1, number_type())
+		| typed_reference<ExogFunction>()(_r1, number_type())
 		| mixed_member_access()(_r1, number_type())
 	;
 	unary_expr.name("unary_numeric_expression");

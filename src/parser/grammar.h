@@ -37,12 +37,13 @@ struct BatParser : grammar<void(Scope &)> {
 			| action(_r1)
 			| exog_action(_r1)
 			| function(_r1)
+			| exog_function(_r1)
 			| procedure(_r1)
 			| domain_decl()(_r1)
 			| type_definition(_r1)
 			| component(_r1)
 			| constraint_section(_r1)
-		)];
+		) > eoi];
 
 		// The rules that parse all the different expression types have to be defined
 		// after all of the other high-level grammars have been initialized to break
@@ -61,6 +62,7 @@ struct BatParser : grammar<void(Scope &)> {
 	ActionParser<Action> action;
 	ActionParser<ExogAction> exog_action;
 	FunctionParser function;
+	ExogFunctionParser exog_function;
 	ProcedureParser procedure;
 	TypeDefinitionParser type_definition;
 	FluentParser fluent;
