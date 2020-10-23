@@ -144,7 +144,10 @@ Instruction *Action::ref(const vector<Expression *> &args)
 { return make_ref(args); }
 
 void Action::set_senses(AbstractAssignment *f)
-{ senses_.reset(f); }
+{
+	senses_.reset(f);
+	senses_->set_parent(this);
+}
 
 unique_ptr<AbstractAssignment> &Action::senses()
 { return senses_; }
