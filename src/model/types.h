@@ -55,11 +55,14 @@ public:
 	bool is() const;
 
 	string name() const;
+	string mangled_name() const;
+	static string demangle_name(const string &s);
 	explicit operator string () const;
 
 protected:
 	Type(const string &name);
 	Name name_;
+	static const string mangle_pfx_;
 };
 
 

@@ -19,8 +19,12 @@
 #include "scope.h"
 #include "domain.h"
 #include "list_expression.h"
+#include "logger.h"
 
 namespace gologpp {
+
+
+const string Type::mangle_pfx_("gpptype~");
 
 
 Type::Type(const string &name)
@@ -58,6 +62,20 @@ bool Type::is_simple() const
 
 string Type::name() const
 { return name_; }
+
+string Type::mangled_name() const
+{ return mangle_pfx_ + name(); }
+
+
+string Type::demangle_name(const string &s)
+{
+	if (s.substr(0, mangle_pfx_.length()) != mangle_pfx_) {
+		log(LogLevel::ERR) << __func__ << ": name is not mangled: " + s << flush;
+		return s;
+	}
+	else
+		return s.substr(mangle_pfx_.length());
+}
 
 Type::operator string () const
 { return name_; }
