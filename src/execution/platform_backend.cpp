@@ -26,6 +26,7 @@ namespace gologpp {
 
 PlatformBackend::PlatformBackend()
 : terminated(false)
+, exec_ctx_(nullptr)
 {
 	if (Clock::clock_source_)
 		throw Bug("Cannot have multiple instances of the PlatformBackend because there must be a unique clock source");
