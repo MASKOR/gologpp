@@ -111,7 +111,7 @@ EC_word Semantics<Fluent>::prim_fluent()
 
 	vector<EC_word> arg_domains;
 	for (const shared_ptr<Variable> &arg : element().params())
-		if (arg->domain().is_defined())
+		if (arg->type().is<Domain>())
 			arg_domains.emplace_back(
 				arg->special_semantics().member_restriction()
 			);

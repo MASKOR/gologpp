@@ -124,12 +124,6 @@ void Fluent::compile(AExecutionController &ctx)
 
 void Fluent::define(const boost::optional<vector<InitialValue *>> &initial_values)
 {
-	for (shared_ptr<Variable> &param : params())
-		if (param->domain().is_implicit())
-			param->define_implicit_domain("implicit_domain("
-			+ param->str() + "@" + name() + "/" + std::to_string(arity()) +
-			")");
-
 	if (initial_values) {
 		// TODO: fail if already defined
 		for (InitialValue *ival : initial_values.get()) {
@@ -148,9 +142,7 @@ void Fluent::define(const boost::optional<vector<InitialValue *>> &initial_value
 
 				// Make sure the argument is either a value or a reference to one of this fluent's parameters
 				Reference<Variable> *var_ref = dynamic_cast<Reference<Variable> *>(&arg);
-				if (arg.is_a<Value>())
-					param.add_implicit_domain_element(dynamic_cast<Value &>(arg));
-				else if (!var_ref || *var_ref->target() != param)
+				if (!(arg.is_a<Value>() || (var_ref && *var_ref->target() == param)))
 					throw Bug("Fluent argument in initial value definition must be either a Value or a Reference to a parameter");
 			}
 			ival->set_fluent(*this);

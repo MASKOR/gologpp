@@ -86,7 +86,7 @@ public:
 	using IdentifierMap = unordered_map<string, shared_ptr<Identifier>>;
 	using GlobalsMap = unordered_map<Name, shared_ptr<Global>>;
 	using DomainsMap = unordered_map<Name, shared_ptr<Domain>>;
-	using TypesMap = unordered_map<Name, shared_ptr<const Type>>;
+	using TypesMap = unordered_map<Name, shared_ptr<Type>>;
 
 	using SignifierT = ModelElement;
 

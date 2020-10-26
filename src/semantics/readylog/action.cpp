@@ -34,7 +34,7 @@ EC_word Semantics<Action>::durative_action()
 
 	vector<EC_word> arg_domains;
 	for (const shared_ptr<Variable> &param : element().params())
-		if (param->domain().is_defined())
+		if (param->type().is<Domain>())
 			arg_domains.emplace_back(
 				param->special_semantics().member_restriction()
 			);

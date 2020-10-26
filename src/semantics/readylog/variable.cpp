@@ -62,7 +62,7 @@ EC_word Semantics<Variable>::member_restriction()
 {
 	return ::term(EC_functor("member", 2),
 		element().special_semantics().plterm(),
-		element().domain().special_semantics().plterm()
+		dynamic_cast<const Domain &>(element().type()).special_semantics().plterm()
 	);
 }
 
