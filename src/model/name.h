@@ -36,7 +36,7 @@ public:
 	static string demangle(const string &s);
 
 private:
-	static string mangle_pfx_;
+	static const string mangle_pfx_;
 
 protected:
     string name_;

@@ -61,6 +61,8 @@ void PlatformBackend::cancel_activity(const Transition &trans)
 	auto it = activities_.find(trans.hash());
 	if (it == activities_.end())
 		throw Bug("Activity lost: " + trans->str());
+	else if (it->second->state() != Activity::State::RUNNING)
+		log(LogLevel::ERR) << "Cannot cancel activity " << it->second->str() << flush;
 	else
 		preempt_activity(std::dynamic_pointer_cast<Activity>(it->second));
 }
@@ -70,7 +72,7 @@ PlatformBackend::Lock PlatformBackend::lock()
 { return Lock(mutex_); }
 
 
-shared_ptr<Activity> PlatformBackend::end_activity(const Transition &trans)
+shared_ptr<Activity> PlatformBackend::erase_activity(const Transition &trans)
 {
 	Lock l(lock());
 
@@ -135,7 +137,6 @@ void PlatformBackend::schedule_timer_event(Clock::time_point when)
 {
 	{
 		// Eliminate duplicate timer wakeups
-		// TODO: This should rather be handled generically by the PlatformBackend
 		PlatformBackend::Lock l(this->lock());
 		if (scheduled_wakeups_.find(when.time_since_epoch().count()) != scheduled_wakeups_.end())
 			return;

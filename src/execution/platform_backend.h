@@ -49,7 +49,7 @@ public:
 
 	virtual ~PlatformBackend();
 
-	shared_ptr<Activity> end_activity(const Transition &);
+	shared_ptr<Activity> erase_activity(const Transition &);
 	shared_ptr<Activity> start_activity(const Transition &);
 	void cancel_activity(const Transition &);
 	Lock lock();

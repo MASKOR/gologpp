@@ -20,7 +20,7 @@
 
 namespace gologpp {
 
-string Name::mangle_pfx_ = "gpp~";
+const string Name::mangle_pfx_ = "gpp~";
 
 Name::Name(const string &name)
 : name_(name)
