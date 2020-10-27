@@ -91,6 +91,7 @@ ActionDefinitionParser<Action>::ActionDefinitionParser()
 	];
 
 	senses = senses_fluent(_r1) | senses_list_element(_r1) | senses_compound_field(_r1);
+	senses.name("sensing_assignment");
 
 	duration = (lit('[') > real_num > ',' > real_num > ']') [
 		_val = phoenix::construct<Clock::DurationRange>(_1, _2)
