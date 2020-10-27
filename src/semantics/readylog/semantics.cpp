@@ -67,11 +67,11 @@ ReadylogContext &ReadylogSemantics::rl_context() const
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-Value Semantics<Expression>::evaluate(const Binding &b, const History &h)
+Value Semantics<Expression>::evaluate(const BindingChain &b, const History &h)
 {
 	if (expression().type().is<BoolType>()) {
 		EC_word query = ::term(EC_functor("eval_formula", 1), ::term(EC_functor(",", 2),
-			b.semantics<Binding>().plterm(),
+			pl_binding_chain(b),
 			::term(EC_functor("holds", 2),
 				this->plterm(),
 				h.special_semantics().plterm()
@@ -85,7 +85,7 @@ Value Semantics<Expression>::evaluate(const Binding &b, const History &h)
 	else {
 		EC_ref Result;
 		EC_word query = ::term(EC_functor(",", 2),
-			b.semantics<Binding>().plterm(),
+			pl_binding_chain(b),
 			::term(EC_functor("subf", 3),
 				this->plterm(),
 				Result,
@@ -111,7 +111,7 @@ const Expression &Semantics<Expression>::expression() const
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-unique_ptr<Plan> Semantics<Instruction>::trans(const Binding &, History &history)
+unique_ptr<Plan> Semantics<Instruction>::trans(const BindingChain &, History &history)
 {
 	log(LogLevel::DBG) << "Readylog trans: " << instruction() << flush;
 
@@ -189,7 +189,7 @@ EC_word gologpp::Semantics<Instruction>::next_readylog_term()
 }
 
 
-bool Semantics<Instruction>::final(const Binding &, const History &h)
+bool Semantics<Instruction>::final(const BindingChain &b, const History &h)
 {
 	EC_word final = ::term(EC_functor("final", 2),
 		next_readylog_term(),

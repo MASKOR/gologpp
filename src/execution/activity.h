@@ -49,7 +49,7 @@ public:
 	State state() const;
 	void set_state(State s);
 
-	void update(Transition::Hook hook, boost::optional<Value> &&sensing_result = {});
+	void update(Transition::Hook hook);
 
 	const std::string &mapped_name() const;
 	Value mapped_arg_value(const string &name) const;
@@ -58,15 +58,10 @@ public:
 
 	virtual void attach_semantics(SemanticsFactory &) override;
 
-	void set_sensing_result(boost::optional<Value> &&);
-	boost::optional<Value> &sensing_result();
-	const boost::optional<Value> &sensing_result() const;
-
 	static State target_state(Transition::Hook);
 
 private:
 	State state_;
-	boost::optional<Value> sensing_result_;
 	AExecutionController &exec_context_;
 };
 

@@ -35,7 +35,6 @@ public:
 	const Activity &activity();
 
 	virtual EC_word plterm() override;
-	EC_word sensing_result();
 };
 
 

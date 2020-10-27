@@ -77,7 +77,7 @@ shared_ptr<Transition> gologpp::Semantics<Transition>::transition_from_plterm(EC
 Semantics<Transition> *Semantics<Transition>::copy(const Transition &target_element) const
 { return new Semantics<Transition>(target_element, rl_context()); }
 
-unique_ptr<Plan> Semantics<Transition>::trans(const Binding &b, History &h)
+unique_ptr<Plan> Semantics<Transition>::trans(const BindingChain &b, History &h)
 { return GeneralSemantics<Transition>::trans(b, h); }
 
 const Instruction &Semantics<Transition>::instruction() const

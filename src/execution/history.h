@@ -50,9 +50,14 @@ public:
 	virtual void append(const Reference<AbstractAction> &) = 0;
 	virtual void append(const Transition &) = 0;
 	virtual void append(shared_ptr<Reference<AbstractAction>>);
-	virtual void append_sensing_result(shared_ptr<Activity>) = 0;
 	virtual bool should_progress() const = 0;
 	virtual void progress() = 0;
+
+	virtual void append_sensing_result(
+		shared_ptr<Activity> a,
+		const Expression &lhs,
+		const Value &sensing_result
+	) = 0;
 
 	const History &element() const;
 	virtual const ModelElement &model_element() const override;

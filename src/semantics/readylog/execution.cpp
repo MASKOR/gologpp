@@ -164,6 +164,9 @@ void ReadylogContext::compile(const Fluent &fluent)
 void ReadylogContext::compile(const Function &function)
 { compile_term(function.special_semantics().definition()); }
 
+void ReadylogContext::compile(const ExogFunction &)
+{}
+
 void ReadylogContext::compile(const Procedure &proc)
 { compile_term(proc.special_semantics().definition()); }
 

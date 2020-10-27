@@ -70,7 +70,7 @@ public:
 	bool any_component_state_changed_exog() const;
 
 	/// @return The current value of the @ref ExogFluent with the given @ref backend_name, @ref return_type and @ref args
-	virtual Value eval_exog_fluent(
+	virtual Value eval_exog_function(
 		const Type &return_type,
 		const string &backend_name,
 		const std::unordered_map<string, Value> &args

@@ -38,14 +38,4 @@ EC_word Semantics<Activity>::plterm()
 }
 
 
-EC_word Semantics<Activity>::sensing_result()
-{
-	return ::term(EC_functor("e", 2),
-		activity().target()->senses()->semantics().plterm(),
-		activity().sensing_result()->semantics().plterm()
-	);
-}
-
-
-
 } // namespace gologpp

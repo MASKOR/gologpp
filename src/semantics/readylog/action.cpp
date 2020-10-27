@@ -83,7 +83,7 @@ EC_word Semantics<Action>::senses()
 {
 	return ::term(EC_functor("senses", 2),
 		plterm(),
-		element().senses()->semantics().plterm()
+		element().senses()->lhs().semantics().plterm()
 	);
 }
 

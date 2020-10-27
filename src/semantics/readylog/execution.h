@@ -50,8 +50,8 @@ public:
 	virtual void compile(const Action &) override;
 	virtual void compile(const ExogAction &) override;
 	virtual void compile(const Fluent &) override;
-	virtual void compile(const ExogFluent &) override;
 	virtual void compile(const Function &) override;
+	virtual void compile(const ExogFunction &) override;
 	virtual void compile(const Procedure &) override;
 	virtual void postcompile() override;
 

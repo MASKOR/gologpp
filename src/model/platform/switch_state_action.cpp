@@ -101,11 +101,11 @@ GeneralSemantics<Reference<platform::SwitchStateAction>>::GeneralSemantics(
 , final_(false)
 {}
 
-bool GeneralSemantics<Reference<platform::SwitchStateAction> >::final(const Binding &, const History &)
+bool GeneralSemantics<Reference<platform::SwitchStateAction> >::final(const BindingChain &, const History &)
 { return final_; }
 
 
-unique_ptr<Plan> GeneralSemantics<Reference<platform::SwitchStateAction> >::trans(const Binding &, History &)
+unique_ptr<Plan> GeneralSemantics<Reference<platform::SwitchStateAction> >::trans(const BindingChain &, History &)
 {
 	using namespace platform;
 

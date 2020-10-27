@@ -32,7 +32,7 @@ public:
 	virtual void preempt_activity(shared_ptr<Activity>) override;
 	virtual Clock::time_point time() const noexcept override;
 
-	virtual Value eval_exog_fluent(
+	virtual Value eval_exog_function(
 		const Type &return_type,
 		const string &backend_name,
 		const std::unordered_map<string, Value> &args

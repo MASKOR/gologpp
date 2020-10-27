@@ -67,7 +67,7 @@ public:
 	using GeneralSemantics<Expression>::GeneralSemantics;
 
 	virtual ~Semantics<Expression>() override = default;
-	virtual Value evaluate(const Binding &b, const History &h) override;
+	virtual Value evaluate(const BindingChain &b, const History &h) override;
 	virtual const Expression &expression() const override;
 };
 
@@ -82,8 +82,8 @@ public:
 	using GeneralSemantics<Instruction>::GeneralSemantics;
 
 	virtual ~Semantics<Instruction>() override = default;
-	virtual unique_ptr<Plan> trans(const Binding &b, History &h) override;
-	virtual bool final(const Binding &b, const History &h) override;
+	virtual unique_ptr<Plan> trans(const BindingChain &b, History &h) override;
+	virtual bool final(const BindingChain &b, const History &h) override;
 
 	EC_word next_readylog_term();
 	virtual const Instruction &instruction() const override;

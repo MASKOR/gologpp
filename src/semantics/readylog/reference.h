@@ -39,6 +39,9 @@ namespace gologpp {
 template<class GologT> class Reference;
 
 
+EC_word pl_binding_chain(const BindingChain &b);
+
+
 template<>
 class Semantics<Binding>
 : public GeneralSemantics<Binding>
@@ -78,16 +81,12 @@ public:
 
 
 template<class TargetT>
-class Semantics<Reference<TargetT>>
+class ReferenceSemantics
 : public GeneralSemantics<Reference<TargetT>>
 , public Semantics<AbstractReference>
-, public Semantics<typename Reference<TargetT>::ElementType>
 {
 public:
 	using GeneralSemantics<Reference<TargetT>>::GeneralSemantics;
-
-	virtual EC_word plterm() override
-	{ return reference_term(this->element()); }
 
 	bool args_need_eval() {
 		for (auto &expr : this->element().args())
@@ -137,6 +136,28 @@ public:
 	}
 };
 
+
+template<>
+class Semantics<Reference<ExogFunction>>
+: public GeneralSemantics<Reference<ExogFunction>>
+{
+public:
+	Semantics(const Reference<ExogFunction> &elem, AExecutionController &context);
+};
+
+
+
+template<class TargetT>
+class Semantics<Reference<TargetT>>
+: public ReferenceSemantics<TargetT>
+, public Semantics<typename Reference<TargetT>::ElementType>
+{
+public:
+	using ReferenceSemantics<TargetT>::ReferenceSemantics;
+
+	virtual EC_word plterm() override
+	{ return reference_term(this->element()); }
+};
 
 
 

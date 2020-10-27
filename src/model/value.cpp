@@ -313,7 +313,7 @@ const Expression &GeneralSemantics<Value>::expression() const
 AExecutionController &GeneralSemantics<Value>::context() const
 { return context_; }
 
-Value GeneralSemantics<Value>::evaluate(const Binding &, const History &)
+Value GeneralSemantics<Value>::evaluate(const BindingChain &, const History &)
 { return *expression_; }
 
 const ModelElement &GeneralSemantics<Value>::model_element() const

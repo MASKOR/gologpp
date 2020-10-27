@@ -77,29 +77,10 @@ Activity::State Activity::target_state(Transition::Hook hook)
 }
 
 
-void Activity::update(Transition::Hook hook, boost::optional<Value> &&sensing_result)
+void Activity::update(Transition::Hook hook)
 {
 	PlatformBackend::Lock backend_lock = exec_context_.backend().lock();
-
-	if (hook == Transition::Hook::FINISH) {
-		if (target()->senses() && !sensing_result)
-			throw Bug("PlatformBackend implementation tried to finish the sensing action "
-				+ static_cast<const ReferenceBase<Action> &>(*this).str()
-				+ " without providing a sensing result"
-			);
-		else if (!target()->senses() && sensing_result)
-			throw Bug("PlatformBackend implementation gave a sensing result to the action "
-				+ static_cast<const ReferenceBase<Action> &>(*this).str()
-				+ ", but it is not a sensing action"
-			);
-		else if (sensing_result) {
-			sensing_result->attach_semantics(exec_context_.semantics_factory());
-			set_sensing_result(std::forward<boost::optional<Value>>(sensing_result));
-		}
-	}
-
 	set_state(target_state(hook));
-
 	exec_context_.exog_queue_push(shared_from_this());
 }
 
@@ -109,7 +90,7 @@ Value Activity::mapped_arg_value(const string &name) const
 	return
 		dynamic_cast<GeneralSemantics<Expression> &>(
 			target()->mapping().mapped_expr(name).general_semantics()
-		).evaluate(this->binding(), exec_context_.history());
+		).evaluate({ &this->binding() }, exec_context_.history());
 }
 
 
@@ -118,6 +99,7 @@ const std::string &Activity::mapped_name() const
 
 string Activity::to_string(const string &pfx) const
 { return pfx + "state(" + ReferenceBase<Action>::to_string("") + ") = " + gologpp::to_string(state()); }
+
 
 void Activity::attach_semantics(SemanticsFactory &implementor)
 {
@@ -128,15 +110,6 @@ void Activity::attach_semantics(SemanticsFactory &implementor)
 			c->attach_semantics(implementor);
 	}
 }
-
-void Activity::set_sensing_result(boost::optional<Value> &&sr)
-{ sensing_result_ = std::forward<boost::optional<Value>>(sr); }
-
-boost::optional<Value> &Activity::sensing_result()
-{ return sensing_result_; }
-
-const boost::optional<Value> &Activity::sensing_result() const
-{ return sensing_result_; }
 
 
 string to_string(Activity::State s)

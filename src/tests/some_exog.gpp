@@ -15,10 +15,13 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-string fluent exog_string()
+string fluent s1()
 { initially: () = null; }
 
-number fluent exog_number()
+string fluent s2()
+{ initially: () = null; }
+
+number fluent n1()
 { initially: () = null; }
 
 number fluent nested(string s)
@@ -27,19 +30,31 @@ number fluent nested(string s)
 bool fluent exog_happened()
 { initially: () = false; }
 
+string exog_function ef_s1(number a, number b) {
+}
+
 exog_action ea(number n, string s) {
 effect:
 	exog_happened() = true;
-	exog_string() = s;
-	exog_number() = n;
+	s1() = s;
+	n1() = n;
 	nested(s) = n;
 }
 
+
+action sense_s2(number ef_arg1, number ef_arg2) {
+senses:
+	s2() = ef_s1(ef_arg1, ef_arg2);
+}
+
 bool function postcond() =
-	exog_string() != null & nested(exog_string()) == exog_number()
+	s1() != null
+	& nested(s1()) == n1()
+	& s2() != null
 
 
 procedure main()
 {
 	test(exog_happened());
+	sense_s2(1,2);
 }

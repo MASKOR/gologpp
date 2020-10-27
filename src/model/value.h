@@ -212,7 +212,7 @@ public:
 
 	virtual AExecutionController &context() const override;
 
-	virtual Value evaluate(const Binding &, const History &) override;
+	virtual Value evaluate(const BindingChain &, const History &) override;
 	virtual GeneralSemantics<Value> *copy(const Value &target_element) const = 0;
 
 	virtual const Expression &expression() const override;

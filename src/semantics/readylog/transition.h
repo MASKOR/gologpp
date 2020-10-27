@@ -35,7 +35,7 @@ public:
 
 	virtual EC_word plterm() override;
 
-	virtual unique_ptr<Plan> trans(const Binding &b, History &h) override;
+	virtual unique_ptr<Plan> trans(const BindingChain &b, History &h) override;
 	virtual const Instruction &instruction() const override;
 
 	virtual Semantics<Transition> *copy(const Transition &target_element) const override;

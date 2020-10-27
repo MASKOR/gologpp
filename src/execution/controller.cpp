@@ -192,6 +192,18 @@ void AExecutionController::drain_exog_queue()
 				silent_ = false;
 			}
 			exog->attach_semantics(semantics_factory());
+
+			shared_ptr<Activity> activity = std::dynamic_pointer_cast<Activity>(exog);
+			if (activity && activity->target()->senses())
+				history().general_semantics<History>().append_sensing_result(
+					activity,
+					activity->target()->senses()->lhs(),
+					activity->target()->senses()->rhs().general_semantics().evaluate(
+						{ &activity->binding() },
+						history()
+					)
+				);
+
 			history().general_semantics<History>().append(exog);
 		}
 	}
@@ -219,12 +231,9 @@ Clock::time_point AExecutionController::context_time() const
 	};
 	context_time->attach_semantics(semantics_factory());
 
-	Binding empty_binding;
-	empty_binding.attach_semantics(semantics_factory());
-
 	*context_time_ = Clock::time_point(Clock::duration(
 		context_time->general_semantics().evaluate(
-			empty_binding,
+			{},
 			history_
 		).numeric_convert<Clock::rep>()
 	));
@@ -263,14 +272,11 @@ void ExecutionController::run(const Instruction &program)
 
 		plan_transformation_->init(*this);
 
-		Binding empty_binding;
-		empty_binding.attach_semantics(semantics_factory());
-
-		while (!program.general_semantics().final(empty_binding, history())) {
+		while (!program.general_semantics().final({}, history())) {
 			set_silent(true);
 
 			unique_ptr<Plan> plan {
-				program.general_semantics().trans(empty_binding, history())
+				program.general_semantics().trans({}, history())
 			};
 
 			if (plan) {
@@ -298,7 +304,7 @@ void ExecutionController::run(const Instruction &program)
 					else {
 						// Plan elements are expected to not return plans again (nullptr or empty Plan).
 						empty_plan = plan->elements().front().instruction()
-							.general_semantics().trans(empty_binding, history())
+							.general_semantics().trans({}, history())
 						;
 					}
 

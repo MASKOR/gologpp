@@ -40,6 +40,7 @@ BackendMapping::BackendMapping(
 }
 
 BackendMapping::BackendMapping(const Global &identity)
+: backend_name_(identity.name())
 {
 	for (const shared_ptr<Variable> &param : identity.params())
 		arg_mapping_.emplace(param->name(), param->ref());

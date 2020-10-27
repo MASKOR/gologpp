@@ -67,11 +67,30 @@ const Binding &Semantics<Binding >::model_element() const
 { return this->element(); }
 
 
+
+Semantics<Reference<ExogFunction> >::Semantics(const Reference<ExogFunction> &elem, AExecutionController &context)
+: GeneralSemantics<Reference<ExogFunction>>(elem, context)
 {
-	for (const auto &pval : this->element().map())
-		pval.first->special_semantics().init();
+	bool fail = false;
+	try {
+		const AbstractAssignment &ass = element().parent()->cast<AbstractAssignment>();
+		const Action &act = ass.parent()->cast<Action>();
+		if (act.senses().get() != &ass)
+			fail = true;
+	} catch (std::bad_cast &) {
+		fail = true;
+	}
+	if (fail)
+		throw Unsupported(element().str() + ": Readylog semantics support exog_function references only in sensing actions");
 }
 
+EC_word pl_binding_chain(const BindingChain &bc)
+{
+	EC_word rv = EC_atom("true");
+	for (auto &b : bc)
+		rv = ::term(EC_functor(",", 2), rv, b->semantics<Binding>().plterm());
+	return rv;
+}
 
 
 

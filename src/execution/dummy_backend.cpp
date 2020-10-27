@@ -138,7 +138,7 @@ Clock::time_point DummyBackend::time() const noexcept
 	);
 }
 
-Value DummyBackend::eval_exog_fluent(
+Value DummyBackend::eval_exog_function(
 	const Type &return_type,
 	const string &,
 	const std::unordered_map<string, Value> &

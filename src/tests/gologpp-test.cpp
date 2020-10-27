@@ -58,11 +58,8 @@ int test_file(unique_ptr<Instruction> &&mainproc)
 
 	ReadylogContext::instance().run(*mainproc);
 
-	Binding empty_binding;
-	empty_binding.attach_semantics(ReadylogContext::instance().semantics_factory());
-
 	bool success = static_cast<bool>(
-		postcond->semantics().evaluate(empty_binding, ReadylogContext::instance().history())
+		postcond->semantics().evaluate({}, ReadylogContext::instance().history())
 	);
 
 	if (success) {

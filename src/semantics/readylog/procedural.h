@@ -58,6 +58,16 @@ private:
 
 
 template<>
+class Semantics<ExogFunction>
+: public GeneralSemantics<ExogFunction>
+{
+public:
+	using GeneralSemantics<ExogFunction>::GeneralSemantics;
+};
+
+
+
+template<>
 class Semantics<Procedure>
 : public ReadylogSemantics
 , public GeneralSemantics<Procedure>

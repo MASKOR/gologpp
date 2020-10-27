@@ -91,8 +91,11 @@ AExecutionController &GeneralSemantics<Transition>::context() const
 { return context_; }
 
 
-unique_ptr<Plan> GeneralSemantics<Transition>::trans(const Binding &, History &history)
+unique_ptr<Plan> GeneralSemantics<Transition>::trans(const BindingChain &b, History &history)
 {
+	BindingChain merged(b);
+	merged.emplace_back(&element().binding());
+
 	switch(element().hook())
 	{
 	case Transition::Hook::CANCEL:
@@ -105,10 +108,10 @@ unique_ptr<Plan> GeneralSemantics<Transition>::trans(const Binding &, History &h
 		if (
 			context().backend().current_state(element()) != Activity::State::RUNNING
 			&& static_cast<bool>(
-				element().target()->precondition()
-					.general_semantics().evaluate(
-						element().binding(), history
-					)
+				element().target()->precondition().general_semantics().evaluate(
+					merged,
+					history
+				)
 			)
 		)
 			context().backend().start_activity(element());
@@ -117,17 +120,14 @@ unique_ptr<Plan> GeneralSemantics<Transition>::trans(const Binding &, History &h
 	break;
 	case Transition::Hook::FINISH:
 		if (context().backend().current_state(element()) == Activity::State::FINAL) {
-			shared_ptr<Activity> a = context().backend().end_activity(element());
-
-			if (element().target()->senses())
-				history.general_semantics<History>().append_sensing_result(a);
+			shared_ptr<Activity> a = context().backend().erase_activity(element());
 		}
 		else
 			return nullptr;
 	break;
 	case Transition::Hook::FAIL:
 		if (context().backend().current_state(element()) == Activity::State::FAILED)
-			context().backend().end_activity(element());
+			context().backend().erase_activity(element());
 		else
 			return nullptr;
 	break;
@@ -136,7 +136,7 @@ unique_ptr<Plan> GeneralSemantics<Transition>::trans(const Binding &, History &h
 			context().backend().current_state(element()) == Activity::State::FAILED
 			|| context().backend().current_state(element()) == Activity::State::FINAL
 		)
-			context().backend().end_activity(element());
+			context().backend().erase_activity(element());
 		else
 			return nullptr;
 	}

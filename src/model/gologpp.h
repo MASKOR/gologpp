@@ -46,6 +46,7 @@ class Expression;
 class Instruction;
 
 class Binding;
+using BindingChain = vector<const Binding *>;
 
 class ModelElement;
 class Plan;

@@ -45,7 +45,7 @@ shared_ptr<Activity> PlatformBackend::start_activity(const Transition &trans)
 	auto it = activities_.find(a->hash());
 	if (it != activities_.end())
 		throw UserError(
-			"Cannot start an action while another one with the same arguments is already running."
+			"Cannot start an action while another one with the same arguments is still running."
 			" Currently: " + it->second->str()
 		);
 	a->attach_semantics(exec_context()->semantics_factory());

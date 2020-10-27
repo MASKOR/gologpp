@@ -417,6 +417,13 @@ string ExogFunction::to_string(const string &pfx) const
 		+ ") " + mapping().to_string(pfx);
 }
 
+const BackendMapping &ExogFunction::mapping() const
+{ return *mapping_; }
+
+BackendMapping &ExogFunction::mapping()
+{ return *mapping_; }
+
+
 void ExogFunction::define(boost::optional<BackendMapping *> mapping)
 {
 	if (mapping) {
@@ -424,7 +431,6 @@ void ExogFunction::define(boost::optional<BackendMapping *> mapping)
 		mapping_->set_parent(this);
 	}
 }
-
 
 void ExogFunction::compile(AExecutionController &ctx)
 { ctx.compile(*this); }
@@ -454,20 +460,30 @@ void GeneralSemantics<Reference<ExogFunction>>::update_element(const Reference<E
 const ModelElement &GeneralSemantics<Reference<ExogFunction>>::model_element() const
 { return *element_; }
 
-Value GeneralSemantics<Reference<ExogFunction> >::evaluate(const Binding &b, const History &h)
+const Expression &GeneralSemantics<Reference<ExogFunction>>::expression() const
+{ return *element_; }
+
+
+Value GeneralSemantics<Reference<ExogFunction> >::evaluate(const BindingChain &b, const History &h)
 {
 	std::unordered_map<string, Value> backend_args;
+
+	BindingChain merged(b);
+	merged.push_back(&element().binding());
+
 	for (auto &pair : element().target()->mapping().arg_mapping())
 		backend_args.insert( {
 			pair.first,
-			pair.second->general_semantics().evaluate(b, h)
+			pair.second->general_semantics().evaluate(merged, h)
 		} );
 
-	return context().backend().eval_exog_fluent(
+	Value rv = context().backend().eval_exog_function(
 		element().type(),
 		element().target()->mapping().backend_name(),
 		backend_args
 	);
+	rv.attach_semantics(this->context().semantics_factory());
+	return rv;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -744,8 +760,6 @@ string During::to_string(const string &pfx) const
 		+ "on_cancel " + on_cancel().to_string(pfx)
 	;
 }
-
-
 
 
 

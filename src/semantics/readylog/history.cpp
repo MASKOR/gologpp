@@ -69,8 +69,21 @@ void Semantics<History>::append(const Transition &trans)
 void Semantics<History>::append(const Reference<AbstractAction> &trans)
 { extend_history(::list(trans.semantics<AbstractReference>().plterm(), plterm())); }
 
-void Semantics<History>::append_sensing_result(shared_ptr<Activity> a)
-{ extend_history(::list(a->special_semantics().sensing_result(), plterm())); }
+
+void Semantics<History>::append_sensing_result(
+	shared_ptr<Activity>,
+	const Expression &lhs,
+	const Value &sensing_result
+) {
+	extend_history(::list(
+		::term(EC_functor("e", 2),
+			lhs.semantics().plterm(),
+			sensing_result.semantics().plterm()
+		),
+		plterm()
+	));
+}
+
 
 bool Semantics<History>::has_changed() const
 { return has_changed_; }

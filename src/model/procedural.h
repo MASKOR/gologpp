@@ -453,19 +453,20 @@ private:
 
 template<>
 class GeneralSemantics<Reference<ExogFunction>>
-: public GeneralSemantics<Expression>
+: public virtual GeneralSemantics<Expression>
 {
 public:
 	GeneralSemantics(const Reference<ExogFunction> &elem, AExecutionController &context);
 
 	virtual ~GeneralSemantics<Reference<ExogFunction>>() = default;
 
-	virtual Value evaluate(const Binding &, const History &) override;
+	virtual Value evaluate(const BindingChain &, const History &) override;
 
 	const Reference<ExogFunction> &element() const;
 	virtual AExecutionController &context() const override;
 	void update_element(const Reference<ExogFunction> *new_element);
 	virtual const ModelElement &model_element() const override;
+	virtual const Expression &expression() const override;
 
 private:
 	const Reference<ExogFunction> *element_;

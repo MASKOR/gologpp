@@ -174,12 +174,14 @@ const Scope::IdentifierMap &Scope::identifier_map() const
 
 void Scope::implement_globals(SemanticsFactory &implementor, AExecutionController &ctx)
 {
-	ctx.precompile();
 
 	// Two loops since we want everything implemented before we attempt to compile anything.
 	// It's all connected, you know...
 	for (GlobalsMap::value_type &entry : *globals_)
 		entry.second->attach_semantics(implementor);
+
+	ctx.precompile();
+
 	for (GlobalsMap::value_type &entry : *globals_)
 		entry.second->compile(ctx);
 
