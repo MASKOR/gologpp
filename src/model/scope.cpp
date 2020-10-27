@@ -180,11 +180,6 @@ void Scope::implement_globals(SemanticsFactory &implementor, AExecutionControlle
 	for (GlobalsMap::value_type &entry : *globals_)
 		entry.second->attach_semantics(implementor);
 
-	ctx.precompile();
-
-	for (GlobalsMap::value_type &entry : *globals_)
-		entry.second->compile(ctx);
-
 	for (TypesMap::value_type &entry : *types_) {
 		// TODO: Only Domains have semantics currently. Should be extended to all types.
 		shared_ptr<Domain> d { std::dynamic_pointer_cast<Domain>(entry.second) };
@@ -197,6 +192,10 @@ void Scope::implement_globals(SemanticsFactory &implementor, AExecutionControlle
 	for (unique_ptr<platform::Constraint> &c : constraints())
 		c->attach_semantics(implementor);
 
+	ctx.precompile();
+
+	for (GlobalsMap::value_type &entry : *globals_)
+		entry.second->compile(ctx);
 
 	ctx.postcompile();
 }
