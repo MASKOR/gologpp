@@ -51,12 +51,15 @@ public:
 	void set_earliest(Clock::time_point);
 	void set_latest(Clock::time_point);
 
+	bool timepoints_default() const;
+
 	TimedInstruction &operator = (TimedInstruction &&);
 
 private:
 	unique_ptr<Instruction> instruction_;
 	Clock::time_point earliest_;
 	Clock::time_point latest_;
+	bool timepoints_default_;
 };
 
 

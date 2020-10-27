@@ -28,6 +28,7 @@ TimedInstruction::TimedInstruction(unique_ptr<Instruction> &&i)
 : instruction_(std::forward<unique_ptr<Instruction>>(i))
 , earliest_(Clock::now())
 , latest_(Clock::now() + Clock::duration(32767))
+, timepoints_default_(true)
 {}
 
 
@@ -39,6 +40,7 @@ TimedInstruction::TimedInstruction(TimedInstruction &&i)
 : instruction_(std::move(i.instruction_))
 , earliest_(std::move(i.earliest_))
 , latest_(std::move(i.latest_))
+, timepoints_default_(i.timepoints_default_)
 {}
 
 
@@ -56,10 +58,20 @@ Clock::time_point TimedInstruction::latest_timepoint() const
 
 
 void TimedInstruction::set_earliest(Clock::time_point t)
-{ earliest_ = t; }
+{
+	earliest_ = t;
+	timepoints_default_ = false;
+}
+
 
 void TimedInstruction::set_latest(Clock::time_point t)
-{ latest_ = t; }
+{
+	latest_ = t;
+	timepoints_default_ = false;
+}
+
+bool TimedInstruction::timepoints_default() const
+{ return timepoints_default_; }
 
 
 TimedInstruction &TimedInstruction::operator =(TimedInstruction &&i)
@@ -67,6 +79,7 @@ TimedInstruction &TimedInstruction::operator =(TimedInstruction &&i)
 	instruction_ = std::move(i.instruction_);
 	earliest_ = std::move(i.earliest_);
 	latest_ = std::move(i.latest_);
+	timepoints_default_ = i.timepoints_default_;
 	return *this;
 }
 
@@ -82,7 +95,7 @@ Plan &Plan::append(TimedInstruction &&i)
 	elements_.push_back(std::forward<TimedInstruction>(i));
 	// Set timepoints
 	Transition *instr = dynamic_cast<Transition *>(&elements_.back().instruction());
-	if (instr && instr->hook() == Transition::Hook::END) {
+	if (elements_.back().timepoints_default() && instr && instr->hook() == Transition::Hook::END) {
 		// Find matching START transition
 		auto it = std::find_if(elements().rbegin(), elements().rend(), [&] (TimedInstruction &ti) {
 			try {
