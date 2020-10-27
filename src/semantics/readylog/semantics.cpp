@@ -69,7 +69,6 @@ ReadylogContext &ReadylogSemantics::rl_context() const
 
 Value Semantics<Expression>::evaluate(const Binding &b, const History &h)
 {
-	b.semantics<Binding>().init_vars();
 	if (expression().type().is<BoolType>()) {
 		EC_word query = ::term(EC_functor("eval_formula", 1), ::term(EC_functor(",", 2),
 			b.semantics<Binding>().plterm(),

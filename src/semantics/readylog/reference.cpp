@@ -24,7 +24,6 @@ namespace gologpp {
 EC_word reference_term(const Reference<Variable> &ref)
 { return EC_atom(ref.name().c_str()); }
 
-
 template<>
 EC_word Semantics<Reference<Variable>>::plterm()
 { return element().target()->special_semantics().plterm(); }
@@ -67,7 +66,7 @@ Semantics<Binding> *Semantics<Binding>::copy(const Binding &target_element) cons
 const Binding &Semantics<Binding >::model_element() const
 { return this->element(); }
 
-void Semantics<Binding >::init_vars()
+
 {
 	for (const auto &pval : this->element().map())
 		pval.first->special_semantics().init();

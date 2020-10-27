@@ -30,8 +30,6 @@ namespace gologpp {
 
 EC_word Semantics<Action>::durative_action()
 {
-	element().scope().semantics().init_vars();
-
 	vector<EC_word> arg_domains;
 	for (const shared_ptr<Variable> &param : element().params())
 		if (param->type().is<Domain>())
@@ -74,7 +72,6 @@ vector<EC_word> Semantics<Action>::durative_causes_vals()
 
 EC_word Semantics<Action>::durative_poss()
 {
-	element().scope().semantics().init_vars();
 	return ::term(EC_functor("durative_poss", 2),
 		plterm(),
 		element().precondition().semantics().plterm()
@@ -84,7 +81,6 @@ EC_word Semantics<Action>::durative_poss()
 
 EC_word Semantics<Action>::senses()
 {
-	element().scope().semantics().init_vars();
 	return ::term(EC_functor("senses", 2),
 		plterm(),
 		element().senses()->semantics().plterm()
@@ -94,10 +90,7 @@ EC_word Semantics<Action>::senses()
 
 
 EC_word Semantics<ExogAction>::exog_action()
-{
-	element().scope().semantics().init_vars();
-	return ::term(EC_functor("exog_action", 1), plterm());
-}
+{ return ::term(EC_functor("exog_action", 1), plterm()); }
 
 
 EC_word Semantics<ExogAction>::plterm()
@@ -114,7 +107,6 @@ EC_word Semantics<ExogAction>::plterm()
 
 vector<EC_word> Semantics<ExogAction>::causes_vals()
 {
-	element().scope().semantics().init_vars();
 	vector<EC_word> rv;
 	for (const unique_ptr<AbstractEffectAxiom> &effect : element().effects())
 		rv.push_back(effect->semantics<AbstractEffectAxiom>().plterm());
@@ -124,7 +116,6 @@ vector<EC_word> Semantics<ExogAction>::causes_vals()
 
 EC_word Semantics<ExogAction>::poss()
 {
-	element().scope().semantics().init_vars();
 	return ::term(EC_functor("poss", 2),
 		plterm(),
 		element().precondition().semantics().plterm()

@@ -38,7 +38,6 @@ public:
 	EC_word plterm();
 
 	EC_word *variables(const vector<string> &names);
-	void init_vars();
 };
 
 

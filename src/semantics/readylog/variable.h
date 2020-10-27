@@ -33,22 +33,28 @@ namespace gologpp {
 
 template<>
 class Semantics<Variable>
-: public Semantics<Expression>
+: public ReadylogSemantics
 , public GeneralSemantics<Variable>
 {
 public:
 	Semantics(const Variable &var, ReadylogContext &context);
 	virtual ~Semantics() override;
 
-	void init();
 	virtual EC_word plterm() override;
 	void translate_as_golog_var(bool as_gv);
 	EC_word member_restriction();
+	void mark_dead();
+
+	static std::unordered_set<Semantics<Variable> *> all_vars;
 
 private:
+	void init();
+
 	EC_word ec_var_;
+	bool dead_;
 	EC_atom golog_var_;
 	bool as_golog_var_;
+
 };
 
 

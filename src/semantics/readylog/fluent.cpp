@@ -64,8 +64,6 @@ namespace gologpp {
 
 EC_word Semantics<InitialValue>::plterm()
 {
-	element().fluent().scope().semantics().init_vars();
-
 	EC_word fluent_inst;
 	if (element().fluent().arity() > 0)
 		fluent_inst = ::term(
@@ -107,8 +105,6 @@ vector<EC_word> Semantics<Fluent>::initially()
 
 EC_word Semantics<Fluent>::prim_fluent()
 {
-	element().scope().semantics().init_vars();
-
 	vector<EC_word> arg_domains;
 	for (const shared_ptr<Variable> &arg : element().params())
 		if (arg->type().is<Domain>())

@@ -127,6 +127,9 @@ void ReadylogContext::init(const eclipse_opts &options, unique_ptr<PlatformBacke
 ReadylogContext &ReadylogContext::instance()
 { return *instance_; }
 
+void ReadylogContext::precompile()
+{}
+
 
 void ReadylogContext::compile(const Action &action)
 {
@@ -216,6 +219,13 @@ std::string ReadylogContext::find_boilerplate() {
 }
 
 
+void ReadylogContext::mark_vars_dead()
+{
+	for (Semantics<Variable> *vs : Semantics<Variable>::all_vars)
+		vs->mark_dead();
+}
+
+
 void ReadylogContext::postcompile()
 {
 	if (!ec_query(EC_atom("compile_SSAs")))
@@ -269,6 +279,8 @@ bool ReadylogContext::ec_query(EC_word t)
 	//post_goal(::term(EC_functor("writeln", 1), t));
 	last_rv_ = EC_resume(*ec_start_);
 	//std::cout << std::endl;
+
+	mark_vars_dead();
 
 	return last_rv_ == EC_status::EC_succeed;
 }

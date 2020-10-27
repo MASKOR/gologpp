@@ -40,14 +40,4 @@ EC_word *Semantics<Scope>::variables(const vector<string> &names)
 }
 
 
-void Semantics<Scope>::init_vars()
-{
-	for (auto &v : element().vars())
-		if (&element() == &(global_scope()) || !element().parent_scope().lookup_var(v->name()))
-			// Only init variables that aren't in the parent scope
-			// (They are initialized there).
-			v->special_semantics().init();
-}
-
-
 } // namespace gologpp

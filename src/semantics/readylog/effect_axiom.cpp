@@ -40,12 +40,8 @@ string cv_functor(const AbstractEffectAxiom &eff)
 template<>
 EC_word Semantics<EffectAxiom<Reference<Fluent>>>::plterm()
 {
-	element().scope().semantics().init_vars();
-
 	EC_word condition_term = element().condition().semantics().plterm();
 	if (element().lhs().special_semantics().args_need_eval()) {
-
-		element().lhs().target()->scope().semantics().init_vars();
 
 		condition_term = ::term(EC_functor("and", 2),
 			element().lhs().special_semantics().args_binding(),
@@ -69,12 +65,8 @@ EC_word Semantics<EffectAxiom<FieldAccess>>::plterm()
 	std::pair<const Reference<Fluent> *, EC_word> fluent_access
 		= traverse_mixed_field_access(&element().lhs(), nullptr);
 
-	element().scope().semantics().init_vars();
-
 	EC_word condition_term = element().condition().semantics().plterm();
 	if (fluent_access.first->special_semantics().args_need_eval()) {
-
-		fluent_access.first->target()->scope().semantics().init_vars();
 
 		condition_term = ::term(EC_functor("and", 2),
 			fluent_access.first->special_semantics().args_binding(),
@@ -102,12 +94,8 @@ EC_word Semantics<EffectAxiom<ListAccess>>::plterm()
 	std::pair<const Reference<Fluent> *, EC_word> fluent_access
 		= traverse_mixed_field_access(nullptr, &element().lhs());
 
-	element().scope().semantics().init_vars();
-
 	EC_word condition_term = element().condition().semantics().plterm();
 	if (fluent_access.first->special_semantics().args_need_eval()) {
-
-		fluent_access.first->target()->scope().semantics().init_vars();
 
 		condition_term = ::term(EC_functor("and", 2),
 			fluent_access.first->special_semantics().args_binding(),

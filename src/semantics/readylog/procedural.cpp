@@ -26,7 +26,6 @@
 
 #include <model/procedural.h>
 
-
 namespace gologpp {
 
 
@@ -44,14 +43,12 @@ EC_word Semantics<Function>::plterm()
 EC_word Semantics<Function>::definition()
 {
 	if (element().type().is<BoolType>()) {
-		element().scope().semantics().init_vars();
 		return ::term(EC_functor("proc", 2),
 			plterm(),
 			element().definition().semantics().plterm()
 		);
 	}
 	else {
-		element().scope().semantics().init_vars();
 		return_var_ = ::newvar();
 
 		return ::term(EC_functor("function", 3),
@@ -80,7 +77,6 @@ EC_word Semantics<Procedure>::plterm()
 
 EC_word Semantics<Procedure>::definition()
 {
-	element().scope().semantics().init_vars();
 	return ::term(EC_functor("proc", 2),
 		plterm(),
 		element().definition().semantics().plterm()
@@ -104,8 +100,6 @@ EC_word Semantics<Function>::return_var()
 template<>
 EC_word Semantics<Block>::plterm()
 {
-	element().scope().semantics().init_vars();
-
 	EC_word rv;
 
 	const Function *parent_fn = dynamic_cast<const Function *>(element().parent());
@@ -125,10 +119,7 @@ EC_word Semantics<Block>::plterm()
 
 template<>
 EC_word Semantics<Choose>::plterm()
-{
-	element().scope().semantics().init_vars();
-	return ::term(EC_functor("nondet", 1), to_ec_list(element().alternatives()));
-}
+{ return ::term(EC_functor("nondet", 1), to_ec_list(element().alternatives())); }
 
 
 
@@ -157,10 +148,7 @@ EC_word Semantics<Conditional<Expression>>::plterm()
 
 template<>
 EC_word Semantics<Concurrent>::plterm()
-{
-	element().scope().semantics().init_vars();
-	return to_ec_term("pconc", element().procs());
-}
+{ return to_ec_term("pconc", element().procs()); }
 
 
 

@@ -23,9 +23,12 @@
 namespace gologpp {
 
 
+std::unordered_set<Semantics<Variable> *> Semantics<Variable>::all_vars;
+
 
 Semantics<Variable>::Semantics(const Variable &var, ReadylogContext &context)
 : GeneralSemantics<Variable>(var, context)
+, dead_(true)
 , as_golog_var_(false)
 {
 	const ModelElement *parent = element().parent();
@@ -37,20 +40,30 @@ Semantics<Variable>::Semantics(const Variable &var, ReadylogContext &context)
 	golog_var_ = EC_atom(
 		(element().name() + "_lv" + std::to_string(level)).c_str()
 	);
+
+	all_vars.insert(this);
 }
 
 Semantics<Variable>::~Semantics()
-{}
+{
+	all_vars.erase(this);
+}
 
 void Semantics<Variable>::init()
-{ ec_var_ = ::newvar(); }
+{
+	ec_var_ = ::newvar();
+	dead_ = false;
+}
 
 EC_word Semantics<Variable>::plterm()
 {
 	if (as_golog_var_)
 		return golog_var_;
-	else
+	else {
+		if (dead_)
+			init();
 		return ec_var_;
+	}
 }
 
 
@@ -78,6 +91,9 @@ GologVarMutator::~GologVarMutator()
 GologVarMutator::GologVarMutator(const Reference<Variable> &var_ref)
 : GologVarMutator(var_ref.target()->special_semantics())
 {}
+
+void Semantics<Variable>::mark_dead()
+{ dead_ = true; }
 
 
 

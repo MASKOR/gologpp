@@ -48,11 +48,8 @@ public:
 	using GeneralSemantics<Binding>::GeneralSemantics;
 
 	virtual EC_word plterm() override;
-
 	virtual Semantics<Binding> *copy(const Binding &target_element) const override;
-
 	virtual const Binding &model_element() const override;
-	virtual void init_vars();
 };
 
 
