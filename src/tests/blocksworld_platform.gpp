@@ -62,12 +62,6 @@ number function reward() =
 	else
 		-1
 
-
-action scan(Block b) {
-senses:
-	loc(b)
-}
-
 component depth_cam {
 clocks:
 	bcl
