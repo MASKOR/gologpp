@@ -26,6 +26,52 @@
 
 #include <model/procedural.h>
 
+
+
+extern "C"
+int p_eval_exog_function()
+{
+	using namespace gologpp;
+
+	EC_word arg_fname = EC_arg(1);
+	EC_atom atom_fname;
+	if (arg_fname.is_atom(&atom_fname) != EC_succeed)
+		throw Bug(string(__func__) + ": Invalid call");
+	string fname = Name::demangle(atom_fname.name());
+	shared_ptr<ExogFunction> efunc = global_scope().lookup_identifier<ExogFunction>(fname);
+	if (!efunc)
+		throw Bug(string(__func__) + ": No exog_function by the name " + fname);
+
+	EC_word arg_type = EC_arg(2);
+	EC_atom atom_type;
+	if (arg_type.is_atom(&atom_type) != EC_succeed)
+		throw Bug(string(__func__) + ": Invalid call");
+	string rtype_name = Type::demangle_name(atom_type.name());
+	shared_ptr<const Type> ret_type = global_scope().lookup_type(rtype_name);
+	if (!ret_type)
+		throw Bug(string(__func__) + ": No type by the name " + rtype_name);
+
+	EC_word arg_fargs = EC_arg(3);
+	EC_word head, tail;
+	std::unordered_map<string, Value> backend_args;
+	arity_t idx = 0;
+	while (arg_fargs.is_list(head, tail) == EC_succeed) {
+		backend_args.emplace(efunc->parameter(idx++)->name(), pl_term_to_value(head));
+		arg_fargs = tail;
+	}
+
+	Value rv = ReadylogContext::instance().backend().eval_exog_function(
+		*ret_type,
+		efunc->name(),
+		backend_args
+	);
+	rv.attach_semantics(ReadylogContext::instance().semantics_factory());
+
+	return rv.semantics().plterm().unify(EC_arg(4));
+};
+
+
+
 namespace gologpp {
 
 
@@ -63,6 +109,57 @@ EC_word Semantics<Function>::definition()
 }
 
 
+EC_word Semantics<Function>::return_var()
+{
+	if (element().type().is<VoidType>())
+		throw Bug("Attempt to get a return var for a procedure");
+
+	return return_var_;
+}
+
+
+
+EC_word Semantics<ExogFunction>::plterm()
+{
+	if (element().arity() > 0)
+		return ::term(EC_functor(element().mangled_name().c_str(), element().arity()),
+			to_ec_words(element().params()).data()
+		);
+	else
+		return EC_atom(element().mangled_name().c_str());
+}
+
+
+EC_word Semantics<ExogFunction>::definition()
+{
+	if (element().type().is<BoolType>()) {
+		return ::term(EC_functor("proc", 2),
+			plterm(),
+			::term(EC_functor("eval_exog_function", 4),
+				EC_atom(element().mangled_name().c_str()),
+				EC_atom(element().type().mangled_name().c_str()),
+				to_ec_list(to_ec_words(element().params())),
+				EC_atom("true")
+			)
+		);
+	}
+	else {
+		EC_word rv = ::newvar();
+
+		return ::term(EC_functor("function", 3),
+			plterm(),
+			rv,
+			::term(EC_functor("eval_exog_function", 4),
+				EC_atom(element().mangled_name().c_str()),
+				EC_atom(element().type().mangled_name().c_str()),
+				to_ec_list(to_ec_words(element().params())),
+				rv
+			)
+		);
+	}
+}
+
+
 
 EC_word Semantics<Procedure>::plterm()
 {
@@ -86,14 +183,6 @@ EC_word Semantics<Procedure>::definition()
 
 
 
-
-EC_word Semantics<Function>::return_var()
-{
-	if (element().type().is<VoidType>())
-		throw Bug("Attempt to get a return var for a procedure");
-
-	return return_var_;
-}
 
 
 

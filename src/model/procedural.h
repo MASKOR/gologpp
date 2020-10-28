@@ -435,18 +435,12 @@ public:
 
 	virtual Expression *ref(const vector<Expression *> &params) override;
 	Reference<ExogFunction> *make_ref(const vector<Expression *> &params);
-	void define(boost::optional<BackendMapping *> mapping);
+	void define();
 	virtual void compile(AExecutionController &ctx) override;
 
 	virtual string to_string(const string &pfx) const override;
 
-	const BackendMapping &mapping() const;
-	BackendMapping &mapping();
-
-	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(scope(), *mapping_)
-
-private:
-	unique_ptr<BackendMapping> mapping_;
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(scope())
 };
 
 

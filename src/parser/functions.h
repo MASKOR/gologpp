@@ -73,8 +73,6 @@ struct ExogFunctionParser
 			shared_ptr<const Type>
 		>
 	> function;
-
-	MappingParser mapping;
 };
 
 

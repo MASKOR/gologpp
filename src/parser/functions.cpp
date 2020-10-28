@@ -106,15 +106,8 @@ ExogFunctionParser::ExogFunctionParser()
 		> (
 			lit(';') [
 				_val = phoenix::bind(
-					&Scope::declare_global<ExogFunction>,
+					&Scope::define_global<ExogFunction>,
 					_r1, _a, *_d, _b, _c
-				),
-				_pass = !!_val
-			]
-			| (lit('{') > -("mapping:" > mapping(*_a)) > '}') [
-				_val = phoenix::bind(
-					&Scope::define_global<ExogFunction, boost::optional<BackendMapping *>>,
-					_r1, _a, *_d, _b, _c, _1
 				),
 				_pass = !!_val
 			]

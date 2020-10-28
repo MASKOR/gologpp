@@ -139,11 +139,17 @@ public:
 
 template<>
 class Semantics<Reference<ExogFunction>>
-: public GeneralSemantics<Reference<ExogFunction>>
+: public ReferenceSemantics<ExogFunction>
+, public Semantics<typename Reference<ExogFunction>::ElementType>
 {
 public:
-	Semantics(const Reference<ExogFunction> &elem, AExecutionController &context);
+	using ReferenceSemantics<ExogFunction>::ReferenceSemantics;
+
+	virtual EC_word plterm() override;
+	virtual Value evaluate(const BindingChain &bc, const History &h) override;
+	virtual const Expression &expression() const override;
 };
+
 
 
 

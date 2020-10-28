@@ -1,4 +1,6 @@
 :- external(exog_fluent_getValue/3, p_exog_fluent_getValue).
+:- external(eval_exog_function/4, p_eval_exog_function).
+
 :- dynamic managed_term/2.
 :- dynamic durative_action/1, durative_poss/2, durative_causes_val/4.
 :- lib(listut).

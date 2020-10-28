@@ -30,8 +30,8 @@ number fluent nested(string s)
 bool fluent exog_happened()
 { initially: () = false; }
 
-string exog_function ef_s1(number a, number b) {
-}
+string exog_function ef_s1(number a, number b);
+
 
 exog_action ea(number n, string s) {
 effect:
@@ -57,4 +57,5 @@ procedure main()
 {
 	test(exog_happened());
 	sense_s2(1,2);
+	s2() = ef_s1(1,2);
 }

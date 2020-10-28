@@ -394,7 +394,6 @@ ExogFunction::ExogFunction(
 )
 : ScopeOwner(own_scope)
 , Signified<Expression>(name, args)
-, mapping_(new BackendMapping(*this))
 { set_type(t); }
 
 
@@ -406,7 +405,6 @@ ExogFunction::ExogFunction(
 )
 : ScopeOwner(own_scope)
 , Signified<Expression>(name, args.get_value_or({}))
-, mapping_(new BackendMapping(*this))
 { set_type(t); }
 
 
@@ -414,23 +412,12 @@ string ExogFunction::to_string(const string &pfx) const
 {
 	return linesep + pfx + type().name() + " function " + name() + '('
 		+ concat_list(params(), ", ")
-		+ ") " + mapping().to_string(pfx);
+		+ ");";
 }
 
-const BackendMapping &ExogFunction::mapping() const
-{ return *mapping_; }
 
-BackendMapping &ExogFunction::mapping()
-{ return *mapping_; }
-
-
-void ExogFunction::define(boost::optional<BackendMapping *> mapping)
-{
-	if (mapping) {
-		mapping_.reset(mapping.get());
-		mapping_->set_parent(this);
-	}
-}
+void ExogFunction::define()
+{}
 
 void ExogFunction::compile(AExecutionController &ctx)
 { ctx.compile(*this); }
@@ -471,15 +458,18 @@ Value GeneralSemantics<Reference<ExogFunction> >::evaluate(const BindingChain &b
 	BindingChain merged(b);
 	merged.push_back(&element().binding());
 
-	for (auto &pair : element().target()->mapping().arg_mapping())
-		backend_args.insert( {
-			pair.first,
-			pair.second->general_semantics().evaluate(merged, h)
-		} );
+	for (auto &param : element()->params()) {
+		unique_ptr<Reference<Variable>> var_ref(param->ref());
+		var_ref->attach_semantics(context().semantics_factory());
+		backend_args.emplace(
+			param->name(),
+			var_ref->general_semantics().evaluate(merged, h)
+		);
+	}
 
 	Value rv = context().backend().eval_exog_function(
 		element().type(),
-		element().target()->mapping().backend_name(),
+		element().name(),
 		backend_args
 	);
 	rv.attach_semantics(this->context().semantics_factory());

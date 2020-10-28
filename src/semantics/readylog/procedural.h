@@ -59,10 +59,14 @@ private:
 
 template<>
 class Semantics<ExogFunction>
-: public GeneralSemantics<ExogFunction>
+: public ReadylogSemantics
+, public GeneralSemantics<ExogFunction>
 {
 public:
 	using GeneralSemantics<ExogFunction>::GeneralSemantics;
+
+	virtual EC_word plterm() override;
+	virtual EC_word definition();
 };
 
 
