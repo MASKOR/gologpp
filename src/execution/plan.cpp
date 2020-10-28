@@ -90,33 +90,61 @@ Plan::Plan(Plan &&sub)
 {}
 
 
-Plan &Plan::append(TimedInstruction &&i)
+Plan &Plan::append(TimedInstruction &&ti)
 {
-	elements_.push_back(std::forward<TimedInstruction>(i));
 	// Set timepoints
-	Transition *instr = dynamic_cast<Transition *>(&elements_.back().instruction());
-	if (elements_.back().timepoints_default() && instr && instr->hook() == Transition::Hook::END) {
-		// Find matching START transition
-		auto it = std::find_if(elements().rbegin(), elements().rend(), [&] (TimedInstruction &ti) {
-			try {
-				Transition &trans = ti.instruction().cast<Transition>();
-				return trans.hook() == Transition::Hook::START && trans == *instr;
-			} catch (std::bad_cast &) {
-				return false;
-			}
-		} );
 
-		if (it == elements().rend()) {
-			// Not found: use best guess
-			elements().back().set_earliest(Clock::now());
-			elements().back().set_latest(Clock::now() + (*instr)->duration().max);
+	if (ti.timepoints_default()) {
+
+		Clock::time_point prev_earliest = Clock::now();
+		Clock::time_point prev_latest = Clock::now();
+
+		if (elements().size()) {
+			prev_earliest = elements().back().earliest_timepoint();
+			prev_latest = elements().back().latest_timepoint();
+		}
+
+		Transition *trans = dynamic_cast<Transition *>(&ti.instruction());
+
+		if (trans && trans->hook() == Transition::Hook::END) {
+			// Adding an END transition: find matching START transition
+			auto it = std::find_if(elements().rbegin(), elements().rend(), [&] (TimedInstruction &ti) {
+				try {
+					Transition &trans2 = ti.instruction().cast<Transition>();
+					return trans2.hook() == Transition::Hook::START && trans2 == *trans;
+				} catch (std::bad_cast &) {
+					return false;
+				}
+			} );
+
+			if (it == elements().rend()) {
+				// Not found: use best guess
+				ti.set_earliest(prev_earliest);
+				ti.set_latest(prev_latest + trans->target()->duration().max);
+			}
+			else {
+				// Found: add on top
+				ti.set_earliest(
+					std::max(
+						it->earliest_timepoint() + trans->target()->duration().min,
+						prev_earliest
+					)
+				);
+				ti.set_latest(
+					std::max(
+						it->latest_timepoint() + trans->target()->duration().max,
+						prev_latest
+					)
+				);
+			}
 		}
 		else {
-			// Found: add on top
-			elements().back().set_earliest(it->earliest_timepoint() + (*instr)->duration().min);
-			elements().back().set_latest(it->latest_timepoint() + (*instr)->duration().max);
+			ti.set_earliest(prev_earliest);
+			ti.set_latest(prev_latest);
 		}
 	}
+	elements_.push_back(std::forward<TimedInstruction>(ti));
+
 	return *this;
 }
 
