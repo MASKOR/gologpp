@@ -56,7 +56,7 @@ int p_eval_exog_function()
 	std::unordered_map<string, Value> backend_args;
 	arity_t idx = 0;
 	while (arg_fargs.is_list(head, tail) == EC_succeed) {
-		backend_args.emplace(efunc->parameter(idx++)->name(), pl_term_to_value(head));
+		backend_args.emplace(efunc->parameter(idx++)->name(), pl_term_to_value(head, false));
 		arg_fargs = tail;
 	}
 

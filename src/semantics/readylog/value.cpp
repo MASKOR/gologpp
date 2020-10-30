@@ -18,6 +18,7 @@
 #include "value.h"
 #include "execution.h"
 #include <model/value.h>
+#include <model/logger.h>
 
 namespace gologpp {
 
@@ -86,7 +87,7 @@ EC_word Semantics<Value>::plterm()
 }
 
 
-Value pl_term_to_value(EC_word term) {
+Value pl_term_to_value(EC_word term, bool allow_ec_resume) {
 	EC_word type, list, list_head, list_tail;
 	EC_atom did;
 	EC_functor ftor;
@@ -170,17 +171,23 @@ Value pl_term_to_value(EC_word term) {
 			if (
 				list_head.functor(&field_ftor) == EC_succeed
 				&& field_ftor.arity() == 1
-				&& list_head.arg(0, field_value)
+				&& list_head.arg(1, field_value) == EC_succeed
 			) {
 				compound_repr.push_back(
 					fusion_wtf_vector<string, Value *> {
 						string(field_ftor.name()).substr(1),
-						new Value(pl_term_to_value(list_head))
+						new Value(pl_term_to_value(field_value, allow_ec_resume))
 					}
 				);
 			}
 			else
-				throw Bug("Invalid list entry: " + ReadylogContext::instance().to_string(list_head));
+				throw Bug(
+					string("Invalid compound field") + (
+						allow_ec_resume
+						? ": " + ReadylogContext::instance().to_string(list_head)
+						: ""
+					)
+				);
 		} while (EC_succeed == list_tail.is_list(list_head, list_tail));
 
 		string type_name(did.name());
@@ -193,7 +200,12 @@ Value pl_term_to_value(EC_word term) {
 	}
 
 	else
-		throw Bug("Invalid prolog value: " + ReadylogContext::instance().to_string(term));
+		throw Bug(
+			"Invalid prolog value" + (
+				allow_ec_resume ? ": " + ReadylogContext::instance().to_string(term)
+				: ""
+			)
+		);
 }
 
 Semantics<Value> *Semantics<Value>::copy(const Value &target_elem) const

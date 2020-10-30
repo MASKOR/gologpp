@@ -51,7 +51,7 @@ public:
 };
 
 
-Value pl_term_to_value(EC_word term);
+Value pl_term_to_value(EC_word term, bool allow_ec_resume = true);
 
 
 } // namespace gologpp
