@@ -31,6 +31,7 @@
 #include <execution/transformation.h>
 
 #include <model/action.h>
+#include <model/logger.h>
 
 #include <model/platform/semantics.h>
 
@@ -100,9 +101,12 @@ ReadylogContext::ReadylogContext(
 
 	//ec_query(EC_atom("toggle_dtdebug"));
 	
+	string boilerplate_path = find_boilerplate();
+	log(LogLevel::INF) << "Loading " << boilerplate_path << "..." << flush;
 	ec_query(::term(EC_functor("compile", 1),
-		EC_atom(find_boilerplate().c_str())
+		EC_atom(boilerplate_path.c_str())
 	));
+	log(LogLevel::INF) << "... done." << flush;
 
 	// Boilerplate stuff
 	compile_term(::term(EC_functor("events_list", 1), ::nil()));
