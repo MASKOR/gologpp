@@ -136,22 +136,25 @@ Value pl_term_to_value(EC_word term, bool allow_ec_resume) {
 		&& term.arg(2, list) == EC_succeed
 		&& list.is_list(list_head, list_tail) == EC_succeed
 	) {
+		string elem_type_name(did.name());
+		elem_type_name = elem_type_name.substr(1); // remove # prefix that is added to avoid name clashes
+		shared_ptr<const Type> elem_type = global_scope().lookup_type(elem_type_name);
+		if (!elem_type)
+			throw Bug("Undefined type: " + elem_type_name);
+		shared_ptr<const ListType> list_type = global_scope().lookup_list_type(*elem_type);
+		if (!list_type)
+			throw Bug("Undefined type: list[" + elem_type_name + "]");
+
 		vector<Value *> list_repr;
 		do {
-			list_repr.push_back(new Value(pl_term_to_value(list_head)));
+			unique_ptr<Value> elem(new Value(pl_term_to_value(list_head)));
+			if (elem->type().is<SymbolType>() && list_type->element_type().is<StringType>())
+				elem.reset(new Value(get_type<StringType>(), static_cast<string>(*elem)));
+			list_repr.push_back(elem.release());
 		} while (EC_succeed == list_tail.is_list(list_head, list_tail));
 
-		string elem_t(did.name());
-		elem_t = elem_t.substr(1); // remove # prefix that is added to avoid name clashes
-		shared_ptr<const Type> elem_t_p = global_scope().lookup_type(elem_t);
-		if (!elem_t_p)
-			throw Bug("Undefined type: " + elem_t);
-		shared_ptr<const ListType> list_t = global_scope().lookup_list_type(*elem_t_p);
-		if (!list_t)
-			throw Bug("Undefined type: list[" + elem_t + "]");
-
 		return Value {
-			*global_scope().lookup_list_type(*list_t),
+			*global_scope().lookup_list_type(*list_type),
 			boost::optional<vector<Value *>> { list_repr }
 		};
 	}
@@ -165,6 +168,13 @@ Value pl_term_to_value(EC_word term, bool allow_ec_resume) {
 		&& list.is_list(list_head, list_tail) == EC_succeed
 	) {
 		vector<fusion_wtf_vector<string, Value *>> compound_repr;
+
+		string type_name(did.name());
+		type_name = type_name.substr(1); // remove # prefix that is added to avoid name clashes
+		shared_ptr<const CompoundType> type = global_scope().lookup_type<CompoundType>(type_name);
+		if (!type)
+			throw Bug("Undefined compound type: " + type_name);
+
 		do {
 			EC_functor field_ftor;
 			EC_word field_value;
@@ -173,12 +183,16 @@ Value pl_term_to_value(EC_word term, bool allow_ec_resume) {
 				&& field_ftor.arity() == 1
 				&& list_head.arg(1, field_value) == EC_succeed
 			) {
-				compound_repr.push_back(
-					fusion_wtf_vector<string, Value *> {
-						string(field_ftor.name()).substr(1),
-						new Value(pl_term_to_value(field_value, allow_ec_resume))
-					}
-				);
+				string field_name(field_ftor.name());
+				field_name = field_name.substr(1); // remove # prefix that is added to avoid name clashes
+
+				unique_ptr<Value> subval(new Value(pl_term_to_value(field_value, allow_ec_resume)));
+
+				// Can't distinguish strings & symbols coming from ReadyLog, so convert them as needed
+				if (subval->type().is<SymbolType>() && type->field_type(field_name).is<StringType>())
+					subval.reset(new Value(get_type<StringType>(), static_cast<string>(*subval)));
+
+				compound_repr.emplace_back(field_name, subval.release());
 			}
 			else
 				throw Bug(
@@ -189,12 +203,6 @@ Value pl_term_to_value(EC_word term, bool allow_ec_resume) {
 					)
 				);
 		} while (EC_succeed == list_tail.is_list(list_head, list_tail));
-
-		string type_name(did.name());
-		type_name = type_name.substr(1); // remove # prefix that is added to avoid name clashes
-		shared_ptr<const CompoundType> type = global_scope().lookup_type<CompoundType>(type_name);
-		if (!type)
-			throw Bug("Undefined compound type: " + type_name);
 
 		return Value(*type, compound_repr);
 	}
