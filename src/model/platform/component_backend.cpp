@@ -64,9 +64,6 @@ void ComponentBackend::exog_state_change(const string &state_name)
 	context().exog_queue_push(evt);
 }
 
-bool ComponentBackend::is_dummy() const
-{ return false; }
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,9 +105,6 @@ void DummyComponentBackend::terminate()
 	terminated_ = true;
 	pending_request_.notify_all();
 }
-
-bool DummyComponentBackend::is_dummy() const
-{ return true; }
 
 
 void DummyComponentBackend::request_state_change(const string &state)

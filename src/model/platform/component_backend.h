@@ -40,7 +40,6 @@ public:
 	virtual void switch_state(const string &state_name) = 0;
 	virtual void init() = 0;
 	virtual void terminate() = 0;
-	virtual bool is_dummy() const;
 
 private:
 	Component *model_;
@@ -60,8 +59,6 @@ public:
 	virtual void switch_state(const string &state_name) override;
 	virtual void init() override;
 	virtual void terminate() override;
-	virtual bool is_dummy() const override;
-
 
 	void request_state_change(const string &state);
 

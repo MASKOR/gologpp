@@ -136,10 +136,9 @@ unique_ptr<Plan> GeneralSemantics<Reference<platform::SwitchStateAction> >::tran
 	}
 	else if (component->find_transition<platform::ExogTransition>(*from_st, *to_st)) {
 		if (*component->current_state() != *to_st) {
-			if (component->backend().is_dummy()) {
-				DummyComponentBackend &dummy = dynamic_cast<platform::DummyComponentBackend &>(component->backend());
-				dummy.request_state_change(to_state);
-			}
+			DummyComponentBackend *dummy = dynamic_cast<platform::DummyComponentBackend *>(&component->backend());
+			if (dummy)
+				dummy->request_state_change(to_state);
 			return nullptr;
 		}
 		else {
