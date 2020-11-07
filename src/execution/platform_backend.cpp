@@ -49,8 +49,8 @@ shared_ptr<Activity> PlatformBackend::start_activity(const Transition &trans)
 			" Currently: " + it->second->str()
 		);
 	a->attach_semantics(exec_context()->semantics_factory());
-	execute_activity(a);
 	a->set_state(Activity::target_state(trans.hook()));
+	execute_activity(a);
 	activities_.insert({a->hash(), a});
 	return a;
 }
