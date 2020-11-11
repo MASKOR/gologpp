@@ -185,14 +185,14 @@ TemporalUnaryOperation<SubjectT>::TemporalUnaryOperation(
 	if (bound) {
 		if (at_c<0>(bound.get()))
 			lower_bound_ = gologpp::Clock::duration {
-				boost::numeric_cast<gologpp::Clock::rep>(at_c<0>(bound.get()).get())
+				at_c<0>(bound.get()).get().numeric_convert<gologpp::Clock::rep>()
 			};
 		else
 			lower_bound_ = tmin;
 
 		if (at_c<1>(bound.get()))
 			upper_bound_ = gologpp::Clock::duration {
-				boost::numeric_cast<gologpp::Clock::rep>(at_c<1>(bound.get()).get())
+				at_c<1>(bound.get()).get().numeric_convert<gologpp::Clock::rep>()
 			};
 		else
 			upper_bound_ = tmax;
