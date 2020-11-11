@@ -470,6 +470,8 @@ if (BUILD_PARSER AND BUILD_READYLOG_SEMANTICS)
 			)
 		endforeach()
 	endif()
+
+	install(TARGETS gologpp-test DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 
