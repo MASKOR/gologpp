@@ -104,7 +104,7 @@ const Reference<State> &StateAssertion::state() const
 { return *state_; }
 
 string StateAssertion::to_string(const string &pfx) const
-{ return pfx + "state(" + component().str() + ") = " + state().str(); }
+{ return pfx + "state(" + component().name() + ") = " + state().str(); }
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
