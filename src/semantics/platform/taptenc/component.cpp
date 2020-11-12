@@ -76,7 +76,7 @@ taptenc::Transition Semantics<platform::Transition>::compile()
 
 taptenc::Transition Semantics<platform::ExogTransition>::compile()
 {
-	std::unique_ptr<taptenc::ClockConstraint> clock_formula;
+	std::unique_ptr<taptenc::ClockConstraint> clock_formula(new taptenc::trueCC());
 	if (element().clock_formula())
 		clock_formula = element().clock_formula()->semantics().compile();
 	else
