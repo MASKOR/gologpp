@@ -223,9 +223,19 @@ gologpp::Clock::duration TemporalUnaryOperation<SubjectT>::upper_bound() const
 template<class SubjectT>
 string TemporalUnaryOperation<SubjectT>::to_string(const string &pfx) const
 {
-	return pfx + gologpp::platform::to_string<SubjectT>(op()) + "["
-		+ gologpp::to_string(lower_bound()) + ", " + gologpp::to_string(upper_bound())
-		+ "] " + subject().str();
+	string rv = pfx + gologpp::platform::to_string<SubjectT>(op()) + "[";
+	if (lower_bound() != gologpp::Clock::duration::min())
+		rv += gologpp::to_string(lower_bound());
+	else
+		rv += "*";
+	rv += ", ";
+	if (upper_bound() != gologpp::Clock::duration::max())
+		rv += gologpp::to_string(upper_bound());
+	else
+		rv += "*";
+	rv += "] " + subject().str();
+
+	return rv;
 }
 
 
@@ -302,8 +312,18 @@ gologpp::Clock::duration TemporalBinaryOperation<SubjectT>::upper_bound() const
 template<class SubjectT>
 string TemporalBinaryOperation<SubjectT>::to_string(const string &pfx) const
 {
-	return pfx + lhs().str() + gologpp::platform::to_string<SubjectT>(op()) + "[" + gologpp::to_string(lower_bound()) + ", "
-		+ gologpp::to_string(upper_bound()) + "] " + rhs().str();
+	string rv = pfx + lhs().str() + " " + gologpp::platform::to_string<SubjectT>(op()) + "[";
+	if (lower_bound() != gologpp::Clock::duration::min())
+		rv += gologpp::to_string(lower_bound());
+	else
+		rv += "*";
+	rv += ", ";
+	if (upper_bound() != gologpp::Clock::duration::max())
+		rv += gologpp::to_string(upper_bound());
+	else
+		rv += "*";
+	rv += "] " + rhs().str();
+	return rv;
 }
 
 
