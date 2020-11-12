@@ -57,7 +57,7 @@ FluentParser::FluentParser()
 {
 	fluent = (
 		(((type_identifier<Type>()(_r1) >> "fluent") > r_name() > '(') [
-			_a = new_<Scope>(_r1),
+			_a = phoenix::bind(&Scope::get_scope, _r1, _2),
 			_b = _2, // fluent name
 			_d = _1  // type
 		] )

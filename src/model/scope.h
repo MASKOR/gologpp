@@ -201,13 +201,6 @@ public:
 			if (rv && !(rv->type() <= type))
 				throw TypeError("Cannot redeclare " + rv->str()
 					+ " with type " + type.name());
-
-			// Here be dragons:
-			// own_scope is constructed by the parser, and it may or may not
-			// be the one that is already in use by the existing Global.
-			// If it's not, we have to delete it since it won't be used.
-			if (&(rv->scope()) != own_scope)
-				delete own_scope;
 		}
 		else
 			register_global(new GologT(own_scope, type, name, args.get_value_or({})));
@@ -237,18 +230,13 @@ public:
 				throw TypeError("Cannot redefine " + rv->str()
 					+ " with type " + type.name());
 
-			// Here be dragons:
-			// own_scope is constructed by the parser, and it may or may not
-			// be the one that is already in use by the existing Global.
-			// If it's not, we have to delete it since it won't be used.
-			if (&(rv->scope()) != own_scope)
-				delete own_scope;
-
 			// TODO: if (rv->defined()): Warn on redefinition
 		}
 		else
 			rv = declare_global<GologT>(own_scope, type, name, args);
+
 		rv->define(definition_args...);
+
 		return rv;
 	}
 
@@ -295,6 +283,8 @@ public:
 	template<class = Scope>
 	Semantics<Scope> &semantics() const
 	{ return ModelElement::semantics<Scope>(); }
+
+	Scope *get_scope(const string &identifier);
 
 
 private:

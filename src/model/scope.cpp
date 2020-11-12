@@ -336,6 +336,14 @@ vector<shared_ptr<Global>> Scope::globals() const
 vector<unique_ptr<platform::Constraint> > &Scope::constraints()
 { return *constraints_; }
 
+Scope *Scope::get_scope(const string &identifier)
+{
+	if (exists_global(identifier))
+		return &lookup_global<Global>(identifier)->scope();
+	else
+		return new Scope(*this);
+}
+
 
 
 ScopeOwner::ScopeOwner(Scope *owned_scope)

@@ -146,7 +146,7 @@ ActionParser<ActionT>::ActionParser()
 {
 	action = (
 		((lit(action_keyword<ActionT>()) > r_name() > '(') [
-			_a = new_<Scope>(_r1),
+			_a = phoenix::bind(&Scope::get_scope, _r1, _1),
 			_b = _1
 		])
 		> ( -(var_decl()(*_a) % ',') > ')' ) [

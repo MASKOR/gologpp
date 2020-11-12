@@ -58,7 +58,7 @@ FunctionParser::FunctionParser()
 			(type_identifier<Type>()(_r1) >> "function")
 			> r_name() > '('
 		) [
-			_a = new_<Scope>(_r1),
+			_a = phoenix::bind(&Scope::get_scope, _r1, _2),
 			_b = _2,
 			_d = _1
 		]
@@ -96,7 +96,7 @@ ExogFunctionParser::ExogFunctionParser()
 			(type_identifier<Type>()(_r1) >> "exog_function")
 			> r_name() > '('
 		) [
-			_a = new_<Scope>(_r1),
+			_a = phoenix::bind(&Scope::get_scope, _r1, _2),
 			_b = _2,
 			_d = _1
 		]
@@ -125,7 +125,7 @@ ProcedureParser::ProcedureParser()
 {
 	procedure =
 		(lit("procedure") > r_name() > '(') [
-			_a = new_<Scope>(_r1),
+			_a = phoenix::bind(&Scope::get_scope, _r1, _1),
 			_b = _1
 		]
 		> ( -(var_decl()(*_a) % ',') > ')' ) [
