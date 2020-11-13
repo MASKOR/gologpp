@@ -41,35 +41,36 @@
 using namespace gologpp;
 namespace po = boost::program_options;
 
-string filename;
-
 int test_file(unique_ptr<Instruction> &&mainproc)
 {
 	shared_ptr<Function> f_postcond = global_scope().lookup_global<Function>("postcond");
-	if (!f_postcond) {
-		log(LogLevel::ERR) << "No bool function postcond() in " << filename << flush;
-		return -2;
+	unique_ptr<Reference<Function>> postcond;
+	if (f_postcond) {
+		postcond.reset(f_postcond->make_ref({}));
+		postcond->attach_semantics(ReadylogContext::instance().semantics_factory());
 	}
-
-	unique_ptr<Reference<Function>> postcond { f_postcond->make_ref({})	};
-	postcond->attach_semantics(ReadylogContext::instance().semantics_factory());
 
 	mainproc->attach_semantics(ReadylogContext::instance().semantics_factory());
 
 	ReadylogContext::instance().run(*mainproc);
 
-	bool success = static_cast<bool>(
-		postcond->semantics().evaluate({}, ReadylogContext::instance().history())
-	);
+	if (postcond) {
+		log(LogLevel::INF) << "Testing postcond(): " << flush;
+		bool success = static_cast<bool>(
+			postcond->semantics().evaluate({}, ReadylogContext::instance().history())
+		);
 
-	if (success) {
-		log(LogLevel::INF) << filename << " OK" << flush;
+		if (success) {
+			log(LogLevel::INF) << "OK" << flush;
+			return 0;
+		}
+		else {
+			log(LogLevel::ERR) << "FAIL" << flush;
+			return 1;
+		}
+	}
+	else
 		return 0;
-	}
-	else {
-		log(LogLevel::ERR) << filename << " FAIL" << flush;
-		return 1;
-	}
 }
 
 
@@ -93,7 +94,7 @@ int main(int argc, char **argv) {
 			vm
 		);
 
-		filename = vm["file"].as<string>();
+		string filename = vm["file"].as<string>();
 		int loglevel = 3;
 
 		if (vm.count("loglevel"))
@@ -101,7 +102,6 @@ int main(int argc, char **argv) {
 
 		Logger::instance().log_lvl() = static_cast<LogLevel>(loglevel);
 
-		log(LogLevel::INF) << "Testing " << filename << "..." << flush;
 		parser::parse_file(filename);
 
 		shared_ptr<Procedure> mainproc = global_scope().lookup_global<Procedure>("main");
