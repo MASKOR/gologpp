@@ -57,6 +57,9 @@ void TaptencTransformation::init(AExecutionController &ctx)
 
 unique_ptr<Plan> TaptencTransformation::transform(Plan &&p)
 {
+	if (p.elements().empty())
+		return unique_ptr<Plan>(new Plan(std::move(p)));
+
 	log(LogLevel::DBG) << "=== Trafo input: " << p << flush;
 	arg_to_sym_.clear();
 	sym_to_arg_.clear();
