@@ -1,5 +1,0 @@
-constraints {
-	// UntilChain
-	during(a1()): state(c0) = s | state(c1) = t.
-	start(a1())) | start(a2()): state(c0) = s.
-}
