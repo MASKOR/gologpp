@@ -118,7 +118,7 @@ public:
 	{
 		if (exists_global(name))
 			return std::dynamic_pointer_cast<GologT>(
-				(*globals_) [name]
+				globals_->at(name)
 			);
 		else
 			return shared_ptr<GologT>();
