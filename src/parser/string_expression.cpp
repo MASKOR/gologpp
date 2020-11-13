@@ -53,7 +53,8 @@ StringExpressionParser::StringExpressionParser()
 	expression.name("string_expression");
 
 	unary_expr =
-		conversion(_r1)
+		(lit('(') > expression(_r1) > ')')
+		| conversion(_r1)
 		| string_value() | var_ref(_r1)
 		| conditional_expression(_r1, string_type())
 		| typed_reference<Fluent>()(_r1, string_type())
