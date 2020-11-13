@@ -153,6 +153,9 @@ Logger &Logger::operator<< (const unsigned int i)
 Logger &Logger::operator<< (const float &i)
 { msg_pfx() += std::to_string(i); return *this; }
 
+Logger &Logger::operator<<(const double &d)
+{ msg_pfx() += std::to_string(d); return *this; }
+
 Logger &Logger::operator<< (const char *msg)
 { msg_pfx() += msg; return *this; }
 

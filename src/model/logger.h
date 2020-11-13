@@ -55,6 +55,7 @@ public:
 	Logger &operator<< (const unsigned int i);
 	Logger &operator<< (const int i);
 	Logger &operator<< (const float &d);
+	Logger &operator<< (const double &d);
 	Logger &operator<< (Logger & (*pf_flush)(Logger &));
 	Logger &operator<< (const char *msg);
 	Logger &operator<< (char *msg);
