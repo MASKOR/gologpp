@@ -96,6 +96,9 @@ Plan &Plan::append(TimedInstruction &&ti)
 
 	if (ti.timepoints_default()) {
 
+		if (ti.latest_timepoint() - ti.earliest_timepoint() < gologpp::Clock::duration(1))
+			ti.set_latest(ti.latest_timepoint() + gologpp::Clock::duration(1));
+
 		Clock::time_point prev_earliest = Clock::now();
 		Clock::time_point prev_latest = Clock::now();
 

@@ -60,7 +60,6 @@ unique_ptr<Plan> TaptencTransformation::transform(Plan &&p)
 	if (p.elements().empty())
 		return unique_ptr<Plan>(new Plan(std::move(p)));
 
-	log(LogLevel::DBG) << "=== Trafo input: " << p << flush;
 	arg_to_sym_.clear();
 	sym_to_arg_.clear();
 	tt_update_automata();
@@ -130,6 +129,8 @@ shared_ptr<const platform::Component> TaptencTransformation::find_component_ref(
 vector<taptenc::PlanAction> TaptencTransformation::plan_gpp_to_taptenc(Plan &&p)
 {
 	vector<taptenc::PlanAction> rv;
+	gologpp::Clock::time_point pbegin_t = p.elements().front().earliest_timepoint();
+	log(LogLevel::DBG) << "=== Trafo input: {" << flush;
 	for (auto &ti : p.elements()) {
 		if (ti.instruction().is_a<Transition>()) {
 			Transition &trans = ti.instruction().cast<Transition>();
@@ -139,11 +140,16 @@ vector<taptenc::PlanAction> TaptencTransformation::plan_gpp_to_taptenc(Plan &&p)
 			for (auto &arg : trans.args())
 				argstr.push_back(store_arg(dynamic_cast<Value &>(*arg)));
 
+			gologpp::Clock::rep earliest_shifted = std::max(0., (ti.earliest_timepoint() - pbegin_t).count());
+			gologpp::Clock::rep latest_shifted = std::max(0., (ti.latest_timepoint() - pbegin_t).count());
+
+			log(LogLevel::DBG) << "    " << trans << " [" << earliest_shifted << ", " << latest_shifted << "]" << flush;
+
 			rv.push_back(taptenc::PlanAction {
 				taptenc::ActionName(actstr, argstr),
 				taptenc::Bounds(
-					boost::numeric_cast<taptenc::timepoint>(ti.earliest_timepoint().time_since_epoch().count()),
-					boost::numeric_cast<taptenc::timepoint>(ti.latest_timepoint().time_since_epoch().count())
+					boost::numeric_cast<taptenc::timepoint>(earliest_shifted),
+					boost::numeric_cast<taptenc::timepoint>(latest_shifted)
 				),
 				taptenc::Bounds(trans->duration().min.count(), trans->duration().max.count())
 			} );
@@ -151,7 +157,6 @@ vector<taptenc::PlanAction> TaptencTransformation::plan_gpp_to_taptenc(Plan &&p)
 		else {
 			/* TODO: This silently discards test markers and other plan elements. Need to insert identifying
 			 * placeholders for other plan elements & retrieve them from storage when translating back */
-			log(LogLevel::DBG) << "FIXME: Discarding plan action " << ti.instruction().str() << flush;
 		}
 	}
 	return rv;
@@ -239,13 +244,16 @@ TimedInstruction TaptencTransformation::parse_domain_action(
 	if (!a)
 		throw Bug("Unrecognized taptenc action name: " + act_name);
 
-	TimedInstruction ti { new Transition(a, std::move(args), hook) };
-	ti.set_earliest(context().context_time() + std::chrono::seconds(tt_time.earliest_start));
-	ti.set_latest(context().context_time() + std::chrono::seconds(tt_time.earliest_start + tt_time.max_delay));
+	TimedInstruction rv { new Transition(a, std::move(args), hook) };
+	rv.set_earliest(gologpp::Clock::now() + std::chrono::seconds(tt_time.earliest_start));
+	rv.set_latest(gologpp::Clock::now() + std::chrono::seconds(tt_time.earliest_start + tt_time.max_delay));
 
-	ti.instruction().attach_semantics(SemanticsFactory::get());
+	if (rv.latest_timepoint() - rv.earliest_timepoint() < gologpp::Clock::duration(1))
+		rv.set_latest(rv.latest_timepoint() + gologpp::Clock::duration(1));
 
-	return ti;
+	rv.instruction().attach_semantics(SemanticsFactory::get());
+
+	return rv;
 }
 
 
@@ -290,8 +298,11 @@ TimedInstruction TaptencTransformation::parse_platform_action(
 			new Value(get_type<StringType>(), to_name)
 		}
 	} };
-	rv.set_earliest(context().context_time() + std::chrono::seconds(tt_time.earliest_start));
-	rv.set_latest(context().context_time() + std::chrono::seconds(tt_time.earliest_start + tt_time.max_delay));
+	rv.set_earliest(gologpp::Clock::now() + std::chrono::seconds(tt_time.earliest_start));
+	rv.set_latest(gologpp::Clock::now() + std::chrono::seconds(tt_time.earliest_start + tt_time.max_delay));
+
+	if (rv.latest_timepoint() - rv.earliest_timepoint() < gologpp::Clock::duration(1))
+		rv.set_latest(rv.latest_timepoint() + gologpp::Clock::duration(1));
 
 	rv.instruction().attach_semantics(SemanticsFactory::get());
 
