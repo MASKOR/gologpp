@@ -160,7 +160,7 @@ Component::Component(
 : Global(name, {})
 , ScopeOwner(own_scope)
 , backend_(nullptr)
-, mutex_(new std::mutex())
+, mutex_(new Lock::mutex_type())
 {
 	scope().register_identifier(new State("error", *this, boost::none));
 	error_state_ = scope().lookup_identifier<State>("error");
@@ -284,6 +284,8 @@ ModelElement *Component::ref(const vector<Expression *> &/*args*/)
 
 void Component::switch_state(const string &state_name)
 {
+	Component::Lock l(lock());
+
 	shared_ptr<State> tgt = scope().lookup_identifier<State>(state_name);
 	if (!tgt)
 		throw Bug(string(__func__) + ": Invalid target state: " + state_name);

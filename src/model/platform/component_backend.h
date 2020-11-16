@@ -30,6 +30,8 @@ namespace platform {
 
 class ComponentBackend {
 public:
+	ComponentBackend(std::initializer_list<string> supported_states);
+
 	void set_model(Component &model);
 	Component &model();
 	void set_context(AExecutionController &context);
@@ -37,13 +39,20 @@ public:
 
 	void exog_state_change(const string &state_name);
 
+	void terminate();
+
 	virtual void switch_state(const string &state_name) = 0;
 	virtual void init() = 0;
-	virtual void terminate() = 0;
+
+protected:
+	virtual void terminate_() = 0;
+	std::atomic_bool terminated;
 
 private:
 	Component *model_;
 	AExecutionController *exec_context_;
+	std::set<string> supported_states_;
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,13 +67,14 @@ public:
 
 	virtual void switch_state(const string &state_name) override;
 	virtual void init() override;
-	virtual void terminate() override;
 
 	void request_state_change(const string &state);
 
+protected:
+	virtual void terminate_() override;
+
 private:
 	std::thread exog_state_change_thread_;
-	std::atomic_bool terminated_;
 
 	std::condition_variable pending_request_;
 	std::mutex mutex_;

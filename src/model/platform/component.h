@@ -155,7 +155,7 @@ class Component
 {
 public:
 	using ElementType = ModelElement;
-	using Lock = std::unique_lock<std::mutex>;
+	using Lock = std::unique_lock<std::recursive_mutex>;
 
 	Component(Scope *own_scope, const string &name);
 
@@ -204,7 +204,7 @@ private:
 	vector<unique_ptr<AbstractTransition>> transitions_;
 	ComponentBackend *backend_;
 
-	unique_ptr<std::mutex> mutex_;
+	unique_ptr<Lock::mutex_type> mutex_;
 };
 
 

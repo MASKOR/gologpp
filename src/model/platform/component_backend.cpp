@@ -27,8 +27,24 @@ namespace gologpp {
 namespace platform {
 
 
+ComponentBackend::ComponentBackend(std::initializer_list<string> supported_states)
+: terminated(false)
+, supported_states_(supported_states)
+{ supported_states_.insert("error"); }
+
 void ComponentBackend::set_model(Component &model)
-{ model_ = &model; }
+{
+	model_ = &model;
+	if (!supported_states_.empty()) {
+		for (auto &state : model_->states())
+			if (supported_states_.find(state->name()) == supported_states_.end())
+				throw UserError(
+					"Component " + model_->name()
+					+ ": State " + state->name()
+					+ " is not supported by backend"
+				);
+	}
+}
 
 Component &ComponentBackend::model()
 { return *model_; }
@@ -64,12 +80,18 @@ void ComponentBackend::exog_state_change(const string &state_name)
 	context().exog_queue_push(evt);
 }
 
+void ComponentBackend::terminate()
+{
+	terminated = true;
+	terminate_();
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 DummyComponentBackend::DummyComponentBackend()
-: terminated_(false)
+: ComponentBackend({})
 {}
 
 void DummyComponentBackend::switch_state(const string &state_name)
@@ -81,10 +103,10 @@ void DummyComponentBackend::init()
 	log(LogLevel::INF) << "Dummy component " << model().name() << " init" << flush;
 
 	exog_state_change_thread_ = std::thread([&] () {
-		while (!terminated_) {
+		while (!terminated) {
 			std::unique_lock<std::mutex> lock(mutex_);
 			pending_request_.wait(lock, [&] () {
-				return terminated_  || std::atomic_load(&requested_state_);
+				return terminated || std::atomic_load(&requested_state_);
 			});
 
 			if (std::atomic_load(&requested_state_)) {
@@ -99,10 +121,9 @@ void DummyComponentBackend::init()
 }
 
 
-void DummyComponentBackend::terminate()
+void DummyComponentBackend::terminate_()
 {
 	log(LogLevel::INF) << "Dummy component " << model().name() << " terminate" << flush;
-	terminated_ = true;
 	pending_request_.notify_all();
 }
 
