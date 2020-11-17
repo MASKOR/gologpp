@@ -33,7 +33,7 @@ ListExpression::ListExpression(
 			+ t.name() + "\" does not refer to a list type");
 
 	for (Expression *expr : entries.get_value_or({})) {
-		if (type().element_type() >= expr->type())
+		if (type().element_type() >= *expr)
 			entries_.emplace_back(expr);
 		else
 			throw ExpressionTypeMismatch("Cannot assign " + expr->str()

@@ -40,7 +40,7 @@ CompoundExpression::CompoundExpression(
 		const string &field_name = boost::fusion::at_c<0>(entry);
 		const Type &field_type = compound_type().field_type(field_name);
 		Expression *expr = boost::fusion::at_c<1>(entry);
-		if (field_type >= expr->type())
+		if (field_type >= *expr)
 			entries_.emplace(field_name, unique_ptr<Expression>(expr));
 		else
 			throw ExpressionTypeMismatch("Cannot assign " + expr->str()
