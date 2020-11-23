@@ -172,6 +172,9 @@ Component::Component(
 void Component::set_current_state(const shared_ptr<State> &state)
 {
 	Lock l(lock());
+	log(LogLevel::DBG)
+		<< "Component " << name() << " switches "
+		<< current_state()->name() << " => " << state->name() << flush;
 	expected_state_ = state;
 	current_state_ = state;
 }
@@ -180,6 +183,9 @@ void Component::set_current_state(const shared_ptr<State> &state)
 void Component::set_current_state_exog(const shared_ptr<State> &state)
 {
 	Lock l(lock());
+	log(LogLevel::DBG)
+		<< "Component " << name() << " exog switches "
+		<< current_state()->name() << " -> " << state->name() << flush;
 	current_state_ = state;
 }
 
