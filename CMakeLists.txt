@@ -442,6 +442,7 @@ endif(BUILD_TAPTENC_SEMANTICS)
 
 set(GPP_TESTS
 	arithmetic.gpp
+	strings.gpp
 	blocksworld.gpp
 	some_exog.gpp
 	blocksworld_platform.gpp

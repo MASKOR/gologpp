@@ -1,0 +1,42 @@
+list[string]
+
+list[string] fluent lsf() {
+initially: () = list[string] ["one", "two", "three"];
+}
+
+
+compound StringPair {
+	string first,
+	string second
+}
+
+string fluent sfarg(string arg) {
+initially: (arg) = null;
+}
+
+
+string function list_access(list[string] l, number i) = l[i]
+
+string function paircat(StringPair sp) = sp.first + sp.second
+
+number function ston(string s) =
+	if (s == "1")
+		1
+	else if (s == "2")
+		2
+	else
+		0
+
+bool function postcond() =
+	paircat(StringPair {
+		first = lsf()[0],
+		second = lsf()[1]
+	}) == "onetwo"
+	& lsf()[ston(sfarg("one"))] == "two"
+
+procedure main() {
+	lsf() = list[string] ["one", "two", "three"];
+	sfarg("one") = "1";
+	sfarg("two") = "2";
+	sfarg("three") = "3";
+}
