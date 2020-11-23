@@ -16,7 +16,7 @@ eval_formula(T) :- call(T).
 execute(exogf_Update, _Sr, _H).
 execute(Action, _Sr, _H) :- printf("Dummy execute %W%n", [Action]).
 
-function(strcat(X, Y), R, concat_atoms(X, Y, R)).
+function(strcat(X, Y), R, concat_strings(X, Y, R)).
 function(to_string(V), R,
 	and(sprintf(S, "%w", V), atom_string(R, S))
 ).

@@ -48,11 +48,10 @@ EC_word Semantics<Value>::plterm()
 		else
 			throw std::runtime_error("Unknown Value type");
 	}
-	else if (
-		element().type().is<SymbolType>()
-		|| element().type().is<StringType>()
-	)
+	else if (element().type().is<SymbolType>())
 		return EC_atom(static_cast<string>(element()).c_str());
+	else if (element().type().is<StringType>())
+		return EC_word(static_cast<string>(element()).c_str());
 	else if (element().type().is<CompoundType>()) {
 		EC_word field_list = ::nil();
 		for (auto &pair : static_cast<const CompoundType::Representation &>(element()))
