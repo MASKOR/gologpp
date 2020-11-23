@@ -207,6 +207,7 @@ void Scope::clear()
 	if (this == &global_scope()) {
 		globals_->clear();
 		domains_->clear();
+		constraints_->clear();
 		init_types();
 	}
 }
