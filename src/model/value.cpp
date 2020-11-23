@@ -163,7 +163,7 @@ Value::Value(const Type &t, const vector<fusion_wtf_vector<string, Value *>> &co
 		const string &field_name = boost::fusion::at_c<0>(v);
 		const Type &field_type = this_type.field_type(field_name);
 		Value *field_value = boost::fusion::at_c<1>(v);
-		if (field_type >= field_value->type())
+		if (field_type >= *field_value)
 			tmp_value[field_name].reset(field_value);
 		else
 			throw ExpressionTypeMismatch("Cannot assign " + field_value->str()
