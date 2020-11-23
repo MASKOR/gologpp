@@ -30,7 +30,10 @@ namespace platform {
 ComponentBackend::ComponentBackend(std::initializer_list<string> supported_states)
 : terminated(false)
 , supported_states_(supported_states)
-{ supported_states_.insert("error"); }
+{
+	if (!supported_states_.empty())
+		supported_states_.insert("error");
+}
 
 void ComponentBackend::set_model(Component &model)
 {
