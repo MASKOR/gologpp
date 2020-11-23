@@ -115,7 +115,7 @@ ExogFunctionParser::ExogFunctionParser()
 	;
 	function.name("exog_function_definition");
 	on_error<rethrow>(function, delete_(_a));
-	GOLOGPP_DEBUG_NODE(exog_function)
+	GOLOGPP_DEBUG_NODE(function)
 }
 
 
