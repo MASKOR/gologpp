@@ -285,6 +285,8 @@ void ExecutionController::run(const Instruction &program)
 				log(LogLevel::INF) << "<<< Transformed schedule: " << *plan << flush;
 
 				while (!plan->elements().empty()) {
+					set_silent(true);
+
 					if (terminated)
 						throw Terminate();
 
