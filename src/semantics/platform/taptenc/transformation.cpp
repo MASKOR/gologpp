@@ -165,6 +165,8 @@ vector<taptenc::PlanAction> TaptencTransformation::plan_gpp_to_taptenc(Plan &&p)
 
 unique_ptr<Plan> TaptencTransformation::plan_taptenc_to_gpp(taptenc::timed_trace_t &&ttt)
 {
+	if (ttt.empty())
+		throw Bug("Empty taptenc trace");
 	unique_ptr<Plan> rv { new Plan() };
 	for (auto &pair : ttt) {
 		taptenc::groundedActionTime time = pair.first;
