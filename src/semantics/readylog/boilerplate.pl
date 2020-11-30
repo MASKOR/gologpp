@@ -17,9 +17,7 @@ execute(exogf_Update, _Sr, _H).
 execute(Action, _Sr, _H) :- printf("Dummy execute %W%n", [Action]).
 
 function(strcat(X, Y), R, concat_strings(X, Y, R)).
-function(to_string(V), R,
-	and(sprintf(S, "%w", V), atom_string(R, S))
-).
+function(to_string(V), R, sprintf(R, "%w", [V])).
 
 % Yet another wrapper to fix ReadyLog's broken function design
 % This is then a conditional that can actually be subf'ed recursively.
