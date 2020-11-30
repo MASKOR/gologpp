@@ -33,6 +33,7 @@ bool function postcond() =
 		second = lsf()[1]
 	}) == "onetwo"
 	& lsf()[ston(sfarg("one"))] == "two"
+	& to_string(1) == to_string(ston("1"))
 
 procedure main() {
 	lsf() = list[string] ["one", "two", "three"];
