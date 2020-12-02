@@ -51,15 +51,15 @@ public:
 	static Logger &instance();
 	LogLevel &log_lvl();
 
-	Logger &operator<< (const std::string &msg);
-	Logger &operator<< (const unsigned int i);
-	Logger &operator<< (const int i);
-	Logger &operator<< (const float &d);
-	Logger &operator<< (const double &d);
-	Logger &operator<< (Logger & (*pf_flush)(Logger &));
-	Logger &operator<< (const char *msg);
-	Logger &operator<< (char *msg);
-	Logger &operator<< (const Clock::time_point &tm);
+	Logger &operator << (const std::string &msg);
+	Logger &operator << (const unsigned int i);
+	Logger &operator << (const int i);
+	Logger &operator << (const float &d);
+	Logger &operator << (const double &d);
+	Logger &operator << (Logger & (*pf_flush)(Logger &));
+	Logger &operator << (const char *msg);
+	Logger &operator << (char *msg);
+	Logger &operator << (const Clock::time_point &tm);
 	Logger &operator << (const std::thread::id &id);
 
 
@@ -128,15 +128,36 @@ public:
 
 	virtual void output_message(const std::string &msg);
 
+	static string color_escape(LogLevel lvl);
+
 private:
 	std::string &msg_pfx();
 
 	bool syslog_;
+	bool have_tty_;
 	LogLevel log_lvl_;
 	LogLevel msg_lvl_;
 	static thread_local std::unique_ptr<std::string> msg_pfx_;
 	std::exception_ptr exception_;
 	std::mutex mutex_;
+
+	static constexpr const char *c_black = "\033[0;30m";
+	static constexpr const char *c_darkgray = "\033[1;30m";
+	static constexpr const char *c_red = "\033[0;31m";
+	static constexpr const char *c_lightred = "\033[1;31m";
+	static constexpr const char *c_green = "\033[0;32m";
+	static constexpr const char *c_lightgreen = "\033[1;32m";
+	static constexpr const char *c_brown = "\033[0;33m";
+	static constexpr const char *c_yellow = "\033[1;33m";
+	static constexpr const char *c_blue = "\033[0;34m";
+	static constexpr const char *c_lightblue = "\033[1;34m";
+	static constexpr const char *c_purple = "\033[0;35m";
+	static constexpr const char *c_lightpurple = "\033[1;35m";
+	static constexpr const char *c_cyan = "\033[0;36m";
+	static constexpr const char *c_lightcyan = "\033[1;36m";
+	static constexpr const char *c_lightgray = "\033[2;37m";
+	static constexpr const char *c_white = "\033[1;37m";
+	static constexpr const char *c_normal = "\033[0;39m";
 };
 
 Logger &flush(Logger &l);

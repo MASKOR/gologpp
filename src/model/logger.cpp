@@ -16,11 +16,12 @@
 **************************************************************************/
 
 #include "logger.h"
+#include <model/error.h>
 
 #include <iostream>
 #include <iomanip>
 
-
+#include <unistd.h>
 
 namespace gologpp {
 
@@ -59,6 +60,7 @@ LogLevel &operator++(LogLevel &l)
 
 Logger::Logger()
 : syslog_(false),
+  have_tty_(::isatty(STDERR_FILENO)),
   log_lvl_(LogLevel::INF),
   msg_lvl_(LogLevel::INF)
 {}
@@ -110,6 +112,9 @@ void Logger::output_message(const std::string &s)
 	using namespace std::chrono;
 	std::stringstream ss;
 
+	if (have_tty_)
+		std::cerr << color_escape(msg_lvl_);
+
 	//auto t_now = std::time_t(duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
 	//ss << std::put_time(std::localtime(&t_now), /*"%Y-%m-%d "*/"%H:%M:%S");
 	if (Clock::ready()) {
@@ -119,6 +124,23 @@ void Logger::output_message(const std::string &s)
 	}
 
 	std::cerr << s << std::endl;
+}
+
+string Logger::color_escape(LogLevel lvl)
+{
+	switch (lvl) {
+	case LogLevel::DBG:
+		return c_darkgray;
+	case LogLevel::INF:
+		return c_normal;
+	case LogLevel::NFY:
+		return c_lightgreen;
+	case LogLevel::WRN:
+		return c_yellow;
+	case LogLevel::ERR:
+		return c_lightred;
+	}
+	throw Bug(string(__func__) + ": Unhandled LogLevel value " + std::to_string((int)lvl));
 }
 
 std::string &Logger::msg_pfx()
