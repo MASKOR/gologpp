@@ -15,6 +15,8 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
+#include <model/gologpp.h>
+
 #include "reference.h"
 #include "utilities.h"
 #include "expressions.h"
@@ -95,8 +97,8 @@ ReferenceParser<GologT>::ReferenceParser()
 
 	ref_args =
 		eps [ _a = _r2 ]
-		> repeat(phoenix::bind(&TypeList::size, _r2)) [
-			typed_expression()(_r1, phoenix::bind(pop_front, _a))
+		> repeat(phoenix::bind(type_list_size, _r2)) [
+			typed_expression()(_r1, phoenix::bind(type_list_pop_front, _a))
 			> lazy(phoenix::bind(conditional_comma, _a))
 		] [ _val = _1 ]
 	;

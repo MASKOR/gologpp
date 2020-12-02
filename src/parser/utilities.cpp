@@ -255,11 +255,18 @@ rule<void ()> conditional_comma(const TypeList &tl)
 }
 
 
-std::function<const Type &(TypeList &)> pop_front {
+std::function<const Type &(TypeList &)> type_list_pop_front {
 	[] (TypeList &tl) -> const Type & {
 		const Type &rv = tl.front();
 		tl.pop_front();
 		return rv;
+	}
+};
+
+
+std::function<TypeList::size_type(const TypeList &)> type_list_size {
+	[] (const TypeList &tl) -> TypeList::size_type {
+		return tl.size();
 	}
 };
 

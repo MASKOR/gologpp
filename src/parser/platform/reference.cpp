@@ -126,8 +126,8 @@ PlatformRefParser<GologT>::PlatformRefParser()
 
 	ref_args =
 		eps [ _a = _r2 ]
-		> repeat(phoenix::bind(&TypeList::size, _r2)) [
-			value_or_wildcard(phoenix::bind(pop_front, _a))
+		> repeat(phoenix::bind(type_list_size, _r2)) [
+			value_or_wildcard(phoenix::bind(type_list_pop_front, _a))
 			> lazy(phoenix::bind(conditional_comma, _a))
 		] [ _val = _1 ]
 	;

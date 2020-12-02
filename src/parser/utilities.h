@@ -126,9 +126,11 @@ string debug_name();
 rule<void()> conditional_comma(const TypeList &tl);
 
 
-extern std::function<const Type &(TypeList &)> pop_front;
+// These are basically workarounds for cases where the normal boost::phoenix return type
+// deduction doesn't work due to weird interactions with the STL
+extern std::function<const Type &(TypeList &)> type_list_pop_front;
 
-
+extern std::function<TypeList::size_type(const TypeList &)> type_list_size;
 
 
 #ifdef GOLOGPP_DEBUG_PARSER
