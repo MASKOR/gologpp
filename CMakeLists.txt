@@ -126,6 +126,7 @@ add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
 target_link_libraries (golog++ ${CMAKE_THREAD_LIBS_INIT})
 set_property(TARGET golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+target_compile_features(golog++ PUBLIC cxx_std_17)
 install(TARGETS golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES
