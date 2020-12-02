@@ -79,6 +79,9 @@ public:
 	vector<TimedInstruction> &elements();
 	const vector<TimedInstruction> &elements() const;
 
+	/// @return The next time before which at least one of the next action(s) has to have been executed
+	Clock::time_point next_timeout() const;
+
 /*	virtual void attach_semantics(SemanticsFactory &f) override;
 
 	virtual string to_string(const string &pfx) const override;*/

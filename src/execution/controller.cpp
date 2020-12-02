@@ -96,25 +96,31 @@ shared_ptr<Reference<AbstractAction>> AExecutionController::exog_queue_pop()
 }
 
 
-shared_ptr<Reference<AbstractAction>> AExecutionController::exog_queue_poll()
+shared_ptr<Reference<AbstractAction>> AExecutionController::exog_queue_poll(optional<Clock::time_point> timeout)
 {
-	exog_queue_block();
+	exog_queue_block(timeout);
 	return exog_queue_pop();
 }
 
 
-void AExecutionController::exog_queue_block()
+void AExecutionController::exog_queue_block(optional<Clock::time_point> timeout)
 {
 	std::unique_lock<std::mutex> queue_empty_lock { queue_empty_mutex_ };
 	{
 		std::lock_guard<std::mutex> l1{ wait_mutex_ };
-		queue_empty_condition_.wait(queue_empty_lock, [&] {
+		auto condition = [&] {
 			return !exog_queue_.empty() || terminated;
-		});
+		};
+		if (timeout)
+			queue_empty_condition_.wait_until(queue_empty_lock, timeout.value(), condition);
+		else
+			queue_empty_condition_.wait(queue_empty_lock, condition);
 	}
 
 	if (terminated)
 		throw Terminate();
+	else if (exog_queue_.empty())
+		throw ExogTimeout();
 }
 
 
@@ -124,6 +130,8 @@ void AExecutionController::terminate()
 	platform_backend_->terminate();
 	terminated = true;
 	queue_empty_condition_.notify_all();
+
+	// Don't return until the execution thread has unblocked from the exog_queue
 	std::lock_guard<std::mutex> l2 { wait_mutex_ };
 }
 
@@ -209,12 +217,12 @@ void AExecutionController::drain_exog_queue()
 	}
 }
 
-void AExecutionController::drain_exog_queue_blocking()
+void AExecutionController::drain_exog_queue_blocking(optional<Clock::time_point> timeout)
 {
 	if (!silent_)
 		log(LogLevel::DBG) << "=== No transition possible: Waiting for exogenous events..." << flush;
 
-	exog_queue_block();
+	exog_queue_block(timeout);
 	drain_exog_queue();
 }
 
@@ -310,6 +318,8 @@ void ExecutionController::run(const Instruction &program)
 						;
 					}
 
+					Clock::time_point timeout = plan->next_timeout();
+
 					if (empty_plan) {
 						// Empty plan: successfully executed
 						if (!empty_plan->elements().empty())
@@ -321,7 +331,12 @@ void ExecutionController::run(const Instruction &program)
 					}
 					else {
 						// Current Plan element not executable
-						drain_exog_queue_blocking();
+						try {
+							drain_exog_queue_blocking(timeout);
+						} catch (ExogTimeout &)
+						{
+							log(LogLevel::ERR) << "=== Next-action timeout " << timeout << " exceeded";
+						}
 
 						if (context_time() > plan->elements().front().latest_timepoint()
 							|| backend().any_component_state_changed_exog()
@@ -340,7 +355,7 @@ void ExecutionController::run(const Instruction &program)
 				}
 			}
 			else {
-				drain_exog_queue_blocking();
+				drain_exog_queue_blocking(nullopt);
 			}
 
 			if (terminated)

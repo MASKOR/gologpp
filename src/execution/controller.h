@@ -41,6 +41,10 @@ class NotPossible {
 };
 
 
+class ExogTimeout {
+};
+
+
 
 class AExecutionController {
 public:
@@ -67,10 +71,10 @@ public:
 
 	/// Block until the exog_queue is non-empty.
 	/// \return Head popped from the exog_queue.
-	shared_ptr<Reference<AbstractAction>> exog_queue_poll();
+	shared_ptr<Reference<AbstractAction>> exog_queue_poll(optional<Clock::time_point> timeout);
 
 	/// Block until the exog_queue is non-empty.
-	void exog_queue_block();
+	void exog_queue_block(optional<Clock::time_point> timeout);
 
 	bool exog_empty();
 	void exog_queue_push(shared_ptr<Reference<AbstractAction>> exog);
@@ -86,7 +90,7 @@ public:
 	History &history();
 
 	void drain_exog_queue();
-	void drain_exog_queue_blocking();
+	void drain_exog_queue_blocking(optional<Clock::time_point> timeout);
 
 	void set_silent(bool silent);
 	bool silent() const;

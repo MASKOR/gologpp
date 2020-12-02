@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <list>
+#include <optional>
 
 #include <boost/fusion/include/vector.hpp>
 #include <boost/fusion/container/map.hpp>
@@ -36,6 +37,11 @@ using fusion_wtf_vector = boost::fusion::vector<T1, T2>;
 #else
 using fusion_wtf_vector = boost::fusion::vector2<T1, T2>;
 #endif
+
+
+template<class T>
+using optional = std::optional<T>;
+using std::nullopt;
 
 
 using string = std::string;

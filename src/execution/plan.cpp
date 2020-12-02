@@ -165,6 +165,11 @@ vector<TimedInstruction> &Plan::elements()
 const vector<TimedInstruction> &Plan::elements() const
 { return elements_; }
 
+Clock::time_point Plan::next_timeout() const
+{
+	return elements().front().latest_timepoint() + Clock::duration(.1);
+}
+
 Logger &operator <<(Logger &l, const Plan &p)
 {
 	l << "{\n";

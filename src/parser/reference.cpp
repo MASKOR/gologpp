@@ -48,6 +48,7 @@
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
 #include <boost/phoenix/bind/bind_function_object.hpp>
+#include <boost/spirit/include/phoenix.hpp>
 
 #include <model/reference.h>
 
