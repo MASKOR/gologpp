@@ -23,6 +23,8 @@
 
 #include <execution/controller.h>
 
+#include <iostream>
+
 namespace gologpp {
 namespace platform {
 
@@ -103,46 +105,98 @@ void ComponentBackend::handle_missed_transition()
 
 DummyComponentBackend::DummyComponentBackend()
 : ComponentBackend({})
+, prng_(1)
+, rnd_exog_trans_delay_(0, 5)
 {}
 
 void DummyComponentBackend::switch_state(const string &state_name)
-{ log(LogLevel::INF) << "Dummy component " << model().name() << " switches to state " << state_name << flush; }
+{
+	request_cancel();
+	log(LogLevel::INF) << "Dummy component " << model().name() << " switches to state " << state_name << flush;
+}
 
 
 void DummyComponentBackend::init()
 {
 	log(LogLevel::INF) << "Dummy component " << model().name() << " init" << flush;
 
-	exog_state_change_thread_ = std::thread([&] () {
+	exog_state_change_thread_ = std::thread(exog_state_changer());
+	exog_state_change_thread_.detach();
+}
+
+
+std::function<void ()> DummyComponentBackend::exog_state_changer()
+{
+	return [&] () {
 		while (!terminated) {
-			std::unique_lock<std::mutex> lock(mutex_);
+			std::mutex m1;
+			std::unique_lock<std::mutex> lock(m1);
 			pending_request_.wait(lock, [&] () {
-				return terminated || std::atomic_load(&requested_state_);
+				return terminated || requested_state();
 			});
 
-			if (std::atomic_load(&requested_state_)) {
-				log(LogLevel::INF) << "Dummy component " << model().name() << " exog switches to state "
-					<< std::atomic_load(&requested_state_)->name() << flush;
-				exog_state_change(std::atomic_load(&requested_state_)->name());
-				std::atomic_store(&requested_state_, std::shared_ptr<platform::State>());
+			if (requested_state()) {
+				gologpp::Clock::duration delay {
+					std::abs(std::round(rnd_exog_trans_delay_(prng_) * 10) / 10)
+				};
+
+				std::cv_status wait_res = std::cv_status::timeout;
+				if (delay > gologpp::Clock::duration(0.1)) {
+					log(LogLevel::NFY) << "Dummy component " << model().name() << " delays exog state switch by "
+						<< delay.count() << " seconds." << flush;
+					std::mutex m2;
+					std::unique_lock<std::mutex> l2(m2);
+					wait_res = request_delay_.wait_for(l2, delay);
+				}
+
+				// Check again because we may have caused a timeout that took us to the error state instead
+				std::lock_guard<std::recursive_mutex> l(request_mutex_);
+				if (wait_res == std::cv_status::timeout && requested_state_) {
+					log(LogLevel::NFY) << "Dummy component " << model().name() << " exog switches to state "
+						<< requested_state_->name() << flush;
+					exog_state_change(requested_state_->name());
+					requested_state_.reset();
+				}
 			}
 		}
-	});
-	exog_state_change_thread_.detach();
+	};
 }
 
 
 void DummyComponentBackend::terminate_()
 {
-	log(LogLevel::INF) << "Dummy component " << model().name() << " terminate" << flush;
+	request_cancel();
 	pending_request_.notify_all();
 }
 
 
 void DummyComponentBackend::request_state_change(const string &state)
 {
-	std::atomic_store(&requested_state_, model().state(state));
+	std::lock_guard<std::recursive_mutex> l(request_mutex_);
+	requested_state_ = model().state(state);
+	if (!requested_state_)
+		throw Bug("Invalid state \"" + state + "\" requested on component " + model().name());
 	pending_request_.notify_all();
+}
+
+void DummyComponentBackend::request_cancel()
+{
+	std::lock_guard<std::recursive_mutex> l(request_mutex_);
+	requested_state_.reset();
+	request_delay_.notify_all();
+}
+
+shared_ptr<State> DummyComponentBackend::requested_state()
+{
+	std::lock_guard<std::recursive_mutex> l(request_mutex_);
+	return requested_state_;
+}
+
+
+void DummyComponentBackend::handle_missed_transition()
+{
+	ComponentBackend::handle_missed_transition();
+	request_cancel();
 }
 
 

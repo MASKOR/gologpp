@@ -23,6 +23,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <thread>
+#include <random>
 
 
 namespace gologpp {
@@ -67,16 +68,26 @@ public:
 	virtual void switch_state(const string &state_name) override;
 	virtual void init() override;
 
+	std::function<void()> exog_state_changer();
+
 	void request_state_change(const string &state);
+	void request_cancel();
+	shared_ptr<State> requested_state();
+
+	virtual void handle_missed_transition() override;
 
 protected:
 	virtual void terminate_() override;
 
 private:
+	std::mt19937 prng_;
+	std::uniform_real_distribution<> rnd_exog_trans_delay_;
+
 	std::thread exog_state_change_thread_;
 
 	std::condition_variable pending_request_;
-	std::mutex mutex_;
+	std::condition_variable request_delay_;
+	std::recursive_mutex request_mutex_;
 	shared_ptr<State> requested_state_;
 };
 
