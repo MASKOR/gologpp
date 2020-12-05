@@ -63,10 +63,14 @@ void ComponentBackend::exog_state_change(const string &state_name)
 	shared_ptr<State> tgt = model_->scope().lookup_identifier<State>(state_name);
 	if (!tgt)
 		throw ComponentError(string(__func__) + ": Invalid target state: " + state_name);
+	exog_state_change(tgt);
+}
 
+void ComponentBackend::exog_state_change(const shared_ptr<State> &tgt)
+{
 	if (!model_->find_transition<ExogTransition>(*model_->current_state(), *tgt))
 		log(LogLevel::ERR) << "Component backend \"" << model().name() << "\" breached model by going from state \""
-			<< model().current_state() << "\" to \"" << state_name << "\"" << flush;
+			<< model().current_state() << "\" to \"" << tgt->name() << "\"" << flush;
 
 	shared_ptr<SwitchStateAction> exog_state_change = exec_context_->switch_state_action();
 	shared_ptr<gologpp::Reference<AbstractAction>> evt { new gologpp::Reference<platform::SwitchStateAction> {
@@ -74,7 +78,7 @@ void ComponentBackend::exog_state_change(const string &state_name)
 		{
 			new Value(get_type<StringType>(), model_->name()),
 			new Value(get_type<StringType>(), model_->current_state()->name()),
-			new Value(get_type<StringType>(), state_name)
+			new Value(get_type<StringType>(), tgt->name())
 		}
 	} };
 
@@ -83,11 +87,15 @@ void ComponentBackend::exog_state_change(const string &state_name)
 	context().exog_queue_push(evt);
 }
 
+
 void ComponentBackend::terminate()
 {
 	terminated = true;
 	terminate_();
 }
+
+void ComponentBackend::handle_missed_transition()
+{ model().set_current_state(model().error_state()); }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/

@@ -38,11 +38,13 @@ public:
 	AExecutionController &context();
 
 	void exog_state_change(const string &state_name);
+	void exog_state_change(const shared_ptr<State> &state);
 
 	void terminate();
 
 	virtual void switch_state(const string &state_name) = 0;
 	virtual void init() = 0;
+	virtual void handle_missed_transition();
 
 protected:
 	virtual void terminate_() = 0;
@@ -52,14 +54,11 @@ private:
 	Component *model_;
 	AExecutionController *exec_context_;
 	std::set<string> supported_states_;
-
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 class DummyComponentBackend : public ComponentBackend {
 public:

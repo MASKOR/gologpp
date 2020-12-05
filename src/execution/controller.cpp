@@ -25,6 +25,7 @@
 
 #include <model/platform/semantics.h>
 #include <model/platform/switch_state_action.h>
+#include <model/platform/component_backend.h>
 
 #include "plan.h"
 #include "controller.h"
@@ -335,7 +336,21 @@ void ExecutionController::run(const Instruction &program)
 							drain_exog_queue_blocking(timeout);
 						} catch (ExogTimeout &)
 						{
-							log(LogLevel::ERR) << "=== Next-action timeout " << timeout << " exceeded";
+							exog_timer_wakeup();
+							log(LogLevel::ERR) << "=== Next-action timeout " << timeout << " exceeded" << flush;
+
+							auto sw_state = dynamic_cast<const Reference<platform::SwitchStateAction> *>(
+								&plan->elements().front().instruction()
+							);
+							if (sw_state) {
+								global_scope().lookup_global<platform::Component>(
+									static_cast<string>(dynamic_cast<const Value &>(
+										sw_state->arg_for_param(sw_state->target()->param_component())
+									))
+								)->backend().handle_missed_transition();
+							}
+
+							drain_exog_queue();
 						}
 
 						if (context_time() > plan->elements().front().latest_timepoint()

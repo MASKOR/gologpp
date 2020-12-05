@@ -161,11 +161,16 @@ public:
 
 	void set_current_state(const shared_ptr<State> &);
 	void set_current_state_exog(const shared_ptr<State> &);
+
 	shared_ptr<const State> current_state() const;
 	shared_ptr<State> current_state();
+
 	vector<shared_ptr<State>> states() const;
+
 	shared_ptr<State> state(const string name);
 	shared_ptr<const State> state(const string name) const;
+	shared_ptr<const State> error_state() const;
+	shared_ptr<State> error_state();
 
 	/// @return Whether the last state change was exogenous
 	bool state_changed_exog();

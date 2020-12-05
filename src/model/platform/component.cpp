@@ -202,6 +202,15 @@ vector<shared_ptr<State>> Component::states() const
 shared_ptr<State> Component::state(const string name)
 { return scope().lookup_local_identifier<State>(name); }
 
+shared_ptr<const State> Component::state(const string name) const
+{ return scope().lookup_local_identifier<State>(name); }
+
+shared_ptr<const State> Component::error_state() const
+{ return error_state_; }
+
+shared_ptr<State> Component::error_state()
+{ return error_state_; }
+
 bool Component::state_changed_exog()
 { return expected_state_ != current_state_; }
 
