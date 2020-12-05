@@ -142,7 +142,7 @@ unique_ptr<Plan> GeneralSemantics<Transition>::trans(const BindingChain &b, Hist
 	}
 
 	if (!element()->silent()) {
-		log(LogLevel::INF) << "<<< trans: " << element().str() << flush;
+		log(LogLevel::NFY) << "<<< trans: " << element().str() << flush;
 		context().set_silent(false);
 	}
 

@@ -43,7 +43,6 @@ LogLevel &operator++(LogLevel &l);
 class Logger {
 private:
 	Logger();
-	static std::unique_ptr<Logger> instance_;
 public:
 	virtual ~Logger();
 	Logger &level(const LogLevel &lvl);
@@ -133,13 +132,15 @@ public:
 private:
 	std::string &msg_pfx();
 
+	static thread_local std::unique_ptr<Logger> instance_;
+
 	bool syslog_;
 	bool have_tty_;
-	LogLevel log_lvl_;
+	static LogLevel log_lvl_;
 	LogLevel msg_lvl_;
-	static thread_local std::unique_ptr<std::string> msg_pfx_;
+	std::string msg_pfx_;
 	std::exception_ptr exception_;
-	std::mutex mutex_;
+	static std::mutex mutex_;
 
 	static constexpr const char *c_black = "\033[0;30m";
 	static constexpr const char *c_darkgray = "\033[1;30m";

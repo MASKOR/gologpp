@@ -26,8 +26,9 @@
 namespace gologpp {
 
 
-std::unique_ptr<Logger> Logger::instance_;
-thread_local std::unique_ptr<std::string> Logger::msg_pfx_(new std::string());
+thread_local std::unique_ptr<Logger> Logger::instance_;
+std::mutex Logger::mutex_;
+LogLevel Logger::log_lvl_(LogLevel::INF);
 
 
 LogLevel &operator--(LogLevel &l)
@@ -61,7 +62,6 @@ LogLevel &operator++(LogLevel &l)
 Logger::Logger()
 : syslog_(false),
   have_tty_(::isatty(STDERR_FILENO)),
-  log_lvl_(LogLevel::INF),
   msg_lvl_(LogLevel::INF)
 {}
 
@@ -123,7 +123,7 @@ void Logger::output_message(const std::string &s)
 		std::cerr << ss.str() << " ";
 	}
 
-	std::cerr << s << std::endl;
+	std::cerr << s << c_normal << std::endl;
 }
 
 string Logger::color_escape(LogLevel lvl)
@@ -144,7 +144,7 @@ string Logger::color_escape(LogLevel lvl)
 }
 
 std::string &Logger::msg_pfx()
-{ return *msg_pfx_; }
+{ return msg_pfx_; }
 
 
 
