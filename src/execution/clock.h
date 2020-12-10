@@ -28,7 +28,8 @@ struct Clock {
 public:
 	friend PlatformBackend;
 
-	using duration = std::chrono::duration<double>;
+	using seconds = std::chrono::duration<double, std::ratio<1,1>>;
+	using duration = seconds;
 	using rep = duration::rep;
 	using period = duration::period;
 	using time_point = std::chrono::time_point<Clock>;
