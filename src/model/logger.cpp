@@ -28,7 +28,7 @@ namespace gologpp {
 
 thread_local std::unique_ptr<Logger> Logger::instance_;
 std::mutex Logger::mutex_;
-LogLevel Logger::log_lvl_(LogLevel::INF);
+LogLevel Logger::global_loglvl_(LogLevel::INF);
 
 
 LogLevel &operator--(LogLevel &l)
@@ -62,7 +62,8 @@ LogLevel &operator++(LogLevel &l)
 Logger::Logger()
 : syslog_(false),
   have_tty_(::isatty(STDERR_FILENO)),
-  msg_lvl_(LogLevel::INF)
+  msg_lvl_(LogLevel::INF),
+  local_msg_lvl_({global_loglvl_})
 {}
 
 
@@ -75,7 +76,7 @@ Logger &Logger::instance()
 
 
 LogLevel &Logger::log_lvl()
-{ return log_lvl_; }
+{ return global_loglvl_; }
 
 
 Logger &flush(Logger &l)
@@ -98,7 +99,7 @@ Logger &Logger::flush()
 	std::lock_guard<std::mutex> l(mutex_);
 	if (msg_pfx().length() == 0)
 		return *this;
-	if (msg_lvl_ <= log_lvl_) {
+	if (msg_lvl_ <= global_loglvl_) {
 		output_message(msg_pfx());
 	}
 	msg_pfx() = "";
@@ -123,7 +124,7 @@ void Logger::output_message(const std::string &s)
 		std::cerr << ss.str() << " ";
 	}
 
-	std::cerr << s << c_normal << std::endl;
+	std::cerr << s << color_escape(local_msg_lvl_.top()) << std::endl;
 }
 
 string Logger::color_escape(LogLevel lvl)
@@ -204,6 +205,20 @@ Logger &Logger::operator <<(const std::thread::id &id)
 
 Logger &Logger::operator<< (Logger & (*pf_flush)(Logger &))
 { return pf_flush(*this); }
+
+
+
+Logger::Guard::Guard(LogLevel lvl)
+{
+	Logger::instance().local_msg_lvl_.push(lvl);
+	std::cerr << color_escape(lvl);
+}
+
+Logger::Guard::~Guard()
+{
+	std::cerr << c_normal;
+	Logger::instance().local_msg_lvl_.pop();
+}
 
 
 

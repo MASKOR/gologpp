@@ -22,6 +22,7 @@
 #include <mutex>
 #include <sstream>
 #include <thread>
+#include <stack>
 #include <execution/clock.h>
 
 namespace gologpp {
@@ -129,6 +130,12 @@ public:
 
 	static string color_escape(LogLevel lvl);
 
+	class Guard {
+	public:
+		Guard(LogLevel loglvl);
+		~Guard();
+	};
+
 private:
 	std::string &msg_pfx();
 
@@ -136,11 +143,12 @@ private:
 
 	bool syslog_;
 	bool have_tty_;
-	static LogLevel log_lvl_;
+	static LogLevel global_loglvl_;
 	LogLevel msg_lvl_;
 	std::string msg_pfx_;
 	std::exception_ptr exception_;
 	static std::mutex mutex_;
+	std::stack<LogLevel> local_msg_lvl_;
 
 	static constexpr const char *c_black = "\033[0;30m";
 	static constexpr const char *c_darkgray = "\033[1;30m";
