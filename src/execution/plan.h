@@ -66,6 +66,10 @@ private:
 class Plan
 {
 public:
+	using container = vector<TimedInstruction>;
+	using iterator = container::iterator;
+	using reverse_iterator = container::reverse_iterator;
+
 	Plan() = default;
 	Plan(Plan &&sub);
 
@@ -73,6 +77,8 @@ public:
 
 	Plan &append(TimedInstruction &&);
 	Plan &append(Plan &&);
+
+	void make_start_slack(Clock::duration slack);
 
 	Plan &operator = (Plan &&);
 
@@ -82,12 +88,12 @@ public:
 	/// @return The next time before which at least one of the next action(s) has to have been executed
 	Clock::time_point next_timeout() const;
 
-/*	virtual void attach_semantics(SemanticsFactory &f) override;
-
-	virtual string to_string(const string &pfx) const override;*/
-
 private:
-	vector<TimedInstruction> elements_;
+	/// Reverse search through the plan starting from the given iterator, to match start/end time windows
+	/// if @ref back_from_it refers to an end action.
+	void sanitize_time_window(iterator back_from_it);
+
+	container elements_;
 };
 
 

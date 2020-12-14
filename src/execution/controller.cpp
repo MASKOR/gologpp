@@ -358,6 +358,7 @@ void ExecutionController::run(const Instruction &program)
 						) {
 							// First plan element's time window has passed: replan!
 							log(LogLevel::INF) << "=== Re-transforming..." << flush;
+							plan->make_start_slack(Clock::seconds(16384));
 							plan = plan_transformation_->transform(std::move(*plan));
 							log(LogLevel::INF) << "=== New schedule " << *plan << flush;
 						}

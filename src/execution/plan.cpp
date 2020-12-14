@@ -92,63 +92,79 @@ Plan::Plan(Plan &&sub)
 
 Plan &Plan::append(TimedInstruction &&ti)
 {
-	// Set timepoints
-
-	if (ti.timepoints_default()) {
-
-		if (ti.latest_timepoint() - ti.earliest_timepoint() < gologpp::Clock::duration(1))
-			ti.set_latest(ti.latest_timepoint() + gologpp::Clock::duration(1));
-
-		Clock::time_point prev_earliest = Clock::now();
-		Clock::time_point prev_latest = Clock::now();
-
-		if (elements().size()) {
-			prev_earliest = elements().back().earliest_timepoint();
-			prev_latest = elements().back().latest_timepoint();
-		}
-
-		Transition *trans = dynamic_cast<Transition *>(&ti.instruction());
-
-		if (trans && trans->hook() == Transition::Hook::END) {
-			// Adding an END transition: find matching START transition
-			auto it = std::find_if(elements().rbegin(), elements().rend(), [&] (TimedInstruction &ti) {
-				try {
-					Transition &trans2 = ti.instruction().cast<Transition>();
-					return trans2.hook() == Transition::Hook::START && trans2 == *trans;
-				} catch (std::bad_cast &) {
-					return false;
-				}
-			} );
-
-			if (it == elements().rend()) {
-				// Not found: use best guess
-				ti.set_earliest(prev_earliest);
-				ti.set_latest(prev_latest + trans->target()->duration().max);
-			}
-			else {
-				// Found: add on top
-				ti.set_earliest(
-					std::max(
-						it->earliest_timepoint() + trans->target()->duration().min,
-						prev_earliest
-					)
-				);
-				ti.set_latest(
-					std::max(
-						it->latest_timepoint() + trans->target()->duration().max,
-						prev_latest
-					)
-				);
-			}
-		}
-		else {
-			ti.set_earliest(prev_earliest);
-			ti.set_latest(prev_latest);
-		}
-	}
 	elements_.push_back(std::forward<TimedInstruction>(ti));
+	if (elements_.back().timepoints_default())
+		sanitize_time_window(--elements_.end());
 
 	return *this;
+}
+
+
+void Plan::make_start_slack(Clock::duration slack)
+{
+	elements().front().set_earliest(Clock::now());
+	elements().front().set_latest(Clock::now() + slack);
+	for (auto it = ++elements().begin(); it != elements().end(); ++it)
+		sanitize_time_window(it);
+}
+
+
+void Plan::sanitize_time_window(iterator back_from_it)
+{
+	TimedInstruction &ti = *back_from_it;
+
+	/*if (ti.latest_timepoint() - ti.earliest_timepoint() < gologpp::Clock::duration(1))
+		ti.set_latest(ti.latest_timepoint() + gologpp::Clock::duration(1));//*/
+
+	if (back_from_it > elements().end() || back_from_it < elements().begin())
+		throw Bug("Invalid input iterator");
+
+	Clock::time_point prev_earliest = Clock::now();
+	Clock::time_point prev_latest = Clock::now();
+
+	if (back_from_it > elements().begin()) {
+		prev_earliest = (back_from_it - 1)->earliest_timepoint();
+		prev_latest = (back_from_it - 1)->latest_timepoint();
+	}
+
+	Transition *trans = dynamic_cast<Transition *>(&ti.instruction());
+
+	if (trans && trans->hook() <= Transition::Hook::END) {
+		// Adding an END transition: find matching START transition
+		auto it = std::find_if(reverse_iterator(back_from_it), elements().rend(), [&] (TimedInstruction &ti) {
+			try {
+				Transition &trans2 = ti.instruction().cast<Transition>();
+				return trans2.hook() == Transition::Hook::START && trans2 == *trans;
+			} catch (std::bad_cast &) {
+				return false;
+			}
+		} );
+
+		if (it == elements().rend()) {
+			// Not found: use best guess
+			ti.set_earliest(prev_earliest);
+			ti.set_latest(prev_latest + trans->target()->duration().max);
+		}
+		else {
+			// Found: add on top
+			ti.set_earliest(
+				std::max(
+					it->earliest_timepoint() + trans->target()->duration().min,
+					prev_earliest
+				)
+			);
+			ti.set_latest(
+				std::max(
+					it->latest_timepoint() + trans->target()->duration().max,
+					prev_latest
+				)
+			);
+		}
+	}
+	else {
+		ti.set_earliest(prev_earliest);
+		ti.set_latest(prev_latest);
+	}
 }
 
 

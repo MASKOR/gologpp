@@ -477,7 +477,12 @@ class DurativeCall
 , public LanguageElement<DurativeCall, VoidType>
 {
 public:
-	enum class Hook { START, CANCEL, FINISH, FAIL, END };
+	enum class Hook {
+		FINISH = 0, FAIL,
+		END, // So we have FINISH < END && FAIL < END
+
+		START, CANCEL,
+	};
 
 	DurativeCall(Hook hook, Reference<Action> *action);
 	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*action_)
