@@ -66,14 +66,18 @@ unique_ptr<Plan> TaptencTransformation::transform(Plan &&p)
 
 	if (tt_automata_.size() == 0 && tt_constraints_.size() == 0)
 		return unique_ptr<Plan>(new Plan(std::move(p)));
-	else if (tt_automata_.size() == tt_constraints_.size())
-		return plan_taptenc_to_gpp(
-			taptenc::transformation::transform_plan(
-				plan_gpp_to_taptenc(std::move(p)),
-				tt_automata_,
-				tt_constraints_
-			)
-		);
+	else if (tt_automata_.size() == tt_constraints_.size()) {
+		auto tt_plan = plan_gpp_to_taptenc(std::move(p));
+		{ auto with_debug_logging { Logger::Guard(LogLevel::DBG) };
+			return plan_taptenc_to_gpp(
+				taptenc::transformation::transform_plan(
+					tt_plan,
+					tt_automata_,
+					tt_constraints_
+				)
+			);
+		}
+	}
 	else
 		throw Unsupported("Taptenc semantics require at least one constraint for each component");
 }

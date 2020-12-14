@@ -62,6 +62,7 @@ ReadylogContext::ReadylogContext(
   )
 , options_(options)
 {
+	Logger::Guard lg(LogLevel::DBG);
 	ec_set_option_ptr(EC_OPTION_ECLIPSEDIR, const_cast<void *>(static_cast<const void *>(ECLIPSE_DIR)));
 	std::cout << "Using eclipse-clp in " << ECLIPSE_DIR << std::endl;
 
@@ -235,6 +236,7 @@ void ReadylogContext::mark_vars_dead()
 
 void ReadylogContext::postcompile()
 {
+	Logger::Guard lg(LogLevel::DBG);
 	if (!ec_query(EC_atom("compile_SSAs")))
 		throw Bug("Failed to compile SSAs");
 }

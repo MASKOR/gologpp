@@ -159,7 +159,7 @@ void PlatformBackend::schedule_timer_event(Clock::time_point when)
 		}
 
 		if (!terminated) {
-			log(LogLevel::DBG) << "<<< Dispatch wakeup " << when << flush;
+			log(LogLevel::DBG) << ">>> Dispatch wakeup " << when << flush;
 			exec_context()->exog_timer_wakeup();
 		}
 	});
