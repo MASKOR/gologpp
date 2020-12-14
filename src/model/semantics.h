@@ -44,7 +44,8 @@ public:
 
 	virtual ~GeneralSemantics<GologT>() = default;
 
-
+	/// @return A reference to the concrete language element (code model element) covered by this
+	/// semantics instance
 	template<class = GologT>
 	const GologT &element() const
 	{ return *element_; }

@@ -40,10 +40,14 @@ public:
 
 	virtual ~ModelElement() = default;
 
+	/// @return The general (i.e. implementation-agnostic) semantics of this model element
 	template<class GologT = ModelElement>
 	GeneralSemantics<GologT> &general_semantics() const
 	{ return dynamic_cast<GeneralSemantics<GologT> &>(*semantics_); }
 
+	/// @return The implementation-specific semantics of this model element.
+	/// This method cannot be called (or even instantiated) from the code model context. It
+	/// can only be instantiated and called from the semantics implementation.
 	template<class GologT>
 	Semantics<GologT> &semantics() const
 	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
@@ -76,10 +80,12 @@ public:
 	virtual ~GeneralSemantics();
 
 	virtual AExecutionController &context() const = 0;
+
+	/// @return A reference to the abstract model element covered by this semantics
 	virtual const ModelElement &model_element() const = 0;
 
 private:
-	// Not trivially moveable because cross-referencing with language element
+	// Not moveable by default because of cross-referencing with language element
 	GeneralSemantics(GeneralSemantics &&) = delete;
 	GeneralSemantics & operator = (GeneralSemantics &&) = delete;
 };
