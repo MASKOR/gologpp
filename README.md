@@ -2,7 +2,7 @@
 
 golog++ is an interfacing and development framework for GOLOG languages.
 It employs a readable and typesafe GOLOG syntax that allows us to detect many common programming errors before any code is executed.
-The fully object-oriented code model that does the static consistency checking is strictly separated from the runtime semantics and the platform backend.
+The fully object-oriented code model ensures static consistency (especially type consistency) and is strictly separated from the runtime semantics and the platform backend.
 The platform backend is an abstract C++ interface, making integration into any robotics framework staightforward and simple.
 Check out the [Wiki](https://github.com/MASKOR/gologpp/wiki) for a documentation of the language (WIP).
 
