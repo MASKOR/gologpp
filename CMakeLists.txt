@@ -451,9 +451,7 @@ endif(BUILD_TAPTENC_SEMANTICS)
 # The golog++ native semantics: libnativegolog++.so
 ######################################################################################
 
-if (${ECLIPSE_FOUND})
-	option(BUILD_NATIVE_IMPL "Build the native golog++ semantics" OFF)
-endif()
+option(BUILD_NATIVE_IMPL "Build the native golog++ semantics" OFF)
 if (${BUILD_NATIVE_IMPL})
 	set(NATIVE_SRC
 		src/semantics/native/action.cpp
@@ -516,7 +514,7 @@ if (${BUILD_NATIVE_IMPL})
 		DESTINATION ${SEMANTICS_INSTALL_DIR}/native
 	)
 
-	get_target_property(NATIVEGPP_CXXFLAGS_L readylog++ INTERFACE_COMPILE_OPTIONS)
+	get_target_property(NATIVEGPP_CXXFLAGS_L nativegolog++ INTERFACE_COMPILE_OPTIONS)
 	set(NATIVEGPP_CXXFLAGS "-I${ECLIPSE_INCLUDE_DIRS}")
 	if (${NATIVEGPP_CXXFLAGS_L})
 		foreach(i IN LISTS ${NATIVEGPP_CXXFLAGS_L})
