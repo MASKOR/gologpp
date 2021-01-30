@@ -68,7 +68,7 @@ unique_ptr<Plan> TaptencTransformation::transform(Plan &&p)
 		return unique_ptr<Plan>(new Plan(std::move(p)));
 	else if (tt_automata_.size() == tt_constraints_.size()) {
 		auto tt_plan = plan_gpp_to_taptenc(std::move(p));
-		{ auto with_debug_logging { Logger::Guard(LogLevel::DBG) };
+		{ Logger::Guard with_debug_logging { LogLevel::DBG };
 			return plan_taptenc_to_gpp(
 				taptenc::transformation::transform_plan(
 					tt_plan,

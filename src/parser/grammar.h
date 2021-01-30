@@ -51,7 +51,7 @@ struct BatParser : grammar<void(Scope &)> {
 		initialize_cyclic_expressions();
 		initialize_cyclic_values();
 
-		on_error<rethrow>(program, phoenix::bind(&handle_error, _1, _3, _2, _4));
+		on_error<rethrow>(program, phoenix::bind(&throw_syntax_error, _1, _3, _2, _4));
 
 		GOLOGPP_DEBUG_NODE(program)
 	}

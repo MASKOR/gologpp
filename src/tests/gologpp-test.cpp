@@ -31,6 +31,7 @@
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/spirit/home/qi/detail/expectation_failure.hpp>
 
 #include <model/platform/semantics.h>
 
@@ -102,26 +103,31 @@ int main(int argc, char **argv) {
 
 		Logger::instance().log_lvl() = static_cast<LogLevel>(loglevel);
 
-		parser::parse_file(filename);
+		try {
+			parser::parse_file(filename);
+			shared_ptr<Procedure> mainproc = global_scope().lookup_global<Procedure>("main");
+			if (!mainproc) {
+				log(LogLevel::ERR) << "No procedure main() in " << filename << flush;
+				return -2;
+			}
 
-		shared_ptr<Procedure> mainproc = global_scope().lookup_global<Procedure>("main");
-		if (!mainproc) {
-			log(LogLevel::ERR) << "No procedure main() in " << filename << flush;
+			eclipse_opts options;
+			options.trace = !vm["trace"].empty() || !vm["guitrace"].empty();
+			options.toplevel = false;
+			options.guitrace = !vm["guitrace"].empty();
+
+			ReadylogContext::init(options);
+
+			int rv = test_file(unique_ptr<Instruction>(mainproc->ref({})));
+
+			ReadylogContext::shutdown();
+
+			return rv;
+		} catch (SyntaxError &e) {
+			log(LogLevel::ERR) << e.what() << flush;
 			return -2;
 		}
 
-		eclipse_opts options;
-		options.trace = !vm["trace"].empty() || !vm["guitrace"].empty();
-		options.toplevel = false;
-		options.guitrace = !vm["guitrace"].empty();
-
-		ReadylogContext::init(options);
-
-		int rv = test_file(unique_ptr<Instruction>(mainproc->ref({})));
-
-		ReadylogContext::shutdown();
-
-		return rv;
 	} catch (boost::bad_any_cast &e) {
 		desc.print(std::cerr);
 		return -1;

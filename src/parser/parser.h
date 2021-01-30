@@ -22,10 +22,12 @@
 #include "utilities.h"
 
 #include <tuple>
+#include <filesystem>
 
 namespace gologpp {
 namespace parser {
 
+using path = std::filesystem::path;
 
 void parse_string(const std::string &code);
 

@@ -75,6 +75,7 @@ class NameNotMapped : public std::runtime_error {
 
 class SyntaxError : public UserError {
 public:
+	using UserError::UserError;
 	SyntaxError(const string &code, string::size_type offset, const string &msg);
 };
 

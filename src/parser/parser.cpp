@@ -37,7 +37,6 @@ namespace gologpp {
 namespace parser {
 
 
-
 void parse_string(const std::string &code)
 {
 	BatParser parser;
@@ -50,15 +49,15 @@ void parse_string(const std::string &code)
 }
 
 
-void parse_recursive(const std::string &filename)
+void parse_recursive(const path &filename)
 {
 	std::ifstream file(filename);
 	if (!file.is_open())
-		throw std::runtime_error(filename + ": " + ::strerror(errno));
+		throw std::runtime_error(filename.string() + ": " + ::strerror(errno));
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 	if (!file.good())
-		throw std::runtime_error(filename + ": " + ::strerror(errno));
+		throw std::runtime_error(filename.string() + ": " + ::strerror(errno));
 
 	std::string content { buffer.str() };
 	std::string::size_type offs = 0;
@@ -69,9 +68,12 @@ void parse_recursive(const std::string &filename)
 		if (content[offs] != '"')
 			throw SyntaxError(content, offs, "Expected: \"");
 		++offs;
-		string cur_path = filename.substr(0, filename.find_last_of("/"));
 		string inc_filename = content.substr(offs, content.find_first_of("\"", offs) - offs);
-		parse_recursive(cur_path + '/' + inc_filename);
+
+		path incpath = filename.parent_path();
+		incpath /= path(inc_filename);
+
+		parse_recursive(incpath);
 	}
 	std::cout << "Parsing " << filename << "..." << std::endl;
 

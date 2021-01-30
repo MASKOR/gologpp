@@ -41,7 +41,7 @@
 #include <model/platform/clock_formula.h>
 #include <parser/platform/constraint.h>
 
-#include <iostream>
+#include <sstream>
 
 namespace gologpp {
 namespace parser {
@@ -128,15 +128,17 @@ string get_error_context(
 
 
 
-void handle_error(
+void throw_syntax_error(
 	const iterator &begin,
 	const iterator &errpos,
 	const iterator &end,
 	const boost::spirit::info &expected
 ) {
-	std::cout << "Syntax error at line " << get_line(errpos) << ":" << std::endl
+	std::stringstream ss;
+	ss << "Syntax error at line " << get_line(errpos) << ":" << std::endl
 		<< get_error_context(begin, errpos, end)
 		<< "Expected: " << expected << std::endl;
+	throw SyntaxError(ss.str());
 }
 
 

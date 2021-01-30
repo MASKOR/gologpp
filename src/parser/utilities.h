@@ -19,6 +19,7 @@
 #define GOLOGPP_PARSER_UTILITIES_H_
 
 #include <model/expressions.h>
+#include <model/error.h>
 
 #include <boost/spirit/include/support_line_pos_iterator.hpp>
 #include <boost/spirit/include/qi_nonterminal.hpp>
@@ -30,7 +31,6 @@
 
 namespace gologpp {
 namespace parser {
-
 
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
@@ -92,7 +92,7 @@ string get_error_context(
 	const iterator &end
 );
 
-void handle_error(
+void throw_syntax_error(
 	const iterator &begin,
 	const iterator &errpos,
 	const iterator &end,
