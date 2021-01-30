@@ -451,8 +451,8 @@ endif(BUILD_TAPTENC_SEMANTICS)
 # The golog++ native semantics: libnativegolog++.so
 ######################################################################################
 
-option(BUILD_NATIVE_IMPL "Build the native golog++ semantics" OFF)
-if (${BUILD_NATIVE_IMPL})
+option(BUILD_NATIVE_SEMANTICS "Build the native golog++ semantics" OFF)
+if (${BUILD_NATIVE_SEMANTICS})
 	set(NATIVE_SRC
 		src/semantics/native/action.cpp
 		src/semantics/native/variable.cpp
@@ -568,7 +568,7 @@ endif()
 
 
 
-if (${BUILD_NATIVE_IMPL})
+if (${BUILD_NATIVE_SEMANTICS})
 	set(NATIVE_TEST_SRC
 		src/tools/nativegpp-test.cpp)
 	add_executable(nativegpp-test ${NATIVE_TEST_SRC})
