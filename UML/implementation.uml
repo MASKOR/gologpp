@@ -191,11 +191,11 @@
       <nestedClassifier xmi:type="uml:Interface" xmi:id="_djtjcJZKEeiWs6lj50gzIQ" name="Expression" isAbstract="true"/>
     </packagedElement>
     <packagedElement xmi:type="uml:Interface" xmi:id="_0xGdwIOLEeihbfYhpkFXUA" name="Semantics"/>
-    <packagedElement xmi:type="uml:Component" xmi:id="_hrmi0IE2EeicVNo5AIZ6Lg" name="EclipseExecutionContext">
+    <packagedElement xmi:type="uml:Component" xmi:id="_hrmi0IE2EeicVNo5AIZ6Lg" name="ReadylogContext">
       <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_RXSZoIjzEeibl_EbeClCWQ" client="_hrmi0IE2EeicVNo5AIZ6Lg" supplier="_wAWqIIjyEeibl_EbeClCWQ" contract="_wAWqIIjyEeibl_EbeClCWQ"/>
     </packagedElement>
     <packagedElement xmi:type="uml:Component" xmi:id="_jsQO8IEVEeicVNo5AIZ6Lg" name="parser">
-      <packagedElement xmi:type="uml:Dependency" xmi:id="_LHl8ANdSEemYarLWu4eD9w" client="_jsQO8IEVEeicVNo5AIZ6Lg" supplier="_kfN88IEVEeicVNo5AIZ6Lg"/>
+      <packagedElement xmi:type="uml:Dependency" xmi:id="_pAK0kD8BEeuhc4h3BUFrkA" client="_jsQO8IEVEeicVNo5AIZ6Lg" supplier="_kfN88IEVEeicVNo5AIZ6Lg"/>
     </packagedElement>
     <packagedElement xmi:type="uml:Component" xmi:id="_3UO08IEyEeicVNo5AIZ6Lg" name="ReadylogSemantics">
       <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_11sHQIOLEeihbfYhpkFXUA" client="_3UO08IEyEeicVNo5AIZ6Lg" supplier="_0xGdwIOLEeihbfYhpkFXUA" contract="_0xGdwIOLEeihbfYhpkFXUA"/>
@@ -217,7 +217,7 @@
         <ownedParameter xmi:type="uml:Parameter" xmi:id="_oTzdgNSfEemriNyjZnZu2Q" name="e" type="_pajDINSfEemriNyjZnZu2Q" effect="read"/>
       </ownedOperation>
     </packagedElement>
-    <packagedElement xmi:type="uml:Interface" xmi:id="_H45tENc_Eemh-qHlCUfyOw" name="ExecBackend">
+    <packagedElement xmi:type="uml:Interface" xmi:id="_H45tENc_Eemh-qHlCUfyOw" name="PlatformBackend">
       <ownedOperation xmi:type="uml:Operation" xmi:id="_H45tEdc_Eemh-qHlCUfyOw" name="start_activity" isAbstract="true">
         <ownedParameter xmi:type="uml:Parameter" xmi:id="_H45tEtc_Eemh-qHlCUfyOw" name="a" type="_9z0YcNSWEemriNyjZnZu2Q"/>
       </ownedOperation>
@@ -305,6 +305,11 @@
         </ownedParameter>
       </ownedOperation>
     </packagedElement>
+    <packagedElement xmi:type="uml:Component" xmi:id="_3Uhn0D79Eeuhc4h3BUFrkA" name="TaptencSemantics">
+      <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_k3tRwD7-Eeuhc4h3BUFrkA" client="_3Uhn0D79Eeuhc4h3BUFrkA" supplier="_0xGdwIOLEeihbfYhpkFXUA" contract="_0xGdwIOLEeihbfYhpkFXUA"/>
+      <packagedElement xmi:type="uml:Dependency" xmi:id="_V5yRMD8PEeuhc4h3BUFrkA" client="_3Uhn0D79Eeuhc4h3BUFrkA" supplier="_JUCRoD8PEeuhc4h3BUFrkA"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_pJJRwD7-Eeuhc4h3BUFrkA" name="platform"/>
   </packagedElement>
   <packagedElement xmi:type="uml:Package" xmi:id="_1wfgwNc_Eemh-qHlCUfyOw" name="gologpp_ros">
     <packagedElement xmi:type="uml:Class" xmi:id="_vzJnINcUEemh-qHlCUfyOw" name="RosActionT" templateParameter="_PcSYENcVEemh-qHlCUfyOw">
@@ -624,6 +629,7 @@
     </node>
     <node xmi:type="uml:DecisionNode" xmi:id="_IVeZ0LP1EeqA799nxYbgSQ" name="DecisionNode7"/>
   </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_JUCRoD8PEeuhc4h3BUFrkA" name="taptenc"/>
   <profileApplication xmi:type="uml:ProfileApplication" xmi:id="_ze-T4AHsEeiE5sF1lHU_MQ">
     <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_zfAJEAHsEeiE5sF1lHU_MQ" source="http://www.eclipse.org/uml2/2.0.0/UML">
       <references xmi:type="ecore:EPackage" href="pathmap://PAPYRUS_ACTIONLANGUAGE_PROFILE/ActionLanguage-Profile.profile.uml#_Kv8EIKFXEeS_KNX0nfvIVQ"/>
