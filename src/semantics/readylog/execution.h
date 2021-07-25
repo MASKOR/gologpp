@@ -69,7 +69,7 @@ private:
 		unique_ptr<PlanTransformation> &&transformation
 	);
 
-    virtual void compile_term(const EC_word &term);
+    void compile_term(const EC_word &term);
     std::string find_readylog();
     std::string find_boilerplate();
 	void mark_vars_dead();

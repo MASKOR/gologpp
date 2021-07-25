@@ -62,6 +62,7 @@ int p_exog_fluent_getValue()
 namespace gologpp {
 
 
+template<>
 EC_word Semantics<InitialValue>::plterm()
 {
 	EC_word fluent_inst;

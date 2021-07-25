@@ -58,14 +58,12 @@ unique_ptr<SemanticsFactory> SemanticsFactory::construct()
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-ReadylogContext &ReadylogSemantics::rl_context() const
+
+
+ReadylogContext &Semantics<ModelElement>::rl_context() const
 { return dynamic_cast<ReadylogContext &>(context()); }
 
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
 
 Value Semantics<Expression>::evaluate(const BindingChain &b, const History &h)
 {
@@ -101,9 +99,6 @@ Value Semantics<Expression>::evaluate(const BindingChain &b, const History &h)
 			throw EclipseError("Failed to evaluate " + ReadylogContext::instance().to_string(plterm()));
 	}
 }
-
-const Expression &Semantics<Expression>::expression() const
-{ return dynamic_cast<const Expression &>(model_element()); }
 
 
 
@@ -179,7 +174,7 @@ unique_ptr<Plan> Semantics<Instruction>::trans(const BindingChain &, History &hi
 }
 
 
-EC_word gologpp::Semantics<Instruction>::next_readylog_term()
+EC_word Semantics<Instruction>::next_readylog_term()
 {
 	if (!next_readylog_term_.initialized())
 		next_readylog_term_ = plterm();
@@ -187,7 +182,7 @@ EC_word gologpp::Semantics<Instruction>::next_readylog_term()
 }
 
 
-bool Semantics<Instruction>::final(const BindingChain &b, const History &h)
+bool Semantics<Instruction>::final(const BindingChain &, const History &h)
 {
 	EC_word final = ::term(EC_functor("final", 2),
 		next_readylog_term(),
@@ -196,9 +191,6 @@ bool Semantics<Instruction>::final(const BindingChain &b, const History &h)
 	bool rv = rl_context().ec_query(final);
 	return rv;
 }
-
-const Instruction &Semantics<Instruction>::instruction() const
-{ return dynamic_cast<const Instruction &>(model_element()); }
 
 
 
@@ -217,7 +209,6 @@ BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_SEMANTICS, ReadylogSemanticsFactory, G
 
 ReadylogContext &ReadylogSemanticsFactory::context()
 { return dynamic_cast<ReadylogContext &>(SemanticsFactory::context()); }
-
 
 
 

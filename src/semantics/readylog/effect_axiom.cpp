@@ -50,8 +50,8 @@ EC_word Semantics<EffectAxiom<Reference<Fluent>>>::plterm()
 	}
 
 	return ::term(EC_functor(cv_functor(element()).c_str(), 4),
-		element().action().semantics<AbstractAction>().plterm(),
-		element().lhs().semantics<Reference<Fluent>>().plterm_free_args(),
+		element().action().semantics().plterm(),
+		element().lhs().special_semantics().plterm_free_args(),
 		element().value().semantics().plterm(),
 		condition_term
 	);
@@ -75,7 +75,7 @@ EC_word Semantics<EffectAxiom<FieldAccess>>::plterm()
 	}
 
 	return ::term(EC_functor(cv_functor(element()).c_str(), 4),
-		element().action().semantics<AbstractAction>().plterm(),
+		element().action().semantics().plterm(),
 		fluent_access.first->special_semantics().plterm_free_args(),
 		::term(EC_functor("gpp_mixed_assign", 3),
 			fluent_access.second,
@@ -104,7 +104,7 @@ EC_word Semantics<EffectAxiom<ListAccess>>::plterm()
 	}
 
 	return ::term(EC_functor(cv_functor(element()).c_str(), 4),
-		element().action().semantics<AbstractAction>().plterm(),
+		element().action().semantics().plterm(),
 		fluent_access.first->special_semantics().plterm_free_args(),
 		::term(EC_functor("gpp_mixed_assign", 3),
 			fluent_access.second,

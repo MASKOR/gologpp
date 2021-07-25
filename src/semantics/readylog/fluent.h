@@ -28,26 +28,15 @@ namespace gologpp {
 
 
 template<>
-class Semantics<InitialValue>
-: public ReadylogSemantics
-, public GeneralSemantics<InitialValue>
-{
-public:
-	using GeneralSemantics<InitialValue>::GeneralSemantics;
-
-	virtual EC_word plterm() override;
-};
-
-
-template<>
 class Semantics<Fluent>
 : public GeneralSemantics<Fluent>
+, public Semantics<ModelElement>
 {
 public:
 	using GeneralSemantics<Fluent>::GeneralSemantics;
 	virtual ~Semantics() override = default;
 
-	EC_word plterm();
+	virtual EC_word plterm() override;
 	vector<EC_word> initially();
 	EC_word prim_fluent();
 };

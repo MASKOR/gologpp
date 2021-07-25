@@ -41,7 +41,14 @@ EC_word Semantics<Reference<Action>>::plterm()
 }
 
 
-EC_word gologpp::Semantics<Binding>::plterm()
+
+template<>
+EC_word Semantics<Reference<ExogAction>>::plterm()
+{ return reference_term(element()); }
+
+
+
+EC_word Semantics<Binding>::plterm()
 {
 	if (this->element().map().empty())
 		return EC_atom("true");
@@ -63,9 +70,6 @@ EC_word gologpp::Semantics<Binding>::plterm()
 Semantics<Binding> *Semantics<Binding>::copy(const Binding &target_element) const
 { return new Semantics<Binding>(target_element, rl_context()); }
 
-const Binding &Semantics<Binding >::model_element() const
-{ return this->element(); }
-
 
 
 EC_word pl_binding_chain(const BindingChain &bc)
@@ -81,10 +85,10 @@ EC_word pl_binding_chain(const BindingChain &bc)
 EC_word Semantics<Reference<ExogFunction> >::plterm()
 { return reference_term(this->element()); }
 
-Value gologpp::Semantics<Reference<ExogFunction> >::evaluate(const BindingChain &bc, const History &h)
+Value Semantics<Reference<ExogFunction> >::evaluate(const BindingChain &bc, const History &h)
 { return GeneralSemantics<Reference<ExogFunction>>::evaluate(bc, h); }
 
-const Expression &gologpp::Semantics<Reference<ExogFunction> >::expression() const
+const Expression &Semantics<Reference<ExogFunction> >::expression() const
 { return GeneralSemantics<Reference<ExogFunction>>::expression(); }
 
 

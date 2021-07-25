@@ -33,7 +33,7 @@ namespace gologpp {
 
 template<>
 class Semantics<Variable>
-: public ReadylogSemantics
+: public Semantics<ModelElement>
 , public GeneralSemantics<Variable>
 {
 public:
@@ -54,7 +54,6 @@ private:
 	bool dead_;
 	EC_atom golog_var_;
 	bool as_golog_var_;
-
 };
 
 

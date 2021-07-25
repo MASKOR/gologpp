@@ -25,7 +25,7 @@ namespace gologpp {
 
 template<>
 class Semantics<Activity>
-: public Semantics<AbstractReference>
+: public Semantics<Instruction>
 , public GeneralSemantics<Activity>
 {
 public:

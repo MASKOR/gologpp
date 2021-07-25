@@ -42,7 +42,7 @@ namespace gologpp {
 
 template<>
 class Semantics<Function>
-: public ReadylogSemantics
+: public Semantics<ModelElement>
 , public GeneralSemantics<Function>
 {
 public:
@@ -59,7 +59,7 @@ private:
 
 template<>
 class Semantics<ExogFunction>
-: public ReadylogSemantics
+: public Semantics<ModelElement>
 , public GeneralSemantics<ExogFunction>
 {
 public:
@@ -73,7 +73,7 @@ public:
 
 template<>
 class Semantics<Procedure>
-: public ReadylogSemantics
+: public Semantics<ModelElement>
 , public GeneralSemantics<Procedure>
 {
 public:
