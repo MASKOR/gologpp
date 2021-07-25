@@ -23,17 +23,112 @@
 #include "expressions.h"
 
 #include <memory>
+#include <type_traits>
 
 #include <boost/preprocessor/seq/for_each.hpp>
 
 namespace gologpp {
+
+/**
+ * @brief Partially specialize this to true for certain templated GologTs (i.e. Reference<T>, EffectAxiom<T>...)
+ * if you have generic definitions for Semantics<GologT, Cond>, but also want to supply certain
+ * partial specializations.
+ * Use it as a condition in the enable_if that gives Cond to prevent the ambiguous partial specialization
+ * errors that would otherwise occur.
+ */
+template<class GologT>
+static constexpr bool partially_specialized = false;
+
+template<class GologT>
+static constexpr bool is_instruction = std::is_base_of<Instruction, GologT>::value;
+
+template<class GologT>
+static constexpr bool is_expression = std::is_base_of<Expression, GologT>::value;
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class GologT>
-class GeneralSemantics
+class GeneralSemantics<GologT, enable_if<is_instruction<GologT>>>
+: public virtual GeneralSemantics<Instruction>
+{
+public:
+	GeneralSemantics(const GologT &elem, AExecutionController &context)
+	: element_(&elem)
+	, context_(context)
+	{}
+
+	virtual ~GeneralSemantics() = default;
+
+	/// @return A reference to the concrete language element (code model element) covered by this
+	/// semantics instance
+	template<class = GologT>
+	const GologT &element() const
+	{ return *element_; }
+
+	virtual AExecutionController &context() const override
+	{ return context_; }
+
+	void update_element(const GologT *new_element)
+	{ element_ = new_element; }
+
+	virtual const ModelElement &model_element() const override
+	{ return *element_; }
+
+	virtual const Instruction &instruction() const override
+	{ return *element_; }
+
+private:
+	const GologT *element_;
+	AExecutionController &context_;
+};
+
+
+
+template<class GologT>
+class GeneralSemantics<GologT, enable_if<is_expression<GologT>>>
+: public virtual GeneralSemantics<Expression>
+{
+public:
+	GeneralSemantics(const GologT &elem, AExecutionController &context)
+	: element_(&elem)
+	, context_(context)
+	{}
+
+	virtual ~GeneralSemantics() = default;
+
+	/// @return A reference to the concrete language element (code model element) covered by this
+	/// semantics instance
+	template<class = GologT>
+	const GologT &element() const
+	{ return *element_; }
+
+	virtual AExecutionController &context() const override
+	{ return context_; }
+
+	void update_element(const GologT *new_element)
+	{ element_ = new_element; }
+
+	virtual const ModelElement &model_element() const override
+	{ return *element_; }
+
+	virtual const Expression &expression() const override
+	{ return *element_; }
+
+private:
+	const GologT *element_;
+	AExecutionController &context_;
+};
+
+
+
+template<class GologT>
+class GeneralSemantics<GologT, enable_if <
+	!is_expression<GologT>
+	&& !is_instruction<GologT>
+> >
 : public virtual GeneralSemantics<ModelElement>
 {
 public:
@@ -42,7 +137,7 @@ public:
 	, context_(context)
 	{}
 
-	virtual ~GeneralSemantics<GologT>() = default;
+	virtual ~GeneralSemantics() = default;
 
 	/// @return A reference to the concrete language element (code model element) covered by this
 	/// semantics instance
@@ -68,6 +163,7 @@ private:
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// declare pure virtual make_semantics(...)
 #define GOLOGPP_DECLARE_ABSTRACT_MAKE_SEMANTICS(r, data, T) \
 	virtual unique_ptr<GeneralSemantics<ModelElement>> make_semantics(T &) = 0;
 

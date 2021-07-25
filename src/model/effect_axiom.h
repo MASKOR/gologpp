@@ -39,6 +39,8 @@ class AbstractEffectAxiom
 : public virtual AbstractLanguageElement
 {
 public:
+	using ElementType = ModelElement;
+
 	AbstractEffectAxiom();
 	AbstractEffectAxiom(AbstractEffectAxiom &&) = default;
 	virtual ~AbstractEffectAxiom();
@@ -63,8 +65,6 @@ class EffectAxiom
 , public LanguageElement<EffectAxiom<LhsT>>
 {
 public:
-	using ElementType = ModelElement;
-
 	EffectAxiom()
 	{}
 

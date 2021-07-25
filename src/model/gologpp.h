@@ -43,6 +43,8 @@ template<class T>
 using optional = std::optional<T>;
 using std::nullopt;
 
+template<bool Cond>
+using enable_if = typename std::enable_if<Cond>::type;
 
 using string = std::string;
 
@@ -143,8 +145,8 @@ class ListExpression;
 
 class History;
 
-template<class> class Semantics;
-template<class> class GeneralSemantics;
+template<class, typename Enable = void> class Semantics;
+template<class, typename Enable = void> class GeneralSemantics;
 
 class SemanticsFactory;
 
@@ -216,6 +218,7 @@ class SemanticsFactory;
 	(DurativeCall) \
 	(Reference<Procedure>) \
 	(ListPop) \
+	(Transition) \
 	(ListPush)
 
 #define GOLOGPP_EXPRESSIONS \
@@ -251,7 +254,6 @@ class SemanticsFactory;
 	(Procedure) \
 	(Action) \
 	(Activity) \
-	(Transition) \
 	(ExogAction) \
 	(Scope) \
 	(History)

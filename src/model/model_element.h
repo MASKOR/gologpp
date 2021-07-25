@@ -48,7 +48,7 @@ public:
 	/// @return The implementation-specific semantics of this model element.
 	/// This method cannot be called (or even instantiated) from the code model context. It
 	/// can only be instantiated and called from the semantics implementation.
-	template<class GologT>
+	template<class GologT = ModelElement>
 	Semantics<GologT> &semantics() const
 	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
 

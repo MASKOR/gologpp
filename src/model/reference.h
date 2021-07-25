@@ -77,6 +77,7 @@ public:
 	const Binding &element() const;
 	void update_element(const Binding *new_element);
 	virtual AExecutionController &context() const override;
+	virtual const ModelElement &model_element() const override;
 
 	virtual GeneralSemantics<Binding> *copy(const Binding &target_element) const = 0;
 

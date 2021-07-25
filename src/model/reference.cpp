@@ -102,6 +102,9 @@ void Reference<Variable>::attach_semantics(SemanticsFactory &implementor)
 	semantics_ = implementor.make_semantics(*this);
 }
 
+const ModelElement &GeneralSemantics<Binding>::model_element() const
+{ return *element_; }
+
 
 
 }
