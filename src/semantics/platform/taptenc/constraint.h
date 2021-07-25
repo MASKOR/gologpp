@@ -49,6 +49,7 @@ private:
 
 template<>
 class Semantics<platform::ActionSpec>
+: public TaptencExpressionSemantics
 {
 public:
 	virtual std::vector<taptenc::ActionName> compile() = 0;
@@ -106,6 +107,7 @@ public:
 template<>
 class Semantics<platform::TemporalUnaryOperation<platform::ActionSpec>>
 : public GeneralSemantics<platform::TemporalUnaryOperation<platform::ActionSpec>>
+, public TaptencExpressionSemantics
 {
 public:
 	Semantics(const platform::TemporalUnaryOperation<platform::ActionSpec> &elem, AExecutionController &context);
@@ -118,6 +120,7 @@ public:
 template<>
 class Semantics<platform::TemporalBinaryOperation<platform::ActionSpec>>
 : public GeneralSemantics<platform::TemporalBinaryOperation<platform::ActionSpec>>
+, TaptencExpressionSemantics
 {
 public:
 	Semantics(const platform::TemporalBinaryOperation<platform::ActionSpec> &elem, AExecutionController &context);
@@ -149,6 +152,7 @@ public:
 
 template<>
 class Semantics<platform::StateSpec>
+: public TaptencExpressionSemantics
 {
 public:
 	virtual std::unique_ptr<taptenc::EncICInfo> compile(

@@ -51,7 +51,12 @@ unique_ptr<SemanticsFactory> SemanticsFactory::construct()
 PlanTransformation *TaptencSemanticsFactory::make_transformation()
 { return new TaptencTransformation(); }
 
-} // namespace platform
+}
+
+Value TaptencExpressionSemantics::evaluate(const BindingChain &, const History &)
+{ throw Bug("This method shoudln't be called: Expression evaluation is not implemented here for the Taptenc semantics."); }
+
+// namespace platform
 
 
 } // namespace gologpp
