@@ -38,6 +38,7 @@ public:
 	using Hook = DurativeCall::Hook;
 
 	Transition(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, Hook hook);
+	Transition(const shared_ptr<Action> &action, const vector<unique_ptr<Expression>> &args, Hook hook);
 	Transition(const Transition &);
 
 	virtual const Action &operator * () const override;

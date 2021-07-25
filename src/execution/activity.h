@@ -23,8 +23,7 @@
 #include <model/action.h>
 #include "transition.h"
 
-#include <boost/optional.hpp>
-
+#include <condition_variable>
 
 namespace gologpp {
 
@@ -51,6 +50,8 @@ public:
 
 	void update(Transition::Hook hook);
 
+	void wait_for_update();
+
 	const std::string &mapped_name() const;
 	Value mapped_arg_value(const string &name) const;
 
@@ -63,6 +64,8 @@ public:
 private:
 	State state_;
 	AExecutionController &exec_context_;
+	std::condition_variable update_condition_;
+	std::mutex update_mutex_;
 };
 
 

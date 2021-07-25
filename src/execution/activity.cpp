@@ -82,6 +82,16 @@ void Activity::update(Transition::Hook hook)
 	PlatformBackend::Lock backend_lock = exec_context_.backend().lock();
 	set_state(target_state(hook));
 	exec_context_.exog_queue_push(shared_from_this());
+	update_condition_.notify_all();
+}
+
+void Activity::wait_for_update()
+{
+	std::unique_lock<std::mutex> update_lock { update_mutex_ };
+	State prev_state = state();
+	update_condition_.wait(update_lock, [&] {
+		return state() != prev_state;
+	});
 }
 
 
