@@ -312,19 +312,6 @@ public:
 		}
 	}
 
-	unique_ptr<Reference<TargetT>> ground_args(const Binding &b, const History &h) const
-	{
-		Binding gb;
-		for (auto &pair : this->binding().map())
-			gb.bind(
-				pair.first,
-				unique_ptr<Expression>(new Value(
-					std::move(pair.second->general_semantics().evaluate(b, h))
-				))
-			);
-		return unique_ptr<Reference<TargetT>>(new Reference<TargetT>(this->target(), std::move(gb)));
-	}
-
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

@@ -286,31 +286,6 @@ class SemanticsFactory;
 	GOLOGPP_OTHER
 
 
-/*
-using elem_types = boost::mpl::map <
-boost::mpl::pair<Assignment<Reference<Fluent>>, Instruction>,
-boost::mpl::pair<Assignment<Reference<Variable>>, Instruction>,
-boost::mpl::pair<Assignment<FieldAccess>, Instruction>,
-boost::mpl::pair<Assignment<ListAccess>, Instruction>,
-boost::mpl::pair<Pick, Instruction>,
-boost::mpl::pair<Plan, Instruction>,
-boost::mpl::pair<Concurrent, Instruction>,
-boost::mpl::pair<Block, Instruction>,
-boost::mpl::pair<Choose, Instruction>,
-boost::mpl::pair<Search, Instruction>,
-boost::mpl::pair<Solve, Instruction>,
-boost::mpl::pair<Test, Instruction>,
-boost::mpl::pair<While, Instruction>,
-boost::mpl::pair<Conditional<Instruction>, Instruction>,
-boost::mpl::pair<During, Instruction>,
-boost::mpl::pair<Reference<Action>, Instruction>,
-boost::mpl::pair<Reference<ExogAction>, Instruction>,
-boost::mpl::pair<DurativeCall, Instruction>,
-boost::mpl::pair<Reference<Procedure>, Instruction>,
-boost::mpl::pair<ListPop, Instruction>,
-boost::mpl::pair<ListPush, Instruction>
-
->;*/
 
 } // namespace gologpp
 

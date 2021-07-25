@@ -383,69 +383,6 @@ if (${BUILD_READYLOG_SEMANTICS})
 endif()
 
 
-if (BUILD_TAPTENC_SEMANTICS)
-	set(TAPTENC_SRC
-		external/taptenc/src/constraints/constraints.cpp
-		external/taptenc/src/encoder/direct_encoder.cpp
-		external/taptenc/src/encoder/enc_interconnection_info.cpp
-		external/taptenc/src/encoder/encoder_utils.cpp
-		external/taptenc/src/encoder/filter.cpp
-		external/taptenc/src/encoder/modular_encoder.cpp
-		external/taptenc/src/encoder/plan_ordered_tls.cpp
-		external/taptenc/src/parser/utap_trace_parser.cpp
-		external/taptenc/src/printer/xml_printer.cpp
-		external/taptenc/src/printer/xta_printer.cpp
-		external/taptenc/src/timed-automata/timed_automata.cpp
-		external/taptenc/src/timed-automata/vis_info.cpp
-		external/taptenc/src/platform_model_generator.cpp
-		external/taptenc/src/transformation.cpp
-		external/taptenc/src/uppaal_calls.cpp
-		external/taptenc/src/utils.cpp
-	)
-
-	set(TAPTENC_SEMANTICS_SRC
-		src/semantics/platform/taptenc/semantics.cpp
-		src/semantics/platform/taptenc/clock_formula.cpp
-		src/semantics/platform/taptenc/component.cpp
-		src/semantics/platform/taptenc/constraint.cpp
-		src/semantics/platform/taptenc/reference.cpp
-		src/semantics/platform/taptenc/transformation.cpp
-	)
-
-	set(TAPTENC_INCLUDE_PATHS
-		external/taptenc/src/constraints
-		external/taptenc/src/encoder
-		external/taptenc/src/parser
-		external/taptenc/src/printer
-		external/taptenc/src/timed-automata
-		external/taptenc/src
-	)
-
-	add_library(taptenc-golog++ SHARED ${TAPTENC_SRC} ${TAPTENC_SEMANTICS_SRC})
-	target_include_directories(taptenc-golog++ PUBLIC ${TAPTENC_INCLUDE_PATHS})
-	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
-	target_include_directories(taptenc-golog++ PUBLIC external)
-	target_compile_options(taptenc-golog++ PRIVATE -std=c++17)
-	set(TEST_LIBS ${TEST_LIBS} taptenc-golog++)
-
-	add_executable(taptenc_rcll_perception external/taptenc/src/rcll_perception.cpp ${TAPTENC_SRC})
-	target_include_directories(taptenc_rcll_perception PRIVATE ${TAPTENC_INCLUDE_PATHS})
-	target_compile_options(taptenc_rcll_perception PRIVATE -std=c++17)
-	if (USE_LIBASAN)
-		target_link_libraries(taptenc_rcll_perception asan)
-	endif()
-
-	target_link_libraries(golog++ taptenc-golog++)
-
-	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
-	install(TARGETS taptenc-golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-else(BUILD_TAPTENC_SEMANTICS)
-	target_compile_definitions(golog++ PRIVATE USE_DUMMY_PLATFORM)
-
-endif(BUILD_TAPTENC_SEMANTICS)
-
-
 
 ######################################################################################
 # The golog++ native semantics: libnativegolog++.so
@@ -525,6 +462,75 @@ if (${BUILD_NATIVE_SEMANTICS})
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/nativegolog++.pc.in ${CMAKE_CURRENT_BINARY_DIR}/nativegolog++.pc @ONLY)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/nativegolog++.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
+
+
+
+######################################################################################
+# The taptenc semantics for platform modeling
+######################################################################################
+
+if (BUILD_TAPTENC_SEMANTICS)
+	set(TAPTENC_SRC
+		external/taptenc/src/constraints/constraints.cpp
+		external/taptenc/src/encoder/direct_encoder.cpp
+		external/taptenc/src/encoder/enc_interconnection_info.cpp
+		external/taptenc/src/encoder/encoder_utils.cpp
+		external/taptenc/src/encoder/filter.cpp
+		external/taptenc/src/encoder/modular_encoder.cpp
+		external/taptenc/src/encoder/plan_ordered_tls.cpp
+		external/taptenc/src/parser/utap_trace_parser.cpp
+		external/taptenc/src/printer/xml_printer.cpp
+		external/taptenc/src/printer/xta_printer.cpp
+		external/taptenc/src/timed-automata/timed_automata.cpp
+		external/taptenc/src/timed-automata/vis_info.cpp
+		external/taptenc/src/platform_model_generator.cpp
+		external/taptenc/src/transformation.cpp
+		external/taptenc/src/uppaal_calls.cpp
+		external/taptenc/src/utils.cpp
+	)
+
+	set(TAPTENC_SEMANTICS_SRC
+		src/semantics/platform/taptenc/semantics.cpp
+		src/semantics/platform/taptenc/clock_formula.cpp
+		src/semantics/platform/taptenc/component.cpp
+		src/semantics/platform/taptenc/constraint.cpp
+		src/semantics/platform/taptenc/reference.cpp
+		src/semantics/platform/taptenc/transformation.cpp
+	)
+
+	set(TAPTENC_INCLUDE_PATHS
+		external/taptenc/src/constraints
+		external/taptenc/src/encoder
+		external/taptenc/src/parser
+		external/taptenc/src/printer
+		external/taptenc/src/timed-automata
+		external/taptenc/src
+	)
+
+	add_library(taptenc-golog++ SHARED ${TAPTENC_SRC} ${TAPTENC_SEMANTICS_SRC})
+	target_include_directories(taptenc-golog++ PUBLIC ${TAPTENC_INCLUDE_PATHS})
+	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+	target_include_directories(taptenc-golog++ PUBLIC external)
+	target_compile_options(taptenc-golog++ PRIVATE -std=c++17)
+	set(TEST_LIBS ${TEST_LIBS} taptenc-golog++)
+
+	add_executable(taptenc_rcll_perception external/taptenc/src/rcll_perception.cpp ${TAPTENC_SRC})
+	target_include_directories(taptenc_rcll_perception PRIVATE ${TAPTENC_INCLUDE_PATHS})
+	target_compile_options(taptenc_rcll_perception PRIVATE -std=c++17)
+	if (USE_LIBASAN)
+		target_link_libraries(taptenc_rcll_perception asan)
+	endif()
+
+	target_link_libraries(golog++ taptenc-golog++)
+
+	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+	install(TARGETS taptenc-golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+else(BUILD_TAPTENC_SEMANTICS)
+	target_compile_definitions(golog++ PRIVATE USE_DUMMY_PLATFORM)
+
+endif(BUILD_TAPTENC_SEMANTICS)
+
 
 
 ######################################################################################
