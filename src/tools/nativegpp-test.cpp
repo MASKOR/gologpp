@@ -21,6 +21,7 @@
 
 #include <model/formula.h>
 #include <model/reference.h>
+#include <model/logger.h>
 
 #include <model/action.h>
 #include <model/effect_axiom.h>
@@ -33,26 +34,37 @@
 using namespace gologpp;
 
 
-void test_parser(const string &filename)
+int test_file(unique_ptr<Instruction> &&mainproc)
 {
-	Instruction *mainproc = parser::parse_file(filename).release();
+	shared_ptr<Function> f_postcond = global_scope().lookup_global<Function>("postcond");
+	unique_ptr<Reference<Function>> postcond;
+	if (f_postcond) {
+		postcond.reset(f_postcond->make_ref({}));
+		postcond->attach_semantics(NativeContext::instance().semantics_factory());
+	}
 
-	for (shared_ptr<const Global> g : global_scope().globals())
-		std::cout << g->str() << std::endl;
+	mainproc->attach_semantics(NativeContext::instance().semantics_factory());
 
-	std::cout << mainproc->str() << std::endl;
+	NativeContext::instance().run(*mainproc);
 
-	NativeContext::init();
-	NativeContext &ctx = NativeContext::instance();
+	if (postcond) {
+		log(LogLevel::INF) << "Testing postcond(): " << flush;
+		bool success = static_cast<bool>(
+			postcond->semantics().evaluate({}, NativeContext::instance().history())
+		);
 
-	ctx.run(Block(
-		new Scope(global_scope()),
-		{ mainproc }
-	));
-
-	NativeContext::shutdown();
+		if (success) {
+			log(LogLevel::INF) << "OK" << flush;
+			return 0;
+		}
+		else {
+			log(LogLevel::ERR) << "FAIL" << flush;
+			return 1;
+		}
+	}
+	else
+		return 0;
 }
-
 
 
 int main(int argc, const char **argv)
@@ -60,9 +72,17 @@ int main(int argc, const char **argv)
 	string filename = SOURCE_DIR "/examples/blocksworld.gpp";
 	if (argc > 1)
 		filename = argv[1];
-	test_parser(filename);
 
-	return 0;
+	parser::parse_file(filename);
+	shared_ptr<Procedure> mainproc = global_scope().lookup_global<Procedure>("main");
+	if (!mainproc) {
+		log(LogLevel::ERR) << "No procedure main() in " << filename << flush;
+		return -2;
+	}
+
+	int rv = test_file(unique_ptr<Instruction>(mainproc->ref({})));
+
+	return rv;
 }
 
 

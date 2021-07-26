@@ -18,10 +18,10 @@
 #ifndef READYLOG_ARITHMETIC_H_
 #define READYLOG_ARITHMETIC_H_
 
+#include <model/arithmetic.h>
 #include "semantics.h"
 
 namespace gologpp {
-
 
 
 

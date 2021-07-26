@@ -25,16 +25,6 @@
 
 namespace gologpp {
 
-template<>
-class Semantics<Domain>
-: public Semantics<Expression>
-, public GeneralSemantics<Domain>
-{
-public:
-	using GeneralSemantics<Domain>::GeneralSemantics;
-	virtual Value evaluate(const Binding &b, const History &h) override;
-};
-
 
 
 }

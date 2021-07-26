@@ -25,6 +25,8 @@
 #include <model/procedural.h>
 #include <model/utilities.h>
 
+#include <execution/transition.h>
+
 #include "semantics.h"
 #include "utilities.h"
 #include "variable.h"
@@ -32,67 +34,20 @@
 
 namespace gologpp {
 
-template<class GologT> class Reference;
 
-class NativeContext;
 
 template<>
-class Semantics<Reference<Variable>>
-: public Semantics<Expression>
-, public GeneralSemantics<Reference<Variable>>
+class Semantics<Binding>
+: public GeneralSemantics<Binding>
 {
 public:
-	using GeneralSemantics<Reference<Variable>>::GeneralSemantics;
-	virtual Value evaluate(const Binding &b, const History &h) override;
+	using GeneralSemantics<Binding>::GeneralSemantics;
+
+	virtual GeneralSemantics<Binding> *copy(const Binding &target_element) const override;
+	virtual const ModelElement &model_element() const override;
 };
 
 
-
-template<>
-class Semantics<Reference<Function>>
-: public GeneralSemantics<Reference<Function>>
-, public Semantics<Expression>
-{
-public:
-	using GeneralSemantics<Reference<Function>>::GeneralSemantics;
-	virtual Value evaluate(const Binding &b, const History &h) override;
-};
-
-
-
-template<>
-class Semantics<Reference<Procedure>>
-: public GeneralSemantics<Reference<Procedure>>
-, public Semantics<Instruction>
-{
-public:
-	using GeneralSemantics<Reference<Procedure>>::GeneralSemantics;
-	unique_ptr<Plan> trans(const Binding &b, History &h) override;
-};
-
-
-
-template<>
-class Semantics<Reference<Action>>
-: public GeneralSemantics<Reference<Action>>
-, public Semantics<Instruction>
-{
-public:
-	using GeneralSemantics<Reference<Action>>::GeneralSemantics;
-	unique_ptr<Plan> trans(const Binding &b, History &h) override;
-	unique_ptr<Plan> plan(const Binding &b, History &h) override;
-};
-
-
-
-template<>
-class Semantics<Reference<Procedure>>;
-
-template<>
-class Semantics<Reference<Function>>;
-
-template<>
-class Semantics<Reference<Fluent>>;
 
 
 

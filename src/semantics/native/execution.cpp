@@ -45,7 +45,7 @@ void NativeContext::shutdown()
 
 
 NativeContext::NativeContext(unique_ptr<PlatformBackend> &&exec_backend)
-: AExecutionContext(std::make_unique<NativeSemanticsFactory>(), std::move(exec_backend))
+: AExecutionController(std::move(exec_backend))
 {
 	// TODO
 }
@@ -59,18 +59,17 @@ NativeContext &NativeContext::instance()
 { return *instance_; }
 
 
-void NativeContext::compile(const Block &block)
-{
-}
-
-
-void NativeContext::compile(const AbstractAction &aa)
-{
-
-}
-
-
 void NativeContext::compile(const Fluent &fluent)
+{
+}
+
+
+void NativeContext::compile(const Action &aa)
+{
+}
+
+
+void NativeContext::compile(const ExogAction &action)
 {
 }
 
@@ -80,11 +79,17 @@ void NativeContext::compile(const Function &function)
 }
 
 
+void NativeContext::compile(const ExogFunction &function)
+{
+}
+
+
 void NativeContext::postcompile()
 {
 }
 
-void NativeContext::run(Block &&program)
+
+void NativeContext::run(const Instruction &program)
 {
 
 }

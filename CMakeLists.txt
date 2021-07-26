@@ -409,6 +409,7 @@ if (${BUILD_NATIVE_SEMANTICS})
 		src/semantics/native/effect_axiom.cpp
 		src/semantics/native/compound_expression.cpp
 		src/semantics/native/list_expression.cpp
+		src/semantics/native/transition.cpp
 	)
 
 	link_directories(${ECLIPSE_LIBRARY_DIRS})
@@ -442,13 +443,9 @@ if (${BUILD_NATIVE_SEMANTICS})
 		src/semantics/native/history.h
 		src/semantics/native/compound_expression.h
 		src/semantics/native/list_expression.h
+		src/semantics/native/transition.h
 
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/native
-	)
-
-	install(FILES
-		src/semantics/native/boilerplate.pl
-		DESTINATION ${SEMANTICS_INSTALL_DIR}/native
 	)
 
 	get_target_property(NATIVEGPP_CXXFLAGS_L nativegolog++ INTERFACE_COMPILE_OPTIONS)

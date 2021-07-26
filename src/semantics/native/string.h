@@ -25,28 +25,6 @@
 namespace gologpp {
 
 
-template<>
-class Semantics<ToString>
-: public Semantics<Expression>
-, public GeneralSemantics<ToString>
-{
-public:
-	using GeneralSemantics<ToString>::GeneralSemantics;
-	virtual Value evaluate(const History &h) override;
-};
-
-
-template<>
-class Semantics<StringConcatenation>
-: public Semantics<Expression>
-, public GeneralSemantics<StringConcatenation>
-{
-public:
-	using GeneralSemantics<StringConcatenation>::GeneralSemantics;
-	virtual Value evaluate(const History &h) override;
-};
-
-
 }
 
 #endif // READYLOG_STRING_CONCATENATION_H_

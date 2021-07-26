@@ -16,6 +16,7 @@
 **************************************************************************/
 
 #include <execution/activity.h>
+#include <execution/controller.h>
 
 #include "action.h"
 #include "effect_axiom.h"
@@ -28,35 +29,6 @@
 
 namespace gologpp {
 
-
-template<>
-unique_ptr<Plan> Semantics<Transition>::trans(const Binding &b, History &h) {
-	while (!element()->precondition().semantics<Expression>().evaluate(b, h))
-		this->context().drain_exog_queue_blocking();
-
-	vector<unique_ptr<Value>> arg_vals;
-	Binding b1(b);
-	for (const auto &param : element()->params()) {
-		Value v = element().arg_for_param(param).semantics<Expression>().evaluate(b, h);
-		arg_vals.emplace_back(new Value(
-			param->type(),
-			v
-		));
-		// TODO: Meh. Dangerous object lifetime here.
-		b1.bind(param, *arg_vals.back());
-	}
-
-	shared_ptr<Transition> trans_start = std::make_shared<Transition>(
-		element()->shared_from_this(),
-		arg_vals,
-		Transition::Hook::START
-	);
-
-	// TODO: eliminate Transition object here
-	shared_ptr<Activity> a = context().backend().start_activity(*trans_start);
-	h.semantics().append(trans_start);
-	context().backend().wait_for_end(*a);
-}
 
 
 

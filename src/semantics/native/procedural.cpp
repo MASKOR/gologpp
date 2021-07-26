@@ -22,6 +22,8 @@
 #include "value.h"
 #include "action.h"
 
+#include <execution/plan.h>
+
 #include <model/procedural.h>
 
 
@@ -29,21 +31,11 @@ namespace gologpp {
 
 
 template<>
-unique_ptr<Plan> Semantics<Block>::trans(const Binding &b, History &h)
+unique_ptr<Plan> Semantics<Block>::trans(const BindingChain &b, History &h)
 {
 	for (const unique_ptr<Instruction> &instr : element().elements())
 		instr->semantics<Instruction>().trans(b, h);
 }
-
-template<>
-unique_ptr<Plan> Semantics<Block>::plan(const Binding &b, History &h)
-{
-	unique_ptr<Instruction> rv;
-	for (const unique_ptr<Instruction> &instr : element().elements()) {
-
-	}
-}
-
 
 
 

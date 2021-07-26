@@ -27,18 +27,6 @@
 namespace gologpp {
 
 
-template<>
-class Semantics<Variable>
-: public Semantics<Expression>
-, public GeneralSemantics<Variable>
-{
-public:
-	using GeneralSemantics<Variable>::GeneralSemantics;
-	virtual Value evaluate(const Binding &b, const History &h) override;
-};
-
-
-
 
 } // namespace gologpp
 

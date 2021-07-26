@@ -29,14 +29,13 @@ namespace gologpp {
 
 template<>
 class Semantics<Value>
-: public Semantics<Expression>
-, public GeneralSemantics<Value>
+: public GeneralSemantics<Value>
 {
 public:
 	using GeneralSemantics<Value>::GeneralSemantics;
 	virtual ~Semantics() override = default;
 
-	virtual Value evaluate(const Binding &b, const History &h) override;
+	virtual Value evaluate(const BindingChain &b, const History &h) override;
 	virtual GeneralSemantics<Value> *copy(const Value &target_element) const override;
 };
 

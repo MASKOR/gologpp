@@ -25,28 +25,6 @@
 namespace gologpp {
 
 
-template<>
-class Semantics<InitialValue>
-: public Semantics<ModelElement>
-, public GeneralSemantics<InitialValue>
-{
-public:
-	using GeneralSemantics<InitialValue>::GeneralSemantics;
-	virtual ~Semantics() override = default;
-};
-
-
-
-template<>
-class Semantics<Fluent>
-: public Semantics<ModelElement>
-, public GeneralSemantics<Fluent>
-{
-public:
-	using GeneralSemantics<Fluent>::GeneralSemantics;
-	virtual ~Semantics() override = default;
-};
-
 
 
 } // namespace gologpp

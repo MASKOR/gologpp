@@ -15,41 +15,10 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "semantics.h"
-#include "effect_axiom.h"
-#include "action.h"
-#include "fluent.h"
-#include "variable.h"
-#include "value.h"
-#include "formula.h"
-#include "procedural.h"
-#include "reference.h"
-#include "scope.h"
-#include "arithmetic.h"
-#include "execution.h"
-#include "domain.h"
-#include "string.h"
-#include "history.h"
-#include "compound_expression.h"
-#include "list_expression.h"
 #include "transition.h"
-
-#include <model/platform/semantics.h>
-#include <model/platform/switch_state_action.h>
 
 namespace gologpp {
 
 
 
-#define GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL(_r, _data, GologT) \
-unique_ptr<GeneralSemantics<ModelElement>> NativeSemanticsFactory::make_semantics(GologT &obj) \
-{ return unique_ptr<GeneralSemantics<ModelElement>>(new Semantics<GologT>(obj, context())); }
-
-BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL, (), GOLOGPP_SEMANTIC_TYPES)
-
-
-
-} // namespace gologpp
-
-
-
+}

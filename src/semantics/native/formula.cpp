@@ -24,51 +24,52 @@
 
 namespace gologpp {
 
-template<>
-Value Semantics<Negation>::evaluate(const Binding &b, const History &h)
-{ return !element().expression().semantics<Expression>().evaluate(b, h); }
-
-
 
 template<>
-Value gologpp::Semantics<Comparison>::evaluate(const Binding &b, const History &h)
+Value Semantics<Negation>::evaluate(const BindingChain &b, const History &h)
+{ return !element().expression().semantics().evaluate(b, h); }
+
+
+
+template<>
+Value gologpp::Semantics<Comparison>::evaluate(const BindingChain &b, const History &h)
 {
 	switch(element().op()) {
 	case Comparison::Operator::EQ:
 		return Value(
 			get_type<BoolType>(),
-			element().lhs().semantics<Expression>().evaluate(b, h)
-				== element().lhs().semantics<Expression>().evaluate(b, h)
+			element().lhs().semantics().evaluate(b, h)
+				== element().lhs().semantics().evaluate(b, h)
 		);
 	case Comparison::Operator::NEQ:
 		return Value(
 			get_type<BoolType>(),
-			element().lhs().semantics<Expression>().evaluate(b, h)
-				!= element().lhs().semantics<Expression>().evaluate(b, h)
+			element().lhs().semantics().evaluate(b, h)
+				!= element().lhs().semantics().evaluate(b, h)
 		);
 	case Comparison::Operator::GE:
 		return Value(
 			get_type<BoolType>(),
-			element().lhs().semantics<Expression>().evaluate(b, h)
-				>= element().lhs().semantics<Expression>().evaluate(b, h)
+			element().lhs().semantics().evaluate(b, h)
+				>= element().lhs().semantics().evaluate(b, h)
 		);
 	case Comparison::Operator::LE:
 		return Value(
 			get_type<BoolType>(),
-			element().lhs().semantics<Expression>().evaluate(b, h)
-				<= element().lhs().semantics<Expression>().evaluate(b, h)
+			element().lhs().semantics().evaluate(b, h)
+				<= element().lhs().semantics().evaluate(b, h)
 		);
 	case Comparison::Operator::GT:
 		return Value(
 			get_type<BoolType>(),
-			element().lhs().semantics<Expression>().evaluate(b, h)
-				> element().lhs().semantics<Expression>().evaluate(b, h)
+			element().lhs().semantics().evaluate(b, h)
+				> element().lhs().semantics().evaluate(b, h)
 		);
 	case Comparison::Operator::LT:
 		return Value(
 			get_type<BoolType>(),
-			element().lhs().semantics<Expression>().evaluate(b, h)
-				< element().lhs().semantics<Expression>().evaluate(b, h)
+			element().lhs().semantics().evaluate(b, h)
+				< element().lhs().semantics().evaluate(b, h)
 		);
 	}
 }
@@ -76,10 +77,10 @@ Value gologpp::Semantics<Comparison>::evaluate(const Binding &b, const History &
 
 
 template<>
-Value gologpp::Semantics<BooleanOperation>::evaluate(const Binding &b, const History &h)
+Value gologpp::Semantics<BooleanOperation>::evaluate(const BindingChain &b, const History &h)
 {
-	bool lhs = static_cast<bool>(element().lhs().semantics<Expression>().evaluate(b, h));
-	bool rhs = static_cast<bool>(element().rhs().semantics<Expression>().evaluate(b, h));
+	bool lhs = static_cast<bool>(element().lhs().semantics().evaluate(b, h));
+	bool rhs = static_cast<bool>(element().rhs().semantics().evaluate(b, h));
 
 	switch (element().op()) {
 	case BooleanOperator::OR:
@@ -98,22 +99,27 @@ Value gologpp::Semantics<BooleanOperation>::evaluate(const Binding &b, const His
 
 
 template<>
-Value gologpp::Semantics<Quantification>::evaluate(const Binding &b, const History &h) {
+Value gologpp::Semantics<Quantification>::evaluate(const BindingChain &b, const History &h) {
+	const Domain &d = element().variable().type();
 	switch (element().op()) {
 	case Quantification::Operator::FORALL:
-		for (const auto &val : element().variable().domain().elements()) {
-			// TODO: What if domain empty?
-			Binding b1(b);
-			b1.bind(element().variable().shared(), *val);
-			if (!static_cast<bool>(element().expression().semantics<Expression>().evaluate(b1, h)))
+		// TODO: Statically check that variable has a domain type
+		for (const auto &val : d.elements()) {
+			Binding var_bind;
+			var_bind.bind(element().variable().shared(), unique_ptr<Value>(val->copy()));
+			BindingChain b_local = b;
+			b_local.push_back(&var_bind);
+			if (!static_cast<bool>(element().expression().semantics().evaluate(b_local, h)))
 				return Value(get_type<BoolType>(), false);
 		}
 		return Value(get_type<BoolType>(), true);
 	case Quantification::Operator::EXISTS:
-		for (const auto &val : element().variable().domain().elements()) {
-			Binding b1(b);
-			b1.bind(element().variable().shared(), *val);
-			if (static_cast<bool>(element().expression().semantics<Expression>().evaluate(b1, h)))
+		for (const auto &val : d.elements()) {
+			Binding var_bind;
+			var_bind.bind(element().variable().shared(), unique_ptr<Value>(val->copy()));
+			BindingChain b_local = b;
+			b_local.push_back(&var_bind);
+			if (static_cast<bool>(element().expression().semantics().evaluate(b_local, h)))
 				return Value(get_type<BoolType>(), true);
 		}
 		return Value(get_type<BoolType>(), false);

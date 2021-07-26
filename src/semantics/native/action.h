@@ -30,45 +30,6 @@ namespace gologpp {
 class Action;
 
 
-template<>
-class Semantics<Action>
-: public Semantics<ModelElement>
-, public GeneralSemantics<Action>
-{
-public:
-	using GeneralSemantics<Action>::GeneralSemantics;
-};
-
-
-template<>
-class Semantics<ExogAction>
-: public Semantics<ModelElement>
-, public GeneralSemantics<ExogAction>
-{
-public:
-	using GeneralSemantics<ExogAction>::GeneralSemantics;
-};
-
-
-template<>
-class Semantics<Reference<ExogAction>>
-: public Semantics<Instruction>
-, public GeneralSemantics<Reference<ExogAction>>
-{
-public:
-	using GeneralSemantics<Reference<ExogAction>>::GeneralSemantics;
-};
-
-
-template<>
-class Semantics<Activity>
-: public Semantics<ModelElement>
-, public GeneralSemantics<Activity>
-{
-public:
-	using GeneralSemantics<Activity>::GeneralSemantics;
-};
-
 
 
 } // namespace gologpp

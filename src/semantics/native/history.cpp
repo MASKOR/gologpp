@@ -15,8 +15,6 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include <model/transition.h>
-
 #include "history.h"
 #include "action.h"
 #include "execution.h"

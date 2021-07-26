@@ -33,58 +33,62 @@ using enable_if_subclass = std::enable_if <
 >;
 
 
-template<>
-class Semantics<ModelElement>
-: public virtual GeneralSemantics<ModelElement>
-{
+class Escalate {
 public:
-	virtual ~Semantics<ModelElement>() override = default;
+	Escalate(const Instruction *static_cause, shared_ptr<const Instruction> dynamic_cause);
+
+	void set_static_cause(const Instruction *cause);
+	const Instruction *static_cause() const;
+	void set_dynamic_cause(shared_ptr<const Instruction> cause);
+	shared_ptr<const Instruction> dynamic_cause() const;
+
+private:
+	const Instruction *static_cause_;
+	shared_ptr<const Instruction> dynamic_cause_;
 };
 
 
-template<>
-class Semantics<Expression>
-: public GeneralSemantics<Expression>
-, public Semantics<ModelElement>
+
+template<class GologT>
+class Semantics<GologT, enable_if<is_instruction<GologT>>>
+: public GeneralSemantics<GologT>
 {
 public:
-	virtual Value evaluate(const Binding &context, const History &h) override;
-	virtual const Expression &expression() const override;
+	using GeneralSemantics<GologT>::GeneralSemantics;
+	virtual ~Semantics() override = default;
+
+	virtual unique_ptr<Plan> trans(const BindingChain &b, History &h) override;
+
+	virtual bool final(const BindingChain &, const History &) override
+	{ throw Bug("This method should not be called"); }
 };
 
 
-template<>
-class Semantics<Instruction>
-: public GeneralSemantics<Instruction>
-, public Semantics<ModelElement>
+
+template<class GologT>
+class Semantics<GologT, enable_if<is_expression<GologT>>>
+: public GeneralSemantics<GologT>
 {
 public:
-	virtual unique_ptr<Plan> plan(const Binding &b, History &h);
-	virtual bool final(const Binding &b, const History &h) override;
-	virtual const Instruction &instruction() const override;
+	using GeneralSemantics<GologT>::GeneralSemantics;
+	virtual ~Semantics() override = default;
+
+	virtual Value evaluate(const BindingChain &b, const History &h) override;
 };
 
 
 template<class GologT>
-class Semantics
-: public Semantics<typename GologT::ElementType>
+class Semantics<GologT, enable_if <
+	!is_expression<GologT>
+	&& !is_instruction<GologT>
+>>
+: public GeneralSemantics<GologT>
 {
 public:
-	typename  std::enable_if < std::is_base_of<GologT, Expression>::value,
-		Value
-	>::type evaluate(const Binding &b, const History &h) override;
-
-	typename enable_if_subclass< GologT, Instruction,
-		unique_ptr<Plan>
-	>::type trans(const Binding &b, History &h) override;
-
-	const GologT &element() const;
+	using GeneralSemantics<GologT>::GeneralSemantics;
+	virtual ~Semantics() override = default;
 };
 
-
-
-using EvaluationSemantics = Semantics<Expression>;
-using TransitionSemantics = Semantics<Instruction>;
 
 #define GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE(_r, _data, GologT) \
 	virtual unique_ptr<GeneralSemantics<ModelElement>> make_semantics(GologT &) override;

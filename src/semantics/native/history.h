@@ -29,12 +29,18 @@ namespace gologpp {
 template<>
 class Semantics<History> : public GeneralSemantics<History> {
 public:
-	Semantics(History &);
+	using GeneralSemantics<History>::GeneralSemantics;
 	virtual ~Semantics() override = default;
 
 	virtual shared_ptr<Transition> get_last_transition() override;
+	virtual void append(const Reference<AbstractAction> &) override;
 	virtual void append(shared_ptr<Reference<AbstractAction>> exog) override;
-	virtual void append_sensing_result(shared_ptr<Activity>) override;
+		virtual void append_sensing_result(
+		shared_ptr<Activity> a,
+		const Expression &lhs,
+		const Value &sensing_result
+	) override;
+	virtual void append(const Transition &trans) override;
 	virtual bool should_progress() const override;
 	virtual void progress() override;
 

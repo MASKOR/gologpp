@@ -20,7 +20,7 @@
 
 #include <iostream>
 
-#include <execution/context.h>
+#include <execution/controller.h>
 
 #include "semantics.h"
 #include "history.h"
@@ -29,7 +29,7 @@
 namespace gologpp {
 
 
-class NativeContext : public AExecutionContext {
+class NativeContext : public AExecutionController {
 public:
 	virtual ~NativeContext() override;
 	static void init(unique_ptr<PlatformBackend> &&backend = nullptr);
@@ -37,16 +37,17 @@ public:
 	static NativeContext &instance();
 
 	virtual void precompile() override {}
-	virtual void compile(const Block &block) override;
-	virtual void compile(const AbstractAction &action) override;
 	virtual void compile(const Fluent &fluent) override;
+	virtual void compile(const Action &action) override;
+	virtual void compile(const ExogAction &action) override;
 	virtual void compile(const Function &function) override;
+	virtual void compile(const ExogFunction &function) override;
 	virtual void compile(const Procedure &proc) override;
 	virtual void postcompile() override;
 
 	shared_ptr<Transition> wait_for_end(Activity &a);
 
-	virtual void run(Block &&program) override;
+	virtual void run(const Instruction &program) override;
 
 private:
     NativeContext(unique_ptr<PlatformBackend> &&exec_backend);

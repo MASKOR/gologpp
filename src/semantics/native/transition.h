@@ -15,26 +15,26 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include <model/arithmetic.h>
-#include <model/value.h>
+#pragma once
 
-#include "arithmetic.h"
-#include "semantics.h"
+#include <execution/transition.h>
 
 namespace gologpp {
 
 
 template<>
-Value Semantics<ArithmeticOperation>::evaluate(const BindingChain &b, const History &h)
+class Semantics<Transition>
+: public GeneralSemantics<Transition>
 {
-	switch (element().op()) {
-	case ArithmeticOperation::Operator::POWER:
-		return element().lhs().semantics<Expression>().evaluate(b, h).pow(
-			element().lhs().semantics<Expression>().evaluate(b, h)
-		);
-	}
-}
+public:
+	using GeneralSemantics<Transition>::GeneralSemantics;
+
+	virtual GeneralSemantics<Transition> *copy(const Transition &target_element) const override;
+	virtual unique_ptr<Plan> trans(const BindingChain &b, History &h) override;
+
+	virtual bool final(const BindingChain &, const History &) override
+	{ throw Bug("This method should not be called"); }
+};
 
 
-
-}
+} // namespace gologpp

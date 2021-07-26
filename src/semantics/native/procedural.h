@@ -33,22 +33,6 @@ namespace gologpp {
 
 
 
-template<>
-class Semantics<Choose>
-: public Semantics<Instruction>
-, public GeneralSemantics<Choose>
-{
-public:
-	using GeneralSemantics<Choose>::GeneralSemantics;
-	virtual unique_ptr<Plan> trans(const Binding &b, History &h) override;
-	virtual unique_ptr<Plan> plan(const Binding &b, History &h) override;
-
-private:
-	vector<unique_ptr<Instruction>>::const_iterator ip;
-};
-
-
-
 } // namespace gologpp
 
 

@@ -25,16 +25,6 @@
 namespace gologpp {
 
 
-template<>
-class Semantics<CompoundExpression>
-: public Semantics<Expression>
-, public GeneralSemantics<CompoundExpression>
-{
-public:
-	using GeneralSemantics<CompoundExpression>::GeneralSemantics;
-	virtual Value evaluate(const AbstractReference &context, const History &h) override;
-};
-
 
 }
 
