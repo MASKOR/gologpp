@@ -73,7 +73,7 @@ public:
 	Plan() = default;
 	Plan(Plan &&sub);
 
-	Value max_reward(const Binding &binding, const Reference<Function> &reward_func);
+	Value max_reward(const BindingChain &binding, const Reference<Function> &reward_func);
 
 	Plan &append(TimedInstruction &&);
 	Plan &append(Plan &&);
