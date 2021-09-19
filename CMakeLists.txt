@@ -486,3 +486,9 @@ install(EXPORT golog++-targets
 install(FILES cmake/golog++-config.cmake
         ${CMAKE_CURRENT_BINARY_DIR}/golog++-config-version.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/golog++)
+
+find_package(Doxygen REQUIRED dot)
+if (Doxygen_FOUND)
+  set(DOXYGEN_OUTPUT_DIRECTORY api)
+  doxygen_add_docs(doc src README.md)
+endif()
