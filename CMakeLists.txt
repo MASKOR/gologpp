@@ -124,6 +124,7 @@ target_compile_options(golog++ PUBLIC -fPIC)
 target_link_libraries (golog++ ${CMAKE_THREAD_LIBS_INIT})
 set_property(TARGET golog++ PROPERTY SOVERSION ${PROJECT_VERSION})
 target_compile_features(golog++ PUBLIC cxx_std_17)
+target_include_directories(golog++ PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/golog++>)
 install(TARGETS golog++ EXPORT golog++-targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES
@@ -238,6 +239,7 @@ if (${BUILD_PARSER})
 	if (${DEBUG_PARSER})
 		target_compile_definitions(parsegolog++ PRIVATE -DBOOST_SPIRIT_DEBUG -DGOLOGPP_DEBUG_PARSER)
 	endif()
+	target_include_directories(parsegolog++ PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/golog++>)
   install(TARGETS parsegolog++ EXPORT golog++-targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
 	install(FILES
 		src/parser/grammar.h
@@ -323,6 +325,7 @@ if (${BUILD_READYLOG_SEMANTICS})
 		-DSEMANTICS_INSTALL_DIR=\"${CMAKE_INSTALL_PREFIX}/${SEMANTICS_INSTALL_DIR}\"
 	)
 	target_include_directories(readylog++ PUBLIC ${ECLIPSE_INCLUDE_DIRS})
+	target_include_directories(readylog++ PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/golog++>)
 	target_link_libraries(readylog++ golog++ ${ECLIPSE_LIBRARIES} stdc++fs)
 	set_property(TARGET readylog++ PROPERTY SOVERSION ${PROJECT_VERSION})
   install(TARGETS readylog++ EXPORT golog++-targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
@@ -410,6 +413,7 @@ if (BUILD_TAPTENC_SEMANTICS)
 
 	add_library(taptenc-golog++ SHARED ${TAPTENC_SRC} ${TAPTENC_SEMANTICS_SRC})
 	target_include_directories(taptenc-golog++ PUBLIC ${TAPTENC_INCLUDE_PATHS})
+	target_include_directories(taptenc-golog++ PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/golog++>)
 	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${PROJECT_VERSION})
 	target_include_directories(taptenc-golog++ PUBLIC external)
 	target_compile_options(taptenc-golog++ PRIVATE -std=c++17)
