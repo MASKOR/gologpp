@@ -15,8 +15,8 @@
 # along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 ###########################################################################
 
-project(golog++)
 cmake_minimum_required(VERSION 3.0)
+project(golog++ VERSION 0.1.0)
 
 include(CMakeDependentOption)
 include(GNUInstallDirs)
@@ -66,10 +66,6 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 set(SEMANTICS_INSTALL_DIR ${CMAKE_INSTALL_DATAROOTDIR}/golog++/semantics)
-
-
-set(GOLOGPP_VERSION 0.1.0)
-
 
 
 ######################################################################################
@@ -125,7 +121,7 @@ set(INTERFACE_SRC
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
 target_link_libraries (golog++ ${CMAKE_THREAD_LIBS_INIT})
-set_property(TARGET golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+set_property(TARGET golog++ PROPERTY SOVERSION ${PROJECT_VERSION})
 target_compile_features(golog++ PUBLIC cxx_std_17)
 install(TARGETS golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
@@ -236,7 +232,7 @@ if (${BUILD_PARSER})
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
-	set_property(TARGET parsegolog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+	set_property(TARGET parsegolog++ PROPERTY SOVERSION ${PROJECT_VERSION})
 	target_compile_options(parsegolog++ PRIVATE -Wno-undefined-func-template -O${OPTIMIZE_PARSER})
 	if (${DEBUG_PARSER})
 		target_compile_definitions(parsegolog++ PRIVATE -DBOOST_SPIRIT_DEBUG -DGOLOGPP_DEBUG_PARSER)
@@ -327,7 +323,7 @@ if (${BUILD_READYLOG_SEMANTICS})
 	)
 	target_include_directories(readylog++ PUBLIC ${ECLIPSE_INCLUDE_DIRS})
 	target_link_libraries(readylog++ golog++ ${ECLIPSE_LIBRARIES} stdc++fs)
-	set_property(TARGET readylog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+	set_property(TARGET readylog++ PROPERTY SOVERSION ${PROJECT_VERSION})
 	install(TARGETS readylog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
 	install(FILES
 		src/semantics/readylog/semantics.h
@@ -413,7 +409,7 @@ if (BUILD_TAPTENC_SEMANTICS)
 
 	add_library(taptenc-golog++ SHARED ${TAPTENC_SRC} ${TAPTENC_SEMANTICS_SRC})
 	target_include_directories(taptenc-golog++ PUBLIC ${TAPTENC_INCLUDE_PATHS})
-	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${PROJECT_VERSION})
 	target_include_directories(taptenc-golog++ PUBLIC external)
 	target_compile_options(taptenc-golog++ PRIVATE -std=c++17)
 	set(TEST_LIBS ${TEST_LIBS} taptenc-golog++)
@@ -427,7 +423,7 @@ if (BUILD_TAPTENC_SEMANTICS)
 
 	target_link_libraries(golog++ taptenc-golog++)
 
-	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${PROJECT_VERSION})
 	install(TARGETS taptenc-golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 else(BUILD_TAPTENC_SEMANTICS)
