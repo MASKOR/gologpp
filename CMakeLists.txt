@@ -123,7 +123,7 @@ target_compile_options(golog++ PUBLIC -fPIC)
 target_link_libraries (golog++ ${CMAKE_THREAD_LIBS_INIT})
 set_property(TARGET golog++ PROPERTY SOVERSION ${PROJECT_VERSION})
 target_compile_features(golog++ PUBLIC cxx_std_17)
-install(TARGETS golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS golog++ EXPORT golog++-targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES
 	src/model/model_element.h
@@ -237,7 +237,7 @@ if (${BUILD_PARSER})
 	if (${DEBUG_PARSER})
 		target_compile_definitions(parsegolog++ PRIVATE -DBOOST_SPIRIT_DEBUG -DGOLOGPP_DEBUG_PARSER)
 	endif()
-	install(TARGETS parsegolog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  install(TARGETS parsegolog++ EXPORT golog++-targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
 	install(FILES
 		src/parser/grammar.h
 		src/parser/parser.h
@@ -324,7 +324,7 @@ if (${BUILD_READYLOG_SEMANTICS})
 	target_include_directories(readylog++ PUBLIC ${ECLIPSE_INCLUDE_DIRS})
 	target_link_libraries(readylog++ golog++ ${ECLIPSE_LIBRARIES} stdc++fs)
 	set_property(TARGET readylog++ PROPERTY SOVERSION ${PROJECT_VERSION})
-	install(TARGETS readylog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  install(TARGETS readylog++ EXPORT golog++-targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
 	install(FILES
 		src/semantics/readylog/semantics.h
 		src/semantics/readylog/formula.h
@@ -424,7 +424,7 @@ if (BUILD_TAPTENC_SEMANTICS)
 	target_link_libraries(golog++ taptenc-golog++)
 
 	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${PROJECT_VERSION})
-	install(TARGETS taptenc-golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  install(TARGETS taptenc-golog++ EXPORT golog++-targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 else(BUILD_TAPTENC_SEMANTICS)
 	target_compile_definitions(golog++ PRIVATE USE_DUMMY_PLATFORM)
@@ -469,7 +469,20 @@ if (BUILD_PARSER AND BUILD_READYLOG_SEMANTICS)
 		endforeach()
 	endif()
 
-	install(TARGETS gologpp-test DESTINATION ${CMAKE_INSTALL_BINDIR})
+	install(TARGETS gologpp-test EXPORT golog++-targets DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+   ${CMAKE_CURRENT_BINARY_DIR}/golog++-config-version.cmake
+   VERSION ${PROJECT_VERSION}
+   COMPATIBILITY SameMajorVersion)
 
+install(EXPORT golog++-targets
+        FILE golog++-targets.cmake
+        NAMESPACE golog++::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/golog++)
+
+install(FILES cmake/golog++-config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/golog++-config-version.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/golog++)
