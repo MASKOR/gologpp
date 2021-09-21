@@ -15,7 +15,7 @@
 # along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 ###########################################################################
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.1)
 project(golog++ VERSION 0.1.0)
 
 include(CMakeDependentOption)
