@@ -15,8 +15,8 @@
 # along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 ###########################################################################
 
-project(golog++)
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.1)
+project(golog++ VERSION 0.1.0)
 
 include(CMakeDependentOption)
 include(GNUInstallDirs)
@@ -34,6 +34,7 @@ pkg_check_modules(SWIPL "swipl")
 option(BUILD_TAPTENC_SEMANTICS "Build the taptenc platform model semantics" OFF)
 option(USE_LIBASAN "Enable the AddressSanitizer to detect memory management bugs" OFF)
 option(BUILD_PARSER "Build the parser library" ON)
+option(BUILD_DOC "Build doxygen documentation" OFF)
 CMAKE_DEPENDENT_OPTION(DEBUG_PARSER "Enable debug output for the parser" OFF "BUILD_PARSER" OFF)
 if (${ECLIPSE_FOUND})
 	option(BUILD_READYLOG_SEMANTICS "Build the readylog semantics (ECLiPSe Prolog)" ON)
@@ -66,10 +67,6 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 set(SEMANTICS_INSTALL_DIR ${CMAKE_INSTALL_DATAROOTDIR}/golog++/semantics)
-
-
-set(GOLOGPP_VERSION 0.1.0)
-
 
 
 ######################################################################################
@@ -125,9 +122,12 @@ set(INTERFACE_SRC
 add_library(golog++ SHARED ${INTERFACE_SRC})
 target_compile_options(golog++ PUBLIC -fPIC)
 target_link_libraries (golog++ ${CMAKE_THREAD_LIBS_INIT})
-set_property(TARGET golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+set_property(TARGET golog++ PROPERTY SOVERSION ${PROJECT_VERSION})
 target_compile_features(golog++ PUBLIC cxx_std_17)
-install(TARGETS golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
+target_include_directories(golog++ PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/golog++>)
+install(TARGETS golog++ EXPORT golog++-targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES
 	src/model/model_element.h
@@ -236,12 +236,15 @@ if (${BUILD_PARSER})
 	)
 	add_library(parsegolog++ SHARED ${PARSER_SRC})
 	target_link_libraries(parsegolog++ golog++)
-	set_property(TARGET parsegolog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+	set_property(TARGET parsegolog++ PROPERTY SOVERSION ${PROJECT_VERSION})
 	target_compile_options(parsegolog++ PRIVATE -Wno-undefined-func-template -O${OPTIMIZE_PARSER})
 	if (${DEBUG_PARSER})
 		target_compile_definitions(parsegolog++ PRIVATE -DBOOST_SPIRIT_DEBUG -DGOLOGPP_DEBUG_PARSER)
 	endif()
-	install(TARGETS parsegolog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
+	target_include_directories(parsegolog++ PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/golog++>)
+  install(TARGETS parsegolog++ EXPORT golog++-targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
 	install(FILES
 		src/parser/grammar.h
 		src/parser/parser.h
@@ -326,9 +329,12 @@ if (${BUILD_READYLOG_SEMANTICS})
 		-DSEMANTICS_INSTALL_DIR=\"${CMAKE_INSTALL_PREFIX}/${SEMANTICS_INSTALL_DIR}\"
 	)
 	target_include_directories(readylog++ PUBLIC ${ECLIPSE_INCLUDE_DIRS})
+	target_include_directories(readylog++ PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/golog++>)
 	target_link_libraries(readylog++ golog++ ${ECLIPSE_LIBRARIES} stdc++fs)
-	set_property(TARGET readylog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
-	install(TARGETS readylog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
+	set_property(TARGET readylog++ PROPERTY SOVERSION ${PROJECT_VERSION})
+  install(TARGETS readylog++ EXPORT golog++-targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
 	install(FILES
 		src/semantics/readylog/semantics.h
 		src/semantics/readylog/formula.h
@@ -413,7 +419,10 @@ if (BUILD_TAPTENC_SEMANTICS)
 
 	add_library(taptenc-golog++ SHARED ${TAPTENC_SRC} ${TAPTENC_SEMANTICS_SRC})
 	target_include_directories(taptenc-golog++ PUBLIC ${TAPTENC_INCLUDE_PATHS})
-	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+	target_include_directories(taptenc-golog++ PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/golog++>)
+	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${PROJECT_VERSION})
 	target_include_directories(taptenc-golog++ PUBLIC external)
 	target_compile_options(taptenc-golog++ PRIVATE -std=c++17)
 	set(TEST_LIBS ${TEST_LIBS} taptenc-golog++)
@@ -427,8 +436,8 @@ if (BUILD_TAPTENC_SEMANTICS)
 
 	target_link_libraries(golog++ taptenc-golog++)
 
-	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
-	install(TARGETS taptenc-golog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
+	set_property(TARGET taptenc-golog++ PROPERTY SOVERSION ${PROJECT_VERSION})
+  install(TARGETS taptenc-golog++ EXPORT golog++-targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 else(BUILD_TAPTENC_SEMANTICS)
 	target_compile_definitions(golog++ PRIVATE USE_DUMMY_PLATFORM)
@@ -473,7 +482,28 @@ if (BUILD_PARSER AND BUILD_READYLOG_SEMANTICS)
 		endforeach()
 	endif()
 
-	install(TARGETS gologpp-test DESTINATION ${CMAKE_INSTALL_BINDIR})
+	install(TARGETS gologpp-test EXPORT golog++-targets DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+   ${CMAKE_CURRENT_BINARY_DIR}/golog++-config-version.cmake
+   VERSION ${PROJECT_VERSION}
+   COMPATIBILITY SameMajorVersion)
 
+install(EXPORT golog++-targets
+        FILE golog++-targets.cmake
+        NAMESPACE golog++::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/golog++)
+
+install(FILES cmake/golog++-config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/golog++-config-version.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/golog++)
+
+if (BUILD_DOC)
+  find_package(Doxygen REQUIRED dot)
+  if (Doxygen_FOUND)
+    set(DOXYGEN_OUTPUT_DIRECTORY api)
+    doxygen_add_docs(doc src README.md)
+  endif()
+endif()
