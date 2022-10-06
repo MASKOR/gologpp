@@ -75,6 +75,7 @@ string Transition::to_string(const string &pfx) const
 
 
 
+
 GeneralSemantics<Transition>::GeneralSemantics(const Transition &elem, AExecutionController &context)
 : element_(&elem)
 , context_(context)
@@ -89,67 +90,6 @@ void GeneralSemantics<Transition>::update_element(const Transition *new_element)
 
 AExecutionController &GeneralSemantics<Transition>::context() const
 { return context_; }
-
-
-unique_ptr<Plan> GeneralSemantics<Transition>::trans(const BindingChain &b, History &history)
-{
-	BindingChain merged(b);
-	merged.emplace_back(&element().binding());
-
-	switch(element().hook())
-	{
-	case Transition::Hook::CANCEL:
-		if (context().backend().current_state(element()) == Activity::State::RUNNING)
-			context().backend().cancel_activity(element());
-		else
-			return nullptr;
-	break;
-	case Transition::Hook::START:
-		if (
-			context().backend().current_state(element()) != Activity::State::RUNNING
-			&& static_cast<bool>(
-				element().target()->precondition().general_semantics().evaluate(
-					merged,
-					history
-				)
-			)
-		)
-			context().backend().start_activity(element());
-		else
-			return nullptr;
-	break;
-	case Transition::Hook::FINISH:
-		if (context().backend().current_state(element()) == Activity::State::FINAL) {
-			shared_ptr<Activity> a = context().backend().erase_activity(element());
-		}
-		else
-			return nullptr;
-	break;
-	case Transition::Hook::FAIL:
-		if (context().backend().current_state(element()) == Activity::State::FAILED)
-			context().backend().erase_activity(element());
-		else
-			return nullptr;
-	break;
-	case Transition::Hook::END:
-		if (
-			context().backend().current_state(element()) == Activity::State::FAILED
-			|| context().backend().current_state(element()) == Activity::State::FINAL
-		)
-			context().backend().erase_activity(element());
-		else
-			return nullptr;
-	}
-
-	if (!element()->silent()) {
-		log(LogLevel::NFY) << "<<< trans: " << element().str() << flush;
-		context().set_silent(false);
-	}
-
-	history.general_semantics<History>().append(element());
-
-	return unique_ptr<Plan>(new Plan());
-}
 
 const ModelElement &GeneralSemantics<Transition>::model_element() const
 { return element(); }

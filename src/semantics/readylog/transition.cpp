@@ -22,6 +22,7 @@
 #include "utilities.h"
 
 #include <execution/plan.h>
+#include <model/logger.h>
 
 
 namespace gologpp {
@@ -77,8 +78,67 @@ shared_ptr<Transition> gologpp::Semantics<Transition>::transition_from_plterm(EC
 Semantics<Transition> *Semantics<Transition>::copy(const Transition &target_element) const
 { return new Semantics<Transition>(target_element, rl_context()); }
 
-unique_ptr<Plan> Semantics<Transition>::trans(const BindingChain &b, History &h)
-{ return GeneralSemantics<Transition>::trans(b, h); }
+
+unique_ptr<Plan> Semantics<Transition>::trans(const BindingChain &b, History &history)
+{
+	BindingChain merged(b);
+	merged.emplace_back(&element().binding());
+
+	switch(element().hook())
+	{
+	case Transition::Hook::CANCEL:
+		if (context().backend().current_state(element()) == Activity::State::RUNNING)
+			context().backend().cancel_activity(element());
+		else
+			return nullptr;
+	break;
+	case Transition::Hook::START:
+		if (
+			context().backend().current_state(element()) != Activity::State::RUNNING
+			&& static_cast<bool>(
+				element().target()->precondition().general_semantics().evaluate(
+					merged,
+					history
+				)
+			)
+		)
+			context().backend().start_activity(element());
+		else
+			return nullptr;
+	break;
+	case Transition::Hook::FINISH:
+		if (context().backend().current_state(element()) == Activity::State::FINAL) {
+			shared_ptr<Activity> a = context().backend().erase_activity(element());
+		}
+		else
+			return nullptr;
+	break;
+	case Transition::Hook::FAIL:
+		if (context().backend().current_state(element()) == Activity::State::FAILED)
+			context().backend().erase_activity(element());
+		else
+			return nullptr;
+	break;
+	case Transition::Hook::END:
+		if (
+			context().backend().current_state(element()) == Activity::State::FAILED
+			|| context().backend().current_state(element()) == Activity::State::FINAL
+		)
+			context().backend().erase_activity(element());
+		else
+			return nullptr;
+	}
+
+	if (!element()->silent()) {
+		log(LogLevel::NFY) << "<<< trans: " << element().str() << flush;
+		context().set_silent(false);
+	}
+
+	history.general_semantics<History>().append(element());
+
+	return unique_ptr<Plan>(new Plan());
+}
+
 
 const Instruction &Semantics<Transition>::instruction() const
 { return GeneralSemantics<Transition>::instruction(); }

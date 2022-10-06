@@ -64,8 +64,6 @@ public:
 	GeneralSemantics(const Transition &elem, AExecutionController &context);
 	GeneralSemantics(const GeneralSemantics<Transition> &other);
 
-	virtual unique_ptr<Plan> trans(const BindingChain &, History &) override;
-
 	const Transition &element() const;
 	virtual const ModelElement &model_element() const override;
 	virtual const Instruction &instruction() const override;
