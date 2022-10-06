@@ -122,24 +122,6 @@ protected:
 
 
 
-class ExecutionController : public AExecutionController {
-public:
-	ExecutionController(
-		unique_ptr<PlatformBackend> &&exec_backend,
-		unique_ptr<PlanTransformation> &&plan_transformation
-	);
-
-	virtual ~ExecutionController() override;
-
-	virtual void run(const Instruction &program) override;
-
-private:
-	unique_ptr<PlanTransformation> plan_transformation_;
-};
-
-
-
-
 } // namespace gologpp
 
 #endif

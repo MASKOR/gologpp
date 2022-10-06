@@ -151,7 +151,6 @@ template<class, typename Enable = void> class GeneralSemantics;
 class SemanticsFactory;
 
 class AExecutionController;
-class ExecutionController;
 
 class PlatformBackend;
 

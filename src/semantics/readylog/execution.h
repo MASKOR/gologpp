@@ -33,7 +33,7 @@ struct eclipse_opts {
 	bool toplevel = false;
 };
 
-class ReadylogContext : public ExecutionController {
+class ReadylogContext : public AExecutionController {
 public:
 	virtual ~ReadylogContext() override;
 
@@ -45,6 +45,8 @@ public:
 
 	static void shutdown();
 	static ReadylogContext &instance();
+
+	virtual void run(const Instruction &program) override;
 
 	virtual void precompile() override;
 	virtual void compile(const Action &) override;
@@ -78,6 +80,7 @@ private:
 	int last_rv_;
 	eclipse_opts options_;
 	static unique_ptr<ReadylogContext> instance_;
+	unique_ptr<PlanTransformation> plan_transformation_;
 };
 
 

@@ -75,6 +75,8 @@ public:
 
 	virtual AExecutionController &context() const override;
 
+	shared_ptr<Activity> activity() const;
+
 private:
 	const Transition *element_;
 	AExecutionController &context_;

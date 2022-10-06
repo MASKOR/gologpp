@@ -34,6 +34,8 @@
 #include <model/logger.h>
 
 #include <model/platform/semantics.h>
+#include <model/platform/switch_state_action.h>
+#include <model/platform/component_backend.h>
 
 namespace filesystem = std::experimental::filesystem;
 
@@ -56,12 +58,13 @@ ReadylogContext::ReadylogContext(
 	unique_ptr<PlatformBackend> &&exec_backend,
 	unique_ptr<PlanTransformation> &&transformation
 )
-: ExecutionController(
-  	std::move(exec_backend),
-  	std::move(transformation)
-  )
+: AExecutionController(std::move(exec_backend))
 , options_(options)
+, plan_transformation_(std::move(transformation))
 {
+	if (!plan_transformation_)
+		plan_transformation_ = std::make_unique<DummyPlanTransformation>();
+
 	Logger::Guard lg(LogLevel::DBG);
 	ec_set_option_ptr(EC_OPTION_ECLIPSEDIR, const_cast<void *>(static_cast<const void *>(ECLIPSE_DIR)));
 	std::cout << "Using eclipse-clp in " << ECLIPSE_DIR << std::endl;
@@ -292,6 +295,117 @@ bool ReadylogContext::ec_query(EC_word t)
 	mark_vars_dead();
 
 	return last_rv_ == EC_status::EC_succeed;
+}
+
+
+void ReadylogContext::run(const Instruction &program)
+{
+	try {
+		history().attach_semantics(semantics_factory());
+		global_scope().implement_globals(semantics_factory(), *this);
+
+		plan_transformation_->init(*this);
+
+		while (!program.general_semantics().final({}, history())) {
+			set_silent(true);
+
+			unique_ptr<Plan> plan {
+				program.general_semantics().trans({}, history())
+			};
+
+			if (plan) {
+				plan = plan_transformation_->transform(std::move(*plan));
+
+				log(LogLevel::INF) << "<<< Transformed schedule: " << *plan << flush;
+
+				while (!plan->elements().empty()) {
+					set_silent(true);
+
+					if (terminated)
+						throw Terminate();
+
+					if (!exog_empty()) {
+						drain_exog_queue();
+						if (backend().any_component_state_changed_exog())
+							plan = plan_transformation_->transform(std::move(*plan));
+					}
+
+					unique_ptr<Plan> empty_plan;
+
+					if (plan->elements().front().earliest_timepoint() > context_time()) {
+						backend().schedule_timer_event(
+							plan->elements().front().earliest_timepoint()
+						);
+					}
+					else {
+						// Plan elements are expected to not return plans again (nullptr or empty Plan).
+						empty_plan = plan->elements().front().instruction()
+							.general_semantics().trans({}, history())
+						;
+					}
+
+					Clock::time_point timeout = plan->next_timeout();
+
+					if (empty_plan) {
+						// Empty plan: successfully executed
+						if (!empty_plan->elements().empty())
+							throw Bug(
+								"Plan instruction returned a plan: "
+								+ plan->elements().front().instruction().str()
+							);
+						plan->elements().erase(plan->elements().begin());
+					}
+					else {
+						// Current Plan element not executable
+						try {
+							drain_exog_queue_blocking(timeout);
+						} catch (ExogTimeout &)
+						{
+							exog_timer_wakeup();
+							log(LogLevel::ERR) << "=== Next-action timeout " << timeout << " exceeded" << flush;
+
+							auto sw_state = dynamic_cast<const Reference<platform::SwitchStateAction> *>(
+								&plan->elements().front().instruction()
+							);
+							if (sw_state) {
+								global_scope().lookup_global<platform::Component>(
+									static_cast<string>(dynamic_cast<const Value &>(
+										sw_state->arg_for_param(sw_state->target()->param_component())
+									))
+								)->backend().handle_missed_transition();
+							}
+
+							drain_exog_queue();
+						}
+
+						if (context_time() > plan->elements().front().latest_timepoint()
+							|| backend().any_component_state_changed_exog()
+						) {
+							// First plan element's time window has passed: replan!
+							log(LogLevel::INF) << "=== Re-transforming..." << flush;
+							plan->make_start_slack(Clock::seconds(16384));
+							plan = plan_transformation_->transform(std::move(*plan));
+							log(LogLevel::INF) << "=== New schedule " << *plan << flush;
+						}
+					}
+
+					if (history().general_semantics<History>().should_progress()) {
+						log(LogLevel::DBG) << "=== Progressing history." << flush;
+						history().general_semantics<History>().progress();
+					}
+				}
+			}
+			else {
+				drain_exog_queue_blocking(nullopt);
+			}
+
+			if (terminated)
+				throw Terminate();
+
+		}
+	} catch (Terminate &) {
+		log(LogLevel::DBG) << ">>> Terminated." << flush;
+	}
 }
 
 

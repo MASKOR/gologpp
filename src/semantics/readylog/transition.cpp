@@ -27,7 +27,7 @@
 namespace gologpp {
 
 
-Semantics<Transition>::Semantics(const Transition &elem, ExecutionController &context)
+Semantics<Transition>::Semantics(const Transition &elem, ReadylogContext &context)
 : GeneralSemantics<Transition>(elem, context)
 {}
 
