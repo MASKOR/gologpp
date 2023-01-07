@@ -208,7 +208,7 @@ class GeneralSemantics<Value>
 public:
 	GeneralSemantics(const Value &elem, AExecutionController &context);
 
-	virtual ~GeneralSemantics<Value>() = default;
+	virtual ~GeneralSemantics() = default;
 
 	virtual AExecutionController &context() const override;
 

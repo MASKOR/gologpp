@@ -19,7 +19,6 @@
 #include <cstdlib>
 
 #include "procedural.h"
-#include "formula.h"
 #include "reference.h"
 #include "expressions.h"
 

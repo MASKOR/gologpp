@@ -23,7 +23,6 @@
 #include "utilities.h"
 #include "expressions.h"
 #include "scope.h"
-#include "domain.h"
 #include "semantics.h"
 
 #include <unordered_map>

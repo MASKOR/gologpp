@@ -50,6 +50,7 @@
 #include <model/reference.h>
 #include <model/variable.h>
 #include <model/value.h>
+#include <model/domain.h>
 
 #include <unordered_map>
 #include <functional>

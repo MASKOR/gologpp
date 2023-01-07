@@ -28,12 +28,12 @@ namespace platform {
 
 template<>
 class Reference<Action>
-: public ReferenceBase<Action>
+: public ReferenceBase<Action, Expression>
 , public ChildElement
 , public LanguageElement<platform::Reference<Action>, VoidType>
 {
 public:
-	using ReferenceBase<Action>::ReferenceBase;
+	using ReferenceBase<Action, Expression>::ReferenceBase;
 
 	virtual void attach_semantics(gologpp::SemanticsFactory &f) override;
 };

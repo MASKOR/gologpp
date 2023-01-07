@@ -72,8 +72,15 @@ struct identifier_equals {
 };
 
 
-vector<unique_ptr<Expression>> copy(const vector<unique_ptr<Expression>> &v);
-vector<Expression *> copy(const vector<Expression *> &v);
+template<class EPtrT>
+vector<EPtrT> copy(const vector<EPtrT> &v)
+{
+	vector<EPtrT> rv;
+	for (const EPtrT &e : v)
+		rv.emplace_back(e->copy());
+	return rv;
+}
+
 
 
 template<class CharT, class TraitsT, class GologT>

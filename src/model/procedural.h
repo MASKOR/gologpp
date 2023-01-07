@@ -452,7 +452,7 @@ class GeneralSemantics<Reference<ExogFunction>>
 public:
 	GeneralSemantics(const Reference<ExogFunction> &elem, AExecutionController &context);
 
-	virtual ~GeneralSemantics<Reference<ExogFunction>>() = default;
+	virtual ~GeneralSemantics() = default;
 
 	virtual Value evaluate(const BindingChain &, const History &) override;
 

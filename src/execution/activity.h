@@ -29,31 +29,32 @@ namespace gologpp {
 
 
 class Activity
-: public ReferenceBase<Action>
-, public Reference<AbstractAction>
-, public Instruction
+: public Instruction
 , public LanguageElement<Activity, VoidType>
+, public NoScopeOwner
 , public std::enable_shared_from_this<Activity> {
 public:
 	enum State { IDLE, RUNNING, FINAL, CANCELLED, FAILED };
 
-	Activity(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, AExecutionController &, State state = IDLE);
+	Activity(
+		const shared_ptr<Action> &action,
+		vector<unique_ptr<Value>> &&args,
+		AExecutionController &, State state = IDLE
+	);
+
 	Activity(const Transition &, AExecutionController &);
 
-	virtual const Action &operator * () const override;
-	virtual Action &operator * () override;
-	virtual const Action *operator -> () const override;
-	virtual Action *operator -> () override;
+	void update(Transition::Hook hook);
+	void wait_for_update();
 
 	State state() const;
 	void set_state(State s);
-
-	void update(Transition::Hook hook);
-
-	void wait_for_update();
-
 	const std::string &mapped_name() const;
 	Value mapped_arg_value(const string &name) const;
+	shared_ptr<Action> action() const;
+	const vector<Value *> &args() const;
+	const Reference<Action, Value> &ref() const;
+	Reference<Action, Value> &ref();
 
 	virtual string to_string(const string &pfx) const override;
 
@@ -62,6 +63,8 @@ public:
 	static State target_state(Transition::Hook);
 
 private:
+	Reference<Action, Value> action_ref_;
+
 	State state_;
 	AExecutionController &exec_context_;
 	std::condition_variable update_condition_;

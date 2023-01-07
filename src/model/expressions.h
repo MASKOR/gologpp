@@ -19,7 +19,6 @@
 #define GOLOGPP_EXPRESSIONS_H_
 
 #include "language.h"
-#include "utilities.h"
 #include "gologpp.h"
 #include "types.h"
 

@@ -21,7 +21,6 @@
 #include "gologpp.h"
 #include "language.h"
 #include "scope.h"
-#include "expressions.h"
 #include "value.h"
 #include "error.h"
 

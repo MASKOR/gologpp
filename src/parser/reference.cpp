@@ -33,10 +33,14 @@
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_lit.hpp>
-#include <boost/spirit/include/qi_string.hpp>
 #include <boost/spirit/include/qi_lazy.hpp>
 #include <boost/spirit/include/qi_eps.hpp>
 #include <boost/spirit/include/qi_repeat.hpp>
+
+// Somehow this ends up including deprecated /usr/include/boost/spirit/include/phoenix.hpp
+#define BOOST_ALLOW_DEPRECATED_HEADERS
+#include <boost/spirit/include/qi_string.hpp>
+
 
 #include <boost/phoenix/object/dynamic_cast.hpp>
 #include <boost/phoenix/object/delete.hpp>
@@ -89,7 +93,7 @@ ReferenceParser<GologT>::ReferenceParser()
 		> ")"
 	) [
 		_val = phoenix::bind(&get_ref<GologT>, _r2, _1, _2),
-		if_(!_val || !phoenix::bind(&ReferenceBase<GologT>::consistent, *_val)) [
+		if_(!_val || !phoenix::bind(&ReferenceBase<GologT, Expression>::consistent, *_val)) [
 			_pass = false,
 			delete_(_val)
 		]

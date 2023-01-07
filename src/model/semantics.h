@@ -128,6 +128,7 @@ template<class GologT>
 class GeneralSemantics<GologT, enable_if <
 	!is_expression<GologT>
 	&& !is_instruction<GologT>
+	&& !partially_specialized<GologT>
 > >
 : public virtual GeneralSemantics<ModelElement>
 {

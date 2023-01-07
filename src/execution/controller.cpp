@@ -27,7 +27,6 @@
 #include <model/platform/switch_state_action.h>
 #include <model/platform/component_backend.h>
 
-#include "plan.h"
 #include "controller.h"
 #include "history.h"
 #include "platform_backend.h"
@@ -88,16 +87,16 @@ AExecutionController::AExecutionController(unique_ptr<PlatformBackend> &&platfor
 }
 
 
-shared_ptr<Reference<AbstractAction>> AExecutionController::exog_queue_pop()
+shared_ptr<AbstractEvent> AExecutionController::exog_queue_pop()
 {
 	std::lock_guard<std::mutex> locked{ exog_mutex_ };
-	shared_ptr<Reference<AbstractAction>> rv = std::move(exog_queue_.front());
+	shared_ptr<AbstractEvent> rv = std::move(exog_queue_.front());
 	exog_queue_.pop_front();
 	return rv;
 }
 
 
-shared_ptr<Reference<AbstractAction>> AExecutionController::exog_queue_poll(optional<Clock::time_point> timeout)
+shared_ptr<AbstractEvent> AExecutionController::exog_queue_poll(optional<Clock::time_point> timeout)
 {
 	exog_queue_block(timeout);
 	return exog_queue_pop();
@@ -137,7 +136,7 @@ void AExecutionController::terminate()
 }
 
 
-void AExecutionController::exog_queue_push(shared_ptr<Reference<AbstractAction>> exog)
+void AExecutionController::exog_queue_push(shared_ptr<AbstractEvent> exog)
 {
 	std::lock_guard<std::mutex> { exog_mutex_ };
 	exog_queue_.push_back(std::move(exog));
@@ -147,7 +146,7 @@ void AExecutionController::exog_queue_push(shared_ptr<Reference<AbstractAction>>
 	}
 }
 
-void AExecutionController::exog_queue_push_front(shared_ptr<Reference<AbstractAction> > exog)
+void AExecutionController::exog_queue_push_front(shared_ptr<AbstractEvent> exog)
 {
 	std::lock_guard<std::mutex> { exog_mutex_ };
 	exog_queue_.push_front(std::move(exog));
@@ -160,14 +159,13 @@ void AExecutionController::exog_queue_push_front(shared_ptr<Reference<AbstractAc
 
 void AExecutionController::exog_timer_wakeup()
 {
-	exog_queue_push_front(shared_ptr<Reference<AbstractAction>> {
-		step_time_action_->make_ref(
-			{ new Value(
-				get_type<NumberType>(),
-				Clock::now().time_since_epoch().count())
-			}
-		)
-	} );
+	exog_queue_push_front(shared_ptr<ExogEvent> { new ExogEvent {
+		step_time_action_,
+		{ unique_ptr<Value>( new Value (
+			get_type<NumberType>(),
+			Clock::now().time_since_epoch().count()
+		) ) }
+	} } );
 
 	std::lock_guard<std::mutex> l2 { wait_mutex_ };
 }
@@ -191,24 +189,23 @@ History &AExecutionController::history()
 void AExecutionController::drain_exog_queue()
 {
 	while (!exog_empty()) {
-		shared_ptr<Reference<AbstractAction>> exog = exog_queue_pop();
+		shared_ptr<AbstractEvent> exog = exog_queue_pop();
 
 		if (!std::dynamic_pointer_cast<Reference<platform::SwitchStateAction>>(exog)) {
 			// Nothing to do here for SwitchStateAction:
 			// its effects have already been applied to the component model
-			if (!(*exog)->silent()) {
-				log(LogLevel::INF) << ">>> Exogenous event: " << exog << flush;
+			if (!exog->ref()->silent()) {
+				log(LogLevel::INF) << ">>> Exogenous event: " << exog->ref() << flush;
 				silent_ = false;
 			}
-			exog->attach_semantics(semantics_factory());
 
 			shared_ptr<Activity> activity = std::dynamic_pointer_cast<Activity>(exog);
-			if (activity && activity->target()->senses())
+			if (activity && activity->action()->senses())
 				history().general_semantics<History>().append_sensing_result(
 					activity,
-					activity->target()->senses()->lhs(),
-					activity->target()->senses()->rhs().general_semantics().evaluate(
-						{ &activity->binding() },
+					activity->action()->senses()->lhs(),
+					activity->action()->senses()->rhs().general_semantics().evaluate(
+						{ &activity->ref().binding() },
 						history()
 					)
 				);

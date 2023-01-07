@@ -58,7 +58,7 @@ public:
 	void set_context(AExecutionController *ctx);
 	AExecutionController *exec_context();
 
-	Activity::State current_state(const ReferenceBase<Action> &);
+	Activity::State current_state(const Grounding<Action> &);
 
 	void terminate();
 	virtual void schedule_timer_event(Clock::time_point when);

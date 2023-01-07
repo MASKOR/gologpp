@@ -37,13 +37,13 @@
 #include <boost/spirit/include/support_argument.hpp>
 
 #include "types.h"
+#include "domain.h"
 #include "arithmetic.h"
 #include "formula.h"
 #include "string_expression.h"
 #include "symbolic_expression.h"
 #include "compound_expression.h"
 #include "list_expression.h"
-#include "mixed_member_access.h"
 
 #include <model/procedural.h>
 

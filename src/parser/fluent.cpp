@@ -17,7 +17,6 @@
 
 #include "fluent.h"
 #include "types.h"
-#include "domain.h"
 #include "variable.h"
 #include "value.h"
 

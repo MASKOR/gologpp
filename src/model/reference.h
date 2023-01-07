@@ -15,18 +15,17 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef GOLOGPP_REFERENCE_H_
-#define GOLOGPP_REFERENCE_H_
+#pragma once
 
 #include "abstract_reference.h"
 #include "language.h"
 #include "expressions.h"
+#include "value.h"
 #include "utilities.h"
 #include "gologpp.h"
 #include "scope.h"
 #include "error.h"
 #include "variable.h"
-#include "domain.h"
 
 #include <memory>
 #include <vector>
@@ -37,21 +36,26 @@
 namespace gologpp {
 
 
-class Binding : public ModelElement {
+template<class ExprT>
+class ABinding : public ModelElement {
 public:
 	using MapT = std::unordered_map <
 		shared_ptr<const Variable>,
-		unique_ptr<Expression>
+		unique_ptr<ExprT>
 	>;
 
-	Binding(const Binding &);
-	Binding(Binding &&);
-	Binding() = default;
+	ABinding(const ABinding<ExprT> &);
+	ABinding(ABinding<ExprT> &&);
 
-	virtual ~Binding() = default;
+	template<class E2 = ExprT>
+	ABinding(const ABinding<Expression> &, enable_if<!std::is_same<E2, Expression>::value> * = 0);
 
-	void bind(shared_ptr<const Variable> var, unique_ptr<Expression> &&expr);
-	virtual Expression &get(shared_ptr<const Variable> param) const;
+	ABinding() = default;
+
+	virtual ~ABinding() = default;
+
+	void bind(shared_ptr<const Variable> var, unique_ptr<ExprT> &&expr);
+	virtual ExprT &get(shared_ptr<const Variable> param) const;
 	const MapT &map() const;
 
 	virtual void attach_semantics(SemanticsFactory &f) override;
@@ -65,43 +69,56 @@ private:
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<>
-class GeneralSemantics<Binding>
+/// Disambiguate this against the generic GeneralSemantics<GologT, Cond>, which
+/// is also a partial specialization but requires this to be false in Cond.
+template<class ExprT>
+bool partially_specialized<ABinding<ExprT>> = true;
+
+
+template<class ExprT>
+class GeneralSemantics<ABinding<ExprT>>
 : public virtual GeneralSemantics<ModelElement>
 {
 public:
-	GeneralSemantics(const Binding &elem, AExecutionController &context);
+	GeneralSemantics(const ABinding<ExprT> &elem, AExecutionController &context);
 
-	virtual ~GeneralSemantics<Binding>() = default;
+	virtual ~GeneralSemantics() = default;
 
-	const Binding &element() const;
-	void update_element(const Binding *new_element);
+	const ABinding<ExprT> &element() const;
+	void update_element(const ABinding<ExprT> *new_element);
 	virtual AExecutionController &context() const override;
 	virtual const ModelElement &model_element() const override;
 
-	virtual GeneralSemantics<Binding> *copy(const Binding &target_element) const = 0;
+	virtual GeneralSemantics<ABinding<ExprT>> *copy(const ABinding<ExprT> &target_element) const = 0;
 
 private:
-	const Binding *element_;
+	const ABinding<ExprT> *element_;
 	AExecutionController &context_;
+};
+
+
+class BindingChain : public vector<const ABinding<Expression> *> {
+public:
+	using vector<const ABinding<Expression> *>::vector;
+	BindingChain(std::initializer_list<const ABinding<Value> *>);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class TargetT>
+template<class TargetT, class ArgsT>
 class ReferenceBase
 : public virtual AbstractReference
 , public NoScopeOwner
 {
 public:
-	ReferenceBase(const shared_ptr<TargetT> &target, vector<unique_ptr<Expression>> &&args)
+	ReferenceBase(const shared_ptr<TargetT> &target, vector<unique_ptr<ArgsT>> &&args)
 	: target_(target)
 	{
 		size_t idx = 0;
 		while (idx < args.size() && idx < this->target()->params().size()) {
-			unique_ptr<Expression> arg { std::move(args[idx]) };
+			unique_ptr<ArgsT> arg { std::move(args[idx]) };
 			arg->set_parent(this);
 			args_.emplace_back(arg.get());
 			binding_.bind(this->target()->params()[idx], std::move(arg));
@@ -110,7 +127,7 @@ public:
 		ensure_consistent();
 	}
 
-	ReferenceBase(const shared_ptr<TargetT> &target, Binding &&binding)
+	ReferenceBase(const shared_ptr<TargetT> &target, ABinding<ArgsT> &&binding)
 	: target_(target)
 	, binding_(std::move(binding))
 	{
@@ -119,30 +136,30 @@ public:
 		ensure_consistent();
 	}
 
-	ReferenceBase(const shared_ptr<TargetT> &target, const vector<Expression *> &args)
-	: ReferenceBase(target, vector<unique_ptr<Expression>>(args.begin(), args.end()))
+	ReferenceBase(const shared_ptr<TargetT> &target, const vector<ArgsT *> &args)
+	: ReferenceBase(target, vector<unique_ptr<ArgsT>>(args.begin(), args.end()))
 	{}
 
 
-	ReferenceBase(const string &target_name, const vector<Expression *> &args)
+	ReferenceBase(const string &target_name, const vector<ArgsT *> &args)
 	: ReferenceBase(
 		global_scope().lookup_global<TargetT>(target_name),
 		args
 	)
 	{}
 
-	ReferenceBase(const string &target_name, const boost::optional<vector<Expression *>> &args)
+	ReferenceBase(const string &target_name, const boost::optional<vector<ArgsT *>> &args)
 	: ReferenceBase(target_name, args.get_value_or({}))
 	{}
 
-	ReferenceBase(ReferenceBase<TargetT> &&other)
+	ReferenceBase(ReferenceBase<TargetT, ArgsT> &&other)
 	: args_(std::move(other.args_))
 	, target_(std::move(other.target_))
 	, binding_(std::move(other.binding_))
 	{ ensure_consistent(); }
 
 
-	ReferenceBase(const ReferenceBase<TargetT> &other)
+	ReferenceBase(const ReferenceBase<TargetT, ArgsT> &other)
 	: args_(copy(other.args_))
 	, target_(other.target_)
 	, binding_(other.binding_)
@@ -164,7 +181,7 @@ public:
 	{ return this->target().get(); }
 
 
-	bool operator == (const ReferenceBase<TargetT> &other) const
+	bool operator == (const ReferenceBase<TargetT, ArgsT> &other) const
 	{
 		if (this->target() != other.target())
 			return false;
@@ -175,7 +192,7 @@ public:
 		return true;
 	}
 
-	bool operator != (const ReferenceBase<TargetT> &other) const
+	bool operator != (const ReferenceBase<TargetT, ArgsT> &other) const
 	{ return !(*this == other); }
 
 	const string &name() const
@@ -190,13 +207,13 @@ public:
 	virtual bool bound() const override
 	{ return !target_.expired(); }
 
-	const vector<Expression *> &args() const
+	const vector<ArgsT *> &args() const
 	{ return args_; }
 
-	vector<Expression *> &args()
+	vector<ArgsT *> &args()
 	{ return args_; }
 
-	virtual const Expression &arg_for_param(shared_ptr<const Variable> param) const override
+	virtual const ArgsT &arg_for_param(shared_ptr<const Variable> param) const override
 	{ return binding_.get(param); }
 
 	virtual bool consistent() const override
@@ -243,21 +260,21 @@ public:
 		return rv;
 	}
 
-	virtual Binding &binding()
+	virtual ABinding<ArgsT> &binding()
 	{ return binding_; }
 
-	virtual const Binding &binding() const
+	virtual const ABinding<ArgsT> &binding() const
 	{ return binding_; }
 
 protected:
-	vector<Expression *> args_;
+	vector<ArgsT *> args_;
 	weak_ptr<TargetT> target_;
-	Binding binding_;
+	ABinding<ArgsT> binding_;
 };
 
 
-template<>
-class Reference<AbstractAction>
+template<class ArgsT>
+class Reference<AbstractAction, ArgsT>
 : public virtual AbstractReference
 {
 public:
@@ -271,22 +288,22 @@ public:
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class TargetT>
+template<class TargetT, class ArgsT>
 class Reference
-: public ReferenceBase<TargetT>
-, public LanguageElement<Reference<TargetT>>
+: public ReferenceBase<TargetT, ArgsT>
+, public LanguageElement<Reference<TargetT, ArgsT>>
 , public TargetT::SignifierT
 , public virtual std::conditional <
 	std::is_base_of<AbstractAction, TargetT>::value,
-	Reference<AbstractAction>,
+	Reference<AbstractAction, ArgsT>,
 	AbstractReference
   >::type
 {
 public:
-	using ReferenceBase<TargetT>::ReferenceBase;
+	using ReferenceBase<TargetT, ArgsT>::ReferenceBase;
 
-	Reference(const Reference<TargetT> &other)
-	: ReferenceBase<TargetT>(other)
+	Reference(const Reference<TargetT, ArgsT> &other)
+	: ReferenceBase<TargetT, ArgsT>(other)
 	{}
 
 	virtual ~Reference() override = default;
@@ -514,4 +531,4 @@ struct equal_to<gologpp::Reference<TargetT> *> {
 
 }
 
-#endif // GOLOGPP_REFERENCE_H_
+

@@ -24,37 +24,20 @@
 
 #include "controller.h"
 #include "transition.h"
-#include "history.h"
 
 
 namespace gologpp {
 
 
-Transition::Transition(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, Hook hook)
-: ReferenceBase<Action>(action, std::move(args))
-, hook_(hook)
-{}
 
 Transition::Transition(const Transition &other)
-: ReferenceBase<Action>(other)
+: Event<Action>(other.action(), other.argscp())
 , hook_(other.hook())
 {
 	if (other.semantics_) {
 		semantics_.reset(other.general_semantics<Transition>().copy(*this));
 	}
 }
-
-const Action &Transition::operator *() const
-{ return *this->target(); }
-
-Action &Transition::operator *()
-{ return *this->target(); }
-
-const Action *Transition::operator ->() const
-{ return this->target().get(); }
-
-Action *Transition::operator ->()
-{ return this->target().get(); }
 
 Transition::Hook Transition::hook() const
 { return hook_; }
@@ -64,14 +47,14 @@ void Transition::attach_semantics(SemanticsFactory &implementor)
 {
 	if (!semantics_) {
 		semantics_ = implementor.make_semantics(*this);
-		binding().attach_semantics(implementor);
+		ground_action_.attach_semantics(implementor);
 		for (auto &c : args())
 			c->attach_semantics(implementor);
 	}
 }
 
 string Transition::to_string(const string &pfx) const
-{ return pfx + gologpp::to_string(hook()) + "(" + ReferenceBase<Action>::to_string(pfx) + ")"; }
+{ return pfx + gologpp::to_string(hook()) + "(" + ground_action_.to_string(pfx) + ")"; }
 
 
 

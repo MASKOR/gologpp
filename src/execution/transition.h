@@ -23,28 +23,24 @@
 #include <model/action.h>
 #include <model/expressions.h>
 #include <model/procedural.h>
+#include <execution/event.h>
 
 namespace gologpp {
 
 
 class Transition
-: public ReferenceBase<Action>
-, public Reference<AbstractAction>
-, public Instruction
+: public Instruction
+, public Event<Action>
+, public NoScopeOwner
 , public LanguageElement<Transition, VoidType>
 , public std::enable_shared_from_this<Transition>
 {
 public:
 	using Hook = DurativeCall::Hook;
 
-	Transition(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, Hook hook);
-	Transition(const shared_ptr<Action> &action, const vector<unique_ptr<Expression>> &args, Hook hook);
+	using Event<Action>::Event;
 	Transition(const Transition &);
-
-	virtual const Action &operator * () const override;
-	virtual Action &operator * () override;
-	virtual const Action *operator -> () const override;
-	virtual Action *operator -> () override;
+	Transition(shared_ptr<Action> action, vector<unique_ptr<Value>> &&value, Hook hook);
 
 	Hook hook() const;
 	virtual string to_string(const string &pfx) const override;
@@ -72,8 +68,6 @@ public:
 	virtual GeneralSemantics<Transition> *copy(const Transition &target_element) const = 0;
 
 	virtual AExecutionController &context() const override;
-
-	shared_ptr<Activity> activity() const;
 
 private:
 	const Transition *element_;

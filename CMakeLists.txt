@@ -44,7 +44,7 @@ endif()
 
 include_directories(${Boost_INCLUDE_DIR} src)
 
-add_compile_options(-Wall -Wno-unknown-pragmas)
+add_compile_options(-Wall -Wno-unknown-pragmas -fdiagnostics-path-format=inline-events -fdiagnostics-show-path-depths)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -fno-omit-frame-pointer -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O2")
@@ -115,6 +115,7 @@ set(INTERFACE_SRC
 	src/execution/plan.cpp
 	src/execution/platform_backend.cpp
 	src/execution/transformation.cpp
+	src/execution/event.cpp
 
 	src/model/platform/component.cpp
 	src/model/platform/constraint.cpp
@@ -173,6 +174,7 @@ install(FILES
 	src/execution/plan.h
 	src/execution/platform_backend.h
 	src/execution/transformation.h
+	src/execution/event.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/execution
 )

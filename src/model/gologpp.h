@@ -52,9 +52,11 @@ class Logger;
 
 class Expression;
 class Instruction;
+class Value;
 
-class Binding;
-using BindingChain = vector<const Binding *>;
+template<class> class ABinding;
+using Binding = ABinding<Expression>;
+class BindingChain;
 
 class ModelElement;
 class Plan;
@@ -70,8 +72,11 @@ class ExogAction;
 
 class BackendMapping;
 
+class AbstractEvent;
+template<class> class Event;
 class Activity;
 class Transition;
+using ExogEvent = Event<ExogAction>;
 
 class Identifier;
 
@@ -101,7 +106,6 @@ class Fluent;
 class InitialValue;
 
 class Variable;
-class Value;
 class Domain;
 
 class ArithmeticOperation;
@@ -138,7 +142,10 @@ class Procedure;
 class ExogFunction;
 
 class AbstractReference;
-template<class> class Reference;
+template<class TargetT, class ArgsT = Expression> class Reference;
+
+template<class TargetT>
+using Grounding = Reference<TargetT, Value>;
 
 class CompoundExpression;
 class ListExpression;
@@ -153,8 +160,6 @@ class SemanticsFactory;
 class AExecutionController;
 
 class PlatformBackend;
-
-using ExogEvent = Reference<ExogAction>;
 
 
 
@@ -213,12 +218,17 @@ class SemanticsFactory;
 	(Conditional<Instruction>) \
 	(During) \
 	(Reference<Action>) \
+	(Grounding<Action>) \
+	(Grounding<ExogAction>) \
 	(Reference<ExogAction>) \
+	(Grounding<platform::SwitchStateAction>) \
 	(DurativeCall) \
 	(Reference<Procedure>) \
 	(ListPop) \
 	(Transition) \
-	(ListPush)
+	(ListPush) \
+	(Event<Action>) \
+	(Event<ExogAction>)
 
 #define GOLOGPP_EXPRESSIONS \
 	(Variable) \
@@ -241,12 +251,15 @@ class SemanticsFactory;
 	(CompoundExpression) \
 	(ListExpression)
 
+
+
 #define GOLOGPP_OTHER \
 	(EffectAxiom<Reference<Fluent>>) \
 	(EffectAxiom<FieldAccess>) \
 	(EffectAxiom<ListAccess>) \
 	(InitialValue)(Fluent) \
-	(Binding) \
+	(ABinding<Expression>) \
+	(ABinding<Value>) \
 	(Domain) \
 	(Function) \
 	(ExogFunction) \

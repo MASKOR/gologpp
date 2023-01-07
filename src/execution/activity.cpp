@@ -25,32 +25,21 @@ namespace gologpp {
 
 
 
-Activity::Activity(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, AExecutionController &ctx, State state)
-: ReferenceBase<Action>(action, std::move(args))
+Activity::Activity(const shared_ptr<Action> &action, vector<unique_ptr<Value>> &&args, AExecutionController &ctx, State state)
+: action_ref_(action, std::move(args))
 , state_(state)
 , exec_context_(ctx)
 {}
 
+
 Activity::Activity(const Transition &trans, AExecutionController &ctx)
-: ReferenceBase<Action>(trans.target(), copy(trans.args()))
+: action_ref_(trans.action(), copy(trans.ref().args()))
 , state_(State::IDLE)
 , exec_context_(ctx)
 {
 	if (trans.hook() != Transition::Hook::START)
 		throw Bug("Activity must be constructed from a START Transition");
 }
-
-const Action &Activity::operator *() const
-{ return *this->target(); }
-
-Action &Activity::operator *()
-{ return *this->target(); }
-
-const Action *Activity::operator ->() const
-{ return this->target().get(); }
-
-Action *Activity::operator ->()
-{ return this->target().get(); }
 
 void Activity::set_state(Activity::State state)
 { state_ = state; }
@@ -81,7 +70,13 @@ void Activity::update(Transition::Hook hook)
 {
 	PlatformBackend::Lock backend_lock = exec_context_.backend().lock();
 	set_state(target_state(hook));
-	exec_context_.exog_queue_push(shared_from_this());
+	exec_context_.exog_queue_push(
+		shared_ptr<Transition>(new Transition(
+			action(),
+			vector<unique_ptr<Value>>(args().begin(), args().end()),
+			hook
+		))
+	);
 	update_condition_.notify_all();
 }
 
@@ -99,22 +94,22 @@ Value Activity::mapped_arg_value(const string &name) const
 {
 	return
 		dynamic_cast<GeneralSemantics<Expression> &>(
-			target()->mapping().mapped_expr(name).general_semantics()
-		).evaluate({ &this->binding() }, exec_context_.history());
+			action()->mapping().mapped_expr(name).general_semantics()
+		).evaluate({ &this->ref().binding() }, exec_context_.history());
 }
 
 
 const std::string &Activity::mapped_name() const
-{ return target()->mapping().backend_name(); }
+{ return action()->mapping().backend_name(); }
 
 string Activity::to_string(const string &pfx) const
-{ return pfx + "state(" + ReferenceBase<Action>::to_string("") + ") = " + gologpp::to_string(state()); }
+{ return pfx + "state(" + ref().to_string("") + ") = " + gologpp::to_string(state()); }
 
 
 void Activity::attach_semantics(SemanticsFactory &implementor)
 {
 	if (!semantics_) {
-		binding().attach_semantics(implementor);
+		ref().binding().attach_semantics(implementor);
 		semantics_ = implementor.make_semantics(*this);
 		for (auto &c : args())
 			c->attach_semantics(implementor);
