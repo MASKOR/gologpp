@@ -54,8 +54,7 @@ class Expression;
 class Instruction;
 class Value;
 
-template<class> class ABinding;
-using Binding = ABinding<Expression>;
+template<class> class Binding;
 class BindingChain;
 
 class ModelElement;
@@ -76,7 +75,7 @@ class AbstractEvent;
 template<class> class Event;
 class Activity;
 class Transition;
-using ExogEvent = Event<ExogAction>;
+class ExogEvent;
 
 class Identifier;
 
@@ -154,6 +153,7 @@ class History;
 
 template<class, typename Enable = void> class Semantics;
 template<class, typename Enable = void> class GeneralSemantics;
+template<class> class CopyableSemantics;
 
 class SemanticsFactory;
 
@@ -176,6 +176,7 @@ class Clock;
 class State;
 
 class SwitchStateAction;
+class SwitchStateEvent;
 
 class ClockFormula;
 class ClockBound;
@@ -228,7 +229,8 @@ class SemanticsFactory;
 	(Transition) \
 	(ListPush) \
 	(Event<Action>) \
-	(Event<ExogAction>)
+	(Event<ExogAction>) \
+	(Event<platform::SwitchStateAction>)
 
 #define GOLOGPP_EXPRESSIONS \
 	(Variable) \
@@ -258,14 +260,13 @@ class SemanticsFactory;
 	(EffectAxiom<FieldAccess>) \
 	(EffectAxiom<ListAccess>) \
 	(InitialValue)(Fluent) \
-	(ABinding<Expression>) \
-	(ABinding<Value>) \
+	(Binding<Expression>) \
+	(Binding<Value>) \
 	(Domain) \
 	(Function) \
 	(ExogFunction) \
 	(Procedure) \
 	(Action) \
-	(Activity) \
 	(ExogAction) \
 	(Scope) \
 	(History)

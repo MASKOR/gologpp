@@ -46,9 +46,8 @@ shared_ptr<Activity> PlatformBackend::start_activity(const Transition &trans)
 	if (it != activities_.end())
 		throw UserError(
 			"Cannot start an action while another one with the same arguments is still running."
-			" Currently: " + it->second->str()
+			" Currently: " + it->second->ref().str()
 		);
-	a->attach_semantics(exec_context()->semantics_factory());
 	a->set_state(Activity::target_state(trans.hook()));
 	execute_activity(a);
 	activities_.insert({a->ref().hash(), a});
@@ -62,7 +61,7 @@ void PlatformBackend::cancel_activity(const Transition &trans)
 	if (it == activities_.end())
 		throw Bug("Activity lost: " + trans.ref().str());
 	else if (it->second->state() != Activity::State::RUNNING)
-		log(LogLevel::ERR) << "Cannot cancel activity " << it->second->str() << flush;
+		log(LogLevel::ERR) << "Cannot cancel activity " << it->second->ref().str() << flush;
 	else
 		preempt_activity(std::dynamic_pointer_cast<Activity>(it->second));
 }
@@ -118,7 +117,7 @@ Activity::State PlatformBackend::current_state(const Grounding<Action> &a)
 	if (it == activities_.end())
 		return Activity::State::IDLE;
 	else {
-		return it->second->cast<Activity>().state();
+		return it->second->state();
 	}
 }
 

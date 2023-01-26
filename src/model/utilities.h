@@ -77,7 +77,9 @@ vector<EPtrT> copy(const vector<EPtrT> &v)
 {
 	vector<EPtrT> rv;
 	for (const EPtrT &e : v)
-		rv.emplace_back(e->copy());
+		rv.emplace_back(
+			new typename std::remove_pointer<EPtrT>::type(*e)
+		);
 	return rv;
 }
 

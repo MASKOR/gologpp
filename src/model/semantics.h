@@ -36,7 +36,7 @@ namespace gologpp {
  * Use it as a condition in the enable_if that gives Cond to prevent the ambiguous partial specialization
  * errors that would otherwise occur.
  */
-template<class GologT>
+template<class SemanticsT>
 static constexpr bool partially_specialized = false;
 
 template<class GologT>
@@ -50,9 +50,29 @@ static constexpr bool is_expression = std::is_base_of<Expression, GologT>::value
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+template<class GologT>
+class CopyableSemantics
+{
+public:
+	virtual GeneralSemantics<GologT> *copy(const GologT &target_element) const = 0;
+};
+
+
+template<class GologT>
+class NonCopyableSemantics
+{};
+
+
+
 template<class GologT>
 class GeneralSemantics<GologT, enable_if<is_instruction<GologT>>>
 : public virtual GeneralSemantics<Instruction>
+, public std::conditional<
+	is_copyable<GologT>,
+	CopyableSemantics<GologT>,
+	NonCopyableSemantics<GologT>
+  >::type
 {
 public:
 	GeneralSemantics(const GologT &elem, AExecutionController &context)
@@ -90,6 +110,11 @@ private:
 template<class GologT>
 class GeneralSemantics<GologT, enable_if<is_expression<GologT>>>
 : public virtual GeneralSemantics<Expression>
+, public std::conditional<
+	is_copyable<GologT>,
+	CopyableSemantics<GologT>,
+	NonCopyableSemantics<GologT>
+  >::type
 {
 public:
 	GeneralSemantics(const GologT &elem, AExecutionController &context)
@@ -128,9 +153,14 @@ template<class GologT>
 class GeneralSemantics<GologT, enable_if <
 	!is_expression<GologT>
 	&& !is_instruction<GologT>
-	&& !partially_specialized<GologT>
+	&& !partially_specialized<GeneralSemantics<GologT>>
 > >
 : public virtual GeneralSemantics<ModelElement>
+, public std::conditional<
+	is_copyable<GologT>,
+	CopyableSemantics<GologT>,
+	NonCopyableSemantics<GologT>
+  >::type
 {
 public:
 	GeneralSemantics(const GologT &elem, AExecutionController &context)

@@ -28,11 +28,7 @@
 namespace gologpp {
 
 
-class Activity
-: public Instruction
-, public LanguageElement<Activity, VoidType>
-, public NoScopeOwner
-, public std::enable_shared_from_this<Activity> {
+class Activity {
 public:
 	enum State { IDLE, RUNNING, FINAL, CANCELLED, FAILED };
 
@@ -55,10 +51,6 @@ public:
 	const vector<Value *> &args() const;
 	const Reference<Action, Value> &ref() const;
 	Reference<Action, Value> &ref();
-
-	virtual string to_string(const string &pfx) const override;
-
-	virtual void attach_semantics(SemanticsFactory &) override;
 
 	static State target_state(Transition::Hook);
 

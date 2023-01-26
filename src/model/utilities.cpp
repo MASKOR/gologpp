@@ -16,7 +16,6 @@
 **************************************************************************/
 
 #include "utilities.h"
-#include "value.h"
 
 namespace gologpp {
 
@@ -40,15 +39,6 @@ void Identifier::set_arity(arity_t a)
 string Identifier::signature_str() const
 { return name() + "/" + std::to_string(arity()); }
 
-
-
-vector<Expression *> copy(const vector<Expression *> &v)
-{
-	vector<Expression *> rv;
-	for (const Expression *e : v)
-		rv.emplace_back(dynamic_cast<const Value &>(*e).copy());
-	return rv;
-}
 
 
 #ifdef DEBUG_PARSER

@@ -22,19 +22,19 @@
 
 namespace gologpp {
 
-template<class ExprT>
-ABinding<ExprT>::ABinding(const ABinding<ExprT> &other)
+template<>
+Binding<Value>::Binding(const Binding<Value> &other)
 {
 	for (auto &pair : other.var_bindings_)
-		var_bindings_.emplace(pair.first, dynamic_cast<const Value &>(*pair.second).copy());
+		var_bindings_.emplace(pair.first, new Value(*pair.second));
 	if (other.semantics_)
 		set_semantics(unique_ptr<GeneralSemantics<ModelElement>>(
-			other.general_semantics<ABinding<ExprT>>().copy(*this)
+			other.general_semantics<Binding<Value>>().copy(*this)
 		) );
 }
 
 template<class ExprT>
-ABinding<ExprT>::ABinding(ABinding<ExprT> &&other)
+Binding<ExprT>::Binding(Binding<ExprT> &&other)
 : var_bindings_(std::move(other.var_bindings_))
 {
 	if (other.semantics_)
@@ -42,11 +42,11 @@ ABinding<ExprT>::ABinding(ABinding<ExprT> &&other)
 }
 
 template<class ExprT>
-void ABinding<ExprT>::bind(shared_ptr<const Variable> var, unique_ptr<ExprT> &&expr)
+void Binding<ExprT>::bind(shared_ptr<const Variable> var, unique_ptr<ExprT> &&expr)
 { var_bindings_.insert(std::make_pair(var, std::move(expr))); }
 
 template<class ExprT>
-ExprT &ABinding<ExprT>::get(shared_ptr<const Variable> param) const
+ExprT &Binding<ExprT>::get(shared_ptr<const Variable> param) const
 {
 	auto it = var_bindings_.find(param);
 	if (it == var_bindings_.end())
@@ -55,12 +55,12 @@ ExprT &ABinding<ExprT>::get(shared_ptr<const Variable> param) const
 }
 
 template<class ExprT>
-const typename ABinding<ExprT>::MapT &ABinding<ExprT>::map() const
+const typename Binding<ExprT>::MapT &Binding<ExprT>::map() const
 { return var_bindings_; }
 
 
 template<class ExprT>
-void ABinding<ExprT>::attach_semantics(SemanticsFactory &f)
+void Binding<ExprT>::attach_semantics(SemanticsFactory &f)
 {
 	if (!semantics_) {
 		set_semantics(f.make_semantics(*this));
@@ -71,7 +71,7 @@ void ABinding<ExprT>::attach_semantics(SemanticsFactory &f)
 
 
 template<class ExprT>
-string ABinding<ExprT>::to_string(const string &pfx) const
+string Binding<ExprT>::to_string(const string &pfx) const
 {
 	string rv;
 	for (auto &entry : var_bindings_)
@@ -83,43 +83,43 @@ string ABinding<ExprT>::to_string(const string &pfx) const
 
 
 template
-class ABinding<Expression>;
+class Binding<Expression>;
 
 template
-class ABinding<Value>;
+class Binding<Value>;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class ExprT>
-GeneralSemantics<ABinding<ExprT>>::GeneralSemantics(const ABinding<ExprT> &elem, AExecutionController &context)
+GeneralSemantics<Binding<ExprT>>::GeneralSemantics(const Binding<ExprT> &elem, AExecutionController &context)
 : element_(&elem)
 , context_(context)
 {}
 
 template<class ExprT>
-const ABinding<ExprT> &GeneralSemantics<ABinding<ExprT>>::element() const
+const Binding<ExprT> &GeneralSemantics<Binding<ExprT>>::element() const
 { return *element_; }
 
 template<class ExprT>
-void GeneralSemantics<ABinding<ExprT>>::update_element(const ABinding<ExprT> *new_element)
+void GeneralSemantics<Binding<ExprT>>::update_element(const Binding<ExprT> *new_element)
 { element_ = new_element; }
 
 template<class ExprT>
-AExecutionController &GeneralSemantics<ABinding<ExprT>>::context() const
+AExecutionController &GeneralSemantics<Binding<ExprT>>::context() const
 { return context_; }
 
 
 template<class ExprT>
-const ModelElement &GeneralSemantics<ABinding<ExprT>>::model_element() const
+const ModelElement &GeneralSemantics<Binding<ExprT>>::model_element() const
 { return *element_; }
 
 template
-class GeneralSemantics<ABinding<Expression>>;
+class GeneralSemantics<Binding<Expression>>;
 
 template
-class GeneralSemantics<ABinding<Value>>;
+class GeneralSemantics<Binding<Value>>;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/

@@ -157,8 +157,6 @@ public:
 	Value operator % (const Value &) const;
 	Value pow(const Value &) const;
 
-	virtual Value *copy() const;
-
 	virtual void attach_semantics(SemanticsFactory &f) override;
 
 	static Value undefined();

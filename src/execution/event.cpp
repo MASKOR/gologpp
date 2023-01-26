@@ -20,32 +20,56 @@
 #include <model/action.h>
 #include <model/variable.h>
 #include <model/platform/switch_state_action.h>
+#include <model/semantics.h>
 
 namespace gologpp {
 
+string AbstractEvent::to_string(const string &pfx) const
+{ return ref().to_string(pfx); }
+
 template<class ActionT>
 Event<ActionT>::Event(shared_ptr<ActionT> action, vector<unique_ptr<Value>> &&args)
-: ground_action_(action, std::forward<vector<unique_ptr<Value>>>(args))
+: ground_action_(action, std::move(args))
 {}
 
 template<class ActionT>
 Event<ActionT>::Event(shared_ptr<ActionT> action, std::initializer_list<unique_ptr<Value>> &&args)
-: ground_action_(action, std::vector<unique_ptr<Value>> { std::forward<vector<unique_ptr<Value>>>(args) })
+: ground_action_(action, std::vector<unique_ptr<Value>> { std::move(args) })
 {}
+
+template<class ActionT>
+Event<ActionT>::Event(shared_ptr<ActionT> action, std::initializer_list<Value *> &&args)
+: ground_action_(action, std::vector<unique_ptr<Value>> { args.begin(), args.end() })
+{}
+
+template<class ActionT>
+Event<ActionT>::Event(Event<ActionT> &&other)
+: ground_action_(std::move(other.ground_action_))
+{}
+
+template<class ActionT>
+Event<ActionT>::Event(const Event<ActionT> &other)
+: ground_action_(other.ground_action_)
+{
+	if (other.semantics_)
+		semantics_.reset(other.template general_semantics<Event<ActionT>>().copy(*this));
+}
+
+template<class ActionT>
+shared_ptr<ActionT> Event<ActionT>::action() const
+{ return ground_action_.target(); }
 
 template<class ActionT>
 const vector<Value *> &Event<ActionT>::args()
 { return ground_action_.args(); }
 
+template<class ActionT>
+const Reference<ActionT, Value> &Event<ActionT>::ref() const
+{ return ground_action_; }
 
 template<class ActionT>
-vector<unique_ptr<Value>> Event<ActionT>::argscp() const
-{
-	vector<unique_ptr<Value>> rv;
-	for (Value *v : ground_action_.args())
-		rv.push_back(unique_ptr<Value>(v));
-	return rv;
-}
+Reference<ActionT, Value> &Event<ActionT>::ref()
+{ return ground_action_; }
 
 
 template

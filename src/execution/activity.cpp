@@ -102,19 +102,17 @@ Value Activity::mapped_arg_value(const string &name) const
 const std::string &Activity::mapped_name() const
 { return action()->mapping().backend_name(); }
 
-string Activity::to_string(const string &pfx) const
-{ return pfx + "state(" + ref().to_string("") + ") = " + gologpp::to_string(state()); }
+shared_ptr<Action> Activity::action() const
+{ return ref().target(); }
 
+const vector<Value *> &Activity::args() const
+{ return ref().args(); }
 
-void Activity::attach_semantics(SemanticsFactory &implementor)
-{
-	if (!semantics_) {
-		ref().binding().attach_semantics(implementor);
-		semantics_ = implementor.make_semantics(*this);
-		for (auto &c : args())
-			c->attach_semantics(implementor);
-	}
-}
+const Reference<Action, Value> &Activity::ref() const
+{ return action_ref_; }
+
+Reference<Action, Value> &Activity::ref()
+{ return action_ref_; }
 
 
 string to_string(Activity::State s)

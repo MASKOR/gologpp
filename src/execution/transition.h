@@ -31,9 +31,7 @@ namespace gologpp {
 class Transition
 : public Instruction
 , public Event<Action>
-, public NoScopeOwner
 , public LanguageElement<Transition, VoidType>
-, public std::enable_shared_from_this<Transition>
 {
 public:
 	using Hook = DurativeCall::Hook;
@@ -73,6 +71,17 @@ private:
 	const Transition *element_;
 	AExecutionController &context_;
 	bool final_;
+};
+
+
+
+class ExogEvent
+: public Event<ExogAction>
+, public LanguageElement<ExogEvent, VoidType>
+, public Instruction
+{
+public:
+	using Event<ExogAction>::Event;
 };
 
 

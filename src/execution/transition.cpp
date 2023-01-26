@@ -21,7 +21,6 @@
 #include <model/action.h>
 #include <model/logger.h>
 
-
 #include "controller.h"
 #include "transition.h"
 
@@ -29,15 +28,15 @@
 namespace gologpp {
 
 
-
 Transition::Transition(const Transition &other)
-: Event<Action>(other.action(), other.argscp())
+: Event<Action>(other)
 , hook_(other.hook())
-{
-	if (other.semantics_) {
-		semantics_.reset(other.general_semantics<Transition>().copy(*this));
-	}
-}
+{}
+
+Transition::Transition(shared_ptr<Action> action, vector<unique_ptr<Value> > &&value, Hook hook)
+: Event<Action>(action, std::move(value))
+, hook_(hook)
+{}
 
 Transition::Hook Transition::hook() const
 { return hook_; }
@@ -78,8 +77,6 @@ const ModelElement &GeneralSemantics<Transition>::model_element() const
 { return element(); }
 
 const Instruction &GeneralSemantics<Transition>::instruction() const
-{ return element(); }
-
-
+{ return static_cast<const Instruction &>(element()); }
 
 } // namespace gologpp

@@ -36,26 +36,34 @@
 namespace gologpp {
 
 
-template<class ExprT>
 class ABinding : public ModelElement {
+public:
+	void bind(shared_ptr<const Variable> var, unique_ptr<Value> &&value);
+	virtual Expression &get(shared_ptr<const Variable> param) const = 0;
+};
+
+
+template<class ExprT>
+class Binding : public ABinding {
 public:
 	using MapT = std::unordered_map <
 		shared_ptr<const Variable>,
 		unique_ptr<ExprT>
 	>;
 
-	ABinding(const ABinding<ExprT> &);
-	ABinding(ABinding<ExprT> &&);
+	Binding(const Binding<ExprT> &);
+	Binding(Binding<ExprT> &&);
 
+	// Allow cross-conversion between Binding<Value> and Binding<Expression>
 	template<class E2 = ExprT>
-	ABinding(const ABinding<Expression> &, enable_if<!std::is_same<E2, Expression>::value> * = 0);
+	Binding(const Binding<E2> &, enable_if<!std::is_same<E2, ExprT>::value> * = 0);
 
-	ABinding() = default;
+	Binding() = default;
 
-	virtual ~ABinding() = default;
+	virtual ~Binding() = default;
 
 	void bind(shared_ptr<const Variable> var, unique_ptr<ExprT> &&expr);
-	virtual ExprT &get(shared_ptr<const Variable> param) const;
+	virtual ExprT &get(shared_ptr<const Variable> param) const override;
 	const MapT &map() const;
 
 	virtual void attach_semantics(SemanticsFactory &f) override;
@@ -70,37 +78,36 @@ private:
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Disambiguate this against the generic GeneralSemantics<GologT, Cond>, which
-/// is also a partial specialization but requires this to be false in Cond.
+/// is also a partial specialization but is disabled if this is true.
 template<class ExprT>
-bool partially_specialized<ABinding<ExprT>> = true;
+bool partially_specialized<GeneralSemantics<Binding<ExprT>>> = true;
 
 
 template<class ExprT>
-class GeneralSemantics<ABinding<ExprT>>
+class GeneralSemantics<Binding<ExprT>>
 : public virtual GeneralSemantics<ModelElement>
 {
 public:
-	GeneralSemantics(const ABinding<ExprT> &elem, AExecutionController &context);
+	GeneralSemantics(const Binding<ExprT> &elem, AExecutionController &context);
 
 	virtual ~GeneralSemantics() = default;
 
-	const ABinding<ExprT> &element() const;
-	void update_element(const ABinding<ExprT> *new_element);
+	const Binding<ExprT> &element() const;
+	void update_element(const Binding<ExprT> *new_element);
 	virtual AExecutionController &context() const override;
 	virtual const ModelElement &model_element() const override;
 
-	virtual GeneralSemantics<ABinding<ExprT>> *copy(const ABinding<ExprT> &target_element) const = 0;
+	virtual GeneralSemantics<Binding<ExprT>> *copy(const Binding<ExprT> &target_element) const = 0;
 
 private:
-	const ABinding<ExprT> *element_;
+	const Binding<ExprT> *element_;
 	AExecutionController &context_;
 };
 
 
-class BindingChain : public vector<const ABinding<Expression> *> {
+class BindingChain : public vector<const ABinding *> {
 public:
-	using vector<const ABinding<Expression> *>::vector;
-	BindingChain(std::initializer_list<const ABinding<Value> *>);
+	using vector<const ABinding *>::vector;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,14 +127,14 @@ public:
 		while (idx < args.size() && idx < this->target()->params().size()) {
 			unique_ptr<ArgsT> arg { std::move(args[idx]) };
 			arg->set_parent(this);
-			args_.emplace_back(arg.get());
 			binding_.bind(this->target()->params()[idx], std::move(arg));
+			args_.emplace_back(&binding_.get(this->target()->params()[idx]));
 			++idx;
 		}
 		ensure_consistent();
 	}
 
-	ReferenceBase(const shared_ptr<TargetT> &target, ABinding<ArgsT> &&binding)
+	ReferenceBase(const shared_ptr<TargetT> &target, Binding<ArgsT> &&binding)
 	: target_(target)
 	, binding_(std::move(binding))
 	{
@@ -147,6 +154,7 @@ public:
 		args
 	)
 	{}
+
 
 	ReferenceBase(const string &target_name, const boost::optional<vector<ArgsT *>> &args)
 	: ReferenceBase(target_name, args.get_value_or({}))
@@ -260,16 +268,16 @@ public:
 		return rv;
 	}
 
-	virtual ABinding<ArgsT> &binding()
+	virtual Binding<ArgsT> &binding()
 	{ return binding_; }
 
-	virtual const ABinding<ArgsT> &binding() const
+	virtual const Binding<ArgsT> &binding() const
 	{ return binding_; }
 
 protected:
 	vector<ArgsT *> args_;
 	weak_ptr<TargetT> target_;
-	ABinding<ArgsT> binding_;
+	Binding<ArgsT> binding_;
 };
 
 
@@ -288,6 +296,9 @@ public:
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<class TargetT>
+static constexpr const bool is_copyable<Reference<TargetT, Value>> = true;
+
 template<class TargetT, class ArgsT>
 class Reference
 : public ReferenceBase<TargetT, ArgsT>
@@ -302,9 +313,14 @@ class Reference
 public:
 	using ReferenceBase<TargetT, ArgsT>::ReferenceBase;
 
-	Reference(const Reference<TargetT, ArgsT> &other)
+	explicit Reference(const Reference<TargetT, ArgsT> &other)
 	: ReferenceBase<TargetT, ArgsT>(other)
-	{}
+	{
+		if (other.semantics_)
+			this->semantics_.reset(
+				other.template general_semantics<Reference<TargetT, ArgsT>>().copy(*this)
+			);
+	}
 
 	virtual ~Reference() override = default;
 
