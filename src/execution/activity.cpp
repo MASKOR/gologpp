@@ -71,11 +71,7 @@ void Activity::update(Transition::Hook hook)
 	PlatformBackend::Lock backend_lock = exec_context_.backend().lock();
 	set_state(target_state(hook));
 	exec_context_.exog_queue_push(
-		shared_ptr<Transition>(new Transition(
-			action(),
-			vector<unique_ptr<Value>>(args().begin(), args().end()),
-			hook
-		))
+		shared_ptr<Transition>(new Transition(action(), args(), hook))
 	);
 	update_condition_.notify_all();
 }
@@ -89,7 +85,6 @@ void Activity::wait_for_update()
 	});
 }
 
-
 Value Activity::mapped_arg_value(const string &name) const
 {
 	return
@@ -98,15 +93,20 @@ Value Activity::mapped_arg_value(const string &name) const
 		).evaluate({ &this->ref().binding() }, exec_context_.history());
 }
 
-
 const std::string &Activity::mapped_name() const
 { return action()->mapping().backend_name(); }
 
 shared_ptr<Action> Activity::action() const
 { return ref().target(); }
 
-const vector<Value *> &Activity::args() const
-{ return ref().args(); }
+
+vector<unique_ptr<Value>> Activity::args() const
+{
+	vector<unique_ptr<Value>> rv;
+	for (const Value *arg : ref().args())
+		rv.emplace_back(new Value(*arg));
+	return rv;
+}
 
 const Reference<Action, Value> &Activity::ref() const
 { return action_ref_; }

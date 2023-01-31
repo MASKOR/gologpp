@@ -22,7 +22,6 @@
 #include <model/action.h>
 #include <model/reference.h>
 
-#include "transition.h"
 #include "activity.h"
 #include "clock.h"
 

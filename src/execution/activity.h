@@ -48,14 +48,14 @@ public:
 	const std::string &mapped_name() const;
 	Value mapped_arg_value(const string &name) const;
 	shared_ptr<Action> action() const;
-	const vector<Value *> &args() const;
-	const Reference<Action, Value> &ref() const;
-	Reference<Action, Value> &ref();
+	vector<unique_ptr<Value>> args() const;
+	const Grounding<Action> &ref() const;
+	Grounding<Action> &ref();
 
 	static State target_state(Transition::Hook);
 
 private:
-	Reference<Action, Value> action_ref_;
+	Grounding<Action> action_ref_;
 
 	State state_;
 	AExecutionController &exec_context_;

@@ -92,6 +92,7 @@ shared_ptr<AbstractEvent> AExecutionController::exog_queue_pop()
 	std::lock_guard<std::mutex> locked{ exog_mutex_ };
 	shared_ptr<AbstractEvent> rv = std::move(exog_queue_.front());
 	exog_queue_.pop_front();
+	rv->attach_semantics(semantics_factory());
 	return rv;
 }
 

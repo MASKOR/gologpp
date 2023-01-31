@@ -76,7 +76,7 @@ std::function<void()> DummyBackend::rnd_exog_generator()
 			for (shared_ptr<Variable> p : exog->params())
 				args.push_back(rnd_value(p->type()));
 
-			shared_ptr<AbstractEvent> event(new Event<ExogAction>(exog, std::move(args)));
+			shared_ptr<AbstractEvent> event(new ExogEvent(exog, std::move(args)));
 			exec_context()->exog_queue_push(event);
 		}
 		log(LogLevel::INF) << "exog generator TERMINATED" << flush;

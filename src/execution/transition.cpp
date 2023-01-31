@@ -31,7 +31,10 @@ namespace gologpp {
 Transition::Transition(const Transition &other)
 : Event<Action>(other)
 , hook_(other.hook())
-{}
+{
+	if (other.semantics_)
+		semantics_.reset(other.general_semantics<Transition>().copy(*this));
+}
 
 Transition::Transition(shared_ptr<Action> action, vector<unique_ptr<Value> > &&value, Hook hook)
 : Event<Action>(action, std::move(value))
@@ -40,17 +43,6 @@ Transition::Transition(shared_ptr<Action> action, vector<unique_ptr<Value> > &&v
 
 Transition::Hook Transition::hook() const
 { return hook_; }
-
-
-void Transition::attach_semantics(SemanticsFactory &implementor)
-{
-	if (!semantics_) {
-		semantics_ = implementor.make_semantics(*this);
-		ground_action_.attach_semantics(implementor);
-		for (auto &c : args())
-			c->attach_semantics(implementor);
-	}
-}
 
 string Transition::to_string(const string &pfx) const
 { return pfx + gologpp::to_string(hook()) + "(" + ground_action_.to_string(pfx) + ")"; }
@@ -78,5 +70,16 @@ const ModelElement &GeneralSemantics<Transition>::model_element() const
 
 const Instruction &GeneralSemantics<Transition>::instruction() const
 { return static_cast<const Instruction &>(element()); }
+
+
+
+ExogEvent::ExogEvent(const ExogEvent &other)
+: Event<ExogAction>(other)
+{
+	if (other.semantics_)
+		semantics_.reset(other.general_semantics<ExogEvent>().copy(*this));
+}
+
+
 
 } // namespace gologpp

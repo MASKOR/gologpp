@@ -18,6 +18,7 @@
 #include "platform_backend.h"
 #include "controller.h"
 #include "activity.h"
+#include "transition.h"
 
 #include <model/logger.h>
 #include <model/platform/component_backend.h>

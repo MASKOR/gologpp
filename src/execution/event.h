@@ -41,10 +41,6 @@ public:
 
 
 template<class ActionT>
-static constexpr const bool is_copyable<Event<ActionT>> = true;
-
-
-template<class ActionT>
 class Event
 : public AbstractEvent
 , public std::enable_shared_from_this<Event<ActionT>>
@@ -61,8 +57,6 @@ public:
 	const vector<Value *> &args();
 	virtual const Reference<ActionT, Value> &ref() const override;
 	virtual Reference<ActionT, Value> &ref() override;
-
-	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(ground_action_)
 
 protected:
 	Reference<ActionT, Value> ground_action_;

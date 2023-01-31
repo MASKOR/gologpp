@@ -15,8 +15,7 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef GOLOGPP_TRANSITION_H_
-#define GOLOGPP_TRANSITION_H_
+#pragma once
 
 #include <model/gologpp.h>
 #include <model/reference.h>
@@ -27,6 +26,9 @@
 
 namespace gologpp {
 
+
+template<>
+inline constexpr const bool is_copyable<Transition> = true;
 
 class Transition
 : public Instruction
@@ -42,7 +44,8 @@ public:
 
 	Hook hook() const;
 	virtual string to_string(const string &pfx) const override;
-	virtual void attach_semantics(SemanticsFactory &) override;
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(ground_action_)
 
 private:
 	Hook hook_;
@@ -75,6 +78,9 @@ private:
 
 
 
+template<>
+inline constexpr const bool is_copyable<ExogEvent> = true;
+
 class ExogEvent
 : public Event<ExogAction>
 , public LanguageElement<ExogEvent, VoidType>
@@ -82,10 +88,12 @@ class ExogEvent
 {
 public:
 	using Event<ExogAction>::Event;
+	ExogEvent(const ExogEvent &other);
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(ground_action_)
 };
 
 
 
 }
 
-#endif // GOLOGPP_TRANSITION_H_

@@ -24,6 +24,7 @@
 
 namespace gologpp {
 
+
 string AbstractEvent::to_string(const string &pfx) const
 { return ref().to_string(pfx); }
 
@@ -50,10 +51,7 @@ Event<ActionT>::Event(Event<ActionT> &&other)
 template<class ActionT>
 Event<ActionT>::Event(const Event<ActionT> &other)
 : ground_action_(other.ground_action_)
-{
-	if (other.semantics_)
-		semantics_.reset(other.template general_semantics<Event<ActionT>>().copy(*this));
-}
+{}
 
 template<class ActionT>
 shared_ptr<ActionT> Event<ActionT>::action() const
