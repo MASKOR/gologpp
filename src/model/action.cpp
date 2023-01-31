@@ -17,11 +17,11 @@
 
 #include "mapping.h"
 #include "action.h"
-#include "fluent.h"
 #include "reference.h"
 #include "effect_axiom.h"
-#include "execution/controller.h"
 #include "error.h"
+#include <execution/controller.h>
+
 #include <string>
 
 namespace gologpp {
@@ -222,7 +222,9 @@ void ExogAction::define(
 		set_mapping(mapping.value());
 }
 
-void ExogAction::set_mapping(BackendMapping *m) {
+
+void ExogAction::set_mapping(BackendMapping *m)
+{
 	string missing;
 
 	const BackendMapping::ArgMapping &arg_mapping = m->arg_mapping();

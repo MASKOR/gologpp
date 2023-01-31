@@ -46,6 +46,7 @@ using std::nullopt;
 template<bool Cond>
 using enable_if = typename std::enable_if<Cond>::type;
 
+
 using string = std::string;
 
 class Logger;
@@ -76,6 +77,7 @@ template<class> class Event;
 class Activity;
 class Transition;
 class ExogEvent;
+
 
 class Identifier;
 
@@ -227,10 +229,9 @@ class SemanticsFactory;
 	(Reference<Procedure>) \
 	(ListPop) \
 	(Transition) \
+	(ExogEvent) \
 	(ListPush) \
-	(Event<Action>) \
-	(Event<ExogAction>) \
-	(Event<platform::SwitchStateAction>)
+	(platform::SwitchStateEvent)
 
 #define GOLOGPP_EXPRESSIONS \
 	(Variable) \

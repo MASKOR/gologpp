@@ -25,9 +25,9 @@
 
 namespace gologpp {
 
-
 template<class GologT>
 static constexpr const bool is_copyable = false;
+
 
 
 class ModelElement {

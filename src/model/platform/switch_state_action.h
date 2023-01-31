@@ -47,11 +47,14 @@ private:
 
 
 class SwitchStateEvent
-: public Instruction
-, public Event<SwitchStateAction>
+: public Event<SwitchStateAction>
 , public LanguageElement<SwitchStateEvent>
+, public Instruction
 {
+public:
 	using Event<SwitchStateAction>::Event;
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(ground_action_)
 };
 
 

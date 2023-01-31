@@ -29,7 +29,6 @@ namespace platform {
 template<>
 class Reference<Action>
 : public ReferenceBase<Action, Expression>
-, public ChildElement
 , public LanguageElement<platform::Reference<Action>, VoidType>
 {
 public:
