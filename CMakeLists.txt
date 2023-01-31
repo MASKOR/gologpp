@@ -72,7 +72,8 @@ set(SEMANTICS_INSTALL_DIR ${CMAKE_INSTALL_DATAROOTDIR}/golog++/semantics)
 
 set(GOLOGPP_VERSION 0.1.0)
 
-
+file(GLOB_RECURSE GOLOGPP_HEADERS "src/*.h")
+add_custom_target(headers SOURCES ${GOLOGPP_HEADERS})
 
 ######################################################################################
 # The golog++ language metamodel: libgolog++.so
@@ -318,7 +319,6 @@ if (${BUILD_READYLOG_SEMANTICS})
 		src/semantics/readylog/compound_expression.cpp
 		src/semantics/readylog/list_expression.cpp
 		src/semantics/readylog/transition.cpp
-		src/semantics/readylog/activity.cpp
 		src/semantics/readylog/plan.cpp
 	)
 
@@ -353,7 +353,6 @@ if (${BUILD_READYLOG_SEMANTICS})
 		src/semantics/readylog/compound_expression.h
 		src/semantics/readylog/list_expression.h
 		src/semantics/readylog/transition.h
-		src/semantics/readylog/activity.h
 		src/semantics/readylog/plan.h
 		src/semantics/readylog/wrap_eclipseclass.h
 

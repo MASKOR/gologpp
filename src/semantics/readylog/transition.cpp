@@ -15,7 +15,6 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "value.h"
 #include "transition.h"
 #include "execution.h"
 #include "reference.h"
@@ -28,15 +27,10 @@
 namespace gologpp {
 
 
-Semantics<Transition>::Semantics(const Transition &elem, ReadylogContext &context)
-: GeneralSemantics<Transition>(elem, context)
-{}
-
-
 EC_word Semantics<Transition>::plterm()
 {
 	return ::term(EC_functor(to_string(element().hook()).c_str(), 1),
-		reference_term(element())
+		reference_term(element().ref())
 	);
 }
 
@@ -50,7 +44,7 @@ static const ::std::unordered_map<::std::string, Transition::Hook> name2state {
 };
 
 
-shared_ptr<Transition> gologpp::Semantics<Transition>::transition_from_plterm(EC_word t)
+shared_ptr<Transition> Semantics<Transition>::transition_from_plterm(EC_word t)
 {
 	string headname = functor_name(t);
 
@@ -65,7 +59,7 @@ shared_ptr<Transition> gologpp::Semantics<Transition>::transition_from_plterm(EC
 	t.arg(1, t);
 	headname = functor_name(t);
 
-	vector<unique_ptr<Expression>> args = plterm_args(t);
+	vector<unique_ptr<Value>> args = plterm_args(t);
 	shared_ptr<Action> action = global_scope().lookup_global<Action>(Name::demangle(headname));
 
 	shared_ptr<Transition> rv { new Transition { action, std::move(args), state_it->second} };
@@ -82,21 +76,21 @@ Semantics<Transition> *Semantics<Transition>::copy(const Transition &target_elem
 unique_ptr<Plan> Semantics<Transition>::trans(const BindingChain &b, History &history)
 {
 	BindingChain merged(b);
-	merged.emplace_back(&element().binding());
+	merged.emplace_back(&element().ref().binding());
 
 	switch(element().hook())
 	{
 	case Transition::Hook::CANCEL:
-		if (context().backend().current_state(element()) == Activity::State::RUNNING)
+		if (context().backend().current_state(element().ref()) == Activity::State::RUNNING)
 			context().backend().cancel_activity(element());
 		else
 			return nullptr;
 	break;
 	case Transition::Hook::START:
 		if (
-			context().backend().current_state(element()) != Activity::State::RUNNING
+			context().backend().current_state(element().ref()) != Activity::State::RUNNING
 			&& static_cast<bool>(
-				element().target()->precondition().general_semantics().evaluate(
+				element().action()->precondition().general_semantics().evaluate(
 					merged,
 					history
 				)
@@ -107,29 +101,29 @@ unique_ptr<Plan> Semantics<Transition>::trans(const BindingChain &b, History &hi
 			return nullptr;
 	break;
 	case Transition::Hook::FINISH:
-		if (context().backend().current_state(element()) == Activity::State::FINAL) {
+		if (context().backend().current_state(element().ref()) == Activity::State::FINAL) {
 			shared_ptr<Activity> a = context().backend().erase_activity(element());
 		}
 		else
 			return nullptr;
 	break;
 	case Transition::Hook::FAIL:
-		if (context().backend().current_state(element()) == Activity::State::FAILED)
+		if (context().backend().current_state(element().ref()) == Activity::State::FAILED)
 			context().backend().erase_activity(element());
 		else
 			return nullptr;
 	break;
 	case Transition::Hook::END:
 		if (
-			context().backend().current_state(element()) == Activity::State::FAILED
-			|| context().backend().current_state(element()) == Activity::State::FINAL
+			context().backend().current_state(element().ref()) == Activity::State::FAILED
+			|| context().backend().current_state(element().ref()) == Activity::State::FINAL
 		)
 			context().backend().erase_activity(element());
 		else
 			return nullptr;
 	}
 
-	if (!element()->silent()) {
+	if (!element().action()->silent()) {
 		log(LogLevel::NFY) << "<<< trans: " << element().str() << flush;
 		context().set_silent(false);
 	}
@@ -140,9 +134,15 @@ unique_ptr<Plan> Semantics<Transition>::trans(const BindingChain &b, History &hi
 }
 
 
-const Instruction &Semantics<Transition>::instruction() const
-{ return GeneralSemantics<Transition>::instruction(); }
 
+EC_word Semantics<ExogEvent>::plterm()
+{ return element().ref().semantics().plterm(); }
+
+unique_ptr<Plan> Semantics<ExogEvent>::trans(const BindingChain &, History &)
+{ throw Bug("trans(...) should not be called on an ExogEvent"); }
+
+Semantics<ExogEvent> *Semantics<ExogEvent>::copy(const ExogEvent &target_element) const
+{ return new Semantics<ExogEvent>(target_element, rl_context()); }
 
 
 

@@ -26,6 +26,7 @@
 #include "utilities.h"
 #include "history.h"
 #include "transition.h"
+#include "event.h"
 
 #include <execution/plan.h>
 #include <execution/transformation.h>
@@ -407,6 +408,12 @@ void ReadylogContext::run(const Instruction &program)
 		log(LogLevel::DBG) << ">>> Terminated." << flush;
 	}
 }
+
+
+
+template<>
+EC_word Semantics<platform::SwitchStateEvent>::plterm()
+{ return element().ref().semantics().plterm(); }
 
 
 

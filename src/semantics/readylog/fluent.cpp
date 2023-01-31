@@ -17,11 +17,10 @@
 
 #include "fluent.h"
 #include "execution.h"
-#include "scope.h"
 #include "utilities.h"
-#include "value.h"
 #include "semantics.h"
 #include "variable.h"
+#include "domain.h"
 
 #include <model/fluent.h>
 

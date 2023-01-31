@@ -95,7 +95,7 @@ protected:
 
 template<class GologT>
 class Semantics<GologT, enable_if <
-	!partially_specialized<GologT>
+	!partially_specialized<Semantics<GologT>>
 	&& is_expression<GologT>
 > >
 : public GeneralSemantics<GologT>
@@ -114,7 +114,7 @@ public:
 
 template<class GologT>
 class Semantics<GologT, enable_if <
-	!partially_specialized<GologT>
+	!partially_specialized<Semantics<GologT>>
 	&& is_instruction<GologT>
 > >
 : public GeneralSemantics<GologT>
@@ -134,7 +134,7 @@ public:
 
 template<class GologT>
 class Semantics<GologT, enable_if <
-	!partially_specialized<GologT>
+	!partially_specialized<Semantics<GologT>>
 	&& !is_expression<GologT>
 	&& !is_instruction<GologT>
 > >

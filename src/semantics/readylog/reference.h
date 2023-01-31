@@ -30,7 +30,6 @@
 #include "semantics.h"
 #include "utilities.h"
 #include "variable.h"
-#include "value.h"
 
 #include "wrap_eclipseclass.h"
 
@@ -41,22 +40,27 @@ namespace gologpp {
 EC_word pl_binding_chain(const BindingChain &b);
 
 
-template<>
-class Semantics<Binding>
-: public GeneralSemantics<Binding>
+/// Disambiguate this against the generic Semantics<GologT, Cond>, which
+/// is also a partial specialization but requires this to be false in Cond.
+template<class ExprT>
+bool partially_specialized<Semantics<Binding<ExprT>>> = true;
+
+template<class ExprT>
+class Semantics<Binding<ExprT>>
+: public GeneralSemantics<Binding<ExprT>>
 , public Semantics<ModelElement>
 {
 public:
-	using GeneralSemantics<Binding>::GeneralSemantics;
+	using GeneralSemantics<Binding<ExprT>>::GeneralSemantics;
 
 	virtual EC_word plterm() override;
-	virtual Semantics<Binding> *copy(const Binding &target_element) const override;
+	virtual Semantics<Binding<ExprT>> *copy(const Binding<ExprT> &target_element) const override;
 };
 
 
 
-template<class GologT>
-EC_word reference_term(const ReferenceBase<GologT> &ref)
+template<class GologT, class ArgsT>
+EC_word reference_term(const ReferenceBase<GologT, ArgsT> &ref)
 {
 	if (ref.arity() > 0)
 		return ::term(EC_functor(ref.mangled_name().c_str(), ref.arity()),
@@ -71,18 +75,17 @@ EC_word reference_term(const Reference<Variable> &ref);
 
 
 
-/// Disambiguate this against the generic Semantics<GologT, Cond>, which
+/*/// Disambiguate this against the generic Semantics<GologT, Cond>, which
 /// is also a partial specialization but requires this to be false in Cond.
-template<class TargetT>
-bool partially_specialized<Reference<TargetT>> = true;
+template<class TargetT, class ArgsT>
+bool partially_specialized<Semantics<ReferenceBase<TargetT, ArgsT>>> = true;*/
 
-template<class TargetT>
-class Semantics<Reference<TargetT>>
-: public GeneralSemantics<Reference<TargetT>>
-, public Semantics<typename Reference<TargetT>::ElementType>
+template<class TargetT, class ArgsT>
+class ReferenceSemantics
+: public GeneralSemantics<Reference<TargetT, ArgsT>>
 {
 public:
-	using GeneralSemantics<Reference<TargetT>>::GeneralSemantics;
+	using GeneralSemantics<Reference<TargetT, ArgsT>>::GeneralSemantics;
 
 	bool args_need_eval() {
 		for (auto &expr : this->element().args())
@@ -130,10 +133,56 @@ public:
 
 		return ::term(EC_functor("and", 1), list);
 	}
+};
+
+
+
+template<class TargetT, class ArgsT>
+bool partially_specialized<Semantics<Reference<TargetT, ArgsT>>> = true;
+
+
+template<class TargetT>
+class Semantics<Reference<TargetT, Value>>
+: public ReferenceSemantics<TargetT, Value>
+, public Semantics<typename TargetT::SignifierT>
+{
+public:
+	using ReferenceSemantics<TargetT, Value>::ReferenceSemantics;
+
+	Semantics<Reference<TargetT, Value>> *copy(const Reference<TargetT, Value> &target) const override
+	{ return new Semantics<Reference<TargetT, Value>>(target, this->context()); }
 
 	virtual EC_word plterm() override
 	{ return reference_term(this->element()); }
 };
+
+
+
+template<class TargetT>
+class Semantics<Reference<TargetT, Expression>>
+: public ReferenceSemantics<TargetT, Expression>
+, public Semantics<typename TargetT::SignifierT>
+{
+public:
+	using ReferenceSemantics<TargetT, Expression>::ReferenceSemantics;
+
+	virtual EC_word plterm() override
+	{ return reference_term(this->element()); }
+};
+
+
+
+template<>
+class Semantics<Reference<Variable>>
+: public Semantics<Expression>
+, public GeneralSemantics<Reference<Variable>>
+{
+public:
+	using GeneralSemantics<Reference<Variable>>::GeneralSemantics;
+
+	virtual EC_word plterm() override;
+};
+
 
 
 template<>

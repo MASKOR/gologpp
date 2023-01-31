@@ -21,6 +21,7 @@
 #include <iostream>
 
 #include <execution/controller.h>
+#include <execution/transformation.h>
 #include "wrap_eclipseclass.h"
 
 namespace gologpp {

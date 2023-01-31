@@ -36,9 +36,8 @@ public:
 	Semantics(History &, ReadylogContext &context);
 	virtual ~Semantics() override = default;
 
-	virtual shared_ptr<Transition> get_last_transition() override;
-	virtual void append(const Transition &exog) override;
-	virtual void append(const Reference<AbstractAction> &exog) override;
+	virtual shared_ptr<Transition> get_last_transition();
+	virtual void append(const AbstractEvent &exog) override;
 	virtual bool should_progress() const override;
 	virtual void progress() override;
 

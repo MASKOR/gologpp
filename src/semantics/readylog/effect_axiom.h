@@ -24,10 +24,6 @@
 #include <model/action.h>
 #include <model/fluent.h>
 
-#include "reference.h"
-#include "scope.h"
-#include "execution.h"
-
 #include "wrap_eclipseclass.h"
 
 
@@ -35,7 +31,7 @@ namespace gologpp {
 
 
 template<class LhsT>
-bool partially_specialized<EffectAxiom<LhsT>> = true;
+bool partially_specialized<Semantics<EffectAxiom<LhsT>>> = true;
 
 template<class LhsT>
 class Semantics<EffectAxiom<LhsT>, void>

@@ -63,10 +63,7 @@ shared_ptr<Transition> Semantics<History>::get_last_transition()
 }
 
 
-void Semantics<History>::append(const Transition &trans)
-{ extend_history(::list(trans.semantics().plterm(), plterm())); }
-
-void Semantics<History>::append(const Reference<AbstractAction> &trans)
+void Semantics<History>::append(const AbstractEvent &trans)
 { extend_history(::list(trans.semantics().plterm(), plterm())); }
 
 

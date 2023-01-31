@@ -15,11 +15,10 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "value.h"
 #include "action.h"
 #include "effect_axiom.h"
-#include "scope.h"
 #include "variable.h"
+#include "domain.h"
 
 #include "wrap_eclipseclass.h"
 
