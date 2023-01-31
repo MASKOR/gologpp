@@ -37,7 +37,8 @@
 #include <boost/spirit/include/qi_eps.hpp>
 #include <boost/spirit/include/qi_repeat.hpp>
 
-// Somehow this ends up including deprecated /usr/include/boost/spirit/include/phoenix.hpp
+// This ends up including deprecated /usr/include/boost/spirit/include/phoenix.hpp,
+// So we're silencing the warning until boost is fixed.
 #define BOOST_ALLOW_DEPRECATED_HEADERS
 #include <boost/spirit/include/qi_string.hpp>
 
