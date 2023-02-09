@@ -118,7 +118,6 @@ template<class TargetT, class ArgsT>
 class ReferenceBase
 : public virtual AbstractReference
 , public NoScopeOwner
-, public TargetT::SignifierT
 {
 public:
 	ReferenceBase(const shared_ptr<TargetT> &target, vector<unique_ptr<ArgsT>> &&args)
@@ -304,6 +303,7 @@ template<class TargetT, class ArgsT>
 class Reference
 : public ReferenceBase<TargetT, ArgsT>
 , public LanguageElement<Reference<TargetT, ArgsT>>
+, public TargetT::SignifierT
 , public virtual std::conditional <
 	std::is_base_of<AbstractAction, TargetT>::value,
 	Reference<AbstractAction, ArgsT>,
