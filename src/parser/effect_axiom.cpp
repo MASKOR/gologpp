@@ -34,6 +34,8 @@
 #include <boost/phoenix/object/dynamic_cast.hpp>
 
 #include <model/effect_axiom.h>
+#include <model/fluent.h>
+#include <model/list.h>
 
 #include "reference.h"
 #include "mixed_member_access.h"

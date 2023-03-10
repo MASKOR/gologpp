@@ -37,7 +37,8 @@ public:
 	virtual ~Semantics() override = default;
 
 	virtual shared_ptr<Transition> get_last_transition();
-	virtual void append(const AbstractEvent &exog) override;
+	virtual void append(const AbstractEvent &e) override;
+	virtual void append(shared_ptr<AbstractEvent> e) override;
 	virtual bool should_progress() const override;
 	virtual void progress() override;
 

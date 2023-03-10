@@ -23,6 +23,7 @@
 #include "assignment.h"
 #include "formula.h"
 #include "arithmetic.h"
+#include "list.h"
 
 
 namespace gologpp {

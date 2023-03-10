@@ -25,6 +25,18 @@
 namespace gologpp {
 
 
+template<>
+class Semantics<ListAccess>
+: public Semantics<Expression>
+, public GeneralSemantics<ListAccess>
+{
+public:
+	using GeneralSemantics<ListAccess>::GeneralSemantics;
+
+	virtual EC_word plterm() override;
+	EC_word pl_index();
+};
+
 
 }
 

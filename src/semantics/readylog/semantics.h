@@ -83,6 +83,7 @@ public:
 	using GeneralSemantics<Instruction>::GeneralSemantics;
 
 	virtual ~Semantics() override = default;
+
 	virtual unique_ptr<Plan> trans(const BindingChain &b, History &h) override;
 	virtual bool final(const BindingChain &b, const History &h) override;
 

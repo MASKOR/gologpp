@@ -19,6 +19,7 @@
 #define GOLOGPP_PARSER_LIST_EXPRESSION_H_
 
 #include "utilities.h"
+#include <model/list.h>
 
 namespace gologpp {
 namespace parser {

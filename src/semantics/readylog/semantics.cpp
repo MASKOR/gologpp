@@ -31,7 +31,7 @@
 #include "string.h"
 #include "history.h"
 #include "compound_expression.h"
-#include "list_expression.h"
+#include "list.h"
 #include "activity.h"
 #include "transition.h"
 #include "execution.h"

@@ -18,6 +18,7 @@
 #include "effect_axiom.h"
 #include "procedural.h"
 #include "action.h"
+#include "list.h"
 
 
 

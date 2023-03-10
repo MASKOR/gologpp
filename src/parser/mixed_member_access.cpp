@@ -19,7 +19,7 @@
 #include "types.h"
 #include "compound_expression.h"
 #include "expressions.h"
-#include "list_expression.h"
+#include "list.h"
 
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>
@@ -37,6 +37,7 @@
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
 
+#include <model/list.h>
 #include <model/procedural.h>
 
 

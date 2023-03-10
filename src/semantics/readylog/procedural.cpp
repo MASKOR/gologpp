@@ -23,6 +23,7 @@
 #include "action.h"
 #include "history.h"
 #include "plan.h"
+#include "list.h"
 
 #include <model/procedural.h>
 
@@ -423,82 +424,6 @@ EC_word Semantics<FieldAccess>::field_assign(const Expression &value)
 	return ::term(EC_functor("gpp_field_assign", 3),
 		pl_field_name(),
 		value.semantics().plterm(),
-		element().subject().semantics().plterm()
-	);
-}
-
-
-
-EC_word Semantics<ListAccess>::pl_index()
-{ return element().index().semantics().plterm(); }
-
-
-EC_word Semantics<ListAccess>::plterm()
-{
-	return ::term(EC_functor("gpp_list_access", 2),
-		element().subject().semantics().plterm(),
-		pl_index()
-	);
-}
-
-
-
-template<>
-EC_word Semantics<ListPop>::plterm()
-{
-	string fn;
-	switch(element().which_end()) {
-	case ListOpEnd::BACK:
-		fn = "gpp_list_pop_back";
-		break;
-	case ListOpEnd::FRONT:
-		fn = "gpp_list_pop_front";
-	}
-
-	if (fn.empty())
-		throw Bug("Invalid ListOpEnd Enum value: " + std::to_string(element().which_end()));
-
-	return ::term(EC_functor("set", 2),
-		element().list().semantics().plterm(),
-		::term(EC_functor(fn.c_str(), 1),
-			element().list().semantics().plterm()
-		)
-	);
-
-}
-
-
-
-template<>
-EC_word Semantics<ListPush>::plterm()
-{
-	string fn;
-	switch(element().which_end()) {
-	case ListOpEnd::BACK:
-		fn = "gpp_list_push_back";
-		break;
-	case ListOpEnd::FRONT:
-		fn = "gpp_list_push_front";
-	}
-
-	if (fn.empty())
-		throw Bug("Invalid ListOpEnd Enum value: " + std::to_string(element().which_end()));
-
-	return ::term(EC_functor("set", 2),
-		element().list().semantics().plterm(),
-		::term(EC_functor(fn.c_str(), 2),
-			element().list().semantics().plterm(),
-			element().what().semantics().plterm()
-		)
-	);
-}
-
-
-
-template<>
-EC_word Semantics<ListLength>::plterm()
-{
-	return ::term(EC_functor("gpp_list_length", 1),
 		element().subject().semantics().plterm()
 	);
 }

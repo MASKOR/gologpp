@@ -25,6 +25,7 @@
 
 #include <model/procedural.h>
 #include <model/list.h>
+#include <model/fluent.h>
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_action.hpp>

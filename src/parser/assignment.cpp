@@ -21,6 +21,7 @@
 #include "types.h"
 #include "expressions.h"
 #include "mixed_member_access.h"
+#include "list.h"
 
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_char.hpp>
