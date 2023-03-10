@@ -15,7 +15,7 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "list_expression.h"
+#include "list.h"
 #include "semantics.h"
 
 namespace gologpp {

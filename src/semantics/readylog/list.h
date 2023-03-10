@@ -15,26 +15,17 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "list_expression.h"
+#ifndef READYLOG_LIST_EXPRESSION_H_
+#define READYLOG_LIST_EXPRESSION_H_
+
+#include "semantics.h"
+
+#include <model/list.h>
 
 namespace gologpp {
 
 
-template<>
-EC_word Semantics<ListExpression>::plterm()
-{
-	EC_word list = ::nil();
 
-	for (size_t i = element().size(); i > 0; --i)
-		list = ::list(element().entry(i - 1).semantics().plterm(), list);
-
-	return ::term(EC_functor("gpp_list", 2),
-		EC_atom( (
-			"#" + dynamic_cast<const ListType &>(element().type()).element_type().name()
-		).c_str() ),
-		list
-	);
 }
 
-
-} // namespace gologpp
+#endif // READYLOG_LIST_EXPRESSION_H_

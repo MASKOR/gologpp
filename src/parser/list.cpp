@@ -16,7 +16,7 @@
 **************************************************************************/
 
 #include "types.h"
-#include "list_expression.h"
+#include "list.h"
 #include "variable.h"
 #include "value.h"
 #include "reference.h"
@@ -24,7 +24,7 @@
 #include "expressions.h"
 
 #include <model/procedural.h>
-#include <model/list_expression.h>
+#include <model/list.h>
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_action.hpp>

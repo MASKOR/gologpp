@@ -102,7 +102,7 @@ set(INTERFACE_SRC
 	src/model/language.cpp
 	src/model/types.cpp
 	src/model/compound_expression.cpp
-	src/model/list_expression.cpp
+	src/model/list.cpp
 	src/model/semantics.cpp
 	src/model/logger.cpp
 	src/model/name.cpp
@@ -158,7 +158,7 @@ install(FILES
 	src/model/mapping.h
 	src/model/types.h
 	src/model/compound_expression.h
-	src/model/list_expression.h
+	src/model/list.h
 	src/model/logger.h
 	src/model/name.h
 
@@ -231,7 +231,7 @@ if (${BUILD_PARSER})
 		src/parser/compound_expression.cpp
 		src/parser/mixed_member_access.cpp
 		src/parser/mapping.cpp
-		src/parser/list_expression.cpp
+		src/parser/list.cpp
 		src/parser/value.cpp
 
 		src/parser/platform/clock_formula.cpp
@@ -268,7 +268,7 @@ if (${BUILD_PARSER})
 		src/parser/compound_expression.h
 		src/parser/mixed_member_access.h
 		src/parser/mapping.h
-		src/parser/list_expression.h
+		src/parser/list.h
 		src/parser/value.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)
@@ -317,7 +317,7 @@ if (${BUILD_READYLOG_SEMANTICS})
 		src/semantics/readylog/reference.cpp
 		src/semantics/readylog/effect_axiom.cpp
 		src/semantics/readylog/compound_expression.cpp
-		src/semantics/readylog/list_expression.cpp
+		src/semantics/readylog/list.cpp
 		src/semantics/readylog/transition.cpp
 		src/semantics/readylog/plan.cpp
 	)
@@ -351,7 +351,7 @@ if (${BUILD_READYLOG_SEMANTICS})
 		src/semantics/readylog/string.h
 		src/semantics/readylog/history.h
 		src/semantics/readylog/compound_expression.h
-		src/semantics/readylog/list_expression.h
+		src/semantics/readylog/list.h
 		src/semantics/readylog/transition.h
 		src/semantics/readylog/plan.h
 		src/semantics/readylog/wrap_eclipseclass.h
@@ -409,7 +409,7 @@ if (${BUILD_NATIVE_SEMANTICS})
 		src/semantics/native/reference.cpp
 		src/semantics/native/effect_axiom.cpp
 		src/semantics/native/compound_expression.cpp
-		src/semantics/native/list_expression.cpp
+		src/semantics/native/list.cpp
 		src/semantics/native/transition.cpp
 	)
 
@@ -443,7 +443,7 @@ if (${BUILD_NATIVE_SEMANTICS})
 		src/semantics/native/string.h
 		src/semantics/native/history.h
 		src/semantics/native/compound_expression.h
-		src/semantics/native/list_expression.h
+		src/semantics/native/list.h
 		src/semantics/native/transition.h
 
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/native

@@ -20,7 +20,7 @@
 
 #include "semantics.h"
 
-#include <model/list_expression.h>
+#include <model/list.h>
 
 namespace gologpp {
 
