@@ -501,31 +501,6 @@ string to_string(DurativeCall::Hook);
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-class FieldAccess
-: public Expression
-, public NoScopeOwner
-, public LanguageElement<FieldAccess>
-{
-public:
-	FieldAccess(Expression *subject, const string &field_name);
-	const Expression &subject() const;
-	const string &field_name() const;
-
-	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*subject_)
-
-	virtual const Type &type() const override;
-
-	string to_string(const string &pfx) const override;
-
-private:
-	SafeExprOwner<CompoundType> subject_;
-	const string field_name_;
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
 class During
 : public Instruction
 , public NoScopeOwner

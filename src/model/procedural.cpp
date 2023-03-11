@@ -570,33 +570,6 @@ string to_string(DurativeCall::Hook h)
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-FieldAccess::FieldAccess(Expression *subject, const string &field_name)
-: subject_(subject)
-, field_name_(field_name)
-{
-	subject_->set_parent(this);
-}
-
-const Expression &FieldAccess::subject() const
-{ return *subject_; }
-
-const string &FieldAccess::field_name() const
-{ return field_name_; }
-
-const Type &FieldAccess::type() const
-{
-	return dynamic_cast<const CompoundType &>(
-		subject_->type()
-	).field_type(field_name_);
-}
-
-string FieldAccess::to_string(const string &pfx) const
-{ return pfx + subject().str() + "." + field_name(); }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
 During::During(
 	Reference<Action> *action_call,
 	Instruction *parallel_block,

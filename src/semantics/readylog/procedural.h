@@ -113,24 +113,6 @@ private:
 };
 
 
-std::pair<const Reference<Fluent> *, EC_word>
-traverse_mixed_field_access(const FieldAccess *fa, const ListAccess *la);
-
-
-template<>
-class Semantics<FieldAccess>
-: public Semantics<Expression>
-, public GeneralSemantics<FieldAccess>
-{
-public:
-	using GeneralSemantics<FieldAccess>::GeneralSemantics;
-
-	virtual EC_word plterm() override;
-	EC_word field_assign(const Expression &value);
-	EC_atom pl_field_name();
-};
-
-
 
 } // namespace gologpp
 

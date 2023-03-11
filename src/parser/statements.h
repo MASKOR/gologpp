@@ -25,6 +25,8 @@
 #include "arithmetic.h"
 #include "list.h"
 
+#include <model/procedural.h>
+
 
 namespace gologpp {
 namespace parser {

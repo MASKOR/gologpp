@@ -16,6 +16,8 @@
 **************************************************************************/
 
 #include "compound.h"
+#include "list.h"
+#include "reference.h"
 
 namespace gologpp {
 
@@ -36,6 +38,67 @@ EC_word Semantics<CompoundExpression>::plterm()
 		field_list
 	);
 }
+
+
+/**
+ * Transform nested field- and list accesses into a pair of the innermost subject (must be a
+ * list- or compound-valued fluent) and a sequence of list indices and field names. Only one of either
+ * @a fa or @a la may be set, depending on whether the outermost expression is a list access or a field access.
+ *
+ * @param fa The rightmost field access or nullptr
+ * @param la The rightmost list access or nullptr
+ * @return A reference to the fluent (either list- or compound-valued), and an eclipse list
+ *         with a mixture of list indices and field names that sequentially index (deeply) into the
+ *         returned fluent.
+ */
+std::pair<const Reference<Fluent> *, EC_word> traverse_mixed_field_access(const FieldAccess *fa, const ListAccess *la) {
+	const Expression *sub;
+	EC_word field_list = ::nil();
+
+	do {
+		if (fa) {
+			field_list = ::list(fa->special_semantics().pl_field_name(), field_list);
+			sub = &fa->subject();
+		}
+		else if (la) {
+			field_list = ::list(la->special_semantics().pl_index(), field_list);
+			sub = &la->subject();
+		}
+		else
+			throw Bug("Invalid FieldAccess statement: " + fa->str());
+
+		fa = dynamic_cast<const FieldAccess *>(sub);
+		la = dynamic_cast<const ListAccess *>(sub);
+	} while (sub->is_a<FieldAccess>() || sub->is_a<ListAccess>());
+
+	return { dynamic_cast<const Reference<Fluent> *>(sub), std::move(field_list) };
+};
+
+
+
+EC_word Semantics<FieldAccess>::plterm()
+{
+	return ::term(EC_functor("gpp_field_value", 2),
+		pl_field_name(),
+		element().subject().semantics().plterm()
+	);
+}
+
+
+EC_atom Semantics<FieldAccess>::pl_field_name()
+{ return EC_atom(("#" + element().field_name()).c_str()); }
+
+
+EC_word Semantics<FieldAccess>::field_assign(const Expression &value)
+{
+	return ::term(EC_functor("gpp_field_assign", 3),
+		pl_field_name(),
+		value.semantics().plterm(),
+		element().subject().semantics().plterm()
+	);
+}
+
+
 
 
 } // namespace gologpp

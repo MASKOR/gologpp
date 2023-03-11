@@ -41,6 +41,7 @@
 #include <model/action.h>
 #include <model/effect_axiom.h>
 #include <model/list.h>
+#include <model/compound.h>
 
 #include <boost/optional/optional_io.hpp>
 

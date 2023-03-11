@@ -38,7 +38,7 @@
 #include <boost/phoenix/bind/bind_function.hpp>
 
 #include <model/list.h>
-#include <model/procedural.h>
+#include <model/compound.h>
 
 
 namespace gologpp {

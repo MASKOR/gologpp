@@ -19,6 +19,7 @@
 #include "procedural.h"
 #include "action.h"
 #include "list.h"
+#include "compound.h"
 
 
 
