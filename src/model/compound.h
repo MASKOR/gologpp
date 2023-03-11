@@ -15,27 +15,42 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "compound_expression.h"
+#ifndef GOLOGPP_COMPOUND_EXPRESSION_H_
+#define GOLOGPP_COMPOUND_EXPRESSION_H_
+
+#include "language.h"
+#include "gologpp.h"
+#include "expressions.h"
+#include "scope.h"
+#include "types.h"
+
+#include <unordered_map>
 
 namespace gologpp {
 
 
-template<>
-EC_word Semantics<CompoundExpression>::plterm()
+class CompoundExpression
+: public Expression
+, public LanguageElement<CompoundExpression>
+, public NoScopeOwner
 {
-	EC_word field_list = ::nil();
-	for (auto &field_name : element().compound_type().field_names())
-		field_list = ::list(
-			::term(EC_functor(("#" + field_name).c_str(), 1),
-				element().entry(field_name).semantics().plterm()
-			),
-			field_list
-		);
-	return ::term(EC_functor("gpp_compound", 2),
-		EC_atom(("#" + element().type().name()).c_str()),
-		field_list
-	);
-}
+public:
+	using EntryMap = std::unordered_map<string, unique_ptr<Expression>>;
+
+	CompoundExpression(const Type &type, const vector<fusion_wtf_vector<string, Expression *>> &entries);
+
+	const Expression &entry(const string &key) const;
+
+	virtual void attach_semantics(SemanticsFactory &) override;
+	virtual string to_string(const string &pfx) const override;
+	const CompoundType &compound_type() const;
+
+private:
+	 EntryMap entries_;
+};
+
 
 
 } // namespace gologpp
+
+#endif // GOLOGPP_COMPOUND_EXPRESSION_H_

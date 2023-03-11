@@ -101,7 +101,7 @@ set(INTERFACE_SRC
 	src/model/mapping.cpp
 	src/model/language.cpp
 	src/model/types.cpp
-	src/model/compound_expression.cpp
+	src/model/compound.cpp
 	src/model/list.cpp
 	src/model/semantics.cpp
 	src/model/logger.cpp
@@ -157,7 +157,7 @@ install(FILES
 	src/model/string.h
 	src/model/mapping.h
 	src/model/types.h
-	src/model/compound_expression.h
+	src/model/compound.h
 	src/model/list.h
 	src/model/logger.h
 	src/model/name.h
@@ -228,7 +228,7 @@ if (${BUILD_PARSER})
 		src/parser/symbolic_expression.cpp
 		src/parser/string_expression.cpp
 		src/parser/domain.cpp
-		src/parser/compound_expression.cpp
+		src/parser/compound.cpp
 		src/parser/mixed_member_access.cpp
 		src/parser/mapping.cpp
 		src/parser/list.cpp
@@ -265,7 +265,7 @@ if (${BUILD_PARSER})
 		src/parser/expressions.h
 		src/parser/symbolic_expression.h
 		src/parser/domain.h
-		src/parser/compound_expression.h
+		src/parser/compound.h
 		src/parser/mixed_member_access.h
 		src/parser/mapping.h
 		src/parser/list.h
@@ -316,7 +316,7 @@ if (${BUILD_READYLOG_SEMANTICS})
 		src/semantics/readylog/history.cpp
 		src/semantics/readylog/reference.cpp
 		src/semantics/readylog/effect_axiom.cpp
-		src/semantics/readylog/compound_expression.cpp
+		src/semantics/readylog/compound.cpp
 		src/semantics/readylog/list.cpp
 		src/semantics/readylog/transition.cpp
 		src/semantics/readylog/plan.cpp
@@ -350,7 +350,7 @@ if (${BUILD_READYLOG_SEMANTICS})
 		src/semantics/readylog/reference.h
 		src/semantics/readylog/string.h
 		src/semantics/readylog/history.h
-		src/semantics/readylog/compound_expression.h
+		src/semantics/readylog/compound.h
 		src/semantics/readylog/list.h
 		src/semantics/readylog/transition.h
 		src/semantics/readylog/plan.h
@@ -408,7 +408,7 @@ if (${BUILD_NATIVE_SEMANTICS})
 		src/semantics/native/history.cpp
 		src/semantics/native/reference.cpp
 		src/semantics/native/effect_axiom.cpp
-		src/semantics/native/compound_expression.cpp
+		src/semantics/native/compound.cpp
 		src/semantics/native/list.cpp
 		src/semantics/native/transition.cpp
 	)
@@ -442,7 +442,7 @@ if (${BUILD_NATIVE_SEMANTICS})
 		src/semantics/native/reference.h
 		src/semantics/native/string.h
 		src/semantics/native/history.h
-		src/semantics/native/compound_expression.h
+		src/semantics/native/compound.h
 		src/semantics/native/list.h
 		src/semantics/native/transition.h
 

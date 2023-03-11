@@ -15,7 +15,7 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "compound_expression.h"
+#include "compound.h"
 #include "semantics.h"
 
 #include <boost/fusion/include/at_c.hpp>

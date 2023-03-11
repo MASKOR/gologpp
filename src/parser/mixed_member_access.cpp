@@ -17,7 +17,7 @@
 
 #include "mixed_member_access.h"
 #include "types.h"
-#include "compound_expression.h"
+#include "compound.h"
 #include "expressions.h"
 #include "list.h"
 

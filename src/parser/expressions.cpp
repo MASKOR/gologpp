@@ -46,7 +46,7 @@
 #include "formula.h"
 #include "string_expression.h"
 #include "symbolic_expression.h"
-#include "compound_expression.h"
+#include "compound.h"
 #include "list.h"
 
 #include <model/procedural.h>

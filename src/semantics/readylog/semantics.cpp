@@ -30,7 +30,7 @@
 #include "domain.h"
 #include "string.h"
 #include "history.h"
-#include "compound_expression.h"
+#include "compound.h"
 #include "list.h"
 #include "activity.h"
 #include "transition.h"

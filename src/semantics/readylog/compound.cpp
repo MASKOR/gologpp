@@ -15,16 +15,27 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef READYLOG_COMPOUND_EXPRESSION_H_
-#define READYLOG_COMPOUND_EXPRESSION_H_
-
-#include "semantics.h"
-
-#include <model/compound_expression.h>
+#include "compound.h"
 
 namespace gologpp {
 
 
+template<>
+EC_word Semantics<CompoundExpression>::plterm()
+{
+	EC_word field_list = ::nil();
+	for (auto &field_name : element().compound_type().field_names())
+		field_list = ::list(
+			::term(EC_functor(("#" + field_name).c_str(), 1),
+				element().entry(field_name).semantics().plterm()
+			),
+			field_list
+		);
+	return ::term(EC_functor("gpp_compound", 2),
+		EC_atom(("#" + element().type().name()).c_str()),
+		field_list
+	);
 }
 
-#endif // READYLOG_COMPOUND_EXPRESSION_H_
+
+} // namespace gologpp

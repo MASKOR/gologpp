@@ -15,7 +15,7 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "compound_expression.h"
+#include "compound.h"
 #include "mixed_member_access.h"
 #include "value.h"
 #include "variable.h"
@@ -24,7 +24,7 @@
 
 #include <model/fluent.h>
 #include <model/procedural.h>
-#include <model/compound_expression.h>
+#include <model/compound.h>
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_action.hpp>
