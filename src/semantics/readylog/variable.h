@@ -24,7 +24,7 @@
 #include <model/variable.h>
 #include <model/error.h>
 
-#include <eclipseclass.h>
+#include "wrap_eclipseclass.h"
 
 
 namespace gologpp {

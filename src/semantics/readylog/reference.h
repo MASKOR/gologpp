@@ -31,7 +31,7 @@
 #include "variable.h"
 #include "value.h"
 
-#include <eclipseclass.h>
+#include "wrap_eclipseclass.h"
 
 
 namespace gologpp {

@@ -15,7 +15,7 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include <eclipseclass.h>
+#include "wrap_eclipseclass.h"
 #include <experimental/filesystem>
 
 #include "value.h"

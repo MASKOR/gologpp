@@ -21,7 +21,7 @@
 #include <model/semantics.h>
 #include <model/platform/semantics.h>
 
-#include <eclipseclass.h>
+#include "wrap_eclipseclass.h"
 
 #include <boost/preprocessor/seq/for_each.hpp>
 

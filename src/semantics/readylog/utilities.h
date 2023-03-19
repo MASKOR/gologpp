@@ -18,7 +18,7 @@
 #ifndef READYLOG_UTILITIES_H_
 #define READYLOG_UTILITIES_H_
 
-#include <eclipseclass.h>
+#include "wrap_eclipseclass.h"
 #include <model/gologpp.h>
 #include <model/error.h>
 #include <model/expressions.h>

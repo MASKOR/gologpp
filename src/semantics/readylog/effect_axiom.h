@@ -28,7 +28,7 @@
 #include "scope.h"
 #include "execution.h"
 
-#include <eclipseclass.h>
+#include "wrap_eclipseclass.h"
 
 
 namespace gologpp {

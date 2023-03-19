@@ -21,7 +21,7 @@
 #include <model/semantics.h>
 #include <model/scope.h>
 
-#include <eclipseclass.h>
+#include "wrap_eclipseclass.h"
 
 #include "semantics.h"
 

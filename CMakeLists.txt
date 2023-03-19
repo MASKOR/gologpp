@@ -352,6 +352,7 @@ if (${BUILD_READYLOG_SEMANTICS})
 		src/semantics/readylog/transition.h
 		src/semantics/readylog/activity.h
 		src/semantics/readylog/plan.h
+		src/semantics/readylog/wrap_eclipseclass.h
 
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/readylog
 	)

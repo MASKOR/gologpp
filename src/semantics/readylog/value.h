@@ -24,7 +24,7 @@
 
 #include "semantics.h"
 
-#include <eclipseclass.h>
+#include "wrap_eclipseclass.h"
 
 
 namespace gologpp {

@@ -22,7 +22,7 @@
 #include <model/gologpp.h>
 #include <model/formula.h>
 
-#include <eclipseclass.h>
+#include "wrap_eclipseclass.h"
 
 namespace gologpp {
 

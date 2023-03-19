@@ -34,7 +34,7 @@
 
 #include <type_traits>
 
-#include <eclipseclass.h>
+#include "wrap_eclipseclass.h"
 
 namespace gologpp {
 
