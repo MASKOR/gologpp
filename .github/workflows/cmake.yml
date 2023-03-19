@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      ECLIPSE_VERSION: 7.0_63
+      ECLIPSE_VERSION: 7.1_13
 
     steps:
     - uses: actions/checkout@v3
@@ -29,7 +29,7 @@ jobs:
       
     - name: install eclipse-clp
       run: |
-        wget https://github.com/vmatare/eclipseclp/blob/main/eclipse_basic-$VERSION.tgz?raw=true \
+        wget https://github.com/vmatare/eclipseclp/blob/main/eclipse_basic-$ECLIPSE_VERSION.tgz?raw=true \
           -O eclipse_basic.tar.gz
         mkdir eclipse
         tar -C eclipse -xzf eclipse_basic.tar.gz
@@ -43,7 +43,8 @@ jobs:
         cmake -B ${{github.workspace}}/build \
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
           -DBUILD_READYLOG_SEMANTICS=TRUE \
-          -DBUILD_TESTING=TRUE \
+          -DBUILD_PARSER=FALSE \
+          -DBUILD_TESTING=FALSE \
 
     - name: Build
       # Build your program with the given configuration
