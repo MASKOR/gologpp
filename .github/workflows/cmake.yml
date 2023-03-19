@@ -38,8 +38,9 @@ jobs:
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      env:
+        PATH: $PWD/eclipse/bin/x86_64_linux:$PATH
       run: |
-        export PATH=$PATH:$PWD/eclipse/bin/x86_64_linux/eclipse
         cmake -B ${{github.workspace}}/build \
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
           -DBUILD_READYLOG_SEMANTICS=TRUE \
