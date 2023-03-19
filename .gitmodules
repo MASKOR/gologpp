@@ -1,3 +1,6 @@
 [submodule "external/taptenc"]
 	path = external/taptenc
 	url = git@github.com:TarikViehmann/taptenc.git
+[submodule "src/semantics/readylog/interpreter"]
+	path = src/semantics/readylog/interpreter
+	url = https://github.com/MASKOR/readylog.git

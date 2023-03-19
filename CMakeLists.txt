@@ -35,6 +35,7 @@ option(BUILD_TAPTENC_SEMANTICS "Build the taptenc platform model semantics" OFF)
 option(USE_LIBASAN "Enable the AddressSanitizer to detect memory management bugs" OFF)
 option(BUILD_PARSER "Build the parser library" ON)
 option(BUILD_READYLOG_SEMANTICS "Build the readylog semantics (ECLiPSe Prolog)" ON)
+option(INSTALL_READYLOG_INTERPRETER "Integrate the ReadyLog interpreter" ON)
 CMAKE_DEPENDENT_OPTION(DEBUG_PARSER "Enable debug output for the parser" OFF "BUILD_PARSER" OFF)
 if (BUILD_READYLOG_SEMANTICS AND NOT ECLIPSE_FOUND)
 	message(FATAL_ERROR "Eclipse-clp not found. Cannot build readylog semantics.")
@@ -361,6 +362,13 @@ if (${BUILD_READYLOG_SEMANTICS})
 		src/semantics/readylog/boilerplate.pl
 		DESTINATION ${SEMANTICS_INSTALL_DIR}/readylog
 	)
+
+	if (INSTALL_READYLOG_INTERPRETER)
+		install(
+			DIRECTORY src/semantics/readylog/interpreter
+			DESTINATION ${SEMANTICS_INSTALL_DIR}/readylog
+		)
+	endif()
 
 	get_target_property(READYLOGPP_CXXFLAGS_L readylog++ INTERFACE_COMPILE_OPTIONS)
 	set(READYLOGPP_CXXFLAGS "-I${ECLIPSE_INCLUDE_DIRS}")
