@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      VERSION: 6.1_229
+      ECLIPSE_VERSION: 7.0_63
 
     steps:
     - uses: actions/checkout@v3
