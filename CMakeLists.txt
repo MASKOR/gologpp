@@ -34,9 +34,10 @@ pkg_check_modules(SWIPL "swipl")
 option(BUILD_TAPTENC_SEMANTICS "Build the taptenc platform model semantics" OFF)
 option(USE_LIBASAN "Enable the AddressSanitizer to detect memory management bugs" OFF)
 option(BUILD_PARSER "Build the parser library" ON)
+option(BUILD_READYLOG_SEMANTICS "Build the readylog semantics (ECLiPSe Prolog)" ON)
 CMAKE_DEPENDENT_OPTION(DEBUG_PARSER "Enable debug output for the parser" OFF "BUILD_PARSER" OFF)
-if (${ECLIPSE_FOUND})
-	option(BUILD_READYLOG_SEMANTICS "Build the readylog semantics (ECLiPSe Prolog)" ON)
+if (BUILD_READYLOG_SEMANTICS AND NOT ECLIPSE_FOUND)
+	message(FATAL_ERROR "Eclipse-clp not found. Cannot build readylog semantics.")
 endif()
 
 
