@@ -38,6 +38,9 @@ jobs:
         # Use only 'javascript' to analyze code written in JavaScript, TypeScript or both
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
 
+    env:
+      ECLIPSE_VERSION: 7.1_13
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -55,10 +58,31 @@ jobs:
         # queries: security-extended,security-and-quality
 
 
-    # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
-    # If this step fails, then you should remove it and run the build manually (see below)
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+    - name: install-deps
+      run: sudo apt install libboost-all-dev wget
+
+    - name: install eclipse-clp
+      run: |
+        wget https://github.com/vmatare/eclipseclp/blob/main/eclipse_basic-$ECLIPSE_VERSION.tgz?raw=true \
+          -O eclipse_basic.tar.gz
+        mkdir eclipse
+        tar -C eclipse -xzf eclipse_basic.tar.gz
+        ( cd eclipse; echo -e "\n\n\n\n\n\n\n" | ./RUNME )
+
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: |
+        export PATH=$PWD/eclipse/bin/x86_64_linux:$PATH
+        cmake -B ${{github.workspace}}/build \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -DBUILD_READYLOG_SEMANTICS=TRUE \
+          -DBUILD_PARSER=FALSE \
+          -DBUILD_TESTING=FALSE \
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
