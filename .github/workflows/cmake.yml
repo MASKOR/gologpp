@@ -2,10 +2,10 @@ name: CMake
 
 on:
   workflow_dispatch:
-  #push:
-  #  branches: [ "master" ]
-  #pull_request:
-  #  branches: [ "master" ]
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -43,8 +43,8 @@ jobs:
         cmake -B ${{github.workspace}}/build \
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
           -DBUILD_READYLOG_SEMANTICS=TRUE \
-          -DBUILD_PARSER=FALSE \
-          -DBUILD_TESTING=FALSE \
+          -DBUILD_PARSER=TRUE \
+          -DBUILD_TESTING=TRUE \
 
     - name: Build
       # Build your program with the given configuration
