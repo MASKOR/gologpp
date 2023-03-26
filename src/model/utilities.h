@@ -195,11 +195,19 @@ string to_string(const T *o, const string &pfx)
 
 template<class T>
 typename std::enable_if <
-	! std::is_pointer<T>::is_pointer,
+	! std::is_pointer<T>::is_pointer && std::is_base_of<ModelElement, T>::value,
 	string
 >::type
 to_string(const T &o, const string &pfx)
 { return o.to_string(pfx); }
+
+template<class T>
+typename std::enable_if <
+	! std::is_pointer<T>::value && !std::is_base_of<ModelElement,T >::value,
+	string
+>::type
+to_string(const T &o, const string &pfx)
+{ return pfx + std::string(o); }
 
 
 

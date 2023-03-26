@@ -16,7 +16,7 @@
 **************************************************************************/
 
 #include "wrap_eclipseclass.h"
-#include <experimental/filesystem>
+#include <filesystem>
 
 #include "value.h"
 #include "execution.h"
@@ -38,10 +38,12 @@
 #include <model/platform/switch_state_action.h>
 #include <model/platform/component_backend.h>
 
-namespace filesystem = std::experimental::filesystem;
+#include <model/utilities.h>
+
 
 namespace gologpp {
 
+namespace filesystem = std::filesystem;
 
 unique_ptr<ReadylogContext> ReadylogContext::instance_;
 
@@ -57,12 +59,17 @@ void ReadylogContext::shutdown()
 ReadylogContext::ReadylogContext(
 	const eclipse_opts &options,
 	unique_ptr<PlatformBackend> &&exec_backend,
-	unique_ptr<PlanTransformation> &&transformation
+	unique_ptr<PlanTransformation> &&transformation,
+	const std::initializer_list<string> &add_search_paths
 )
 : AExecutionController(std::move(exec_backend))
 , options_(options)
 , plan_transformation_(std::move(transformation))
+, search_paths_(add_search_paths.begin(), add_search_paths.end())
 {
+	search_paths_.emplace_back(path(SEMANTICS_INSTALL_DIR) / "readylog");
+	search_paths_.emplace_back(path(SOURCE_DIR) / "src" / "semantics" / "readylog");
+
 	if (!plan_transformation_)
 		plan_transformation_ = std::make_unique<DummyPlanTransformation>();
 
@@ -123,12 +130,17 @@ ReadylogContext::ReadylogContext(
 ReadylogContext::~ReadylogContext()
 {}
 
-void ReadylogContext::init(const eclipse_opts &options, unique_ptr<PlatformBackend> &&backend, unique_ptr<PlanTransformation> &&transformation)
-{
+void ReadylogContext::init(
+	const eclipse_opts &options,
+	unique_ptr<PlatformBackend> &&backend,
+	unique_ptr<PlanTransformation> &&transformation,
+	const std::initializer_list<string> &add_search_paths
+) {
 	instance_ = unique_ptr<ReadylogContext>(new ReadylogContext(
 		options,
 		std::move(backend),
-		std::move(transformation)
+		std::move(transformation),
+		add_search_paths
 	) );
 }
 
@@ -190,44 +202,35 @@ void ReadylogContext::compile_term(const EC_word &term)
 }
 
 std::string ReadylogContext::find_readylog() {
-	const char *readylog_pl = std::getenv("READYLOG_PL");
-	std::string readylog_path_env = "";
-	if (readylog_pl) {
-		readylog_path_env = std::string(readylog_pl) + ":";
+	using path = filesystem::path;
+
+	vector<path> paths;
+
+	const char *readylog_env = std::getenv("READYLOG_PL");
+	if (readylog_env)
+		paths.push_back(path(readylog_env) / "preprocessor.pl");
+
+	for (path p : search_paths_)
+		paths.emplace_back(p / "readylog_ecl" / "interpreter" / "preprocessor.pl");
+
+	for (path p : paths) {
+		if (filesystem::exists(p))
+			return string(p);
 	}
-	readylog_path_env += (std::string(SEMANTICS_INSTALL_DIR) + "/readylog/interpreter");
-	std::size_t last = 0;
-	std::size_t next;
-	while (true) {
-		next = readylog_path_env.find(':', last);
-		std::string next_path = readylog_path_env.substr(last, next - last);
-		if (next_path != "") {
-			filesystem::path readylog_path(next_path);
-			readylog_path /= "preprocessor.pl";
-			if (filesystem::exists(readylog_path))
-				return std::string(readylog_path);
-		}
-		if (next == std::string::npos) {
-			throw std::runtime_error("Could not find ReadyLog in \"" + readylog_path_env
-			                         + "\" please set READYLOG_PL to the ReadyLog path!");
-		}
-		last = next + 1;
-	}
+	throw std::runtime_error("Could not find ReadyLog in \"" + concat_list(paths, ", ")
+	                         + "\" please set READYLOG_PL to the ReadyLog path!");
 }
 
 std::string ReadylogContext::find_boilerplate() {
-	filesystem::path boilerplate_src_path{SOURCE_DIR};
-	boilerplate_src_path /= "src/semantics/readylog/boilerplate.pl";
-	if (filesystem::exists(boilerplate_src_path)) {
-		return boilerplate_src_path.string();
+	using path = filesystem::path;
+
+	for (path p : search_paths_) {
+		p /= "boilerplate.pl";
+		if (filesystem::exists(p))
+			return p;
 	}
-	filesystem::path boilerplate_install_path{SEMANTICS_INSTALL_DIR};
-	boilerplate_install_path /= "readylog/boilerplate.pl";
-	if (filesystem::exists(boilerplate_install_path)) {
-		return boilerplate_install_path.string();
-	}
-	throw std::runtime_error("Could not find readylog boilerplate in " + boilerplate_src_path.string()
-	                         + " or " + boilerplate_install_path.string());
+
+	throw std::runtime_error("Could not find readylog boilerplate.pl in " + concat_list(search_paths_, ", "));
 }
 
 

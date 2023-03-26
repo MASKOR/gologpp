@@ -359,14 +359,22 @@ if (${BUILD_READYLOG_SEMANTICS})
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/readylog
 	)
 
+	file(
+		COPY src/semantics/readylog/boilerplate.pl
+		DESTINATION "${CMAKE_BINARY_DIR}/semantics/readylog"
+	)
 	install(FILES
 		src/semantics/readylog/boilerplate.pl
 		DESTINATION ${SEMANTICS_INSTALL_DIR}/readylog
 	)
 
 	if (INSTALL_READYLOG_INTERPRETER)
+		file(
+			COPY src/semantics/readylog/readylog_ecl
+			DESTINATION "${CMAKE_BINARY_DIR}/semantics/readylog"
+		)
 		install(
-			DIRECTORY src/semantics/readylog/interpreter
+			DIRECTORY src/semantics/readylog/readylog_ecl
 			DESTINATION ${SEMANTICS_INSTALL_DIR}/readylog
 		)
 	endif()

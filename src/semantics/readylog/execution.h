@@ -19,6 +19,7 @@
 #define READYLOG_EXECUTION_H_
 
 #include <iostream>
+#include <filesystem>
 
 #include <execution/controller.h>
 #include <execution/transformation.h>
@@ -41,7 +42,8 @@ public:
 	static void init(
 		const eclipse_opts &options = {false, false, false},
 		unique_ptr<PlatformBackend> &&backend = nullptr,
-		unique_ptr<PlanTransformation> &&transformation = nullptr
+		unique_ptr<PlanTransformation> &&transformation = nullptr,
+		const std::initializer_list<string> &add_search_paths = {}
 	);
 
 	static void shutdown();
@@ -69,8 +71,11 @@ private:
     ReadylogContext(
 		const eclipse_opts &options,
 		unique_ptr<PlatformBackend> &&exec_backend,
-		unique_ptr<PlanTransformation> &&transformation
+		unique_ptr<PlanTransformation> &&transformation,
+		const std::initializer_list<string> &add_search_paths = {}
 	);
+
+	using path = std::filesystem::path;
 
     void compile_term(const EC_word &term);
     std::string find_readylog();
@@ -82,6 +87,7 @@ private:
 	eclipse_opts options_;
 	static unique_ptr<ReadylogContext> instance_;
 	unique_ptr<PlanTransformation> plan_transformation_;
+	vector<path> search_paths_;
 };
 
 

@@ -37,8 +37,6 @@
 
 
 
-
-
 using namespace gologpp;
 namespace po = boost::program_options;
 
@@ -111,12 +109,17 @@ int main(int argc, char **argv) {
 				return -2;
 			}
 
+			std::filesystem::path arg0_path { argv[0] };
+
 			eclipse_opts options;
 			options.trace = !vm["trace"].empty() || !vm["guitrace"].empty();
 			options.toplevel = false;
 			options.guitrace = !vm["guitrace"].empty();
 
-			ReadylogContext::init(options);
+			ReadylogContext::init(
+				options, nullptr, nullptr,
+				{ arg0_path.parent_path() / "semantics" / "readylog"}
+			);
 
 			int rv = test_file(unique_ptr<Instruction>(mainproc->ref({})));
 
