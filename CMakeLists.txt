@@ -15,8 +15,8 @@
 # along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 ###########################################################################
 
-project(golog++)
 cmake_minimum_required(VERSION 3.0)
+project(golog++)
 
 include(CMakeDependentOption)
 include(GNUInstallDirs)
