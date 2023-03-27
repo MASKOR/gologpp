@@ -553,6 +553,7 @@ set(GPP_TESTS
 
 if (BUILD_PARSER AND BUILD_READYLOG_SEMANTICS)
 	include(CTest)
+	enable_testing()
 
 	add_executable(gologpp-test src/tests/gologpp-test.cpp)
 	if (USE_LIBASAN)
@@ -561,6 +562,7 @@ if (BUILD_PARSER AND BUILD_READYLOG_SEMANTICS)
 
 	set(TEST_LIBS ${TEST_LIBS} boost_filesystem boost_program_options parsegolog++ readylog++)
 	target_link_libraries(gologpp-test ${TEST_LIBS})
+	set_target_properties(gologpp-test PROPERTIES BUILD_RPATH ${ECLIPSE_LIBRARY_DIRS})
 
 	if (BUILD_TAPTENC_SEMANTICS)
 		target_link_libraries(gologpp-test taptenc-golog++)
