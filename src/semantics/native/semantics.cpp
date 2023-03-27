@@ -15,26 +15,41 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef GOLOGPP_PARSER_LIST_EXPRESSION_H_
-#define GOLOGPP_PARSER_LIST_EXPRESSION_H_
+#include "semantics.h"
+#include "effect_axiom.h"
+#include "action.h"
+#include "fluent.h"
+#include "variable.h"
+#include "value.h"
+#include "formula.h"
+#include "procedural.h"
+#include "reference.h"
+#include "scope.h"
+#include "arithmetic.h"
+#include "execution.h"
+#include "domain.h"
+#include "string.h"
+#include "history.h"
+#include "compound_expression.h"
+#include "list_expression.h"
+#include "transition.h"
 
-#include "utilities.h"
+#include <model/platform/semantics.h>
+#include <model/platform/switch_state_action.h>
 
 namespace gologpp {
-namespace parser {
 
 
-extern rule<Expression *(Scope &, const Type &)> list_atom;
 
-extern rule<Expression *(Scope &, const Type &)> list_expression;
+#define GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL(_r, _data, GologT) \
+unique_ptr<GeneralSemantics<ModelElement>> NativeSemanticsFactory::make_semantics(GologT &obj) \
+{ return unique_ptr<GeneralSemantics<ModelElement>>(new Semantics<GologT>(obj, context())); }
+
+BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DEFINE_MAKE_SEMANTICS_IMPL, (), GOLOGPP_SEMANTIC_TYPES)
 
 
-void initialize_list_exprs();
 
-
-} // namespace parser
 } // namespace gologpp
 
 
 
-#endif // GOLOGPP_PARSER_LIST_EXPRESSION_H_

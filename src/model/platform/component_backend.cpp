@@ -20,6 +20,7 @@
 #include <model/logger.h>
 
 #include "component_backend.h"
+#include "switch_state_action.h"
 
 #include <execution/controller.h>
 
@@ -74,9 +75,8 @@ void ComponentBackend::exog_state_change(const shared_ptr<State> &tgt)
 		log(LogLevel::ERR) << "Component backend \"" << model().name() << "\" breached model by going from state \""
 			<< model().current_state() << "\" to \"" << tgt->name() << "\"" << flush;
 
-	shared_ptr<SwitchStateAction> exog_state_change = exec_context_->switch_state_action();
-	shared_ptr<gologpp::Reference<AbstractAction>> evt { new gologpp::Reference<platform::SwitchStateAction> {
-		exog_state_change,
+	shared_ptr<SwitchStateEvent> evt { new SwitchStateEvent {
+		exec_context_->switch_state_action(),
 		{
 			new Value(get_type<StringType>(), model_->name()),
 			new Value(get_type<StringType>(), model_->current_state()->name()),

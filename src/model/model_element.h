@@ -25,6 +25,10 @@
 
 namespace gologpp {
 
+template<class GologT>
+static constexpr const bool is_copyable = false;
+
+
 
 class ModelElement {
 public:
@@ -48,11 +52,11 @@ public:
 	/// @return The implementation-specific semantics of this model element.
 	/// This method cannot be called (or even instantiated) from the code model context. It
 	/// can only be instantiated and called from the semantics implementation.
-	template<class GologT>
+	template<class GologT = ModelElement>
 	Semantics<GologT> &semantics() const
 	{ return dynamic_cast<Semantics<GologT> &>(*semantics_); }
 
-	void set_semantics(std::unique_ptr<GeneralSemantics<ModelElement>> &&impl);
+	void set_semantics(unique_ptr<GeneralSemantics<ModelElement>> &&impl);
 	virtual void attach_semantics(SemanticsFactory &) = 0;
 
 	virtual string to_string(const string &pfx) const = 0;
@@ -67,7 +71,7 @@ public:
 	{ return dynamic_cast<const T &>(*this); }
 
 protected:
-	std::unique_ptr<GeneralSemantics<ModelElement>> semantics_;
+	unique_ptr<GeneralSemantics<ModelElement>> semantics_;
 };
 
 

@@ -180,7 +180,7 @@ void Domain::add_elements(const Domain &other)
 	for (const unique_ptr<Value> &e : other.elements()) {
 		if (!(element_type() >= *e))
 			throw TypeError(*e, element_type());
-		elements_.emplace(e->copy());
+		elements_.emplace(new Value(*e));
 	}
 }
 

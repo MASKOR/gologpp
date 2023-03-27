@@ -146,9 +146,9 @@ string functor_name(EC_word term) {
 }
 
 
-vector<unique_ptr<Expression>> plterm_args(EC_word head) {
+vector<unique_ptr<Value>> plterm_args(EC_word head) {
 	EC_word term;
-	vector<unique_ptr<Expression>> rv;
+	vector<unique_ptr<Value>> rv;
 
 	for (int j = 1; j <= head.arity(); j++) {
 		head.arg(j,term);

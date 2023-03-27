@@ -23,6 +23,9 @@
 #include "assignment.h"
 #include "formula.h"
 #include "arithmetic.h"
+#include "list.h"
+
+#include <model/procedural.h>
 
 
 namespace gologpp {

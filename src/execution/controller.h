@@ -23,7 +23,6 @@
 
 #include "platform_backend.h"
 #include "history.h"
-#include "transformation.h"
 
 #include <mutex>
 #include <deque>
@@ -48,7 +47,7 @@ class ExogTimeout {
 
 class AExecutionController {
 public:
-	typedef std::deque<shared_ptr<Reference<AbstractAction>>> ExogQueue;
+	typedef std::deque<shared_ptr<AbstractEvent>> ExogQueue;
 
 	AExecutionController(unique_ptr<PlatformBackend> &&platform_backend);
 	virtual ~AExecutionController() = default;
@@ -67,18 +66,18 @@ public:
 	virtual void run(const Instruction &program) = 0;
 
 	/// \return Head popped from the exog_queue or nullptr if it is empty.
-	shared_ptr<Reference<AbstractAction>> exog_queue_pop();
+	shared_ptr<AbstractEvent> exog_queue_pop();
 
 	/// Block until the exog_queue is non-empty.
 	/// \return Head popped from the exog_queue.
-	shared_ptr<Reference<AbstractAction>> exog_queue_poll(optional<Clock::time_point> timeout);
+	shared_ptr<AbstractEvent> exog_queue_poll(optional<Clock::time_point> timeout);
 
 	/// Block until the exog_queue is non-empty.
 	void exog_queue_block(optional<Clock::time_point> timeout);
 
 	bool exog_empty();
-	void exog_queue_push(shared_ptr<Reference<AbstractAction>> exog);
-	void exog_queue_push_front(shared_ptr<Reference<AbstractAction>> exog);
+	void exog_queue_push(shared_ptr<AbstractEvent> exog);
+	void exog_queue_push_front(shared_ptr<AbstractEvent> exog);
 
 	/// Update context_time and unblock exog_queue.
 	void exog_timer_wakeup();
@@ -119,24 +118,6 @@ private:
 protected:
 	std::atomic_bool terminated;
 };
-
-
-
-class ExecutionController : public AExecutionController {
-public:
-	ExecutionController(
-		unique_ptr<PlatformBackend> &&exec_backend,
-		unique_ptr<PlanTransformation> &&plan_transformation
-	);
-
-	virtual ~ExecutionController() override;
-
-	virtual void run(const Instruction &program) override;
-
-private:
-	unique_ptr<PlanTransformation> plan_transformation_;
-};
-
 
 
 

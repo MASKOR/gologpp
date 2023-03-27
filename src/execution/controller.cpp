@@ -27,7 +27,6 @@
 #include <model/platform/switch_state_action.h>
 #include <model/platform/component_backend.h>
 
-#include "plan.h"
 #include "controller.h"
 #include "history.h"
 #include "platform_backend.h"
@@ -88,16 +87,17 @@ AExecutionController::AExecutionController(unique_ptr<PlatformBackend> &&platfor
 }
 
 
-shared_ptr<Reference<AbstractAction>> AExecutionController::exog_queue_pop()
+shared_ptr<AbstractEvent> AExecutionController::exog_queue_pop()
 {
 	std::lock_guard<std::mutex> locked{ exog_mutex_ };
-	shared_ptr<Reference<AbstractAction>> rv = std::move(exog_queue_.front());
+	shared_ptr<AbstractEvent> rv = std::move(exog_queue_.front());
 	exog_queue_.pop_front();
+	rv->attach_semantics(semantics_factory());
 	return rv;
 }
 
 
-shared_ptr<Reference<AbstractAction>> AExecutionController::exog_queue_poll(optional<Clock::time_point> timeout)
+shared_ptr<AbstractEvent> AExecutionController::exog_queue_poll(optional<Clock::time_point> timeout)
 {
 	exog_queue_block(timeout);
 	return exog_queue_pop();
@@ -137,7 +137,7 @@ void AExecutionController::terminate()
 }
 
 
-void AExecutionController::exog_queue_push(shared_ptr<Reference<AbstractAction>> exog)
+void AExecutionController::exog_queue_push(shared_ptr<AbstractEvent> exog)
 {
 	std::lock_guard<std::mutex> { exog_mutex_ };
 	exog_queue_.push_back(std::move(exog));
@@ -147,7 +147,7 @@ void AExecutionController::exog_queue_push(shared_ptr<Reference<AbstractAction>>
 	}
 }
 
-void AExecutionController::exog_queue_push_front(shared_ptr<Reference<AbstractAction> > exog)
+void AExecutionController::exog_queue_push_front(shared_ptr<AbstractEvent> exog)
 {
 	std::lock_guard<std::mutex> { exog_mutex_ };
 	exog_queue_.push_front(std::move(exog));
@@ -160,14 +160,13 @@ void AExecutionController::exog_queue_push_front(shared_ptr<Reference<AbstractAc
 
 void AExecutionController::exog_timer_wakeup()
 {
-	exog_queue_push_front(shared_ptr<Reference<AbstractAction>> {
-		step_time_action_->make_ref(
-			{ new Value(
-				get_type<NumberType>(),
-				Clock::now().time_since_epoch().count())
-			}
-		)
-	} );
+	exog_queue_push_front(shared_ptr<ExogEvent> { new ExogEvent {
+		step_time_action_,
+		{ unique_ptr<Value>( new Value (
+			get_type<NumberType>(),
+			Clock::now().time_since_epoch().count()
+		) ) }
+	} } );
 
 	std::lock_guard<std::mutex> l2 { wait_mutex_ };
 }
@@ -191,24 +190,23 @@ History &AExecutionController::history()
 void AExecutionController::drain_exog_queue()
 {
 	while (!exog_empty()) {
-		shared_ptr<Reference<AbstractAction>> exog = exog_queue_pop();
+		shared_ptr<AbstractEvent> exog = exog_queue_pop();
 
 		if (!std::dynamic_pointer_cast<Reference<platform::SwitchStateAction>>(exog)) {
 			// Nothing to do here for SwitchStateAction:
 			// its effects have already been applied to the component model
-			if (!(*exog)->silent()) {
-				log(LogLevel::INF) << ">>> Exogenous event: " << exog << flush;
+			if (!exog->ref()->silent()) {
+				log(LogLevel::INF) << ">>> Exogenous event: " << exog->ref() << flush;
 				silent_ = false;
 			}
-			exog->attach_semantics(semantics_factory());
 
 			shared_ptr<Activity> activity = std::dynamic_pointer_cast<Activity>(exog);
-			if (activity && activity->target()->senses())
+			if (activity && activity->action()->senses())
 				history().general_semantics<History>().append_sensing_result(
 					activity,
-					activity->target()->senses()->lhs(),
-					activity->target()->senses()->rhs().general_semantics().evaluate(
-						{ &activity->binding() },
+					activity->action()->senses()->lhs(),
+					activity->action()->senses()->rhs().general_semantics().evaluate(
+						{ &activity->ref().binding() },
 						history()
 					)
 				);
@@ -252,137 +250,6 @@ Clock::time_point AExecutionController::context_time() const
 
 shared_ptr<platform::SwitchStateAction> AExecutionController::switch_state_action()
 { return switch_state_action_; }
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-ExecutionController::ExecutionController(
-	unique_ptr<PlatformBackend> &&exec_backend,
-	unique_ptr<PlanTransformation> &&plan_transformation
-)
-: AExecutionController(std::move(exec_backend))
-, plan_transformation_(std::move(plan_transformation))
-{
-	if (!plan_transformation_)
-		plan_transformation_.reset(semantics_factory().platform_semantics_factory().make_transformation());
-}
-
-ExecutionController::~ExecutionController()
-{}
-
-
-void ExecutionController::run(const Instruction &program)
-{
-	try {
-		history().attach_semantics(semantics_factory());
-		global_scope().implement_globals(semantics_factory(), *this);
-
-		plan_transformation_->init(*this);
-
-		while (!program.general_semantics().final({}, history())) {
-			set_silent(true);
-
-			unique_ptr<Plan> plan {
-				program.general_semantics().trans({}, history())
-			};
-
-			if (plan) {
-				plan = plan_transformation_->transform(std::move(*plan));
-
-				log(LogLevel::INF) << "<<< Transformed schedule: " << *plan << flush;
-
-				while (!plan->elements().empty()) {
-					set_silent(true);
-
-					if (terminated)
-						throw Terminate();
-
-					if (!exog_empty()) {
-						drain_exog_queue();
-						if (backend().any_component_state_changed_exog())
-							plan = plan_transformation_->transform(std::move(*plan));
-					}
-
-					unique_ptr<Plan> empty_plan;
-
-					if (plan->elements().front().earliest_timepoint() > context_time()) {
-						backend().schedule_timer_event(
-							plan->elements().front().earliest_timepoint()
-						);
-					}
-					else {
-						// Plan elements are expected to not return plans again (nullptr or empty Plan).
-						empty_plan = plan->elements().front().instruction()
-							.general_semantics().trans({}, history())
-						;
-					}
-
-					Clock::time_point timeout = plan->next_timeout();
-
-					if (empty_plan) {
-						// Empty plan: successfully executed
-						if (!empty_plan->elements().empty())
-							throw Bug(
-								"Plan instruction returned a plan: "
-								+ plan->elements().front().instruction().str()
-							);
-						plan->elements().erase(plan->elements().begin());
-					}
-					else {
-						// Current Plan element not executable
-						try {
-							drain_exog_queue_blocking(timeout);
-						} catch (ExogTimeout &)
-						{
-							exog_timer_wakeup();
-							log(LogLevel::ERR) << "=== Next-action timeout " << timeout << " exceeded" << flush;
-
-							auto sw_state = dynamic_cast<const Reference<platform::SwitchStateAction> *>(
-								&plan->elements().front().instruction()
-							);
-							if (sw_state) {
-								global_scope().lookup_global<platform::Component>(
-									static_cast<string>(dynamic_cast<const Value &>(
-										sw_state->arg_for_param(sw_state->target()->param_component())
-									))
-								)->backend().handle_missed_transition();
-							}
-
-							drain_exog_queue();
-						}
-
-						if (context_time() > plan->elements().front().latest_timepoint()
-							|| backend().any_component_state_changed_exog()
-						) {
-							// First plan element's time window has passed: replan!
-							log(LogLevel::INF) << "=== Re-transforming..." << flush;
-							plan->make_start_slack(Clock::seconds(16384));
-							plan = plan_transformation_->transform(std::move(*plan));
-							log(LogLevel::INF) << "=== New schedule " << *plan << flush;
-						}
-					}
-
-					if (history().general_semantics<History>().should_progress()) {
-						log(LogLevel::DBG) << "=== Progressing history." << flush;
-						history().general_semantics<History>().progress();
-					}
-				}
-			}
-			else {
-				drain_exog_queue_blocking(nullopt);
-			}
-
-			if (terminated)
-				throw Terminate();
-
-		}
-	} catch (Terminate &) {
-		log(LogLevel::DBG) << ">>> Terminated." << flush;
-	}
-}
-
 
 
 

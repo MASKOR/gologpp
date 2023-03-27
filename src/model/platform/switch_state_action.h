@@ -18,6 +18,7 @@
 #pragma once
 
 #include <model/action.h>
+#include <execution/event.h>
 
 namespace gologpp {
 namespace platform {
@@ -42,6 +43,18 @@ public:
 
 private:
 	shared_ptr<const Variable> param_component_, param_from_state_, param_to_state_;
+};
+
+
+class SwitchStateEvent
+: public Event<SwitchStateAction>
+, public LanguageElement<SwitchStateEvent>
+, public Instruction
+{
+public:
+	using Event<SwitchStateAction>::Event;
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(ground_action_)
 };
 
 

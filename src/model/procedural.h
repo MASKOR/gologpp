@@ -35,8 +35,6 @@
 #include "scope.h"
 #include "action.h"
 #include "reference.h"
-#include "fluent.h"
-#include "mapping.h"
 
 namespace gologpp {
 
@@ -452,7 +450,7 @@ class GeneralSemantics<Reference<ExogFunction>>
 public:
 	GeneralSemantics(const Reference<ExogFunction> &elem, AExecutionController &context);
 
-	virtual ~GeneralSemantics<Reference<ExogFunction>>() = default;
+	virtual ~GeneralSemantics() = default;
 
 	virtual Value evaluate(const BindingChain &, const History &) override;
 
@@ -498,133 +496,6 @@ private:
 
 
 string to_string(DurativeCall::Hook);
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-class FieldAccess
-: public Expression
-, public NoScopeOwner
-, public LanguageElement<FieldAccess>
-{
-public:
-	FieldAccess(Expression *subject, const string &field_name);
-	const Expression &subject() const;
-	const string &field_name() const;
-
-	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*subject_)
-
-	virtual const Type &type() const override;
-
-	string to_string(const string &pfx) const override;
-
-private:
-	SafeExprOwner<CompoundType> subject_;
-	const string field_name_;
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-class ListAccess
-: public Expression
-, public NoScopeOwner
-, public LanguageElement<ListAccess>
-{
-public:
-	ListAccess(Expression *subject, Expression *index);
-	const Expression &subject() const;
-	const Expression &index() const;
-
-	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*subject_, *index_)
-
-	virtual const Type &type() const override;
-
-	string to_string(const string &pfx) const override;
-
-private:
-	SafeExprOwner<ListType> subject_;
-	SafeExprOwner<NumberType> index_;
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-class ListLength
-: public Expression
-, public NoScopeOwner
-, public LanguageElement<ListLength, NumberType>
-{
-public:
-	ListLength(Expression *subject);
-	const Expression &subject() const;
-
-	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*subject_)
-
-	string to_string(const string &pfx) const override;
-
-private:
-	SafeExprOwner<ListType> subject_;
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-enum ListOpEnd {
-	FRONT, BACK
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-class ListPop
-: public Instruction
-, public NoScopeOwner
-, public LanguageElement<ListPop, VoidType>
-{
-public:
-	ListPop(Expression *list, ListOpEnd which_end);
-	const Expression &list() const;
-	ListOpEnd which_end() const;
-
-	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*list_)
-
-	string to_string(const string &pfx) const override;
-
-private:
-	SafeExprOwner<ListType> list_;
-	ListOpEnd which_end_;
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/***********************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-class ListPush
-: public Instruction
-, public NoScopeOwner
-, public LanguageElement<ListPush, VoidType>
-{
-public:
-	ListPush(Expression *list, ListOpEnd which_end, Expression *what);
-	const Expression &list() const;
-	ListOpEnd which_end() const;
-	const Expression &what() const;
-
-	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(*list_, *what_)
-
-	string to_string(const string &pfx) const override;
-
-private:
-	SafeExprOwner<ListType> list_;
-	ListOpEnd which_end_;
-	unique_ptr<Expression> what_;
-};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/

@@ -15,17 +15,19 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef READYLOG_LIST_EXPRESSION_H_
-#define READYLOG_LIST_EXPRESSION_H_
-
-#include "semantics.h"
-
-#include <model/list_expression.h>
+#include "list.h"
+#include <model/value.h>
 
 namespace gologpp {
 
-
-
+template<>
+Value Semantics<ListExpression>::evaluate(const BindingChain &b, const History &h)
+{
+	ListType::Representation rv;
+	for (const unique_ptr<Expression> &expr : element().entries())
+		rv.emplace_back(expr->semantics().evaluate(b, h));
+	return Value(element().type(), rv);
 }
 
-#endif // READYLOG_LIST_EXPRESSION_H_
+
+} // namespace gologpp

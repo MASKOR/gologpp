@@ -15,31 +15,31 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "compound_expression.h"
-#include "mixed_member_access.h"
-#include "value.h"
-#include "variable.h"
-#include "expressions.h"
 #include "types.h"
+#include "list.h"
+#include "variable.h"
+#include "value.h"
+#include "reference.h"
+#include "mixed_member_access.h"
+#include "expressions.h"
 
-#include <model/fluent.h>
 #include <model/procedural.h>
-#include <model/compound_expression.h>
+#include <model/list.h>
+#include <model/fluent.h>
 
 #include <boost/spirit/include/qi_alternative.hpp>
 #include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_list.hpp>
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_expect.hpp>
+#include <boost/spirit/include/qi_optional.hpp>
+#include <boost/spirit/include/qi_lit.hpp>
 #include <boost/spirit/include/qi_char.hpp>
 
 #include <boost/phoenix/object/new.hpp>
 #include <boost/phoenix/object/dynamic_cast.hpp>
 #include <boost/phoenix/object/static_cast.hpp>
 #include <boost/phoenix/operator/self.hpp>
-#include <boost/phoenix/operator/comparison.hpp>
-#include <boost/phoenix/statement/if.hpp>
-#include <boost/phoenix/bind/bind_function.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
 
 
@@ -48,62 +48,56 @@ namespace parser {
 
 
 
-rule<Expression *(Scope &, const Type &)> compound_atom;
+rule<Expression *(Scope &, const Type &)> list_atom;
 
-rule<Expression *(Scope &, const Type &)> compound_expression;
+rule<Expression *(Scope &, const Type &)> list_expression;
 
-static rule<Expression *(Scope &, const Type &), locals<shared_ptr<const CompoundType>, string>> braced_compound_expr_;
+static rule<Expression *(Scope &, const Type &), locals<PType>> braced_list_expression;
 
 
-void initialize_compound_exprs()
+
+void initialize_list_exprs()
 {
-	compound_atom =
-		compound_value() [
-			_val = _1,
-			_pass = (*_val <= _r2)
-		]
-		| typed_reference<Fluent>()(_r1, _r2) [ _val = _1 ]
-		| typed_reference<Function>()(_r1, _r2) [ _val = _1 ]
-		| typed_reference<ExogFunction>()(_r1, _r2) [ _val = _1 ]
-		| var_usage()(_r1, _r2) [
-			_val = new_<Reference<Variable>>(_1)
-		]
-		, "compound_atom"
-	;
-
-	compound_expression =
-		mixed_member_access()(_r1, _r2) [ _val = _1 ]
-		| conditional_expression(_r1, _r2) [ _val = _1 ]
-		| compound_atom(_r1, _r2) [ _val = _1 ]
-		| braced_compound_expr_(_r1, _r2) [ _val = _1 ]
-		, "compound_expression"
-	;
-
-	braced_compound_expr_ =
-		(
-			(type_identifier<CompoundType>()(_r1) [
-				_a = _1,
-				_pass = (*_1 <= _r2)
+	list_atom = {
+		list_value() [ _val = _1 ]
+			| typed_reference<Fluent>()(_r1, _r2) [ _val = _1 ]
+			| typed_reference<Function>()(_r1, _r2) [ _val = _1 ]
+			| typed_reference<ExogFunction>()(_r1, _r2) [ _val = _1 ]
+			| var_usage()(_r1, _r2) [
+				_val = new_<Reference<Variable>>(_1)
 			]
-			> '{')
-			> ((
-				r_name() [
-					_b = _1,
-					_pass = phoenix::bind(&CompoundType::has_field, *_a, _1)
-				]
-				> '='
-				> typed_expression()(
-					_r1,
-					phoenix::bind(&CompoundType::field_type<Type>, *_a, _b)
-				)
-			) % ',') > '}'
-		) [
-			_val = new_<CompoundExpression>(*_a, _2)
-		]
-		, "braced_compound_expression"
-	;
+		, "simple_list_expr"
+	};
 
-}
+	list_expression = {
+		mixed_member_access()(_r1, _r2) [ _val = _1 ]
+			| conditional_expression(_r1, _r2) [ _val = _1 ]
+			| list_atom(_r1, _r2) [ _val = _1 ]
+			| braced_list_expression(_r1, _r2) [ _val = _1 ]
+		, "list_expression"
+	};
+
+	braced_list_expression = {
+		(
+			type_identifier<ListType>()(_r1) [
+				_a = phoenix::bind(&ListType::element_type_ptr, *_1)
+			]
+			>> lit('[')
+			>> -(
+				typed_expression()(_r1, *_a)
+				% ','
+			)
+			>> ']'
+		) [
+			_val = new_<ListExpression>(*_1, _2)
+		]
+	};
+
+	GOLOGPP_DEBUG_NODES(
+		(list_atom)
+		(list_expression)
+	)
+};
 
 
 

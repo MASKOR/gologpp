@@ -26,7 +26,9 @@ namespace gologpp {
 
 
 template<>
-class Semantics<platform::ClockFormula> {
+class Semantics<platform::ClockFormula>
+: public TaptencExpressionSemantics
+{
 public:
 	virtual std::unique_ptr<taptenc::ClockConstraint> compile() = 0;
 };

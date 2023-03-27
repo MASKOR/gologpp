@@ -24,6 +24,7 @@
 #include <condition_variable>
 #include <thread>
 #include <random>
+#include <set>
 
 
 namespace gologpp {

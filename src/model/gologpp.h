@@ -43,6 +43,9 @@ template<class T>
 using optional = std::optional<T>;
 using std::nullopt;
 
+template<bool Cond>
+using enable_if = typename std::enable_if<Cond>::type;
+
 
 using string = std::string;
 
@@ -50,9 +53,10 @@ class Logger;
 
 class Expression;
 class Instruction;
+class Value;
 
-class Binding;
-using BindingChain = vector<const Binding *>;
+template<class> class Binding;
+class BindingChain;
 
 class ModelElement;
 class Plan;
@@ -68,8 +72,12 @@ class ExogAction;
 
 class BackendMapping;
 
+class AbstractEvent;
+template<class> class Event;
 class Activity;
 class Transition;
+class ExogEvent;
+
 
 class Identifier;
 
@@ -99,7 +107,6 @@ class Fluent;
 class InitialValue;
 
 class Variable;
-class Value;
 class Domain;
 
 class ArithmeticOperation;
@@ -136,24 +143,25 @@ class Procedure;
 class ExogFunction;
 
 class AbstractReference;
-template<class> class Reference;
+template<class TargetT, class ArgsT = Expression> class Reference;
+
+template<class TargetT>
+using Grounding = Reference<TargetT, Value>;
 
 class CompoundExpression;
 class ListExpression;
 
 class History;
 
-template<class> class Semantics;
-template<class> class GeneralSemantics;
+template<class, typename Enable = void> class Semantics;
+template<class, typename Enable = void> class GeneralSemantics;
+template<class> class CopyableSemantics;
 
 class SemanticsFactory;
 
 class AExecutionController;
-class ExecutionController;
 
 class PlatformBackend;
-
-using ExogEvent = Reference<ExogAction>;
 
 
 
@@ -170,6 +178,7 @@ class Clock;
 class State;
 
 class SwitchStateAction;
+class SwitchStateEvent;
 
 class ClockFormula;
 class ClockBound;
@@ -212,11 +221,17 @@ class SemanticsFactory;
 	(Conditional<Instruction>) \
 	(During) \
 	(Reference<Action>) \
+	(Grounding<Action>) \
+	(Grounding<ExogAction>) \
 	(Reference<ExogAction>) \
+	(Grounding<platform::SwitchStateAction>) \
 	(DurativeCall) \
 	(Reference<Procedure>) \
 	(ListPop) \
-	(ListPush)
+	(Transition) \
+	(ExogEvent) \
+	(ListPush) \
+	(platform::SwitchStateEvent)
 
 #define GOLOGPP_EXPRESSIONS \
 	(Variable) \
@@ -239,19 +254,20 @@ class SemanticsFactory;
 	(CompoundExpression) \
 	(ListExpression)
 
+
+
 #define GOLOGPP_OTHER \
 	(EffectAxiom<Reference<Fluent>>) \
 	(EffectAxiom<FieldAccess>) \
 	(EffectAxiom<ListAccess>) \
 	(InitialValue)(Fluent) \
-	(Binding) \
+	(Binding<Expression>) \
+	(Binding<Value>) \
 	(Domain) \
 	(Function) \
 	(ExogFunction) \
 	(Procedure) \
 	(Action) \
-	(Activity) \
-	(Transition) \
 	(ExogAction) \
 	(Scope) \
 	(History)
@@ -286,31 +302,6 @@ class SemanticsFactory;
 	GOLOGPP_OTHER
 
 
-/*
-using elem_types = boost::mpl::map <
-boost::mpl::pair<Assignment<Reference<Fluent>>, Instruction>,
-boost::mpl::pair<Assignment<Reference<Variable>>, Instruction>,
-boost::mpl::pair<Assignment<FieldAccess>, Instruction>,
-boost::mpl::pair<Assignment<ListAccess>, Instruction>,
-boost::mpl::pair<Pick, Instruction>,
-boost::mpl::pair<Plan, Instruction>,
-boost::mpl::pair<Concurrent, Instruction>,
-boost::mpl::pair<Block, Instruction>,
-boost::mpl::pair<Choose, Instruction>,
-boost::mpl::pair<Search, Instruction>,
-boost::mpl::pair<Solve, Instruction>,
-boost::mpl::pair<Test, Instruction>,
-boost::mpl::pair<While, Instruction>,
-boost::mpl::pair<Conditional<Instruction>, Instruction>,
-boost::mpl::pair<During, Instruction>,
-boost::mpl::pair<Reference<Action>, Instruction>,
-boost::mpl::pair<Reference<ExogAction>, Instruction>,
-boost::mpl::pair<DurativeCall, Instruction>,
-boost::mpl::pair<Reference<Procedure>, Instruction>,
-boost::mpl::pair<ListPop, Instruction>,
-boost::mpl::pair<ListPush, Instruction>
-
->;*/
 
 } // namespace gologpp
 

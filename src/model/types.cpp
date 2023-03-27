@@ -18,7 +18,7 @@
 #include "types.h"
 #include "scope.h"
 #include "domain.h"
-#include "list_expression.h"
+#include "list.h"
 #include "logger.h"
 
 namespace gologpp {

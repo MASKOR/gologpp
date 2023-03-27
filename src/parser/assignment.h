@@ -19,6 +19,7 @@
 #define GOLOGPP_PARSER_ASSIGNMENT_H_
 
 #include <model/fluent.h>
+#include <model/compound.h>
 #include <model/procedural.h>
 
 #include "utilities.h"

@@ -72,8 +72,17 @@ struct identifier_equals {
 };
 
 
-vector<unique_ptr<Expression>> copy(const vector<unique_ptr<Expression>> &v);
-vector<Expression *> copy(const vector<Expression *> &v);
+template<class EPtrT>
+vector<EPtrT> copy(const vector<EPtrT> &v)
+{
+	vector<EPtrT> rv;
+	for (const EPtrT &e : v)
+		rv.emplace_back(
+			new typename std::remove_pointer<EPtrT>::type(*e)
+		);
+	return rv;
+}
+
 
 
 template<class CharT, class TraitsT, class GologT>
@@ -186,11 +195,19 @@ string to_string(const T *o, const string &pfx)
 
 template<class T>
 typename std::enable_if <
-	! std::is_pointer<T>::is_pointer,
+	! std::is_pointer<T>::is_pointer && std::is_base_of<ModelElement, T>::value,
 	string
 >::type
 to_string(const T &o, const string &pfx)
 { return o.to_string(pfx); }
+
+template<class T>
+typename std::enable_if <
+	! std::is_pointer<T>::value && !std::is_base_of<ModelElement,T >::value,
+	string
+>::type
+to_string(const T &o, const string &pfx)
+{ return pfx + std::string(o); }
 
 
 

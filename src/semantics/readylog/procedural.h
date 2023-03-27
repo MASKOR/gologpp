@@ -42,7 +42,7 @@ namespace gologpp {
 
 template<>
 class Semantics<Function>
-: public ReadylogSemantics
+: public Semantics<ModelElement>
 , public GeneralSemantics<Function>
 {
 public:
@@ -59,7 +59,7 @@ private:
 
 template<>
 class Semantics<ExogFunction>
-: public ReadylogSemantics
+: public Semantics<ModelElement>
 , public GeneralSemantics<ExogFunction>
 {
 public:
@@ -73,7 +73,7 @@ public:
 
 template<>
 class Semantics<Procedure>
-: public ReadylogSemantics
+: public Semantics<ModelElement>
 , public GeneralSemantics<Procedure>
 {
 public:
@@ -110,38 +110,6 @@ public:
 private:
 	bool is_plan_marker_ = false;
 	ManagedTerm marker_cond_;
-};
-
-
-std::pair<const Reference<Fluent> *, EC_word>
-traverse_mixed_field_access(const FieldAccess *fa, const ListAccess *la);
-
-
-template<>
-class Semantics<FieldAccess>
-: public Semantics<Expression>
-, public GeneralSemantics<FieldAccess>
-{
-public:
-	using GeneralSemantics<FieldAccess>::GeneralSemantics;
-
-	virtual EC_word plterm() override;
-	EC_word field_assign(const Expression &value);
-	EC_atom pl_field_name();
-};
-
-
-
-template<>
-class Semantics<ListAccess>
-: public Semantics<Expression>
-, public GeneralSemantics<ListAccess>
-{
-public:
-	using GeneralSemantics<ListAccess>::GeneralSemantics;
-
-	virtual EC_word plterm() override;
-	EC_word pl_index();
 };
 
 

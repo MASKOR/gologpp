@@ -17,11 +17,10 @@
 
 #include "fluent.h"
 #include "execution.h"
-#include "scope.h"
 #include "utilities.h"
-#include "value.h"
 #include "semantics.h"
 #include "variable.h"
+#include "domain.h"
 
 #include <model/fluent.h>
 
@@ -62,6 +61,7 @@ int p_exog_fluent_getValue()
 namespace gologpp {
 
 
+template<>
 EC_word Semantics<InitialValue>::plterm()
 {
 	EC_word fluent_inst;

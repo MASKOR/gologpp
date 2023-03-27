@@ -134,7 +134,7 @@ void Plan::sanitize_time_window(iterator back_from_it)
 		auto it = std::find_if(reverse_iterator(back_from_it), elements().rend(), [&] (TimedInstruction &ti) {
 			try {
 				Transition &trans2 = ti.instruction().cast<Transition>();
-				return trans2.hook() == Transition::Hook::START && trans2 == *trans;
+				return trans2.hook() == Transition::Hook::START && trans2.ref() == trans->ref();
 			} catch (std::bad_cast &) {
 				return false;
 			}
@@ -143,19 +143,19 @@ void Plan::sanitize_time_window(iterator back_from_it)
 		if (it == elements().rend()) {
 			// Not found: use best guess
 			ti.set_earliest(prev_earliest);
-			ti.set_latest(prev_latest + trans->target()->duration().max);
+			ti.set_latest(prev_latest + trans->action()->duration().max);
 		}
 		else {
 			// Found: add on top
 			ti.set_earliest(
 				std::max(
-					it->earliest_timepoint() + trans->target()->duration().min,
+					it->earliest_timepoint() + trans->action()->duration().min,
 					prev_earliest
 				)
 			);
 			ti.set_latest(
 				std::max(
-					it->latest_timepoint() + trans->target()->duration().max,
+					it->latest_timepoint() + trans->action()->duration().max,
 					prev_latest
 				)
 			);

@@ -63,11 +63,11 @@ shared_ptr<Transition> Semantics<History>::get_last_transition()
 }
 
 
-void Semantics<History>::append(const Transition &trans)
-{ extend_history(::list(trans.semantics<Transition>().plterm(), plterm())); }
+void Semantics<History>::append(const AbstractEvent &trans)
+{ extend_history(::list(trans.semantics().plterm(), plterm())); }
 
-void Semantics<History>::append(const Reference<AbstractAction> &trans)
-{ extend_history(::list(trans.semantics<AbstractReference>().plterm(), plterm())); }
+void Semantics<History>::append(shared_ptr<AbstractEvent> e)
+{ append(*e); }
 
 
 void Semantics<History>::append_sensing_result(
@@ -124,6 +124,7 @@ void Semantics<History>::progress()
 
 	readylog_history_ = New_history;
 }
+
 
 
 

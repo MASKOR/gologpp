@@ -16,11 +16,13 @@
 **************************************************************************/
 
 #include "assignment.h"
-#include "arithmetic.h"
-#include "formula.h"
 #include "types.h"
 #include "expressions.h"
 #include "mixed_member_access.h"
+
+#include <model/list.h>
+#include <model/compound.h>
+#include <model/reference.h>
 
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_char.hpp>

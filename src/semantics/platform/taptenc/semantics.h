@@ -33,6 +33,16 @@ string uppaal_qualified_name(const ElemT &e)
 }
 
 
+
+class TaptencExpressionSemantics
+: public virtual GeneralSemantics<Expression>
+{
+public:
+	virtual Value evaluate(const BindingChain &, const History &) override;
+};
+
+
+
 namespace platform {
 
 class TaptencSemanticsFactory : public platform::SemanticsFactory {
@@ -41,6 +51,7 @@ public:
 
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE, (), GOLOGPP_PLATFORM_ELEMENTS)
 };
+
 
 } // namespace platform
 

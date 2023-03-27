@@ -15,11 +15,10 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#include "value.h"
 #include "action.h"
 #include "effect_axiom.h"
-#include "scope.h"
 #include "variable.h"
+#include "domain.h"
 
 #include "wrap_eclipseclass.h"
 
@@ -65,7 +64,7 @@ vector<EC_word> Semantics<Action>::durative_causes_vals()
 {
 	vector<EC_word> rv;
 	for (const unique_ptr<AbstractEffectAxiom> &effect : element().effects())
-		rv.push_back(effect->semantics<AbstractEffectAxiom>().plterm());
+		rv.push_back(effect->semantics().plterm());
 	return rv;
 }
 
@@ -109,7 +108,7 @@ vector<EC_word> Semantics<ExogAction>::causes_vals()
 {
 	vector<EC_word> rv;
 	for (const unique_ptr<AbstractEffectAxiom> &effect : element().effects())
-		rv.push_back(effect->semantics<AbstractEffectAxiom>().plterm());
+		rv.push_back(effect->semantics().plterm());
 	return rv;
 }
 
@@ -121,12 +120,6 @@ EC_word Semantics<ExogAction>::poss()
 		element().precondition().semantics().plterm()
 	);
 }
-
-
-
-template<>
-EC_word Semantics<Reference<ExogAction>>::plterm()
-{ return reference_term(element()); }
 
 
 

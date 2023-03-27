@@ -15,8 +15,8 @@
 # along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 ###########################################################################
 
-project(golog++)
 cmake_minimum_required(VERSION 3.0)
+project(golog++)
 
 include(CMakeDependentOption)
 include(GNUInstallDirs)
@@ -72,7 +72,8 @@ set(SEMANTICS_INSTALL_DIR ${CMAKE_INSTALL_DATAROOTDIR}/golog++/semantics)
 
 set(GOLOGPP_VERSION 0.1.0)
 
-
+file(GLOB_RECURSE GOLOGPP_HEADERS "src/*.h")
+add_custom_target(headers SOURCES ${GOLOGPP_HEADERS})
 
 ######################################################################################
 # The golog++ language metamodel: libgolog++.so
@@ -100,8 +101,8 @@ set(INTERFACE_SRC
 	src/model/mapping.cpp
 	src/model/language.cpp
 	src/model/types.cpp
-	src/model/compound_expression.cpp
-	src/model/list_expression.cpp
+	src/model/compound.cpp
+	src/model/list.cpp
 	src/model/semantics.cpp
 	src/model/logger.cpp
 	src/model/name.cpp
@@ -115,6 +116,7 @@ set(INTERFACE_SRC
 	src/execution/plan.cpp
 	src/execution/platform_backend.cpp
 	src/execution/transformation.cpp
+	src/execution/event.cpp
 
 	src/model/platform/component.cpp
 	src/model/platform/constraint.cpp
@@ -155,8 +157,8 @@ install(FILES
 	src/model/string.h
 	src/model/mapping.h
 	src/model/types.h
-	src/model/compound_expression.h
-	src/model/list_expression.h
+	src/model/compound.h
+	src/model/list.h
 	src/model/logger.h
 	src/model/name.h
 
@@ -173,6 +175,7 @@ install(FILES
 	src/execution/plan.h
 	src/execution/platform_backend.h
 	src/execution/transformation.h
+	src/execution/event.h
 
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/execution
 )
@@ -225,10 +228,10 @@ if (${BUILD_PARSER})
 		src/parser/symbolic_expression.cpp
 		src/parser/string_expression.cpp
 		src/parser/domain.cpp
-		src/parser/compound_expression.cpp
+		src/parser/compound.cpp
 		src/parser/mixed_member_access.cpp
 		src/parser/mapping.cpp
-		src/parser/list_expression.cpp
+		src/parser/list.cpp
 		src/parser/value.cpp
 
 		src/parser/platform/clock_formula.cpp
@@ -262,10 +265,10 @@ if (${BUILD_PARSER})
 		src/parser/expressions.h
 		src/parser/symbolic_expression.h
 		src/parser/domain.h
-		src/parser/compound_expression.h
+		src/parser/compound.h
 		src/parser/mixed_member_access.h
 		src/parser/mapping.h
-		src/parser/list_expression.h
+		src/parser/list.h
 		src/parser/value.h
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/parser
 	)
@@ -313,10 +316,9 @@ if (${BUILD_READYLOG_SEMANTICS})
 		src/semantics/readylog/history.cpp
 		src/semantics/readylog/reference.cpp
 		src/semantics/readylog/effect_axiom.cpp
-		src/semantics/readylog/compound_expression.cpp
-		src/semantics/readylog/list_expression.cpp
+		src/semantics/readylog/compound.cpp
+		src/semantics/readylog/list.cpp
 		src/semantics/readylog/transition.cpp
-		src/semantics/readylog/activity.cpp
 		src/semantics/readylog/plan.cpp
 	)
 
@@ -348,24 +350,31 @@ if (${BUILD_READYLOG_SEMANTICS})
 		src/semantics/readylog/reference.h
 		src/semantics/readylog/string.h
 		src/semantics/readylog/history.h
-		src/semantics/readylog/compound_expression.h
-		src/semantics/readylog/list_expression.h
+		src/semantics/readylog/compound.h
+		src/semantics/readylog/list.h
 		src/semantics/readylog/transition.h
-		src/semantics/readylog/activity.h
 		src/semantics/readylog/plan.h
 		src/semantics/readylog/wrap_eclipseclass.h
 
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/readylog
 	)
 
+	file(
+		COPY src/semantics/readylog/boilerplate.pl
+		DESTINATION "${CMAKE_BINARY_DIR}/semantics/readylog"
+	)
 	install(FILES
 		src/semantics/readylog/boilerplate.pl
 		DESTINATION ${SEMANTICS_INSTALL_DIR}/readylog
 	)
 
 	if (INSTALL_READYLOG_INTERPRETER)
+		file(
+			COPY src/semantics/readylog/readylog_ecl
+			DESTINATION "${CMAKE_BINARY_DIR}/semantics/readylog"
+		)
 		install(
-			DIRECTORY src/semantics/readylog/interpreter
+			DIRECTORY src/semantics/readylog/readylog_ecl
 			DESTINATION ${SEMANTICS_INSTALL_DIR}/readylog
 		)
 	endif()
@@ -382,6 +391,89 @@ if (${BUILD_READYLOG_SEMANTICS})
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/readylog++.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
 
+
+
+######################################################################################
+# The golog++ native semantics: libnativegolog++.so
+######################################################################################
+
+option(BUILD_NATIVE_SEMANTICS "Build the native golog++ semantics" OFF)
+if (${BUILD_NATIVE_SEMANTICS})
+	set(NATIVE_SRC
+		src/semantics/native/action.cpp
+		src/semantics/native/variable.cpp
+		src/semantics/native/value.cpp
+		src/semantics/native/domain.cpp
+		src/semantics/native/arithmetic.cpp
+		src/semantics/native/execution.cpp
+		src/semantics/native/fluent.cpp
+		src/semantics/native/formula.cpp
+		src/semantics/native/procedural.cpp
+		src/semantics/native/scope.cpp
+		src/semantics/native/semantics.cpp
+		src/semantics/native/utilities.cpp
+		src/semantics/native/string.cpp
+		src/semantics/native/history.cpp
+		src/semantics/native/reference.cpp
+		src/semantics/native/effect_axiom.cpp
+		src/semantics/native/compound.cpp
+		src/semantics/native/list.cpp
+		src/semantics/native/transition.cpp
+	)
+
+	link_directories(${ECLIPSE_LIBRARY_DIRS})
+	add_library(nativegolog++ SHARED ${NATIVE_SRC})
+	target_compile_definitions(nativegolog++ PUBLIC
+		-DECLIPSE_DIR=\"${ECLIPSE_DIR}\"
+		-DUSES_NO_ENGINE_HANDLE
+		-DSEMANTICS_INSTALL_DIR=\"${CMAKE_INSTALL_PREFIX}/${SEMANTICS_INSTALL_DIR}\"
+	)
+	target_include_directories(nativegolog++ PUBLIC ${ECLIPSE_INCLUDE_DIRS})
+	target_link_libraries(nativegolog++ golog++ ${ECLIPSE_LIBRARIES} stdc++fs)
+	set_property(TARGET nativegolog++ PROPERTY CXX_STANDARD 14)
+	set_property(TARGET nativegolog++ PROPERTY SOVERSION ${GOLOGPP_VERSION})
+	install(TARGETS nativegolog++ DESTINATION ${CMAKE_INSTALL_LIBDIR})
+	install(FILES
+		src/semantics/native/semantics.h
+		src/semantics/native/formula.h
+		src/semantics/native/effect_axiom.h
+		src/semantics/native/variable.h
+		src/semantics/native/value.h
+		src/semantics/native/domain.h
+		src/semantics/native/arithmetic.h
+		src/semantics/native/procedural.h
+		src/semantics/native/scope.h
+		src/semantics/native/fluent.h
+		src/semantics/native/action.h
+		src/semantics/native/execution.h
+		src/semantics/native/utilities.h
+		src/semantics/native/reference.h
+		src/semantics/native/string.h
+		src/semantics/native/history.h
+		src/semantics/native/compound.h
+		src/semantics/native/list.h
+		src/semantics/native/transition.h
+
+		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/golog++/semantics/native
+	)
+
+	get_target_property(NATIVEGPP_CXXFLAGS_L nativegolog++ INTERFACE_COMPILE_OPTIONS)
+	set(NATIVEGPP_CXXFLAGS "-I${ECLIPSE_INCLUDE_DIRS}")
+	if (${NATIVEGPP_CXXFLAGS_L})
+		foreach(i IN LISTS ${NATIVEGPP_CXXFLAGS_L})
+			set(NATIVEGPP_CXXFLAGS "${NATIVEGPP_CXXFLAGS} ${i}")
+		endforeach()
+	endif()
+	set(NATIVEGPP_LDFLAGS "${ECLIPSE_LDFLAGS}")
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/nativegolog++.pc.in ${CMAKE_CURRENT_BINARY_DIR}/nativegolog++.pc @ONLY)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/nativegolog++.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+endif()
+
+
+
+######################################################################################
+# The taptenc semantics for platform modeling
+######################################################################################
 
 if (BUILD_TAPTENC_SEMANTICS)
 	set(TAPTENC_SRC
@@ -461,6 +553,7 @@ set(GPP_TESTS
 
 if (BUILD_PARSER AND BUILD_READYLOG_SEMANTICS)
 	include(CTest)
+	enable_testing()
 
 	add_executable(gologpp-test src/tests/gologpp-test.cpp)
 	if (USE_LIBASAN)
@@ -469,6 +562,7 @@ if (BUILD_PARSER AND BUILD_READYLOG_SEMANTICS)
 
 	set(TEST_LIBS ${TEST_LIBS} boost_filesystem boost_program_options parsegolog++ readylog++)
 	target_link_libraries(gologpp-test ${TEST_LIBS})
+	set_target_properties(gologpp-test PROPERTIES BUILD_RPATH ${ECLIPSE_LIBRARY_DIRS})
 
 	if (BUILD_TAPTENC_SEMANTICS)
 		target_link_libraries(gologpp-test taptenc-golog++)
@@ -486,4 +580,19 @@ if (BUILD_PARSER AND BUILD_READYLOG_SEMANTICS)
 	install(TARGETS gologpp-test DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
+
+
+if (${BUILD_NATIVE_SEMANTICS})
+	set(NATIVE_TEST_SRC
+		src/tools/nativegpp-test.cpp)
+	add_executable(nativegpp-test ${NATIVE_TEST_SRC})
+	target_link_libraries(nativegpp-test nativegolog++ parsegolog++)
+	set_property(TARGET nativegpp-test PROPERTY CXX_STANDARD 14)
+
+	if (USE_LIBASAN)
+		target_link_libraries(nativegpp-test asan)
+	endif()
+
+	install(TARGETS nativegpp-test RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 

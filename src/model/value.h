@@ -157,8 +157,6 @@ public:
 	Value operator % (const Value &) const;
 	Value pow(const Value &) const;
 
-	virtual Value *copy() const;
-
 	virtual void attach_semantics(SemanticsFactory &f) override;
 
 	static Value undefined();
@@ -208,7 +206,7 @@ class GeneralSemantics<Value>
 public:
 	GeneralSemantics(const Value &elem, AExecutionController &context);
 
-	virtual ~GeneralSemantics<Value>() = default;
+	virtual ~GeneralSemantics() = default;
 
 	virtual AExecutionController &context() const override;
 

@@ -14,36 +14,39 @@
  * You should have received a copy of the GNU General Public License
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
-
 #include "reference.h"
+#include "value.h"
 
 #include <unordered_map>
 
 
 namespace gologpp {
 
-
-Binding::Binding(const Binding &other)
+template<>
+Binding<Value>::Binding(const Binding<Value> &other)
 {
 	for (auto &pair : other.var_bindings_)
-		var_bindings_.emplace(pair.first, dynamic_cast<const Value &>(*pair.second).copy());
+		var_bindings_.emplace(pair.first, new Value(*pair.second));
 	if (other.semantics_)
 		set_semantics(unique_ptr<GeneralSemantics<ModelElement>>(
-			other.general_semantics<Binding>().copy(*this)
+			other.general_semantics<Binding<Value>>().copy(*this)
 		) );
 }
 
-Binding::Binding(Binding &&other)
+template<class ExprT>
+Binding<ExprT>::Binding(Binding<ExprT> &&other)
 : var_bindings_(std::move(other.var_bindings_))
 {
 	if (other.semantics_)
 		throw Bug("Cannot move a Binding after semantics have been assigned");
 }
 
-void Binding::bind(shared_ptr<const Variable> var, unique_ptr<Expression> &&expr)
+template<class ExprT>
+void Binding<ExprT>::bind(shared_ptr<const Variable> var, unique_ptr<ExprT> &&expr)
 { var_bindings_.insert(std::make_pair(var, std::move(expr))); }
 
-Expression &Binding::get(shared_ptr<const Variable> param) const
+template<class ExprT>
+ExprT &Binding<ExprT>::get(shared_ptr<const Variable> param) const
 {
 	auto it = var_bindings_.find(param);
 	if (it == var_bindings_.end())
@@ -51,11 +54,13 @@ Expression &Binding::get(shared_ptr<const Variable> param) const
 	return *it->second;
 }
 
-const Binding::MapT &Binding::map() const
+template<class ExprT>
+const typename Binding<ExprT>::MapT &Binding<ExprT>::map() const
 { return var_bindings_; }
 
 
-void Binding::attach_semantics(SemanticsFactory &f)
+template<class ExprT>
+void Binding<ExprT>::attach_semantics(SemanticsFactory &f)
 {
 	if (!semantics_) {
 		set_semantics(f.make_semantics(*this));
@@ -65,7 +70,8 @@ void Binding::attach_semantics(SemanticsFactory &f)
 }
 
 
-string Binding::to_string(const string &pfx) const
+template<class ExprT>
+string Binding<ExprT>::to_string(const string &pfx) const
 {
 	string rv;
 	for (auto &entry : var_bindings_)
@@ -75,25 +81,49 @@ string Binding::to_string(const string &pfx) const
 	return rv;
 }
 
+
+template
+class Binding<Expression>;
+
+template
+class Binding<Value>;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-GeneralSemantics<Binding>::GeneralSemantics(const Binding &elem, AExecutionController &context)
+template<class ExprT>
+GeneralSemantics<Binding<ExprT>>::GeneralSemantics(const Binding<ExprT> &elem, AExecutionController &context)
 : element_(&elem)
 , context_(context)
 {}
 
-const Binding &GeneralSemantics<Binding>::element() const
+template<class ExprT>
+const Binding<ExprT> &GeneralSemantics<Binding<ExprT>>::element() const
 { return *element_; }
 
-void GeneralSemantics<Binding>::update_element(const Binding *new_element)
+template<class ExprT>
+void GeneralSemantics<Binding<ExprT>>::update_element(const Binding<ExprT> *new_element)
 { element_ = new_element; }
 
-AExecutionController &GeneralSemantics<Binding>::context() const
+template<class ExprT>
+AExecutionController &GeneralSemantics<Binding<ExprT>>::context() const
 { return context_; }
 
 
+template<class ExprT>
+const ModelElement &GeneralSemantics<Binding<ExprT>>::model_element() const
+{ return *element_; }
+
+template
+class GeneralSemantics<Binding<Expression>>;
+
+template
+class GeneralSemantics<Binding<Value>>;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Reference<Variable>::attach_semantics(SemanticsFactory &implementor)
 {

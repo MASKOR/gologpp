@@ -25,40 +25,42 @@
 #include <model/action.h>
 #include <model/fluent.h>
 #include <model/procedural.h>
+#include <model/variable.h>
 
 #include "semantics.h"
 #include "utilities.h"
 #include "variable.h"
-#include "value.h"
 
 #include "wrap_eclipseclass.h"
 
 
 namespace gologpp {
 
-template<class GologT> class Reference;
-
 
 EC_word pl_binding_chain(const BindingChain &b);
 
 
-template<>
-class Semantics<Binding>
-: public GeneralSemantics<Binding>
-, public ReadylogSemantics
+/// Disambiguate this against the generic Semantics<GologT, Cond>, which
+/// is also a partial specialization but requires this to be false in Cond.
+template<class ExprT>
+bool partially_specialized<Semantics<Binding<ExprT>>> = true;
+
+template<class ExprT>
+class Semantics<Binding<ExprT>>
+: public GeneralSemantics<Binding<ExprT>>
+, public Semantics<ModelElement>
 {
 public:
-	using GeneralSemantics<Binding>::GeneralSemantics;
+	using GeneralSemantics<Binding<ExprT>>::GeneralSemantics;
 
 	virtual EC_word plterm() override;
-	virtual Semantics<Binding> *copy(const Binding &target_element) const override;
-	virtual const Binding &model_element() const override;
+	virtual Semantics<Binding<ExprT>> *copy(const Binding<ExprT> &target_element) const override;
 };
 
 
 
-template<class GologT>
-EC_word reference_term(const ReferenceBase<GologT> &ref)
+template<class GologT, class ArgsT>
+EC_word reference_term(const ReferenceBase<GologT, ArgsT> &ref)
 {
 	if (ref.arity() > 0)
 		return ::term(EC_functor(ref.mangled_name().c_str(), ref.arity()),
@@ -72,21 +74,18 @@ EC_word reference_term(const ReferenceBase<GologT> &ref)
 EC_word reference_term(const Reference<Variable> &ref);
 
 
-template<>
-class Semantics<AbstractReference>
-{
-public:
-	virtual EC_word plterm() = 0;
-};
 
+/*/// Disambiguate this against the generic Semantics<GologT, Cond>, which
+/// is also a partial specialization but requires this to be false in Cond.
+template<class TargetT, class ArgsT>
+bool partially_specialized<Semantics<ReferenceBase<TargetT, ArgsT>>> = true;*/
 
-template<class TargetT>
+template<class TargetT, class ArgsT>
 class ReferenceSemantics
-: public GeneralSemantics<Reference<TargetT>>
-, public Semantics<AbstractReference>
+: public GeneralSemantics<Reference<TargetT, ArgsT>>
 {
 public:
-	using GeneralSemantics<Reference<TargetT>>::GeneralSemantics;
+	using GeneralSemantics<Reference<TargetT, ArgsT>>::GeneralSemantics;
 
 	bool args_need_eval() {
 		for (auto &expr : this->element().args())
@@ -137,33 +136,68 @@ public:
 };
 
 
-template<>
-class Semantics<Reference<ExogFunction>>
-: public ReferenceSemantics<ExogFunction>
-, public Semantics<typename Reference<ExogFunction>::ElementType>
+
+template<class TargetT, class ArgsT>
+bool partially_specialized<Semantics<Reference<TargetT, ArgsT>>> = true;
+
+
+template<class TargetT>
+class Semantics<Reference<TargetT, Value>>
+: public ReferenceSemantics<TargetT, Value>
+, public Semantics<typename TargetT::SignifierT>
 {
 public:
-	using ReferenceSemantics<ExogFunction>::ReferenceSemantics;
+	using ReferenceSemantics<TargetT, Value>::ReferenceSemantics;
+
+	Semantics<Reference<TargetT, Value>> *copy(const Reference<TargetT, Value> &target) const override
+	{ return new Semantics<Reference<TargetT, Value>>(target, this->context()); }
+
+	virtual EC_word plterm() override
+	{ return reference_term(this->element()); }
+};
+
+
+
+template<class TargetT>
+class Semantics<Reference<TargetT, Expression>>
+: public ReferenceSemantics<TargetT, Expression>
+, public Semantics<typename TargetT::SignifierT>
+{
+public:
+	using ReferenceSemantics<TargetT, Expression>::ReferenceSemantics;
+
+	virtual EC_word plterm() override
+	{ return reference_term(this->element()); }
+};
+
+
+
+template<>
+class Semantics<Reference<Variable>>
+: public Semantics<Expression>
+, public GeneralSemantics<Reference<Variable>>
+{
+public:
+	using GeneralSemantics<Reference<Variable>>::GeneralSemantics;
+
+	virtual EC_word plterm() override;
+};
+
+
+
+template<>
+class Semantics<Reference<ExogFunction>>
+: public GeneralSemantics<Reference<ExogFunction>>
+, public Semantics<Expression>
+{
+public:
+	using GeneralSemantics<Reference<ExogFunction>>::GeneralSemantics;
 
 	virtual EC_word plterm() override;
 	virtual Value evaluate(const BindingChain &bc, const History &h) override;
 	virtual const Expression &expression() const override;
 };
 
-
-
-
-template<class TargetT>
-class Semantics<Reference<TargetT>>
-: public ReferenceSemantics<TargetT>
-, public Semantics<typename Reference<TargetT>::ElementType>
-{
-public:
-	using ReferenceSemantics<TargetT>::ReferenceSemantics;
-
-	virtual EC_word plterm() override
-	{ return reference_term(this->element()); }
-};
 
 
 

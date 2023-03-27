@@ -23,46 +23,44 @@
 #include <model/action.h>
 #include "transition.h"
 
-#include <boost/optional.hpp>
-
+#include <condition_variable>
 
 namespace gologpp {
 
 
-class Activity
-: public ReferenceBase<Action>
-, public Reference<AbstractAction>
-, public Instruction
-, public LanguageElement<Activity, VoidType>
-, public std::enable_shared_from_this<Activity> {
+class Activity {
 public:
 	enum State { IDLE, RUNNING, FINAL, CANCELLED, FAILED };
 
-	Activity(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, AExecutionController &, State state = IDLE);
+	Activity(
+		const shared_ptr<Action> &action,
+		vector<unique_ptr<Value>> &&args,
+		AExecutionController &, State state = IDLE
+	);
+
 	Activity(const Transition &, AExecutionController &);
 
-	virtual const Action &operator * () const override;
-	virtual Action &operator * () override;
-	virtual const Action *operator -> () const override;
-	virtual Action *operator -> () override;
+	void update(Transition::Hook hook);
+	void wait_for_update();
 
 	State state() const;
 	void set_state(State s);
-
-	void update(Transition::Hook hook);
-
 	const std::string &mapped_name() const;
 	Value mapped_arg_value(const string &name) const;
-
-	virtual string to_string(const string &pfx) const override;
-
-	virtual void attach_semantics(SemanticsFactory &) override;
+	shared_ptr<Action> action() const;
+	vector<unique_ptr<Value>> args() const;
+	const Grounding<Action> &ref() const;
+	Grounding<Action> &ref();
 
 	static State target_state(Transition::Hook);
 
 private:
+	Grounding<Action> action_ref_;
+
 	State state_;
 	AExecutionController &exec_context_;
+	std::condition_variable update_condition_;
+	std::mutex update_mutex_;
 };
 
 

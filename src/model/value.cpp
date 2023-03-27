@@ -25,11 +25,11 @@ namespace gologpp {
 
 
 unique_ptr<Value>::unique_ptr(const unique_ptr<Value> &c)
-: std::unique_ptr<Value>(c->copy())
+: std::unique_ptr<Value>(new Value(*c))
 {}
 
 gologpp::unique_ptr<Value>::unique_ptr(const Value &v)
-: std::unique_ptr<Value>(v.copy())
+: std::unique_ptr<Value>(new Value(v))
 {}
 
 unique_ptr<Value> &unique_ptr<Value>::operator = (const unique_ptr<Value> &c)
@@ -247,9 +247,6 @@ size_t Value::hash() const
 
 string Value::to_string(const string &pfx) const
 { return boost::apply_visitor(to_string_visitor { pfx, !(get_type<SymbolType>() >= *this) }, representation_); }
-
-Value *Value::copy() const
-{ return new Value(*this); }
 
 
 bool Value::operator == (const Expression &e) const

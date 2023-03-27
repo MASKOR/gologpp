@@ -24,10 +24,9 @@ namespace gologpp {
 EC_word reference_term(const Reference<Variable> &ref)
 { return EC_atom(ref.name().c_str()); }
 
-template<>
+
 EC_word Semantics<Reference<Variable>>::plterm()
 { return element().target()->special_semantics().plterm(); }
-
 
 
 template<>
@@ -41,7 +40,14 @@ EC_word Semantics<Reference<Action>>::plterm()
 }
 
 
-EC_word gologpp::Semantics<Binding>::plterm()
+template<>
+EC_word Semantics<Reference<ExogAction>>::plterm()
+{ return reference_term(element()); }
+
+
+
+template<class ExprT>
+EC_word Semantics<Binding<ExprT>>::plterm()
 {
 	if (this->element().map().empty())
 		return EC_atom("true");
@@ -60,11 +66,16 @@ EC_word gologpp::Semantics<Binding>::plterm()
 	}
 }
 
-Semantics<Binding> *Semantics<Binding>::copy(const Binding &target_element) const
-{ return new Semantics<Binding>(target_element, rl_context()); }
+template<class ExprT>
+Semantics<Binding<ExprT>> *Semantics<Binding<ExprT>>::copy(const Binding<ExprT> &target_element) const
+{ return new Semantics<Binding<ExprT>>(target_element, rl_context()); }
 
-const Binding &Semantics<Binding >::model_element() const
-{ return this->element(); }
+
+template
+class Semantics<Binding<Expression>>;
+
+template
+class Semantics<Binding<Value>>;
 
 
 
@@ -72,7 +83,7 @@ EC_word pl_binding_chain(const BindingChain &bc)
 {
 	EC_word rv = EC_atom("true");
 	for (auto &b : bc)
-		rv = ::term(EC_functor(",", 2), rv, b->semantics<Binding>().plterm());
+		rv = ::term(EC_functor(",", 2), rv, b->semantics().plterm());
 	return rv;
 }
 
@@ -81,10 +92,10 @@ EC_word pl_binding_chain(const BindingChain &bc)
 EC_word Semantics<Reference<ExogFunction> >::plterm()
 { return reference_term(this->element()); }
 
-Value gologpp::Semantics<Reference<ExogFunction> >::evaluate(const BindingChain &bc, const History &h)
+Value Semantics<Reference<ExogFunction> >::evaluate(const BindingChain &bc, const History &h)
 { return GeneralSemantics<Reference<ExogFunction>>::evaluate(bc, h); }
 
-const Expression &gologpp::Semantics<Reference<ExogFunction> >::expression() const
+const Expression &Semantics<Reference<ExogFunction> >::expression() const
 { return GeneralSemantics<Reference<ExogFunction>>::expression(); }
 
 

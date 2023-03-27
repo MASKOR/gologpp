@@ -18,6 +18,7 @@
 #include "platform_backend.h"
 #include "controller.h"
 #include "activity.h"
+#include "transition.h"
 
 #include <model/logger.h>
 #include <model/platform/component_backend.h>
@@ -42,27 +43,26 @@ shared_ptr<Activity> PlatformBackend::start_activity(const Transition &trans)
 {
 	Lock l(lock());
 	shared_ptr<Activity> a = std::make_shared<Activity>(trans, *exec_ctx_);
-	auto it = activities_.find(a->hash());
+	auto it = activities_.find(a->ref().hash());
 	if (it != activities_.end())
 		throw UserError(
 			"Cannot start an action while another one with the same arguments is still running."
-			" Currently: " + it->second->str()
+			" Currently: " + it->second->ref().str()
 		);
-	a->attach_semantics(exec_context()->semantics_factory());
 	a->set_state(Activity::target_state(trans.hook()));
 	execute_activity(a);
-	activities_.insert({a->hash(), a});
+	activities_.insert({a->ref().hash(), a});
 	return a;
 }
 
 void PlatformBackend::cancel_activity(const Transition &trans)
 {
 	Lock l(lock());
-	auto it = activities_.find(trans.hash());
+	auto it = activities_.find(trans.ref().hash());
 	if (it == activities_.end())
-		throw Bug("Activity lost: " + trans->str());
+		throw Bug("Activity lost: " + trans.ref().str());
 	else if (it->second->state() != Activity::State::RUNNING)
-		log(LogLevel::ERR) << "Cannot cancel activity " << it->second->str() << flush;
+		log(LogLevel::ERR) << "Cannot cancel activity " << it->second->ref().str() << flush;
 	else
 		preempt_activity(std::dynamic_pointer_cast<Activity>(it->second));
 }
@@ -76,13 +76,13 @@ shared_ptr<Activity> PlatformBackend::erase_activity(const Transition &trans)
 {
 	Lock l(lock());
 
-	ActivityMap::iterator it = activities_.find(trans.hash());
+	ActivityMap::iterator it = activities_.find(trans.ref().hash());
 	shared_ptr<Activity> dur_running;
 	if (it != activities_.end())
 		dur_running = std::dynamic_pointer_cast<Activity>(it->second);
 
 	if (!dur_running)
-		throw LostTransition(trans->str());
+		throw LostTransition(trans.ref().str());
 
 	// Either the durative action's state exactly matches the primitive action's hook,
 	// or the hook is END, which may be executed if the durative state is either FINAL, FAILED or CANCELLED
@@ -99,7 +99,7 @@ shared_ptr<Activity> PlatformBackend::erase_activity(const Transition &trans)
 		return dur_running;
 	}
 	else
-		throw InconsistentTransition(trans->str());
+		throw InconsistentTransition(trans.ref().str());
 }
 
 
@@ -110,7 +110,7 @@ void PlatformBackend::set_context(AExecutionController *ctx)
 }
 
 
-Activity::State PlatformBackend::current_state(const ReferenceBase<Action> &a)
+Activity::State PlatformBackend::current_state(const Grounding<Action> &a)
 {
 	Lock l(lock());
 
@@ -118,7 +118,7 @@ Activity::State PlatformBackend::current_state(const ReferenceBase<Action> &a)
 	if (it == activities_.end())
 		return Activity::State::IDLE;
 	else {
-		return it->second->cast<Activity>().state();
+		return it->second->state();
 	}
 }
 

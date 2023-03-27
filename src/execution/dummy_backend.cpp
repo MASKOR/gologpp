@@ -72,13 +72,11 @@ std::function<void()> DummyBackend::rnd_exog_generator()
 				break;
 			shared_ptr<ExogAction> exog = exogs_[static_cast<size_t>(rnd_exog_index_(prng_))];
 
-			vector<unique_ptr<Expression>> args;
+			vector<unique_ptr<Value>> args;
 			for (shared_ptr<Variable> p : exog->params())
 				args.push_back(rnd_value(p->type()));
 
-			shared_ptr<Reference<AbstractAction>> event(new Reference<ExogAction>(exog, std::move(args)));
-			event->attach_semantics(exec_context()->semantics_factory());
-
+			shared_ptr<AbstractEvent> event(new ExogEvent(exog, std::move(args)));
 			exec_context()->exog_queue_push(event);
 		}
 		log(LogLevel::INF) << "exog generator TERMINATED" << flush;
@@ -124,7 +122,7 @@ void DummyBackend::preempt_activity(shared_ptr<Activity> a)
 {
 	std::lock_guard<std::mutex> locked(thread_mtx_);
 	if (activity_threads_.find(a) == activity_threads_.end())
-		throw EngineError("No such activity: " + a->str());
+		throw EngineError("No such activity: " + a->ref().str());
 	activity_threads_[a]->cancel();
 }
 

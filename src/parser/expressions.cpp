@@ -24,6 +24,10 @@
 #include <boost/spirit/include/qi_expect.hpp>
 #include <boost/spirit/include/qi_lit.hpp>
 #include <boost/spirit/include/qi_char.hpp>
+
+// This ends up including deprecated /usr/include/boost/spirit/include/phoenix.hpp,
+// So we're silencing the warning until boost is fixed.
+#define BOOST_ALLOW_DEPRECATED_HEADERS
 #include <boost/spirit/include/qi_string.hpp>
 
 #include <boost/phoenix/bind/bind_member_function.hpp>
@@ -37,13 +41,13 @@
 #include <boost/spirit/include/support_argument.hpp>
 
 #include "types.h"
+#include "domain.h"
 #include "arithmetic.h"
 #include "formula.h"
 #include "string_expression.h"
 #include "symbolic_expression.h"
-#include "compound_expression.h"
-#include "list_expression.h"
-#include "mixed_member_access.h"
+#include "compound.h"
+#include "list.h"
 
 #include <model/procedural.h>
 

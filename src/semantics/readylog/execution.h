@@ -19,8 +19,10 @@
 #define READYLOG_EXECUTION_H_
 
 #include <iostream>
+#include <filesystem>
 
 #include <execution/controller.h>
+#include <execution/transformation.h>
 #include "wrap_eclipseclass.h"
 
 namespace gologpp {
@@ -33,18 +35,21 @@ struct eclipse_opts {
 	bool toplevel = false;
 };
 
-class ReadylogContext : public ExecutionController {
+class ReadylogContext : public AExecutionController {
 public:
 	virtual ~ReadylogContext() override;
 
 	static void init(
 		const eclipse_opts &options = {false, false, false},
 		unique_ptr<PlatformBackend> &&backend = nullptr,
-		unique_ptr<PlanTransformation> &&transformation = nullptr
+		unique_ptr<PlanTransformation> &&transformation = nullptr,
+		const std::initializer_list<string> &add_search_paths = {}
 	);
 
 	static void shutdown();
 	static ReadylogContext &instance();
+
+	virtual void run(const Instruction &program) override;
 
 	virtual void precompile() override;
 	virtual void compile(const Action &) override;
@@ -66,10 +71,13 @@ private:
     ReadylogContext(
 		const eclipse_opts &options,
 		unique_ptr<PlatformBackend> &&exec_backend,
-		unique_ptr<PlanTransformation> &&transformation
+		unique_ptr<PlanTransformation> &&transformation,
+		const std::initializer_list<string> &add_search_paths = {}
 	);
 
-    virtual void compile_term(const EC_word &term);
+	using path = std::filesystem::path;
+
+    void compile_term(const EC_word &term);
     std::string find_readylog();
     std::string find_boilerplate();
 	void mark_vars_dead();
@@ -78,6 +86,8 @@ private:
 	int last_rv_;
 	eclipse_opts options_;
 	static unique_ptr<ReadylogContext> instance_;
+	unique_ptr<PlanTransformation> plan_transformation_;
+	vector<path> search_paths_;
 };
 
 

@@ -15,39 +15,37 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef GOLOGPP_TRANSITION_H_
-#define GOLOGPP_TRANSITION_H_
+#pragma once
 
 #include <model/gologpp.h>
 #include <model/reference.h>
 #include <model/action.h>
 #include <model/expressions.h>
 #include <model/procedural.h>
+#include <execution/event.h>
 
 namespace gologpp {
 
 
+template<>
+inline constexpr const bool is_copyable<Transition> = true;
+
 class Transition
-: public ReferenceBase<Action>
-, public Reference<AbstractAction>
-, public Instruction
+: public Instruction
+, public Event<Action>
 , public LanguageElement<Transition, VoidType>
-, public std::enable_shared_from_this<Transition>
 {
 public:
 	using Hook = DurativeCall::Hook;
 
-	Transition(const shared_ptr<Action> &action, vector<unique_ptr<Expression>> &&args, Hook hook);
+	using Event<Action>::Event;
 	Transition(const Transition &);
-
-	virtual const Action &operator * () const override;
-	virtual Action &operator * () override;
-	virtual const Action *operator -> () const override;
-	virtual Action *operator -> () override;
+	Transition(shared_ptr<Action> action, vector<unique_ptr<Value>> &&value, Hook hook);
 
 	Hook hook() const;
 	virtual string to_string(const string &pfx) const override;
-	virtual void attach_semantics(SemanticsFactory &) override;
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(ground_action_)
 
 private:
 	Hook hook_;
@@ -62,8 +60,6 @@ class GeneralSemantics<Transition>
 public:
 	GeneralSemantics(const Transition &elem, AExecutionController &context);
 	GeneralSemantics(const GeneralSemantics<Transition> &other);
-
-	virtual unique_ptr<Plan> trans(const BindingChain &, History &) override;
 
 	const Transition &element() const;
 	virtual const ModelElement &model_element() const override;
@@ -82,6 +78,22 @@ private:
 
 
 
+template<>
+inline constexpr const bool is_copyable<ExogEvent> = true;
+
+class ExogEvent
+: public Event<ExogAction>
+, public LanguageElement<ExogEvent, VoidType>
+, public Instruction
+{
+public:
+	using Event<ExogAction>::Event;
+	ExogEvent(const ExogEvent &other);
+
+	DEFINE_ATTACH_SEMANTICS_WITH_MEMBERS(ground_action_)
+};
+
+
+
 }
 
-#endif // GOLOGPP_TRANSITION_H_

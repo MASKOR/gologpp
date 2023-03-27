@@ -16,7 +16,7 @@
 **************************************************************************/
 
 #include "wrap_eclipseclass.h"
-#include <experimental/filesystem>
+#include <filesystem>
 
 #include "value.h"
 #include "execution.h"
@@ -26,6 +26,7 @@
 #include "utilities.h"
 #include "history.h"
 #include "transition.h"
+#include "event.h"
 
 #include <execution/plan.h>
 #include <execution/transformation.h>
@@ -34,11 +35,15 @@
 #include <model/logger.h>
 
 #include <model/platform/semantics.h>
+#include <model/platform/switch_state_action.h>
+#include <model/platform/component_backend.h>
 
-namespace filesystem = std::experimental::filesystem;
+#include <model/utilities.h>
+
 
 namespace gologpp {
 
+namespace filesystem = std::filesystem;
 
 unique_ptr<ReadylogContext> ReadylogContext::instance_;
 
@@ -54,14 +59,20 @@ void ReadylogContext::shutdown()
 ReadylogContext::ReadylogContext(
 	const eclipse_opts &options,
 	unique_ptr<PlatformBackend> &&exec_backend,
-	unique_ptr<PlanTransformation> &&transformation
+	unique_ptr<PlanTransformation> &&transformation,
+	const std::initializer_list<string> &add_search_paths
 )
-: ExecutionController(
-  	std::move(exec_backend),
-  	std::move(transformation)
-  )
+: AExecutionController(std::move(exec_backend))
 , options_(options)
+, plan_transformation_(std::move(transformation))
+, search_paths_(add_search_paths.begin(), add_search_paths.end())
 {
+	search_paths_.emplace_back(path(SEMANTICS_INSTALL_DIR) / "readylog");
+	search_paths_.emplace_back(path(SOURCE_DIR) / "src" / "semantics" / "readylog");
+
+	if (!plan_transformation_)
+		plan_transformation_ = std::make_unique<DummyPlanTransformation>();
+
 	Logger::Guard lg(LogLevel::DBG);
 	ec_set_option_ptr(EC_OPTION_ECLIPSEDIR, const_cast<void *>(static_cast<const void *>(ECLIPSE_DIR)));
 	std::cout << "Using eclipse-clp in " << ECLIPSE_DIR << std::endl;
@@ -119,12 +130,17 @@ ReadylogContext::ReadylogContext(
 ReadylogContext::~ReadylogContext()
 {}
 
-void ReadylogContext::init(const eclipse_opts &options, unique_ptr<PlatformBackend> &&backend, unique_ptr<PlanTransformation> &&transformation)
-{
+void ReadylogContext::init(
+	const eclipse_opts &options,
+	unique_ptr<PlatformBackend> &&backend,
+	unique_ptr<PlanTransformation> &&transformation,
+	const std::initializer_list<string> &add_search_paths
+) {
 	instance_ = unique_ptr<ReadylogContext>(new ReadylogContext(
 		options,
 		std::move(backend),
-		std::move(transformation)
+		std::move(transformation),
+		add_search_paths
 	) );
 }
 
@@ -186,44 +202,35 @@ void ReadylogContext::compile_term(const EC_word &term)
 }
 
 std::string ReadylogContext::find_readylog() {
-	const char *readylog_pl = std::getenv("READYLOG_PL");
-	std::string readylog_path_env = "";
-	if (readylog_pl) {
-		readylog_path_env = std::string(readylog_pl) + ":";
+	using path = filesystem::path;
+
+	vector<path> paths;
+
+	const char *readylog_env = std::getenv("READYLOG_PL");
+	if (readylog_env)
+		paths.push_back(path(readylog_env) / "preprocessor.pl");
+
+	for (path p : search_paths_)
+		paths.emplace_back(p / "readylog_ecl" / "interpreter" / "preprocessor.pl");
+
+	for (path p : paths) {
+		if (filesystem::exists(p))
+			return string(p);
 	}
-	readylog_path_env += (std::string(SEMANTICS_INSTALL_DIR) + "/readylog/interpreter");
-	std::size_t last = 0;
-	std::size_t next;
-	while (true) {
-		next = readylog_path_env.find(':', last);
-		std::string next_path = readylog_path_env.substr(last, next - last);
-		if (next_path != "") {
-			filesystem::path readylog_path(next_path);
-			readylog_path /= "preprocessor.pl";
-			if (filesystem::exists(readylog_path))
-				return std::string(readylog_path);
-		}
-		if (next == std::string::npos) {
-			throw std::runtime_error("Could not find ReadyLog in \"" + readylog_path_env
-			                         + "\" please set READYLOG_PL to the ReadyLog path!");
-		}
-		last = next + 1;
-	}
+	throw std::runtime_error("Could not find ReadyLog in \"" + concat_list(paths, ", ")
+	                         + "\" please set READYLOG_PL to the ReadyLog path!");
 }
 
 std::string ReadylogContext::find_boilerplate() {
-	filesystem::path boilerplate_src_path{SOURCE_DIR};
-	boilerplate_src_path /= "src/semantics/readylog/boilerplate.pl";
-	if (filesystem::exists(boilerplate_src_path)) {
-		return boilerplate_src_path.string();
+	using path = filesystem::path;
+
+	for (path p : search_paths_) {
+		p /= "boilerplate.pl";
+		if (filesystem::exists(p))
+			return p;
 	}
-	filesystem::path boilerplate_install_path{SEMANTICS_INSTALL_DIR};
-	boilerplate_install_path /= "readylog/boilerplate.pl";
-	if (filesystem::exists(boilerplate_install_path)) {
-		return boilerplate_install_path.string();
-	}
-	throw std::runtime_error("Could not find readylog boilerplate in " + boilerplate_src_path.string()
-	                         + " or " + boilerplate_install_path.string());
+
+	throw std::runtime_error("Could not find readylog boilerplate.pl in " + concat_list(search_paths_, ", "));
 }
 
 
@@ -293,6 +300,123 @@ bool ReadylogContext::ec_query(EC_word t)
 
 	return last_rv_ == EC_status::EC_succeed;
 }
+
+
+void ReadylogContext::run(const Instruction &program)
+{
+	try {
+		history().attach_semantics(semantics_factory());
+		global_scope().implement_globals(semantics_factory(), *this);
+
+		plan_transformation_->init(*this);
+
+		while (!program.general_semantics().final({}, history())) {
+			set_silent(true);
+
+			unique_ptr<Plan> plan {
+				program.general_semantics().trans({}, history())
+			};
+
+			if (plan) {
+				plan = plan_transformation_->transform(std::move(*plan));
+
+				log(LogLevel::INF) << "<<< Transformed schedule: " << *plan << flush;
+
+				while (!plan->elements().empty()) {
+					set_silent(true);
+
+					if (terminated)
+						throw Terminate();
+
+					if (!exog_empty()) {
+						drain_exog_queue();
+						if (backend().any_component_state_changed_exog())
+							plan = plan_transformation_->transform(std::move(*plan));
+					}
+
+					unique_ptr<Plan> empty_plan;
+
+					if (plan->elements().front().earliest_timepoint() > context_time()) {
+						backend().schedule_timer_event(
+							plan->elements().front().earliest_timepoint()
+						);
+					}
+					else {
+						// Plan elements are expected to not return plans again (nullptr or empty Plan).
+						empty_plan = plan->elements().front().instruction()
+							.general_semantics().trans({}, history())
+						;
+					}
+
+					Clock::time_point timeout = plan->next_timeout();
+
+					if (empty_plan) {
+						// Empty plan: successfully executed
+						if (!empty_plan->elements().empty())
+							throw Bug(
+								"Plan instruction returned a plan: "
+								+ plan->elements().front().instruction().str()
+							);
+						plan->elements().erase(plan->elements().begin());
+					}
+					else {
+						// Current Plan element not executable
+						try {
+							drain_exog_queue_blocking(timeout);
+						} catch (ExogTimeout &)
+						{
+							exog_timer_wakeup();
+							log(LogLevel::ERR) << "=== Next-action timeout " << timeout << " exceeded" << flush;
+
+							auto sw_state = dynamic_cast<const Reference<platform::SwitchStateAction> *>(
+								&plan->elements().front().instruction()
+							);
+							if (sw_state) {
+								global_scope().lookup_global<platform::Component>(
+									static_cast<string>(dynamic_cast<const Value &>(
+										sw_state->arg_for_param(sw_state->target()->param_component())
+									))
+								)->backend().handle_missed_transition();
+							}
+
+							drain_exog_queue();
+						}
+
+						if (context_time() > plan->elements().front().latest_timepoint()
+							|| backend().any_component_state_changed_exog()
+						) {
+							// First plan element's time window has passed: replan!
+							log(LogLevel::INF) << "=== Re-transforming..." << flush;
+							plan->make_start_slack(Clock::seconds(16384));
+							plan = plan_transformation_->transform(std::move(*plan));
+							log(LogLevel::INF) << "=== New schedule " << *plan << flush;
+						}
+					}
+
+					if (history().general_semantics<History>().should_progress()) {
+						log(LogLevel::DBG) << "=== Progressing history." << flush;
+						history().general_semantics<History>().progress();
+					}
+				}
+			}
+			else {
+				drain_exog_queue_blocking(nullopt);
+			}
+
+			if (terminated)
+				throw Terminate();
+
+		}
+	} catch (Terminate &) {
+		log(LogLevel::DBG) << ">>> Terminated." << flush;
+	}
+}
+
+
+
+template<>
+EC_word Semantics<platform::SwitchStateEvent>::plterm()
+{ return element().ref().semantics().plterm(); }
 
 
 

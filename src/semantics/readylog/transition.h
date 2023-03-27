@@ -30,19 +30,29 @@ class Semantics<Transition>
 , public Semantics<Instruction>
 {
 public:
-	Semantics(const Transition &elem, ExecutionController &context);
+	using GeneralSemantics<Transition>::GeneralSemantics;
 	virtual ~Semantics() override = default;
 
 	virtual EC_word plterm() override;
 
 	virtual unique_ptr<Plan> trans(const BindingChain &b, History &h) override;
-	virtual const Instruction &instruction() const override;
-
 	virtual Semantics<Transition> *copy(const Transition &target_element) const override;
-
 	static shared_ptr<Transition> transition_from_plterm(EC_word);
 };
 
 
+
+template<>
+class Semantics<ExogEvent>
+: public GeneralSemantics<ExogEvent>
+, public Semantics<Instruction>
+{
+public:
+	using GeneralSemantics<ExogEvent>::GeneralSemantics;
+
+	virtual EC_word plterm() override;
+	virtual unique_ptr<Plan> trans(const BindingChain &b, History &h) override;
+	virtual Semantics<ExogEvent> *copy(const ExogEvent &target_element) const override;
+};
 
 } // namespace gologpp

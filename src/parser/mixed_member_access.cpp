@@ -17,9 +17,9 @@
 
 #include "mixed_member_access.h"
 #include "types.h"
-#include "compound_expression.h"
+#include "compound.h"
 #include "expressions.h"
-#include "list_expression.h"
+#include "list.h"
 
 #include <boost/spirit/include/qi_sequence.hpp>
 #include <boost/spirit/include/qi_alternative.hpp>
@@ -37,7 +37,8 @@
 #include <boost/phoenix/bind/bind_member_function.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
 
-#include <model/procedural.h>
+#include <model/list.h>
+#include <model/compound.h>
 
 
 namespace gologpp {

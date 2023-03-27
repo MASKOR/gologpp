@@ -138,7 +138,7 @@ vector<taptenc::PlanAction> TaptencTransformation::plan_gpp_to_taptenc(Plan &&p)
 	for (auto &ti : p.elements()) {
 		if (ti.instruction().is_a<Transition>()) {
 			Transition &trans = ti.instruction().cast<Transition>();
-			std::string actstr = gologpp::to_string(trans.hook()) + "G" + trans->name();
+			std::string actstr = gologpp::to_string(trans.hook()) + "G" + trans.ref().name();
 
 			std::vector<std::string> argstr;
 			for (auto &arg : trans.args())
@@ -155,7 +155,7 @@ vector<taptenc::PlanAction> TaptencTransformation::plan_gpp_to_taptenc(Plan &&p)
 					boost::numeric_cast<taptenc::timepoint>(earliest_shifted),
 					boost::numeric_cast<taptenc::timepoint>(latest_shifted)
 				),
-				taptenc::Bounds(trans->duration().min.count(), trans->duration().max.count())
+				taptenc::Bounds(trans.ref()->duration().min.count(), trans.ref()->duration().max.count())
 			} );
 		}
 		else {
@@ -190,14 +190,14 @@ unique_ptr<Plan> TaptencTransformation::plan_taptenc_to_gpp(taptenc::timed_trace
 
 std::string TaptencTransformation::store_arg(Value &v)
 {
-	auto it = arg_to_sym_.find(unique_ptr<Value>(v.copy()));
+	auto it = arg_to_sym_.find(unique_ptr<Value>(new Value(v)));
 	if (it != arg_to_sym_.end())
 		return it->second;
 	else {
 		size_t count = arg_to_sym_.size();
 		std::string rv = "arg" + std::to_string(count);
-		arg_to_sym_.insert({ unique_ptr<Value>(v.copy()), rv });
-		sym_to_arg_.insert({ rv, unique_ptr<Value>(v.copy()) });
+		arg_to_sym_.insert({ unique_ptr<Value>(new Value(v)), rv });
+		sym_to_arg_.insert({ rv, unique_ptr<Value>(new Value(v)) });
 		return rv;
 	}
 }
@@ -208,7 +208,7 @@ Value *TaptencTransformation::retrieve_arg(std::string taptenc_symbolic_arg)
 	auto it = sym_to_arg_.find(taptenc_symbolic_arg);
 	if (it == sym_to_arg_.end())
 		throw Bug("Cannot retrieve argument from storage: " + taptenc_symbolic_arg);
-	return it->second->copy();
+	return new Value(*it->second);
 }
 
 
@@ -236,7 +236,7 @@ TimedInstruction TaptencTransformation::parse_domain_action(
 	string act_name = tt_action.substr(hook_sep + 1, brace_opn - (hook_sep + 1));
 
 	string argstr = tt_action.substr(brace_opn + 1, brace_cls - (brace_opn + 1));
-	vector<unique_ptr<Expression>> args;
+	vector<unique_ptr<Value>> args;
 	while (argstr.size()) {
 		auto arg_sep = argstr.find(taptenc::constants::VAR_SEP);
 		args.emplace_back(retrieve_arg(argstr.substr(0, arg_sep)));

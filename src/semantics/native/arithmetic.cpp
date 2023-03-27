@@ -15,40 +15,26 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef GOLOGPP_COMPOUND_EXPRESSION_H_
-#define GOLOGPP_COMPOUND_EXPRESSION_H_
+#include <model/arithmetic.h>
+#include <model/value.h>
 
-#include "language.h"
-#include "gologpp.h"
-#include "expressions.h"
-#include "scope.h"
-#include "types.h"
-
-#include <unordered_map>
+#include "arithmetic.h"
+#include "semantics.h"
 
 namespace gologpp {
 
 
-class CompoundExpression
-: public Expression
-, public LanguageElement<CompoundExpression>
-, public NoScopeOwner
+template<>
+Value Semantics<ArithmeticOperation>::evaluate(const BindingChain &b, const History &h)
 {
-public:
-	CompoundExpression(const Type &type, const vector<fusion_wtf_vector<string, Expression *>> &entries);
-
-	const Expression &entry(const string &key) const;
-
-	virtual void attach_semantics(SemanticsFactory &) override;
-	virtual string to_string(const string &pfx) const override;
-	const CompoundType &compound_type() const;
-
-private:
-	std::unordered_map<string, unique_ptr<Expression>> entries_;
-};
+	switch (element().op()) {
+	case ArithmeticOperation::Operator::POWER:
+		return element().lhs().semantics<Expression>().evaluate(b, h).pow(
+			element().lhs().semantics<Expression>().evaluate(b, h)
+		);
+	}
+}
 
 
 
-} // namespace gologpp
-
-#endif // GOLOGPP_COMPOUND_EXPRESSION_H_
+}

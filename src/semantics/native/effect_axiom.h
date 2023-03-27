@@ -15,16 +15,23 @@
  * along with golog++.  If not, see <https://www.gnu.org/licenses/>.
 **************************************************************************/
 
-#ifndef READYLOG_COMPOUND_EXPRESSION_H_
-#define READYLOG_COMPOUND_EXPRESSION_H_
+#ifndef READYLOG_EFFECTAXIOM_H_
+#define READYLOG_EFFECTAXIOM_H_
 
 #include "semantics.h"
 
-#include <model/compound_expression.h>
+#include <model/effect_axiom.h>
+#include "reference.h"
+#include <model/action.h>
+#include <model/fluent.h>
+#include "scope.h"
+#include "execution.h"
+
 
 namespace gologpp {
 
 
-}
 
-#endif // READYLOG_COMPOUND_EXPRESSION_H_
+} /* namespace gologpp */
+
+#endif /* READYLOG_EFFECTAXIOM_H_ */

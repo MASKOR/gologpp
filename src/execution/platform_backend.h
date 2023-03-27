@@ -22,7 +22,6 @@
 #include <model/action.h>
 #include <model/reference.h>
 
-#include "transition.h"
 #include "activity.h"
 #include "clock.h"
 
@@ -50,6 +49,7 @@ public:
 
 	shared_ptr<Activity> erase_activity(const Transition &);
 	shared_ptr<Activity> start_activity(const Transition &);
+	shared_ptr<Activity> end_activity(const Transition &);
 	void cancel_activity(const Transition &);
 	Lock lock();
 
@@ -57,7 +57,7 @@ public:
 	void set_context(AExecutionController *ctx);
 	AExecutionController *exec_context();
 
-	Activity::State current_state(const ReferenceBase<Action> &);
+	Activity::State current_state(const Grounding<Action> &);
 
 	void terminate();
 	virtual void schedule_timer_event(Clock::time_point when);

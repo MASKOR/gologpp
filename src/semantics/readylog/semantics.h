@@ -44,31 +44,32 @@ public:
 	BOOST_PP_SEQ_FOR_EACH(GOLOGPP_DECL_MAKE_SEMANTICS_OVERRIDE, (), GOLOGPP_SEMANTIC_TYPES)
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/***********************************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-class ReadylogSemantics
+template<>
+class Semantics<ModelElement>
 : public virtual GeneralSemantics<ModelElement>
 {
 public:
-	using GeneralSemantics<ModelElement>::GeneralSemantics;
+	virtual ~Semantics() override = default;
+	virtual EC_word plterm() = 0;
 
 	ReadylogContext &rl_context() const;
-
-	virtual EC_word plterm() = 0;
 };
 
 
 template<>
 class Semantics<Expression>
 : public virtual GeneralSemantics<Expression>
-, public ReadylogSemantics
+, public Semantics<ModelElement>
 {
 public:
 	using GeneralSemantics<Expression>::GeneralSemantics;
 
-	virtual ~Semantics<Expression>() override = default;
+	virtual ~Semantics() override = default;
 	virtual Value evaluate(const BindingChain &b, const History &h) override;
-	virtual const Expression &expression() const override;
 };
 
 
@@ -76,43 +77,79 @@ public:
 template<>
 class Semantics<Instruction>
 : public virtual GeneralSemantics<Instruction>
-, public ReadylogSemantics
+, public Semantics<ModelElement>
 {
 public:
 	using GeneralSemantics<Instruction>::GeneralSemantics;
 
-	virtual ~Semantics<Instruction>() override = default;
+	virtual ~Semantics() override = default;
+
 	virtual unique_ptr<Plan> trans(const BindingChain &b, History &h) override;
 	virtual bool final(const BindingChain &b, const History &h) override;
 
 	EC_word next_readylog_term();
-	virtual const Instruction &instruction() const override;
 
 protected:
 	ManagedTerm next_readylog_term_;
 };
 
 
-
-template<>
-class Semantics<Type>
-: public virtual GeneralSemantics<ModelElement>
+template<class GologT>
+class Semantics<GologT, enable_if <
+	!partially_specialized<Semantics<GologT>>
+	&& is_expression<GologT>
+> >
+: public GeneralSemantics<GologT>
+, public Semantics<Expression>
 {
+public:
+	using GeneralSemantics<GologT>::GeneralSemantics;
+	virtual ~Semantics() override = default;
+
+	virtual EC_word plterm() override;
+
+	ReadylogContext &rl_context() const
+	{ return dynamic_cast<ReadylogContext &>(GeneralSemantics<GologT>::context()); }
+};
+
+
+template<class GologT>
+class Semantics<GologT, enable_if <
+	!partially_specialized<Semantics<GologT>>
+	&& is_instruction<GologT>
+> >
+: public GeneralSemantics<GologT>
+, public Semantics<Instruction>
+{
+public:
+	using GeneralSemantics<GologT>::GeneralSemantics;
+	virtual ~Semantics() override = default;
+
+	virtual EC_word plterm() override;
+
+	ReadylogContext &rl_context() const
+	{ return dynamic_cast<ReadylogContext &>(GeneralSemantics<GologT>::context()); }
 };
 
 
 
 template<class GologT>
-class Semantics
-: public Semantics<typename GologT::ElementType>
-, public GeneralSemantics<GologT>
+class Semantics<GologT, enable_if <
+	!partially_specialized<Semantics<GologT>>
+	&& !is_expression<GologT>
+	&& !is_instruction<GologT>
+> >
+: public GeneralSemantics<GologT>
+, public Semantics<ModelElement>
 {
 public:
 	using GeneralSemantics<GologT>::GeneralSemantics;
+	virtual ~Semantics() override = default;
+
 	virtual EC_word plterm() override;
 
-	virtual const GologT &model_element() const override
-	{ return GeneralSemantics<GologT>::element(); }
+	ReadylogContext &rl_context() const
+	{ return dynamic_cast<ReadylogContext &>(GeneralSemantics<GologT>::context()); }
 };
 
 

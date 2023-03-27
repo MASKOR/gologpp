@@ -20,10 +20,8 @@
 
 #include "utilities.h"
 #include "action.h"
-#include "reference.h"
 #include "language.h"
 #include "expressions.h"
-#include "fluent.h"
 #include "procedural.h"
 
 #include <boost/optional.hpp>
@@ -39,6 +37,8 @@ class AbstractEffectAxiom
 : public virtual AbstractLanguageElement
 {
 public:
+	using ElementType = ModelElement;
+
 	AbstractEffectAxiom();
 	AbstractEffectAxiom(AbstractEffectAxiom &&) = default;
 	virtual ~AbstractEffectAxiom();
@@ -63,8 +63,6 @@ class EffectAxiom
 , public LanguageElement<EffectAxiom<LhsT>>
 {
 public:
-	using ElementType = ModelElement;
-
 	EffectAxiom()
 	{}
 
