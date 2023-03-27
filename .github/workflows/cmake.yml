@@ -26,6 +26,9 @@ jobs:
 
     - name: install-deps
       run: sudo apt install libboost-all-dev wget
+    
+    - name: update submodules
+      run: git submodule update --force --init --checkout 
       
     - name: install eclipse-clp
       run: |
