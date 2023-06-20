@@ -255,16 +255,16 @@ causes_val(
 .
 
 
-% stop action
+% cancel action
 % ===========
-prim_action(stop(A)) :- durative_action(A).
-poss(stop(A),
+prim_action(cancel(A)) :- durative_action(A).
+poss(cancel(A),
 	lif(online = true
 		, state(A) = running
 		, true
 	)
 ) :- durative_action(A).
-causes_val(stop(A), state(A), cancelled, true) :- durative_action(A).
+causes_val(cancel(A), state(A), cancelled, true) :- durative_action(A).
 
 
 % fail action

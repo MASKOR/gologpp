@@ -188,7 +188,8 @@ void DummyBackend::ActivityThread::cancel()
 {
 	cancel_ = true;
 	cancel_cond_.notify_all();
-	thread_.join();
+	if (thread_.joinable())
+		thread_.join();
 }
 
 
