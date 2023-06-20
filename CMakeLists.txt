@@ -365,7 +365,7 @@ if (${BUILD_READYLOG_SEMANTICS})
 
 	if (INSTALL_READYLOG_INTERPRETER)
 		install(
-			DIRECTORY src/semantics/readylog/interpreter
+			DIRECTORY src/semantics/readylog/readylog_ecl/interpreter
 			DESTINATION ${SEMANTICS_INSTALL_DIR}/readylog
 		)
 	endif()
