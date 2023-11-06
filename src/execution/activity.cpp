@@ -120,7 +120,7 @@ string to_string(Activity::State s)
 	case Activity::State::RUNNING:
 		return "running";
 	case Activity::State::CANCELLED:
-		return "preempted";
+		return "cancelled";
 	case Activity::State::FINAL:
 		return "final";
 	case Activity::State::FAILED:
